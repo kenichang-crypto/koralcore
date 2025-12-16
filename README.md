@@ -1,16 +1,103 @@
 # koralcore
 
-A new Flutter project.
+**koralcore** 是一個以 Flutter 為基礎的 **IoT Device Platform Core**，  
+用於管理與控制多種水族設備（如 LED、Doser），  
+目標是成為 **跨平台、可擴充、長期可維護** 的核心架構。
 
-## Getting Started
+> 本專案不是單純的 UI App，而是「設備平台核心（Platform Core）」。
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## 🎯 專案目標（Goals）
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- 建立一個 **跨平台（Flutter）** 的設備核心架構
+- 將 **設備邏輯（Domain）** 與 **平台實作（Android / iOS）** 明確分離
+- 支援多設備類型（LED、Doser、未來設備）
+- 能從現有 Android 原生 App **逐步遷移**，而非一次重寫
+- 提供穩定結構，方便 AI（Copilot / Codex）輔助開發與重構
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## 🧱 架構總覽（High-level Architecture）
+
+
+---
+
+## 📁 目錄結構說明
+
+### `lib/domain/`
+**設備與業務核心（純 Dart，無 Flutter / Platform 依賴）**
+
+- 不 import Flutter
+- 不包含 BLE / UI / Storage
+- 可直接做單元測試
+
+
+---
+
+### `lib/platform/contracts/`
+**Platform Port（抽象接口層）**
+
+- 定義「Domain 需要什麼能力」
+- 不關心是 Android / iOS / BLE / Mock
+
+
+> 實作會放在 Android / iOS Plugin 中，而不是這個 repo。
+
+---
+
+### `test/`
+**Domain 單元測試**
+
+
+---
+
+## 🚫 本專案刻意不包含的內容
+
+- ❌ BLE 實作
+- ❌ UI / Widget / 畫面
+- ❌ Android / iOS 平台細節
+- ❌ Database / Storage
+- ❌ 狀態管理框架（Riverpod / Bloc 等）
+
+這些會在 **平台層或 UI 專案** 中處理。
+
+---
+
+## 🔁 與舊 Android App 的關係
+
+- 舊專案：`reef-b-app`（Android 原生）
+- 本專案：**新平台核心（Flutter / Dart）**
+
+遷移策略：
+- 先把 **計算、規則、驗證、Firmware 分支** 抽成純 Domain
+- 再逐步由 Android 呼叫 → Flutter 呼叫
+- 最後才處理 UI 與平台實作
+
+---
+
+## 🧠 設計原則（Design Principles）
+
+- Domain First（先有設備邏輯，再談平台）
+- Interface Driven（先定 Port，再做實作）
+- 可測試（Testable by default）
+- 可擴充（新增設備 ≠ 修改舊設備）
+- AI-friendly（結構清楚，方便 Copilot / Codex 理解）
+
+---
+
+## 📌 專案狀態
+
+- ✅ Flutter 專案骨架完成
+- ✅ Domain（LED / Doser）結構已建立
+- ⏳ Android / iOS Plugin 尚未實作
+- ⏳ UI / Presentation 尚未加入
+
+---
+
+## 🔜 下一步（Planned）
+
+- 建立 Android Plugin（對應既有 BLE）
+- 將 Android 的 dosing / LED 邏輯對照搬移
+- 建立 Device Platform Core（Registry / Capability）
+- 再引入 Flutter UI 層

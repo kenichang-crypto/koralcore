@@ -1,4 +1,4 @@
-import 'dosing_input.dart';
+import 'dose_value.dart';
 
 /// 滴液 Domain 規則定義
 ///

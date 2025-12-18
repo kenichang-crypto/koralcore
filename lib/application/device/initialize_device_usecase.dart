@@ -14,6 +14,13 @@
 /// - BLE adapter for system commands
 /// - Device repository to persist device metadata
 ///
+library;
+
+import '../../core/capability/capability_id.dart';
+import '../../domain/device/capability_set.dart';
+import '../../domain/device/device_context.dart';
+import '../../domain/device/device_product.dart';
+import '../../domain/device/firmware_version.dart';
 import '../../platform/contracts/device_repository.dart';
 import '../../platform/contracts/system_repository.dart';
 
@@ -26,7 +33,7 @@ class InitializeDeviceUseCase {
     required this.systemRepository,
   });
 
-  Future<void> execute({required String deviceId}) async {
+  Future<DeviceContext> execute({required String deviceId}) async {
     // 1) Read Device Info
     // TODO: await ReadDeviceInfoUseCase().execute(deviceId: deviceId)
     final deviceInfo = await systemRepository.readDeviceInfo(deviceId);
@@ -35,16 +42,36 @@ class InitializeDeviceUseCase {
 
     // 2) Read Firmware Version
     // TODO: await ReadFirmwareVersionUseCase().execute(deviceId: deviceId)
-    final fw = await systemRepository.readFirmwareVersion(deviceId);
-    // TODO: deviceRepository.saveFirmware(deviceId, fw)
+    final firmwareVersionString = await systemRepository.readFirmwareVersion(
+      deviceId,
+    );
+    final firmware = FirmwareVersion(firmwareVersionString);
+    // TODO: deviceRepository.saveFirmware(deviceId, firmware)
 
     // 3) Read Product ID (if applicable)
     // TODO: await ReadDeviceInfoUseCase.productId or separate usecase
 
     // 4) Read Capability
     // TODO: await ReadCapabilityUseCase().execute(deviceId: deviceId)
-    final caps = await systemRepository.readCapability(deviceId);
-    // TODO: capabilityRegistry.register(deviceId, caps)
+    final capabilityPayload = await systemRepository.readCapability(deviceId);
+    final capabilitySet = CapabilitySet.fromRaw(capabilityPayload);
+    // TODO: capabilityRegistry.register(deviceId, capabilitySet)
+
+    final product = _resolveProduct(
+      capabilitySet: capabilitySet,
+      deviceInfo: deviceInfo,
+    );
+
+    final deviceContext = DeviceContext(
+      deviceId: deviceId,
+      product: product,
+      firmware: firmware,
+      capabilities: capabilitySet,
+    );
+
+    // DeviceContext is the single source of truth for downstream use cases.
+    // All other application flows must depend on this context instead of
+    // re-deriving firmware or capability knowledge to keep behavior aligned.
 
     // 5) Sync Time
     // TODO: await SyncTimeUseCase().execute(deviceId: deviceId)
@@ -54,5 +81,47 @@ class InitializeDeviceUseCase {
     // TODO: deviceRepository.updateState(deviceId, DeviceState.ready)
     await deviceRepository.updateDeviceState(deviceId, 'ready');
     // TODO: notify presentation to open device feature pages
+
+    return deviceContext;
+  }
+
+  DeviceProduct _resolveProduct({
+    required CapabilitySet capabilitySet,
+    required Map<String, dynamic> deviceInfo,
+  }) {
+    if (capabilitySet.supports(CapabilityId.doserOneshotSchedule)) {
+      return DeviceProduct.doser4k;
+    }
+
+    final bool ledCapabilitiesPresent =
+        capabilitySet.supports(CapabilityId.ledPower) ||
+        capabilitySet.supports(CapabilityId.ledIntensity) ||
+        capabilitySet.supports(CapabilityId.ledScheduleDaily) ||
+        capabilitySet.supports(CapabilityId.ledScheduleCustom) ||
+        capabilitySet.supports(CapabilityId.ledScheduleScene);
+
+    if (ledCapabilitiesPresent) {
+      return DeviceProduct.ledController;
+    }
+
+    if (capabilitySet.supports(CapabilityId.dosing)) {
+      return DeviceProduct.doser;
+    }
+
+    final String? productHint = deviceInfo['product']?.toString();
+    if (productHint != null) {
+      final lower = productHint.toLowerCase();
+      if (lower.contains('led')) {
+        return DeviceProduct.ledController;
+      }
+      if (lower.contains('doser')) {
+        return DeviceProduct.doser;
+      }
+      if (lower.contains('4k')) {
+        return DeviceProduct.doser4k;
+      }
+    }
+
+    return DeviceProduct.unknown;
   }
 }

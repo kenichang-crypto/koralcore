@@ -17,6 +17,8 @@
 /// State transitions:
 /// - idle -> scanning -> idle
 ///
+library;
+
 import '../../platform/contracts/device_repository.dart';
 
 class ScanDevicesUseCase {

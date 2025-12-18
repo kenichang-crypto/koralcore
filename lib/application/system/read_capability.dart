@@ -7,6 +7,8 @@
 /// 2. Parse capability payload
 /// 3. Persist capability snapshot in capability registry / device repo
 ///
+library;
+
 import '../../platform/contracts/system_repository.dart';
 import '../../platform/contracts/device_repository.dart';
 

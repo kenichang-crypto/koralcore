@@ -23,14 +23,17 @@ import '../../domain/device/device_product.dart';
 import '../../domain/device/firmware_version.dart';
 import '../../platform/contracts/device_repository.dart';
 import '../../platform/contracts/system_repository.dart';
+import '../session/current_device_session.dart';
 
 class InitializeDeviceUseCase {
   final DeviceRepository deviceRepository;
   final SystemRepository systemRepository;
+  final CurrentDeviceSession currentDeviceSession;
 
   InitializeDeviceUseCase({
     required this.deviceRepository,
     required this.systemRepository,
+    required this.currentDeviceSession,
   });
 
   Future<DeviceContext> execute({required String deviceId}) async {
@@ -81,6 +84,11 @@ class InitializeDeviceUseCase {
     // TODO: deviceRepository.updateState(deviceId, DeviceState.ready)
     await deviceRepository.updateDeviceState(deviceId, 'ready');
     // TODO: notify presentation to open device feature pages
+
+    // Establish the session so every other use case can read a consistent
+    // DeviceContext without caching its own copy. Use cases must always read
+    // from this session instead of persisting their own context references.
+    currentDeviceSession.start(deviceContext);
 
     return deviceContext;
   }

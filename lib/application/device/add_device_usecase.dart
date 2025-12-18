@@ -11,6 +11,8 @@
 /// - Local Device Repository (e.g. deviceRepo.add(device))
 /// - Optional: Capability registry update (platform)
 ///
+library;
+
 import '../../platform/contracts/device_repository.dart';
 
 class AddDeviceUseCase {

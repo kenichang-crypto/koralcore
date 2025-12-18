@@ -1,6 +1,9 @@
+import '../../domain/device/device_context.dart';
 import '../../domain/doser_dosing/doser_schedule.dart';
 import '../../domain/doser_dosing/doser_schedule_type.dart';
 import '../../platform/contracts/device_repository.dart';
+import '../common/app_error.dart';
+import '../session/current_device_session.dart';
 
 import 'schedule_capability_guard.dart';
 import 'schedule_result.dart';
@@ -14,25 +17,38 @@ class ApplyScheduleUseCase {
   final DeviceRepository deviceRepository;
   final ScheduleCapabilityGuard scheduleCapabilityGuard;
   final ScheduleResultMapper scheduleResultMapper;
+  final CurrentDeviceSession currentDeviceSession;
 
   const ApplyScheduleUseCase({
     required this.deviceRepository,
     required this.scheduleCapabilityGuard,
     required this.scheduleResultMapper,
+    required this.currentDeviceSession,
   });
 
   /// Executes the scheduling flow.
   ///
   Future<ScheduleResult> execute({required DoserSchedule schedule}) async {
-    // 1) TODO: deviceRepository.getCurrentDevice() to ensure we act on the
-    //    correct target and load product/capability metadata.
+    final DeviceContext deviceContext;
+    try {
+      deviceContext = currentDeviceSession.requireContext();
+    } on AppError catch (error) {
+      return ScheduleResult.failure(errorCode: error.code);
+    }
 
     // 2) NOTE: Schedule is assumed valid; caller must invoke
     //    DoserScheduleValidator beforehand (Application layer does not repeat
     //    domain validation).
 
-    // 3) TODO: Determine if the current device supports oneshot_schedule
-    //    (BLE commands 32–34). Only koralDose 4K should pass this check.
+    final bool guardAllows = scheduleCapabilityGuard.canProceed(
+      scheduleType: schedule.type,
+      isOneshotSupported: deviceContext.supportsOneshotSchedule,
+    );
+    if (!guardAllows) {
+      return ScheduleResult.failure(
+        errorCode: scheduleResultMapper.guardNotSupported(),
+      );
+    }
 
     // 4) TODO: Branch based on schedule.type (manual / BLE 15 / BLE 16 are
     //    intentionally excluded from this UseCase).
@@ -52,21 +68,6 @@ class ApplyScheduleUseCase {
         );
 
       case DoserScheduleType.oneshotSchedule:
-        // TODO: Ensure device capability/productId confirms koralDose 4K.
-        // TODO: Invoke BLE 32–34 builder flow via deviceRepository adapter
-        //    hooks (no BLE implementation here).
-        // TODO: Replace placeholder flag with actual capability metadata from
-        //    deviceRepository.getCurrentDevice().
-        final bool isOneshotSupported = true;
-        final bool canProceed = scheduleCapabilityGuard.canProceed(
-          scheduleType: schedule.type,
-          isOneshotSupported: isOneshotSupported,
-        );
-        if (!canProceed) {
-          return ScheduleResult.failure(
-            errorCode: scheduleResultMapper.guardNotSupported(),
-          );
-        }
         // TODO: Build oneshot payload via schedule_command_builder ->
         //    buildOneshotScheduleCommand.
         // TODO: Send payload via ScheduleSender to the BLE adapter.

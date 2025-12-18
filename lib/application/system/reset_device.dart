@@ -8,6 +8,8 @@
 /// 2. Send Reset command via BLE adapter
 /// 3. Await result and update repository
 ///
+library;
+
 import '../../platform/contracts/system_repository.dart';
 import '../../platform/contracts/device_repository.dart';
 

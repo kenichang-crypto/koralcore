@@ -1,6 +1,9 @@
+import '../../domain/device/device_context.dart';
 import '../../domain/led_lighting/led_schedule.dart';
 import '../../domain/led_lighting/led_schedule_type.dart';
 import '../../platform/contracts/device_repository.dart';
+import '../common/app_error.dart';
+import '../session/current_device_session.dart';
 
 import '../../infrastructure/ble/schedule/led/led_schedule_command_builder.dart';
 import '../../infrastructure/ble/schedule/led/led_schedule_payload.dart';
@@ -17,26 +20,31 @@ class ApplyLedScheduleUseCase {
   final LedScheduleCapabilityGuard ledScheduleCapabilityGuard;
   final LedScheduleResultMapper ledScheduleResultMapper;
   final LedScheduleCommandBuilder ledScheduleCommandBuilder;
+  final CurrentDeviceSession currentDeviceSession;
 
   const ApplyLedScheduleUseCase({
     required this.deviceRepository,
     required this.ledScheduleCapabilityGuard,
     required this.ledScheduleResultMapper,
     required this.ledScheduleCommandBuilder,
+    required this.currentDeviceSession,
   });
 
   Future<LedScheduleResult> execute({required LedSchedule schedule}) async {
-    // 1) TODO: deviceRepository.getCurrentDevice() to load product/capability
-    //    metadata for the currently connected light.
+    final DeviceContext deviceContext;
+    try {
+      deviceContext = currentDeviceSession.requireContext();
+    } on AppError catch (error) {
+      return LedScheduleResult.failure(errorCode: error.code);
+    }
 
     // 2) NOTE: LED schedule is assumed to be validated upstream via the
     //    domain validator (no re-validation in Application layer).
 
-    // 3) TODO: Extract LED schedule capability flags (daily/custom/scene) from
-    //    device metadata returned in step 1.
-    final bool supportsDailySchedules = true;
-    final bool supportsCustomSchedules = true;
-    final bool supportsSceneSchedules = true;
+    final bool supportsDailySchedules = deviceContext.supportsLedScheduleDaily;
+    final bool supportsCustomSchedules =
+        deviceContext.supportsLedScheduleCustom;
+    final bool supportsSceneSchedules = deviceContext.supportsLedScheduleScene;
 
     final bool canProceed = ledScheduleCapabilityGuard.canProceed(
       scheduleType: schedule.type,
@@ -63,8 +71,6 @@ class ApplyLedScheduleUseCase {
         payload = ledScheduleCommandBuilder.build(schedule);
         break;
     }
-
-    assert(payload is LedSchedulePayload, 'LED builder must return payload');
 
     // TODO: Send payload via LED schedule sender abstraction.
     // TODO: Map BLE response to result once transport layer is wired up.

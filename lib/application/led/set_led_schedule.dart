@@ -14,22 +14,29 @@
 /// - MUST NOT contain BLE logic
 ///
 /// Planned for removal after UI migration is completed.
+library;
 
-import '../../platform/contracts/device_repository.dart';
+import '../../domain/device/device_context.dart';
 import '../../domain/led_lighting/led_schedule.dart';
 import '../../domain/led_lighting/led_schedule_type.dart';
+import '../../platform/contracts/device_repository.dart';
+import '../common/app_error.dart';
+import '../common/app_error_code.dart';
+import '../session/current_device_session.dart';
 
 /// SetLedScheduleUseCase
 ///
 /// Legacy orchestration for LED schedules kept for backward compatibility.
 class SetLedScheduleUseCase {
   final DeviceRepository deviceRepository;
+  final CurrentDeviceSession currentDeviceSession;
 
   /// Adapter responsible for sending LED commands; left as dynamic placeholder.
   final dynamic ledAdapter;
 
   SetLedScheduleUseCase({
     required this.deviceRepository,
+    required this.currentDeviceSession,
     required this.ledAdapter,
   });
 
@@ -37,6 +44,29 @@ class SetLedScheduleUseCase {
     required String deviceId,
     required LedSchedule schedule,
   }) async {
+    final DeviceContext deviceContext = currentDeviceSession.requireContext();
+
+    if (deviceContext.deviceId != deviceId) {
+      throw AppError(
+        code: AppErrorCode.invalidParam,
+        message:
+            'DeviceContext.deviceId (${deviceContext.deviceId}) must match '
+            'target deviceId ($deviceId).',
+      );
+    }
+
+    final bool supportsRequestedType = _supportsScheduleType(
+      deviceContext: deviceContext,
+      scheduleType: schedule.type,
+    );
+    if (!supportsRequestedType) {
+      throw AppError(
+        code: AppErrorCode.notSupported,
+        message:
+            'Device does not expose capability for ${schedule.type} schedules.',
+      );
+    }
+
     // 1) Receive schedule (already provided)
 
     // 2) TODO: Validate LED schedule invariants via domain validator once
@@ -62,5 +92,19 @@ class SetLedScheduleUseCase {
 
     // 4) On success: persist or mark schedule as set (application responsibility)
     // TODO: await deviceRepository.updateDeviceState(deviceId, 'led_schedule_set');
+  }
+
+  bool _supportsScheduleType({
+    required DeviceContext deviceContext,
+    required LedScheduleType scheduleType,
+  }) {
+    switch (scheduleType) {
+      case LedScheduleType.daily:
+        return deviceContext.supportsLedScheduleDaily;
+      case LedScheduleType.custom:
+        return deviceContext.supportsLedScheduleCustom;
+      case LedScheduleType.scene:
+        return deviceContext.supportsLedScheduleScene;
+    }
   }
 }

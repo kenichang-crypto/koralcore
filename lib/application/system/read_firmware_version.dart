@@ -7,6 +7,8 @@
 /// 2. Parse firmware_version string
 /// 3. Persist to device repository
 ///
+library;
+
 import '../../platform/contracts/system_repository.dart';
 import '../../platform/contracts/device_repository.dart';
 

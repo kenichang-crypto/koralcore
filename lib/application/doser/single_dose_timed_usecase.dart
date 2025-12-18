@@ -1,5 +1,9 @@
-import '../../platform/contracts/device_repository.dart';
+import '../../domain/device/device_context.dart';
 import '../../domain/doser_dosing/single_dose_timed.dart';
+import '../../platform/contracts/device_repository.dart';
+import '../common/app_error.dart';
+import '../common/app_error_code.dart';
+import '../session/current_device_session.dart';
 
 /// SingleDoseTimedUseCase
 ///
@@ -10,6 +14,7 @@ import '../../domain/doser_dosing/single_dose_timed.dart';
 /// - Call adapter/repository as TODO (no BLE implementation here)
 class SingleDoseTimedUseCase {
   final DeviceRepository deviceRepository;
+  final CurrentDeviceSession currentDeviceSession;
 
   /// Adapter responsible for sending dosing schedule commands to device.
   /// TODO: Replace `dynamic` with a concrete dosing adapter interface.
@@ -17,6 +22,7 @@ class SingleDoseTimedUseCase {
 
   SingleDoseTimedUseCase({
     required this.deviceRepository,
+    required this.currentDeviceSession,
     required this.dosingAdapter,
   });
 
@@ -31,8 +37,26 @@ class SingleDoseTimedUseCase {
     required String deviceId,
     required SingleDoseTimed dose,
   }) async {
-    // 1) Ensure device context
-    // TODO: final current = await deviceRepository.getCurrentDevice();
+    final DeviceContext deviceContext = currentDeviceSession.requireContext();
+
+    if (deviceContext.deviceId != deviceId) {
+      throw AppError(
+        code: AppErrorCode.invalidParam,
+        message:
+            'DeviceContext.deviceId (${deviceContext.deviceId}) must match '
+            'target deviceId ($deviceId).',
+      );
+    }
+
+    final bool hasFractionalDose = _hasFractionalComponent(dose.doseMl);
+    if (hasFractionalDose && !deviceContext.supportsDecimalMl) {
+      throw AppError(
+        code: AppErrorCode.notSupported,
+        message:
+            'Fractional mL doses require doserDecimalMl capability; adjust the '
+            'requested dose or upgrade device firmware.',
+      );
+    }
 
     // 2) Map domain model -> BLE payload
     // TODO: final payload = mapSingleDoseTimedToPayload(dose);
@@ -44,5 +68,9 @@ class SingleDoseTimedUseCase {
     // TODO: await deviceRepository.saveScheduledDosing(deviceId, ...)
 
     // 5) Return (no further action)
+  }
+
+  bool _hasFractionalComponent(double value) {
+    return value != value.truncateToDouble();
   }
 }

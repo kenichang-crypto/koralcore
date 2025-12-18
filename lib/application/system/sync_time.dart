@@ -7,6 +7,8 @@
 /// 2. Send Sync Time command via BLE adapter
 /// 3. Await response and persist sync result if necessary
 ///
+library;
+
 import '../../platform/contracts/system_repository.dart';
 import '../../platform/contracts/device_repository.dart';
 

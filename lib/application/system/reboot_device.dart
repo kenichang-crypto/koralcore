@@ -7,6 +7,8 @@
 /// 2. Optionally wait for device to drop connection
 /// 3. Mark device state as rebooting; once back online, caller may reconnect
 ///
+library;
+
 import '../../platform/contracts/system_repository.dart';
 import '../../platform/contracts/device_repository.dart';
 

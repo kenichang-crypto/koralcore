@@ -7,12 +7,19 @@
 /// 2. Remove device from local repository
 /// 3. Update state / notify UI
 ///
+library;
+
 import '../../platform/contracts/device_repository.dart';
+import '../session/current_device_session.dart';
 
 class RemoveDeviceUseCase {
   final DeviceRepository deviceRepository;
+  final CurrentDeviceSession currentDeviceSession;
 
-  RemoveDeviceUseCase({required this.deviceRepository});
+  RemoveDeviceUseCase({
+    required this.deviceRepository,
+    required this.currentDeviceSession,
+  });
 
   Future<void> execute({required String deviceId}) async {
     // 1) Ensure disconnected
@@ -22,7 +29,10 @@ class RemoveDeviceUseCase {
     // TODO: await deviceRepository.remove(deviceId)
     await deviceRepository.removeDevice(deviceId);
 
-    // 3) Notify presentation / update currentDevice if needed
+    // 3) Clear any lingering session when the device disappears entirely.
+    currentDeviceSession.clear();
+
+    // 4) Notify presentation / update currentDevice if needed
     // TODO: notify UI to refresh device list
   }
 }

@@ -11,6 +11,8 @@
 /// - BLE adapter (system command)
 /// - Device repository (persist metadata)
 ///
+library;
+
 import '../../platform/contracts/system_repository.dart';
 import '../../platform/contracts/device_repository.dart';
 

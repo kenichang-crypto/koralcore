@@ -14,6 +14,8 @@
 /// - Local device repository (mark connected)
 /// - Application: InitializeDeviceUseCase (on success)
 ///
+library;
+
 import '../../platform/contracts/device_repository.dart';
 
 class ConnectDeviceUseCase {

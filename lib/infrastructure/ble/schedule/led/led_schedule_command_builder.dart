@@ -6,28 +6,32 @@ import 'led_daily_schedule_builder.dart';
 import 'led_scene_schedule_builder.dart';
 import 'led_schedule_payload.dart';
 
-/// Entry point for converting `LedSchedule` into BLE payload models.
-LedSchedulePayload buildLedScheduleCommand(LedSchedule schedule) {
-  switch (schedule.type) {
-    case LedScheduleType.daily:
-      final daily = schedule.daily;
-      if (daily == null) {
-        throw StateError('LedSchedule.type=daily requires daily data');
-      }
-      return buildLedDailySchedulePayload(daily);
+/// Converts `LedSchedule` instances into BLE-ready payload models.
+class LedScheduleCommandBuilder {
+  const LedScheduleCommandBuilder();
 
-    case LedScheduleType.custom:
-      final custom = schedule.custom;
-      if (custom == null) {
-        throw StateError('LedSchedule.type=custom requires custom data');
-      }
-      return buildLedCustomSchedulePayload(custom);
+  LedSchedulePayload build(LedSchedule schedule) {
+    switch (schedule.type) {
+      case LedScheduleType.daily:
+        final daily = schedule.daily;
+        if (daily == null) {
+          throw StateError('LedSchedule.type=daily requires daily data');
+        }
+        return buildLedDailySchedulePayload(daily);
 
-    case LedScheduleType.scene:
-      final scene = schedule.scene;
-      if (scene == null) {
-        throw StateError('LedSchedule.type=scene requires scene data');
-      }
-      return buildLedSceneSchedulePayload(scene);
+      case LedScheduleType.custom:
+        final custom = schedule.custom;
+        if (custom == null) {
+          throw StateError('LedSchedule.type=custom requires custom data');
+        }
+        return buildLedCustomSchedulePayload(custom);
+
+      case LedScheduleType.scene:
+        final scene = schedule.scene;
+        if (scene == null) {
+          throw StateError('LedSchedule.type=scene requires scene data');
+        }
+        return buildLedSceneSchedulePayload(scene);
+    }
   }
 }

@@ -2,6 +2,9 @@ import '../../domain/led_lighting/led_schedule.dart';
 import '../../domain/led_lighting/led_schedule_type.dart';
 import '../../platform/contracts/device_repository.dart';
 
+import '../../infrastructure/ble/schedule/led/led_schedule_command_builder.dart';
+import '../../infrastructure/ble/schedule/led/led_schedule_payload.dart';
+
 import 'led_schedule_capability_guard.dart';
 import 'led_schedule_result.dart';
 import 'led_schedule_result_mapper.dart';
@@ -13,11 +16,13 @@ class ApplyLedScheduleUseCase {
   final DeviceRepository deviceRepository;
   final LedScheduleCapabilityGuard ledScheduleCapabilityGuard;
   final LedScheduleResultMapper ledScheduleResultMapper;
+  final LedScheduleCommandBuilder ledScheduleCommandBuilder;
 
   const ApplyLedScheduleUseCase({
     required this.deviceRepository,
     required this.ledScheduleCapabilityGuard,
     required this.ledScheduleResultMapper,
+    required this.ledScheduleCommandBuilder,
   });
 
   Future<LedScheduleResult> execute({required LedSchedule schedule}) async {
@@ -45,25 +50,27 @@ class ApplyLedScheduleUseCase {
       );
     }
 
-    // 4) TODO: Branch based on schedule.type to invoke the appropriate builder
-    //    and sending flow (no BLE details within Application layer).
+    // 4) Branch by schedule type to ensure the correct builder path runs.
+    late final LedSchedulePayload payload;
     switch (schedule.type) {
       case LedScheduleType.daily:
+        payload = ledScheduleCommandBuilder.build(schedule);
+        break;
       case LedScheduleType.custom:
-        // TODO: Build LED daily/custom schedule payload via upcoming builders.
-        // TODO: Send payload via LED schedule sender abstraction.
-        // TODO: Map BLE response to result once transport layer is wired up.
-        return LedScheduleResult.failure(
-          errorCode: ledScheduleResultMapper.unknownFailure(),
-        );
-
+        payload = ledScheduleCommandBuilder.build(schedule);
+        break;
       case LedScheduleType.scene:
-        // TODO: Build scene payload via scene schedule builder.
-        // TODO: Send payload via LED schedule sender abstraction.
-        // TODO: Map BLE response to result once transport layer is wired up.
-        return LedScheduleResult.failure(
-          errorCode: ledScheduleResultMapper.unknownFailure(),
-        );
+        payload = ledScheduleCommandBuilder.build(schedule);
+        break;
     }
+
+    assert(payload is LedSchedulePayload, 'LED builder must return payload');
+
+    // TODO: Send payload via LED schedule sender abstraction.
+    // TODO: Map BLE response to result once transport layer is wired up.
+    // TODO: Remove placeholder failure once wiring is complete.
+    return LedScheduleResult.failure(
+      errorCode: ledScheduleResultMapper.unknownFailure(),
+    );
   }
 }

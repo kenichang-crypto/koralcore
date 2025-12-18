@@ -1,36 +1,30 @@
-// ⚠️ SEMANTIC VIOLATION: Stateful Service (Not Application Orchestration)
-//
-// RULE VIOLATIONS (Application Layer):
-// ✗ Rule: "Application can ONLY do UseCase orchestration"
-//   Found: Stateful manager with registration/retrieval API
-//
-// ✗ Rule: "Cannot preserve session/global state"
-//   Found: Mutable Map<CapabilityId, Capability> _capabilities = {}
-//
-// ✗ Rule: "Cannot be UI's state container"
-//   Found: snapshot() method provides application state to UI
-//
-// ✗ Rule: "Cannot manage device selection or lifecycle"
-//   Found: Manages capability registration across devices
-//
-// WHAT THIS ACTUALLY IS:
-// - A singleton stateful service
-// - A global state container
-// - Not a UseCase (which is a single command)
-//
-// WHERE IT BELONGS:
-// NOT in Application layer.
-// Options:
-// - lib/platform/capability_registry.dart (Platform driver/adapter)
-// - lib/presentation/state/capability_registry.dart (if state management is needed there)
-// - A separate presentation state management layer
-//
-// APPLICATION LAYER PURPOSE:
-// - Each UseCase = one command intent
-// - Orchestrate domain rules + infrastructure calls
-// - Return result, exit immediately
-// - NO state preservation between calls
-//
-// TODO: Move implementation out of Application layer
-// TODO: Define clear ownership (Platform? Presentation state manager?)
-// TODO: Update all callers to use correct dependency injection
+import 'capability.dart';
+import 'capability_id.dart';
+import 'capability_snapshot.dart';
+
+/// CapabilityRegistry 是平台層的「能力管理者」
+///
+/// 職責：
+/// - 註冊能力（來自 device / profile / adapter）
+/// - 提供能力快照給 UI / UseCase
+///
+/// 不做：
+/// - 不執行命令
+/// - 不知道 BLE
+/// - 不知道 firmware
+class CapabilityRegistry {
+  final Map<CapabilityId, Capability> _capabilities = {};
+
+  /// 註冊或更新一項能力
+  void register(Capability capability) {
+    _capabilities[capability.id] = capability;
+  }
+
+  /// 取得單一能力
+  Capability? get(CapabilityId id) => _capabilities[id];
+
+  /// 取得整體快照（給 UI）
+  CapabilitySnapshot snapshot() {
+    return CapabilitySnapshot(_capabilities.values.toList());
+  }
+}

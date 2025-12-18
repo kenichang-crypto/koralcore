@@ -1,4 +1,5 @@
 import 'led_channel.dart';
+import 'led_intensity.dart';
 
 /// Domain value object representing intensity of a single LED channel.
 ///
@@ -6,11 +7,13 @@ import 'led_channel.dart';
 /// - Hardware limits are handled elsewhere
 class LedChannelValue {
   final LedChannel channel;
-  final int intensity;
+  final LedIntensity intensity;
 
   const LedChannelValue({required this.channel, required this.intensity});
 
+  int get byteValue => intensity.value;
+
   @override
   String toString() =>
-      'LedChannelValue(channel: $channel, intensity: $intensity)';
+      'LedChannelValue(channel: $channel, intensity: ${intensity.value})';
 }

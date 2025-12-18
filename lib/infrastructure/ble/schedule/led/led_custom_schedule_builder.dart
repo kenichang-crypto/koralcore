@@ -5,9 +5,10 @@ LedCustomSchedulePayload buildLedCustomSchedulePayload(
   LedCustomSchedule schedule,
 ) {
   return LedCustomSchedulePayload(
+    channelGroup: schedule.channelGroup,
     start: schedule.start,
     end: schedule.end,
-    channels: schedule.channels,
+    spectrum: schedule.spectrum,
     repeatOn: schedule.repeatOn,
   );
 }

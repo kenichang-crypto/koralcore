@@ -7,9 +7,13 @@ LedDailySchedulePayload buildLedDailySchedulePayload(
   final points = schedule.points
       .map(
         (point) =>
-            LedDailyPointPayload(time: point.time, channels: point.channels),
+            LedDailyPointPayload(time: point.time, spectrum: point.spectrum),
       )
       .toList(growable: false);
 
-  return LedDailySchedulePayload(points: points, repeatOn: schedule.repeatOn);
+  return LedDailySchedulePayload(
+    channelGroup: schedule.channelGroup,
+    points: points,
+    repeatOn: schedule.repeatOn,
+  );
 }

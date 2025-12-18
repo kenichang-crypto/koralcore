@@ -35,5 +35,7 @@ class AppErrorMapper {
 
   AppErrorCode notSupported() => AppErrorCode.notSupported;
 
+  AppErrorCode transportFailure() => AppErrorCode.transportError;
+
   AppErrorCode unknown() => AppErrorCode.unknownError;
 }

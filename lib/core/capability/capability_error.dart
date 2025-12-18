@@ -7,8 +7,5 @@ class CapabilityError {
   final CapabilityId capability;
   final String reason;
 
-  const CapabilityError({
-    required this.capability,
-    required this.reason,
-  });
+  const CapabilityError({required this.capability, required this.reason});
 }

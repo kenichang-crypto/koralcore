@@ -14,6 +14,7 @@
 /// - MUST NOT contain BLE logic
 ///
 /// Planned for removal after UI migration is completed.
+library;
 
 import '../../platform/contracts/device_repository.dart';
 import '../../domain/doser_dosing/doser_schedule.dart';

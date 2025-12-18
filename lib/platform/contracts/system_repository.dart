@@ -6,6 +6,7 @@
 /// NOTE:
 /// - Only method signatures are declared here. No implementations.
 /// - Payload types are placeholders and should be replaced by domain models.
+library;
 
 abstract class SystemRepository {
   const SystemRepository();

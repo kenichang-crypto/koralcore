@@ -1,19 +1,25 @@
+import 'led_channel_group.dart';
+import 'led_spectrum.dart';
 import 'time_of_day.dart';
 import 'weekday.dart';
-import 'led_channel_value.dart';
 
 /// A single time point in a daily LED schedule.
 class LedDailyPoint {
   final TimeOfDay time;
-  final List<LedChannelValue> channels;
+  final LedSpectrum spectrum;
 
-  const LedDailyPoint({required this.time, required this.channels});
+  const LedDailyPoint({required this.time, required this.spectrum});
 }
 
 /// Daily LED schedule consisting of multiple time points.
 class LedDailySchedule {
+  final LedChannelGroup channelGroup;
   final List<LedDailyPoint> points;
   final List<Weekday> repeatOn;
 
-  const LedDailySchedule({required this.points, required this.repeatOn});
+  const LedDailySchedule({
+    required this.channelGroup,
+    required this.points,
+    required this.repeatOn,
+  });
 }

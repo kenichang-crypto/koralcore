@@ -1,12 +1,16 @@
+import 'dart:typed_data';
+
 import '../../domain/device/device_context.dart';
 import '../../domain/led_lighting/led_schedule.dart';
 import '../../domain/led_lighting/led_schedule_type.dart';
+import '../../infrastructure/ble/ble_adapter.dart';
+import '../../infrastructure/ble/schedule/led/led_schedule_command_builder.dart';
+import '../../infrastructure/ble/schedule/led/led_schedule_payload.dart';
+import '../../infrastructure/ble/schedule/led/led_schedule_encoder.dart';
+import '../../infrastructure/ble/transport/ble_transport_models.dart';
 import '../../platform/contracts/device_repository.dart';
 import '../common/app_error.dart';
 import '../session/current_device_session.dart';
-
-import '../../infrastructure/ble/schedule/led/led_schedule_command_builder.dart';
-import '../../infrastructure/ble/schedule/led/led_schedule_payload.dart';
 
 import 'led_schedule_capability_guard.dart';
 import 'led_schedule_result.dart';
@@ -21,6 +25,8 @@ class ApplyLedScheduleUseCase {
   final LedScheduleResultMapper ledScheduleResultMapper;
   final LedScheduleCommandBuilder ledScheduleCommandBuilder;
   final CurrentDeviceSession currentDeviceSession;
+  final BleAdapter bleAdapter;
+  final BleWriteOptions writeOptions;
 
   const ApplyLedScheduleUseCase({
     required this.deviceRepository,
@@ -28,7 +34,9 @@ class ApplyLedScheduleUseCase {
     required this.ledScheduleResultMapper,
     required this.ledScheduleCommandBuilder,
     required this.currentDeviceSession,
-  });
+    required this.bleAdapter,
+    BleWriteOptions? writeOptions,
+  }) : writeOptions = writeOptions ?? const BleWriteOptions();
 
   Future<LedScheduleResult> execute({required LedSchedule schedule}) async {
     final DeviceContext deviceContext;
@@ -59,24 +67,42 @@ class ApplyLedScheduleUseCase {
     }
 
     // 4) Branch by schedule type to ensure the correct builder path runs.
-    late final LedSchedulePayload payload;
-    switch (schedule.type) {
-      case LedScheduleType.daily:
-        payload = ledScheduleCommandBuilder.build(schedule);
-        break;
-      case LedScheduleType.custom:
-        payload = ledScheduleCommandBuilder.build(schedule);
-        break;
-      case LedScheduleType.scene:
-        payload = ledScheduleCommandBuilder.build(schedule);
-        break;
+    final LedSchedulePayload payload;
+    try {
+      payload = ledScheduleCommandBuilder.build(schedule);
+    } on StateError {
+      return LedScheduleResult.failure(
+        errorCode: ledScheduleResultMapper.unknownFailure(),
+      );
     }
 
-    // TODO: Send payload via LED schedule sender abstraction.
-    // TODO: Map BLE response to result once transport layer is wired up.
-    // TODO: Remove placeholder failure once wiring is complete.
-    return LedScheduleResult.failure(
-      errorCode: ledScheduleResultMapper.unknownFailure(),
-    );
+    final Uint8List bytes = encodeLedSchedulePayload(payload);
+    return _sendPayload(deviceId: deviceContext.deviceId, payload: bytes);
+  }
+
+  Future<LedScheduleResult> _sendPayload({
+    required String deviceId,
+    required Uint8List payload,
+  }) async {
+    try {
+      await bleAdapter.writeBytes(
+        deviceId: deviceId,
+        data: payload,
+        options: writeOptions,
+      );
+      return const LedScheduleResult.success();
+    } on BleWriteTimeoutException {
+      return LedScheduleResult.failure(
+        errorCode: ledScheduleResultMapper.transportFailure(),
+      );
+    } on BleWriteException {
+      return LedScheduleResult.failure(
+        errorCode: ledScheduleResultMapper.transportFailure(),
+      );
+    } catch (_) {
+      return LedScheduleResult.failure(
+        errorCode: ledScheduleResultMapper.unknownFailure(),
+      );
+    }
   }
 }

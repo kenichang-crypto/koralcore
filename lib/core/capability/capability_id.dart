@@ -23,6 +23,12 @@ enum CapabilityId {
   /// 定量滴液（doser）
   dosing,
 
+  /// Doser 支援小數毫升
+  doserDecimalMl,
+
+  /// Doser 支援 oneshot 排程（koralDose 4K）
+  doserOneshotSchedule,
+
   /// 排程能力（泛用）
   scheduling,
 }

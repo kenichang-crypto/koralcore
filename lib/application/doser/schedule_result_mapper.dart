@@ -17,6 +17,10 @@ class ScheduleResultMapper {
     return appErrorMapper.notSupported();
   }
 
+  AppErrorCode transportFailure() {
+    return appErrorMapper.transportFailure();
+  }
+
   AppErrorCode unknownFailure() {
     return appErrorMapper.unknown();
   }

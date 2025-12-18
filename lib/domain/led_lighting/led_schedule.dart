@@ -14,10 +14,5 @@ class LedSchedule {
   final LedCustomSchedule? custom;
   final LedSceneSchedule? scene;
 
-  const LedSchedule({
-    required this.type,
-    this.daily,
-    this.custom,
-    this.scene,
-  });
+  const LedSchedule({required this.type, this.daily, this.custom, this.scene});
 }

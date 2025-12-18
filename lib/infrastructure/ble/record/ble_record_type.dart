@@ -1,0 +1,1 @@
+enum BleRecordType { write, notify }

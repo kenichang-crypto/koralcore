@@ -1,5 +1,10 @@
+import 'dart:typed_data';
+
 import '../../domain/device/device_context.dart';
 import '../../domain/doser_dosing/single_dose_immediate.dart';
+import '../../infrastructure/ble/ble_adapter.dart';
+import '../../infrastructure/ble/encoder/doser/immediate_single_dose_encoder.dart';
+import '../../infrastructure/ble/transport/ble_transport_models.dart';
 import '../../platform/contracts/device_repository.dart';
 import '../common/app_error.dart';
 import '../common/app_error_code.dart';
@@ -9,28 +14,30 @@ import '../session/current_device_session.dart';
 ///
 /// Application-level orchestration for sending an immediate single dose (BLE cmd 15).
 /// Responsibilities:
-/// - Flow control only
-/// - Map domain model to adapter call (TODO)
-/// - Call adapter/repository as TODO (no BLE implementation here)
+/// - Flow control
+/// - Map domain model to BLE payload
+/// - Send payload over the hardened BLE transport
 class SingleDoseImmediateUseCase {
   final DeviceRepository deviceRepository;
   final CurrentDeviceSession currentDeviceSession;
-
-  /// Adapter responsible for sending dosing commands to device.
-  /// TODO: Replace `dynamic` with a concrete dosing adapter interface.
-  final dynamic dosingAdapter;
+  final BleAdapter bleAdapter;
+  final BleWriteOptions writeOptions;
+  final ImmediateSingleDoseEncoder immediateSingleDoseEncoder;
 
   SingleDoseImmediateUseCase({
     required this.deviceRepository,
     required this.currentDeviceSession,
-    required this.dosingAdapter,
-  });
+    required this.bleAdapter,
+    BleWriteOptions? writeOptions,
+    ImmediateSingleDoseEncoder? immediateSingleDoseEncoder,
+  }) : writeOptions = writeOptions ?? const BleWriteOptions(),
+       immediateSingleDoseEncoder =
+           immediateSingleDoseEncoder ?? ImmediateSingleDoseEncoder();
 
   /// Steps (execute):
   /// 1. Ensure the target device is the current device or specified by caller
   /// 2. Map `SingleDoseImmediate` domain model into BLE payload (bytes)
-  /// 3. Invoke adapter to send BLE command for immediate single dose
-  ///    (e.g. dosingAdapter.sendSingleDoseImmediate(deviceId, payload))
+  /// 3. Invoke the shared BLE transport to send the payload
   /// 4. Optionally persist dosing event in repository (TODO)
   /// 5. Return control to caller
   Future<void> execute({
@@ -58,16 +65,21 @@ class SingleDoseImmediateUseCase {
       );
     }
 
-    // 2) Map domain model -> BLE payload
-    // TODO: final payload = mapSingleDoseImmediateToPayload(dose);
+    final Uint8List payload = Uint8List.fromList(
+      immediateSingleDoseEncoder.encode(dose),
+    );
 
-    // 3) Send BLE command via adapter
-    // TODO: await dosingAdapter.sendSingleDoseImmediate(deviceId, payload);
-
-    // 4) Persist or log the dosing action
-    // TODO: await deviceRepository.saveDosingEvent(deviceId, ...)
-
-    // 5) Return (no further action)
+    try {
+      await bleAdapter.writeBytes(
+        deviceId: deviceId,
+        data: payload,
+        options: writeOptions,
+      );
+    } on BleWriteTimeoutException catch (error) {
+      throw AppError(code: AppErrorCode.transportError, message: error.message);
+    } on BleWriteException catch (error) {
+      throw AppError(code: AppErrorCode.transportError, message: error.message);
+    }
   }
 
   bool _hasFractionalComponent(double value) {

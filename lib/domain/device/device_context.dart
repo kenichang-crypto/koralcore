@@ -22,4 +22,13 @@ class DeviceContext {
 
   bool get supportsOneshotSchedule =>
       capabilities.supports(CapabilityId.doserOneshotSchedule);
+
+  bool get supportsLedScheduleDaily =>
+      capabilities.supports(CapabilityId.ledScheduleDaily);
+
+  bool get supportsLedScheduleCustom =>
+      capabilities.supports(CapabilityId.ledScheduleCustom);
+
+  bool get supportsLedScheduleScene =>
+      capabilities.supports(CapabilityId.ledScheduleScene);
 }

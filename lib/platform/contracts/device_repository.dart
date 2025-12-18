@@ -6,6 +6,7 @@
 /// - This file only declares method signatures (no implementations).
 /// - Domain models are referenced as placeholders (use existing domain models where available).
 /// - Do NOT introduce platform-specific imports or implementations here.
+library;
 
 abstract class DeviceRepository {
   const DeviceRepository();

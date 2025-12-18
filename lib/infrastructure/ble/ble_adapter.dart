@@ -1,16 +1,18 @@
 import 'dart:typed_data';
 
+import 'transport/ble_transport_models.dart';
+
 /// Thin abstraction for BLE write operations.
 abstract class BleAdapter {
   Future<void> write({
-    required String serviceUuid,
-    required String characteristicUuid,
-    required List<int> payload,
+    required String deviceId,
+    required List<int> data,
+    BleWriteOptions? options,
   });
 
   Future<void> writeBytes({
-    required String serviceUuid,
-    required String characteristicUuid,
-    required Uint8List payload,
+    required String deviceId,
+    required Uint8List data,
+    BleWriteOptions? options,
   });
 }

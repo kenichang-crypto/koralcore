@@ -1,5 +1,6 @@
-import '../../../../domain/led_lighting/led_channel_value.dart';
+import '../../../../domain/led_lighting/led_channel_group.dart';
 import '../../../../domain/led_lighting/led_scene.dart';
+import '../../../../domain/led_lighting/led_spectrum.dart';
 import '../../../../domain/led_lighting/time_of_day.dart';
 import '../../../../domain/led_lighting/weekday.dart';
 
@@ -9,29 +10,36 @@ abstract class LedSchedulePayload {
 }
 
 class LedDailySchedulePayload extends LedSchedulePayload {
+  final LedChannelGroup channelGroup;
   final List<LedDailyPointPayload> points;
   final List<Weekday> repeatOn;
 
-  const LedDailySchedulePayload({required this.points, required this.repeatOn});
+  const LedDailySchedulePayload({
+    required this.channelGroup,
+    required this.points,
+    required this.repeatOn,
+  });
 }
 
 class LedDailyPointPayload {
   final TimeOfDay time;
-  final List<LedChannelValue> channels;
+  final LedSpectrum spectrum;
 
-  const LedDailyPointPayload({required this.time, required this.channels});
+  const LedDailyPointPayload({required this.time, required this.spectrum});
 }
 
 class LedCustomSchedulePayload extends LedSchedulePayload {
+  final LedChannelGroup channelGroup;
   final TimeOfDay start;
   final TimeOfDay end;
-  final List<LedChannelValue> channels;
+  final LedSpectrum spectrum;
   final List<Weekday> repeatOn;
 
   const LedCustomSchedulePayload({
+    required this.channelGroup,
     required this.start,
     required this.end,
-    required this.channels,
+    required this.spectrum,
     required this.repeatOn,
   });
 }

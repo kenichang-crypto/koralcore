@@ -1,5 +1,10 @@
+import 'dart:typed_data';
+
 import '../../domain/device/device_context.dart';
+import '../../domain/doser/encoder/timed_single_dose_encoder.dart';
 import '../../domain/doser_dosing/single_dose_timed.dart';
+import '../../infrastructure/ble/ble_adapter.dart';
+import '../../infrastructure/ble/transport/ble_transport_models.dart';
 import '../../platform/contracts/device_repository.dart';
 import '../common/app_error.dart';
 import '../common/app_error_code.dart';
@@ -9,28 +14,30 @@ import '../session/current_device_session.dart';
 ///
 /// Application-level orchestration for scheduling a single timed dose (BLE cmd 16).
 /// Responsibilities:
-/// - Flow control only
-/// - Map domain model to adapter call (TODO)
-/// - Call adapter/repository as TODO (no BLE implementation here)
+/// - Flow control
+/// - Map domain model to BLE payload
+/// - Send payload over the hardened BLE transport
 class SingleDoseTimedUseCase {
   final DeviceRepository deviceRepository;
   final CurrentDeviceSession currentDeviceSession;
-
-  /// Adapter responsible for sending dosing schedule commands to device.
-  /// TODO: Replace `dynamic` with a concrete dosing adapter interface.
-  final dynamic dosingAdapter;
+  final BleAdapter bleAdapter;
+  final BleWriteOptions writeOptions;
+  final TimedSingleDoseEncoder timedSingleDoseEncoder;
 
   SingleDoseTimedUseCase({
     required this.deviceRepository,
     required this.currentDeviceSession,
-    required this.dosingAdapter,
-  });
+    required this.bleAdapter,
+    BleWriteOptions? writeOptions,
+    TimedSingleDoseEncoder? timedSingleDoseEncoder,
+  }) : writeOptions = writeOptions ?? const BleWriteOptions(),
+       timedSingleDoseEncoder =
+           timedSingleDoseEncoder ?? TimedSingleDoseEncoder();
 
   /// Steps (execute):
   /// 1. Ensure the target device is the current device or specified by caller
   /// 2. Map `SingleDoseTimed` domain model into BLE payload (bytes)
-  /// 3. Invoke adapter to schedule single timed dose on device
-  ///    (e.g. dosingAdapter.scheduleSingleDose(deviceId, payload))
+  /// 3. Invoke the shared BLE transport to schedule the dose
   /// 4. Optionally persist scheduled event in repository (TODO)
   /// 5. Return control to caller
   Future<void> execute({
@@ -58,16 +65,19 @@ class SingleDoseTimedUseCase {
       );
     }
 
-    // 2) Map domain model -> BLE payload
-    // TODO: final payload = mapSingleDoseTimedToPayload(dose);
+    final Uint8List payload = timedSingleDoseEncoder.encode(dose);
 
-    // 3) Send BLE schedule command via adapter
-    // TODO: await dosingAdapter.scheduleSingleDose(deviceId, payload);
-
-    // 4) Persist or log the scheduled dosing action
-    // TODO: await deviceRepository.saveScheduledDosing(deviceId, ...)
-
-    // 5) Return (no further action)
+    try {
+      await bleAdapter.writeBytes(
+        deviceId: deviceId,
+        data: payload,
+        options: writeOptions,
+      );
+    } on BleWriteTimeoutException catch (error) {
+      throw AppError(code: AppErrorCode.transportError, message: error.message);
+    } on BleWriteException catch (error) {
+      throw AppError(code: AppErrorCode.transportError, message: error.message);
+    }
   }
 
   bool _hasFractionalComponent(double value) {

@@ -1,4 +1,5 @@
 import 'capability.dart';
+import 'capability_id.dart';
 
 /// CapabilitySnapshot 表示
 /// 👉「此刻，平台認知到的能力狀態集合」
@@ -15,5 +16,10 @@ class CapabilitySnapshot {
 
   Capability? find(CapabilityId id) {
     return capabilities.where((c) => c.id == id).firstOrNull;
+  }
+
+  /// Convenience helper to check whether a specific capability is present.
+  bool supports(CapabilityId id) {
+    return find(id) != null;
   }
 }

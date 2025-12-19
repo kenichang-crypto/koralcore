@@ -1,0 +1,15 @@
+import 'package:flutter/foundation.dart';
+
+class NavigationController extends ChangeNotifier {
+  int _index = 0;
+
+  int get index => _index;
+
+  void select(int value) {
+    if (value == _index) {
+      return;
+    }
+    _index = value;
+    notifyListeners();
+  }
+}

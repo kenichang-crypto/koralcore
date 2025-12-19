@@ -16,24 +16,55 @@
 ///
 library;
 
+import '../../domain/device/capability_set.dart';
+import '../../domain/device/device_context.dart';
+import '../../domain/device/device_product.dart';
+import '../../domain/device/firmware_version.dart';
 import '../../platform/contracts/device_repository.dart';
+import '../common/app_error.dart';
+import '../common/app_error_code.dart';
+import '../session/current_device_session.dart';
 
 class ConnectDeviceUseCase {
   final DeviceRepository deviceRepository;
+  final CurrentDeviceSession currentDeviceSession;
 
-  ConnectDeviceUseCase({required this.deviceRepository});
+  ConnectDeviceUseCase({
+    required this.deviceRepository,
+    required this.currentDeviceSession,
+  });
 
   Future<void> execute({required String deviceId}) async {
-    // 1) Set state: connecting
-    // TODO: notify presentation
+    if (deviceId.isEmpty) {
+      throw const AppError(
+        code: AppErrorCode.invalidParam,
+        message: 'deviceId must not be empty',
+      );
+    }
 
-    // 2) Call BLE adapter to connect
-    // TODO: await bleAdapter.connect(deviceId)
-
-    // 3) Wait for connection result
-    // TODO: if success -> call InitializeDeviceUseCase.execute(deviceId)
-    // TODO: if failure -> set state disconnected and return error
-    // Note: deviceRepository may be used to mark connecting state
     await deviceRepository.updateDeviceState(deviceId, 'connecting');
+
+    try {
+      await deviceRepository.connect(deviceId);
+      await deviceRepository.setCurrentDevice(deviceId);
+      await deviceRepository.updateDeviceState(deviceId, 'connected');
+
+      currentDeviceSession.start(
+        DeviceContext(
+          deviceId: deviceId,
+          product: DeviceProduct.unknown,
+          firmware: const FirmwareVersion('0.0.0'),
+          capabilities: const CapabilitySet.empty(),
+        ),
+      );
+    } on AppError {
+      rethrow;
+    } catch (error) {
+      await deviceRepository.updateDeviceState(deviceId, 'disconnected');
+      throw AppError(
+        code: AppErrorCode.transportError,
+        message: 'Failed to connect: $error',
+      );
+    }
   }
 }

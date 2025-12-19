@@ -10,6 +10,8 @@
 library;
 
 import '../../platform/contracts/device_repository.dart';
+import '../common/app_error.dart';
+import '../common/app_error_code.dart';
 import '../session/current_device_session.dart';
 
 class DisconnectDeviceUseCase {
@@ -22,17 +24,16 @@ class DisconnectDeviceUseCase {
   });
 
   Future<void> execute({required String deviceId}) async {
-    // 1) Call BLE adapter to disconnect
-    // TODO: await bleAdapter.disconnect(deviceId)
+    try {
+      await deviceRepository.disconnect(deviceId);
+    } catch (error) {
+      throw AppError(
+        code: AppErrorCode.transportError,
+        message: 'Failed to disconnect: $error',
+      );
+    }
 
-    // 2) Update device state in repository
-    // TODO: deviceRepository.updateState(deviceId, DeviceState.disconnected)
     await deviceRepository.updateDeviceState(deviceId, 'disconnected');
-
-    // Ensure downstream use cases can't act on a disconnected device.
     currentDeviceSession.clear();
-
-    // 3) Notify presentation
-    // TODO: notify UI that device is disconnected
   }
 }

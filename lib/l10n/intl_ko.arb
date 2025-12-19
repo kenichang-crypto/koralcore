@@ -1,0 +1,236 @@
+{
+  "@@locale": "ko",
+  "appTitle": "KoralCore",
+  "tabHome": "Home",
+  "tabBluetooth": "Bluetooth",
+  "tabDevice": "Devices",
+  "homeStatusConnected": "Connected to {device}",
+  "@homeStatusConnected": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "homeStatusDisconnected": "No active device",
+  "homeConnectedCopy": "Manage dosing and lighting right from your phone.",
+  "homeConnectCta": "Connect a device",
+  "homeNoDeviceCopy": "Pair your Koral doser or LED controller to manage schedules and lighting.",
+  "sectionDosingTitle": "Dosing",
+  "sectionLedTitle": "Lighting",
+  "bleDisconnectedWarning": "Connect via Bluetooth to continue.",
+  "bleGuardDialogTitle": "Bluetooth required",
+  "bleGuardDialogMessage": "Connect to a device to access this feature.",
+  "bleGuardDialogButton": "Got it",
+  "bluetoothHeader": "Nearby devices",
+  "bluetoothScanCta": "Scan for devices",
+  "bluetoothScanning": "Scanning...",
+  "bluetoothEmptyState": "No devices found yet.",
+  "bluetoothConnect": "Connect",
+  "deviceHeader": "My devices",
+  "deviceEmptyTitle": "No devices yet",
+  "deviceEmptySubtitle": "Use the Bluetooth tab to discover hardware.",
+  "deviceStateConnected": "Connected",
+  "deviceStateDisconnected": "Disconnected",
+  "deviceStateConnecting": "Connecting",
+  "deviceActionConnect": "Connect",
+  "deviceActionDisconnect": "Disconnect",
+  "deviceDeleteMode": "Delete",
+  "deviceSelectMode": "Select",
+  "deviceDeleteConfirmTitle": "Remove devices?",
+  "deviceDeleteConfirmMessage": "The selected devices will be removed from this phone. This does not reset the hardware.",
+  "deviceDeleteConfirmPrimary": "Remove",
+  "deviceDeleteConfirmSecondary": "Keep",
+  "deviceActionDelete": "Delete selected",
+  "deviceSelectionCount": "{count} selected",
+  "@deviceSelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dosingHeader": "Dosing",
+  "dosingSubHeader": "Control daily dosing routines.",
+  "dosingEntrySchedule": "Edit schedule",
+  "dosingEntryManual": "Manual dose",
+  "dosingEntryCalibration": "Calibration",
+  "dosingEntryHistory": "Dose history",
+  "ledHeader": "Lighting",
+  "ledSubHeader": "Tune spectrums and schedules.",
+  "ledEntryIntensity": "Adjust intensity",
+  "ledEntryPrograms": "Scenes & programs",
+  "ledEntryManual": "Manual control",
+  "comingSoon": "Coming soon",
+  "actionCancel": "Cancel",
+  "actionConfirm": "Confirm",
+  "actionRetry": "Retry",
+  "errorDeviceBusy": "Device is busy. Try again shortly.",
+  "errorNoDevice": "No active device.",
+  "errorNotSupported": "This action is not supported on the connected device.",
+  "errorInvalidParam": "Invalid parameters for this use case.",
+  "errorTransport": "Bluetooth transport error. Check the signal and retry.",
+  "errorGeneric": "Something went wrong. Please retry.",
+  "snackbarDeviceRemoved": "Devices removed.",
+  "snackbarDeviceConnected": "Device connected.",
+  "snackbarDeviceDisconnected": "Device disconnected.",
+  "dosingPumpHeadsHeader": "Pump heads",
+  "dosingPumpHeadsSubheader": "Tap a head to review flow and totals.",
+  "dosingPumpHeadSummaryTitle": "Head {head}",
+  "dosingPumpHeadStatus": "Status",
+  "dosingPumpHeadStatusReady": "Ready",
+  "dosingPumpHeadDailyTarget": "Daily target",
+  "dosingPumpHeadTodayDispensed": "Today dispensed",
+  "dosingPumpHeadLastDose": "Last dose",
+  "dosingPumpHeadFlowRate": "Calibrated flow",
+  "dosingPumpHeadManualDose": "Manual dose",
+  "dosingPumpHeadManualDoseSuccess": "Manual dose sent.",
+  "dosingPumpHeadTimedDose": "Schedule timed dose",
+  "dosingPumpHeadTimedDoseSuccess": "Timed dose scheduled.",
+  "dosingPumpHeadCalibrate": "Calibrate head",
+  "dosingPumpHeadPlaceholder": "No dosing data yet.",
+  "@dosingPumpHeadSummaryTitle": {
+    "placeholders": {
+      "head": {
+        "type": "String"
+      }
+    }
+  },
+  "dosingScheduleOverviewTitle": "Schedules",
+  "dosingScheduleOverviewSubtitle": "Review configured dosing windows.",
+  "dosingTodayTotalTitle": "Today's dosing",
+  "dosingTodayTotalTotal": "Total",
+  "dosingTodayTotalScheduled": "Scheduled",
+  "dosingTodayTotalManual": "Manual",
+  "dosingTodayTotalEmpty": "No dosing data yet.",
+  "dosingScheduleSummaryTitle": "Schedule summary",
+  "dosingScheduleSummaryEmpty": "No schedule",
+  "dosingScheduleSummaryTotalLabel": "Total / day",
+  "dosingScheduleSummaryWindowCount": "{count} windows",
+  "@dosingScheduleSummaryWindowCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dosingScheduleSummarySlotCount": "{count} slots",
+  "@dosingScheduleSummarySlotCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dosingScheduleApplyDailyAverage": "Apply 24h average schedule",
+  "dosingScheduleApplyDailyAverageSuccess": "24h average schedule sent.",
+  "dosingScheduleApplyCustomWindow": "Apply custom window schedule",
+  "dosingScheduleApplyCustomWindowSuccess": "Custom window schedule sent.",
+  "dosingScheduleViewButton": "View schedules",
+  "dosingScheduleEmptyTitle": "No schedule configured",
+  "dosingScheduleEmptySubtitle": "Add a schedule with the Reef B app to see it here.",
+  "dosingScheduleTypeDaily": "24-hour program",
+  "dosingScheduleTypeSingle": "Single dose",
+  "dosingScheduleTypeCustom": "Custom window",
+  "dosingScheduleRecurrenceDaily": "Every day",
+  "dosingScheduleRecurrenceWeekdays": "Weekdays",
+  "dosingScheduleRecurrenceWeekends": "Weekends",
+  "ledDetailUnknownDevice": "Unnamed device",
+  "ledDetailFavoriteTooltip": "Mark as favorite (coming soon)",
+  "ledDetailHeaderHint": "Control spectrum profiles and schedules from your phone.",
+  "ledScenesPlaceholderTitle": "Scenes",
+  "ledScenesPlaceholderSubtitle": "Swipe through presets from Reef B.",
+  "ledScheduleSummaryTitle": "Lighting schedule",
+  "ledScheduleSummaryEmpty": "No schedule configured",
+  "ledScheduleSummaryWindowLabel": "Window",
+  "ledScheduleSummaryLabel": "Label",
+  "ledSchedulePlaceholderTitle": "Schedule preview",
+  "ledSchedulePlaceholderSubtitle": "Planned spectrum envelope for the next 24h.",
+  "ledEntryScenes": "Open Scenes",
+  "ledEntrySchedule": "Open Schedule",
+  "ledScenesListTitle": "Scenes",
+  "ledScenesListSubtitle": "Review presets imported from Reef B.",
+  "ledScenesEmptyTitle": "No scenes available",
+  "ledScenesEmptySubtitle": "Sync scenes from the Reef B app to see them here.",
+  "ledScheduleListTitle": "Schedules",
+  "ledScheduleListSubtitle": "Review lighting timelines synced from Reef B.",
+  "ledScheduleEmptyTitle": "No schedules available",
+  "ledScheduleEmptySubtitle": "Create schedules in the Reef B app to view them here.",
+  "ledScheduleTypeDaily": "Daily program",
+  "ledScheduleTypeCustom": "Custom window",
+  "ledScheduleTypeScene": "Scene-based",
+  "ledScheduleRecurrenceDaily": "Every day",
+  "ledScheduleRecurrenceWeekdays": "Weekdays",
+  "ledScheduleRecurrenceWeekends": "Weekends",
+  "ledScheduleSceneSummary": "Scene: {scene}",
+  "@ledScheduleSceneSummary": {
+    "placeholders": {
+      "scene": {
+        "type": "String"
+      }
+    }
+  },
+  "dosingCalibrationHistoryTitle": "Calibration history",
+  "dosingCalibrationHistorySubtitle": "Latest calibrations captured per speed.",
+  "dosingCalibrationHistoryViewButton": "View calibration history",
+  "dosingCalibrationHistoryEmptyTitle": "No calibrations yet",
+  "dosingCalibrationHistoryEmptySubtitle": "Run a calibration from the Reef B app to see it here.",
+  "dosingCalibrationRecordNoteLabel": "Note",
+  "dosingCalibrationRecordSpeed": "Speed: {speed}",
+  "@dosingCalibrationRecordSpeed": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "dosingCalibrationRecordFlow": "{flow} ml/min",
+  "@dosingCalibrationRecordFlow": {
+    "placeholders": {
+      "flow": {
+        "type": "String"
+      }
+    }
+  },
+  "dosingPumpHeadSettingsTitle": "Pump head settings",
+  "dosingPumpHeadSettingsSubtitle": "Rename the head or adjust execution delay.",
+  "dosingPumpHeadSettingsNameLabel": "Pump head name",
+  "dosingPumpHeadSettingsNameHint": "Enter a custom label",
+  "dosingPumpHeadSettingsNameEmpty": "Name can't be empty.",
+  "dosingPumpHeadSettingsTankLabel": "Tank / additive",
+  "dosingPumpHeadSettingsTankPlaceholder": "Link additives from the Reef B app.",
+  "dosingPumpHeadSettingsDelayLabel": "Dose delay",
+  "dosingPumpHeadSettingsDelaySubtitle": "Applies a delay before the head runs.",
+  "dosingPumpHeadSettingsUnsavedTitle": "Discard changes?",
+  "dosingPumpHeadSettingsUnsavedMessage": "You have unsaved changes.",
+  "dosingPumpHeadSettingsUnsavedDiscard": "Discard",
+  "dosingPumpHeadSettingsUnsavedStay": "Keep editing",
+  "dosingPumpHeadSettingsSave": "Save",
+  "dosingPumpHeadSettingsCancel": "Cancel",
+  "dosingPumpHeadSettingsDelayOption": "{seconds} seconds",
+  "@dosingPumpHeadSettingsDelayOption": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "dosingScheduleStatusEnabled": "Enabled",
+  "dosingScheduleStatusDisabled": "Paused",
+  "ledSceneStatusEnabled": "Enabled",
+  "@ledSceneStatusEnabled": {
+    "description": "Label shown next to an LED scene when it is enabled."
+  },
+  "ledSceneStatusDisabled": "Disabled",
+  "@ledSceneStatusDisabled": {
+    "description": "Label shown next to an LED scene when it is disabled."
+  },
+  "ledScheduleStatusEnabled": "Enabled",
+  "@ledScheduleStatusEnabled": {
+    "description": "Label shown when an LED lighting schedule is enabled."
+  },
+  "ledScheduleStatusDisabled": "Disabled",
+  "@ledScheduleStatusDisabled": {
+    "description": "Label shown when an LED lighting schedule is disabled."
+  }
+}

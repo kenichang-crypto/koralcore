@@ -1,6 +1,5 @@
 library;
 
-import '../../domain/doser_dosing/today_dose_summary.dart';
 import '../../domain/device/device_context.dart';
 import '../../platform/contracts/dosing_port.dart';
 import '../common/app_error.dart';
@@ -21,7 +20,7 @@ class ReadTodayTotalUseCase {
     required String deviceId,
     required String headId,
   }) async {
-    final DeviceContext deviceContext = currentDeviceSession.requireContext();
+    final DeviceContext deviceContext = currentDeviceSession.requireContext;
     if (deviceContext.deviceId != deviceId) {
       throw const AppError(
         code: AppErrorCode.invalidParam,

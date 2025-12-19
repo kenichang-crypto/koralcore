@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:typed_data';
 
 import 'ble_adapter.dart';
+import 'response/ble_error_code.dart';
 import 'record/ble_record.dart';
 import 'record/ble_record_type.dart';
 import 'record/ble_recorder.dart';
@@ -34,6 +35,16 @@ class BleAdapterImpl implements BleAdapter {
   }) async {
     final Uint8List bytes = Uint8List.fromList(data);
     return writeBytes(deviceId: deviceId, data: bytes, options: options);
+  }
+
+  @override
+  Future<List<int>?> read({
+    required String deviceId,
+    required List<int> data,
+    BleWriteOptions? options,
+  }) async {
+    final Uint8List bytes = Uint8List.fromList(data);
+    return readBytes(deviceId: deviceId, data: bytes, options: options);
   }
 
   Future<void> _applyPostCommandDelay(_QueuedCommand command) async {
@@ -70,6 +81,7 @@ class BleAdapterImpl implements BleAdapter {
       payload: Uint8List.fromList(data),
       options: resolved,
       enqueuedAt: DateTime.now(),
+      expectsPayload: false,
     );
     _queue.add(command);
     _emitLog(
@@ -83,6 +95,41 @@ class BleAdapterImpl implements BleAdapter {
     return command.completer.future;
   }
 
+  @override
+  Future<List<int>?> readBytes({
+    required String deviceId,
+    required Uint8List data,
+    BleWriteOptions? options,
+  }) async {
+    final BleWriteOptions resolved = options == null
+        ? defaultOptions
+        : defaultOptions.copyWith(
+            mode: options.mode,
+            timeout: options.timeout,
+            maxRetries: options.maxRetries,
+            interCommandDelay: options.interCommandDelay,
+            retryDelay: options.retryDelay,
+          );
+
+    final _QueuedCommand command = _QueuedCommand(
+      deviceId: deviceId,
+      payload: Uint8List.fromList(data),
+      options: resolved,
+      enqueuedAt: DateTime.now(),
+      expectsPayload: true,
+    );
+    _queue.add(command);
+    _emitLog(
+      type: BleTransportEventType.queued,
+      command: command,
+      attempt: 0,
+      message: 'Queued read payload length=${command.payload.length}',
+      result: null,
+    );
+    _processQueue();
+    return command.responseCompleter!.future;
+  }
+
   void _processQueue() {
     if (_isProcessing) {
       return;
@@ -94,6 +141,10 @@ class BleAdapterImpl implements BleAdapter {
         try {
           await _executeCommand(command);
         } catch (error, stackTrace) {
+          if (command.responseCompleter != null &&
+              !command.responseCompleter!.isCompleted) {
+            command.responseCompleter!.completeError(error, stackTrace);
+          }
           if (!command.completer.isCompleted) {
             command.completer.completeError(error, stackTrace);
           }
@@ -125,15 +176,22 @@ class BleAdapterImpl implements BleAdapter {
       );
 
       try {
-        await _performWriteWithTimeout(command, attempt);
+        final BleWriteResult result = await _performWriteWithTimeout(
+          command,
+          attempt,
+        );
         _emitLog(
           type: BleTransportEventType.success,
           command: command,
           attempt: attempt,
           message: 'ACK received',
-          result: BleTransportResult.ack,
+          result: result.status,
         );
         _recordWrite(deviceId: command.deviceId, payload: command.payload);
+        if (command.responseCompleter != null &&
+            !command.responseCompleter!.isCompleted) {
+          command.responseCompleter!.complete(result.payload);
+        }
         if (!command.completer.isCompleted) {
           command.completer.complete();
         }
@@ -147,6 +205,10 @@ class BleAdapterImpl implements BleAdapter {
             message: error.message,
             result: BleTransportResult.timeout,
           );
+          if (command.responseCompleter != null &&
+              !command.responseCompleter!.isCompleted) {
+            command.responseCompleter!.completeError(error);
+          }
           if (!command.completer.isCompleted) {
             command.completer.completeError(error);
           }
@@ -161,6 +223,22 @@ class BleAdapterImpl implements BleAdapter {
         );
         await Future<void>.delayed(command.options.retryDelay);
         continue;
+      } on BleCommandRejectedException catch (error) {
+        _emitLog(
+          type: BleTransportEventType.failure,
+          command: command,
+          attempt: attempt,
+          message: error.message,
+          result: BleTransportResult.failure,
+        );
+        if (command.responseCompleter != null &&
+            !command.responseCompleter!.isCompleted) {
+          command.responseCompleter!.completeError(error);
+        }
+        if (!command.completer.isCompleted) {
+          command.completer.completeError(error);
+        }
+        return;
       } on BleWriteException catch (error) {
         if (attempt > command.options.maxRetries) {
           _emitLog(
@@ -170,6 +248,10 @@ class BleAdapterImpl implements BleAdapter {
             message: error.message,
             result: BleTransportResult.failure,
           );
+          if (command.responseCompleter != null &&
+              !command.responseCompleter!.isCompleted) {
+            command.responseCompleter!.completeError(error);
+          }
           if (!command.completer.isCompleted) {
             command.completer.completeError(error);
           }
@@ -187,7 +269,7 @@ class BleAdapterImpl implements BleAdapter {
     }
   }
 
-  Future<void> _performWriteWithTimeout(
+  Future<BleWriteResult> _performWriteWithTimeout(
     _QueuedCommand command,
     int attempt,
   ) async {
@@ -196,51 +278,40 @@ class BleAdapterImpl implements BleAdapter {
       throw const BleWriteException('No BLE transport writer configured.');
     }
 
-    final Completer<void> ackCompleter = Completer<void>();
     try {
-      final Future<void> writerFuture = writer(
+      final Future<BleWriteResult> writerFuture = writer(
         deviceId: command.deviceId,
         payload: command.payload,
         mode: command.options.mode,
       );
-      writerFuture
-          .then((_) {
-            if (!ackCompleter.isCompleted) {
-              ackCompleter.complete();
-            }
-          })
-          .catchError((Object error, StackTrace stackTrace) {
-            if (!ackCompleter.isCompleted) {
-              ackCompleter.completeError(error, stackTrace);
-            }
-          });
-    } on BleWriteException {
-      rethrow;
-    } catch (error) {
-      throw BleWriteException('BLE write failed: $error');
-    }
 
-    if (command.options.mode == BleWriteMode.withResponse) {
-      try {
-        await ackCompleter.future.timeout(command.options.timeout);
-      } on TimeoutException {
-        throw BleWriteTimeoutException(
-          'Command timed out after ${command.options.timeout.inMilliseconds}ms '
-          '(attempt $attempt).',
-        );
-      } on BleWriteTimeoutException {
-        rethrow;
-      } on BleWriteException {
-        rethrow;
-      } catch (error) {
-        throw BleWriteException('BLE write failed: $error');
+      final BleWriteResult result =
+          command.options.mode == BleWriteMode.withResponse
+          ? await writerFuture.timeout(command.options.timeout)
+          : await writerFuture;
+
+      switch (result.status) {
+        case BleTransportResult.ack:
+          return result;
+        case BleTransportResult.timeout:
+          throw BleWriteTimeoutException(
+            'Command timed out after '
+            '${command.options.timeout.inMilliseconds}ms (attempt $attempt).',
+          );
+        case BleTransportResult.failure:
+          throw BleCommandRejectedException(
+            errorCode: result.errorCode ?? BleErrorCode.unknown,
+            message: 'BLE command rejected.',
+          );
       }
-      return;
-    }
-
-    try {
-      await ackCompleter.future;
+    } on TimeoutException {
+      throw BleWriteTimeoutException(
+        'Command timed out after ${command.options.timeout.inMilliseconds}ms '
+        '(attempt $attempt).',
+      );
     } on BleWriteTimeoutException {
+      rethrow;
+    } on BleCommandRejectedException {
       rethrow;
     } on BleWriteException {
       rethrow;
@@ -302,11 +373,13 @@ class _QueuedCommand {
   final DateTime enqueuedAt;
   DateTime? lastSendAt;
   final Completer<void> completer = Completer<void>();
+  final Completer<List<int>?>? responseCompleter;
 
   _QueuedCommand({
     required this.deviceId,
     required this.payload,
     required this.options,
     required this.enqueuedAt,
-  });
+    required bool expectsPayload,
+  }) : responseCompleter = expectsPayload ? Completer<List<int>?>() : null;
 }

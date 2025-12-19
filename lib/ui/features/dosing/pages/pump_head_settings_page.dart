@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../application/common/app_context.dart';
@@ -43,10 +43,10 @@ class PumpHeadSettingsPage extends StatelessWidget {
 }
 
 class _PumpHeadSettingsView extends StatefulWidget {
-  final String headId;
-  final String initialName;
-  final int initialDelaySeconds;
-
+                        Text(
+                          l10n.dosingPumpHeadSummaryTitle(
+                            widget.headId.toUpperCase(),
+                          ),
   const _PumpHeadSettingsView({
     required this.headId,
     required this.initialName,
@@ -124,7 +124,7 @@ class _PumpHeadSettingsViewState extends State<_PumpHeadSettingsView> {
   }
 
   Future<bool> _handleWillPop(AppLocalizations l10n) async {
-    if (!_isDirty) return true;
+                        l10n.dosingPumpHeadSettingsDelayOption(value),
     return _confirmDiscard(l10n);
   }
 
@@ -191,7 +191,7 @@ class _PumpHeadSettingsViewState extends State<_PumpHeadSettingsView> {
                     children: [
                       Text(
                         l10n.dosingPumpHeadSummaryTitle(
-                          head: widget.headId.toUpperCase(),
+                          widget.headId.toUpperCase(),
                         ),
                         style: theme.textTheme.titleMedium,
                       ),
@@ -369,13 +369,13 @@ class _DelayCard extends StatelessWidget {
             ),
             const SizedBox(height: AppDimensions.spacingS),
             DropdownButtonFormField<int>(
-              value: currentDelay,
+              initialValue: currentDelay,
               items: delayOptions
                   .map(
                     (value) => DropdownMenuItem(
                       value: value,
                       child: Text(
-                        l10n.dosingPumpHeadSettingsDelayOption(seconds: value),
+                        l10n.dosingPumpHeadSettingsDelayOption(value),
                       ),
                     ),
                   )

@@ -4,14 +4,15 @@ import 'ble_transport_models.dart';
 /// inspection within debug tooling or developer consoles.
 class BleTransportLogBuffer implements BleTransportObserver {
   final List<BleTransportLogEntry> _events = <BleTransportLogEntry>[];
-  final void Function(BleTransportLogEntry entry)? onEvent;
+  final void Function(BleTransportLogEntry entry)? _onEventCallback;
 
-  BleTransportLogBuffer({this.onEvent});
+  BleTransportLogBuffer({void Function(BleTransportLogEntry entry)? onEvent})
+    : _onEventCallback = onEvent;
 
   @override
   void onEvent(BleTransportLogEntry entry) {
     _events.add(entry);
-    onEvent?.call(entry);
+    _onEventCallback?.call(entry);
   }
 
   /// Returns a snapshot copy of the collected events.

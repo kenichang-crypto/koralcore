@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -264,6 +264,7 @@ void _maybeShowError(
     return;
   }
 
-  AppErrorPresenter.of(context).present(code: code);
+  final message = describeAppError(AppLocalizations.of(context), code);
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   controller.clearError();
 }

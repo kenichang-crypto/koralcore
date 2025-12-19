@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import '../response/ble_error_code.dart';
+
 /// Mode describing whether the BLE write expects a response/ack from firmware.
 enum BleWriteMode { withResponse, withoutResponse }
 
@@ -42,6 +44,19 @@ enum BleTransportEventType { queued, sending, retry, success, failure }
 /// Result state for a command once the transport finishes processing it.
 enum BleTransportResult { ack, timeout, failure }
 
+class BleWriteResult {
+  final BleTransportResult status;
+  final List<int>? payload;
+  final BleErrorCode? errorCode;
+
+  const BleWriteResult({required this.status, this.payload, this.errorCode});
+
+  const BleWriteResult.ack()
+    : status = BleTransportResult.ack,
+      payload = null,
+      errorCode = null;
+}
+
 /// Structured log entry describing a single transport event.
 class BleTransportLogEntry {
   final BleTransportEventType type;
@@ -76,7 +91,7 @@ abstract class BleTransportObserver {
 
 /// Signature for the platform-specific BLE writer.
 typedef BleTransportWriter =
-    Future<void> Function({
+    Future<BleWriteResult> Function({
       required String deviceId,
       required Uint8List payload,
       required BleWriteMode mode,
@@ -92,5 +107,18 @@ class BleWriteException implements Exception {
 }
 
 class BleWriteTimeoutException extends BleWriteException {
-  const BleWriteTimeoutException(String message) : super(message);
+  const BleWriteTimeoutException(super.message);
+}
+
+class BleCommandRejectedException extends BleWriteException {
+  final BleErrorCode errorCode;
+
+  const BleCommandRejectedException({
+    required this.errorCode,
+    required String message,
+  }) : super(message);
+
+  @override
+  String toString() =>
+      'BleCommandRejectedException(code: ${errorCode.name}, message: $message)';
 }

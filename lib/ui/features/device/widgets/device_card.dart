@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../application/device/device_snapshot.dart';
 import '../../../../theme/colors.dart';
 import '../../../../theme/dimensions.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 
 class DeviceCard extends StatelessWidget {
   final DeviceSnapshot device;

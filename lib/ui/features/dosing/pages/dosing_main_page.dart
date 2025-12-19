@@ -6,7 +6,7 @@ import '../../../../theme/dimensions.dart';
 import '../../../components/ble_guard.dart';
 import '../models/pump_head_summary.dart';
 import 'pump_head_detail_page.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 
 class DosingMainPage extends StatelessWidget {
   const DosingMainPage({super.key});

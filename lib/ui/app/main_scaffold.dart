@@ -7,7 +7,7 @@ import '../features/bluetooth/bluetooth_page.dart';
 import '../features/device/device_page.dart';
 import '../features/home/home_page.dart';
 import 'navigation_controller.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 
 class MainScaffold extends StatelessWidget {
   const MainScaffold({super.key});

@@ -8,7 +8,7 @@ import '../../components/ble_guard.dart';
 import '../../components/feature_entry_card.dart';
 import '../dosing/pages/dosing_main_page.dart';
 import '../led/pages/led_main_page.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -85,7 +85,7 @@ class _ConnectionCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final isConnected = session.isBleConnected;
     final title = isConnected
-        ? l10n.homeStatusConnected(device: session.activeDeviceName ?? 'Device')
+        ? l10n.homeStatusConnected(session.activeDeviceName ?? 'Device')
         : l10n.homeStatusDisconnected;
     final subtitle = isConnected
         ? l10n.homeConnectedCopy

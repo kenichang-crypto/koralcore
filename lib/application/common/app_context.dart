@@ -4,6 +4,8 @@ import 'dart:typed_data';
 
 import '../../infrastructure/ble/ble_adapter.dart';
 import '../../infrastructure/ble/ble_adapter_impl.dart';
+import '../../infrastructure/ble/doser/ble_today_totals_data_source.dart';
+import '../../infrastructure/ble/doser/today_totals_data_source.dart';
 import '../../infrastructure/ble/schedule/schedule_sender.dart';
 import '../../infrastructure/ble/transport/ble_transport_log_buffer.dart';
 import '../../infrastructure/ble/transport/ble_transport_models.dart';
@@ -78,13 +80,17 @@ class AppContext {
 
   factory AppContext.bootstrap() {
     final DeviceRepository deviceRepository = DeviceRepositoryImpl();
-    const DosingPort dosingPort = DoserRepositoryImpl();
     const LedPort ledPort = LightingRepositoryImpl();
     final currentDeviceSession = CurrentDeviceSession();
     final BleTransportLogBuffer transportLogBuffer = BleTransportLogBuffer();
     final BleAdapter bleAdapter = BleAdapterImpl(
       transportWriter: _noopBleTransportWriter,
       observer: transportLogBuffer,
+    );
+    final TodayTotalsDataSource todayTotalsDataSource =
+        BleTodayTotalsDataSource(bleAdapter: bleAdapter);
+    final DosingPort dosingPort = DoserRepositoryImpl(
+      todayTotalsDataSource: todayTotalsDataSource,
     );
     final AppErrorMapper appErrorMapper = AppErrorMapper();
     const ScheduleCapabilityGuard scheduleCapabilityGuard =
@@ -153,8 +159,10 @@ class AppContext {
   }
 }
 
-Future<void> _noopBleTransportWriter({
+Future<BleWriteResult> _noopBleTransportWriter({
   required String deviceId,
   required Uint8List payload,
   required BleWriteMode mode,
-}) async {}
+}) async {
+  return const BleWriteResult.ack();
+}

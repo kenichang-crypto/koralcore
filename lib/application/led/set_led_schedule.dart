@@ -44,7 +44,7 @@ class SetLedScheduleUseCase {
     required String deviceId,
     required LedSchedule schedule,
   }) async {
-    final DeviceContext deviceContext = currentDeviceSession.requireContext();
+    final DeviceContext deviceContext = currentDeviceSession.requireContext;
 
     if (deviceContext.deviceId != deviceId) {
       throw AppError(

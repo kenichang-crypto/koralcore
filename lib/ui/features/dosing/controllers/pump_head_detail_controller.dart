@@ -90,7 +90,7 @@ class PumpHeadDetailController extends ChangeNotifier {
     if (failure == null) {
       _clearErrorFlag();
     } else {
-      _setError(failure);
+      _setError(failure!);
     }
 
     _isLoading = false;

@@ -21,4 +21,22 @@ class BleAdapterStub implements BleAdapter {
   }) async {
     // No-op stub implementation.
   }
+
+  @override
+  Future<List<int>?> read({
+    required String deviceId,
+    required List<int> data,
+    BleWriteOptions? options,
+  }) async {
+    return null;
+  }
+
+  @override
+  Future<List<int>?> readBytes({
+    required String deviceId,
+    required Uint8List data,
+    BleWriteOptions? options,
+  }) async {
+    return null;
+  }
 }

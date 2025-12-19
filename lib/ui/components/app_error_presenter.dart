@@ -1,5 +1,5 @@
 import '../../application/common/app_error_code.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 
 String describeAppError(AppLocalizations l10n, AppErrorCode code) {
   switch (code) {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -60,7 +60,7 @@ class _PumpHeadScheduleView extends StatelessWidget {
               padding: const EdgeInsets.all(AppDimensions.spacingXL),
               children: [
                 Text(
-                  l10n.dosingPumpHeadSummaryTitle(head: headId.toUpperCase()),
+                  l10n.dosingPumpHeadSummaryTitle(headId.toUpperCase()),
                   style: theme.textTheme.titleMedium,
                 ),
                 const SizedBox(height: AppDimensions.spacingS),

@@ -25,7 +25,7 @@ ThemeData buildAppTheme() {
       bodyColor: AppColors.grey900,
       displayColor: AppColors.grey900,
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppDimensions.radiusL),

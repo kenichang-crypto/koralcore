@@ -6,7 +6,7 @@ import '../../../theme/dimensions.dart';
 import '../../components/app_error_presenter.dart';
 import 'controllers/device_list_controller.dart';
 import 'widgets/device_card.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 
 class DevicePage extends StatefulWidget {
   const DevicePage({super.key});

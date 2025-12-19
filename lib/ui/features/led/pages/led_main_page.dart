@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../application/common/app_context.dart';
+import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../theme/colors.dart';
 import '../../../../theme/dimensions.dart';
@@ -337,7 +338,7 @@ void _maybeShowSceneError(
     return;
   }
 
-  AppErrorPresenter.of(context).present(code: code);
+  _showAppError(context, code);
   controller.clearError();
 }
 
@@ -350,7 +351,7 @@ void _maybeShowScheduleSummaryError(
     return;
   }
 
-  AppErrorPresenter.of(context).present(code: code);
+  _showAppError(context, code);
   controller.clearError();
 }
 
@@ -365,6 +366,11 @@ String _ledSummaryModeLabel(LedScheduleMode mode, AppLocalizations l10n) {
     case LedScheduleMode.none:
       return l10n.ledScheduleSummaryEmpty;
   }
+}
+
+void _showAppError(BuildContext context, AppErrorCode code) {
+  final message = describeAppError(AppLocalizations.of(context), code);
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
 
 String _formatWindow(

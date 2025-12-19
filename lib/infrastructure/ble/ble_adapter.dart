@@ -15,4 +15,16 @@ abstract class BleAdapter {
     required Uint8List data,
     BleWriteOptions? options,
   });
+
+  Future<List<int>?> read({
+    required String deviceId,
+    required List<int> data,
+    BleWriteOptions? options,
+  });
+
+  Future<List<int>?> readBytes({
+    required String deviceId,
+    required Uint8List data,
+    BleWriteOptions? options,
+  });
 }

@@ -17,6 +17,7 @@ class AppColors {
   // Greyscale
   static const Color grey900 = Color(0xFF0F1B2B);
   static const Color grey700 = Color(0xFF3B4A5A);
+  static const Color grey600 = Color(0xFF4A5564);
   static const Color grey500 = Color(0xFF6B7A8C);
   static const Color grey300 = Color(0xFFB5C0CC);
   static const Color grey100 = Color(0xFFE7ECF2);

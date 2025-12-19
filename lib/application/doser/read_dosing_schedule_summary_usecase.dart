@@ -20,7 +20,7 @@ class ReadDosingScheduleSummaryUseCase {
     required String deviceId,
     required String headId,
   }) async {
-    final DeviceContext deviceContext = currentDeviceSession.requireContext();
+    final DeviceContext deviceContext = currentDeviceSession.requireContext;
     if (deviceContext.deviceId != deviceId) {
       throw const AppError(
         code: AppErrorCode.invalidParam,

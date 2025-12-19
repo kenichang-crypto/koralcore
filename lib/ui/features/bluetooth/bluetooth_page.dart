@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../application/device/device_snapshot.dart';
 import '../../../theme/dimensions.dart';
 import '../device/controllers/device_list_controller.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 
 class BluetoothPage extends StatelessWidget {
   const BluetoothPage({super.key});

@@ -1,3 +1,5 @@
+import 'capability_id.dart';
+
 /// Capability 層級錯誤
 ///
 /// 與 Result / Failure 不同：

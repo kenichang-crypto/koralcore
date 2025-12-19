@@ -2,6 +2,7 @@
 enum AppErrorCode {
   deviceBusy,
   noActiveDevice,
+  noDeviceSelected,
   notSupported,
   invalidParam,
   transportError,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -45,7 +45,7 @@ class _PumpHeadCalibrationView extends StatelessWidget {
       builder: (context, session, controller, _) {
         final isConnected = session.isBleConnected;
         final theme = Theme.of(context);
-        _maybeShowError(context, controller.lastErrorCode);
+        _maybeShowCalibrationError(context, controller.lastErrorCode);
 
         return Scaffold(
           appBar: AppBar(title: Text(l10n.dosingCalibrationHistoryTitle)),
@@ -56,7 +56,7 @@ class _PumpHeadCalibrationView extends StatelessWidget {
               padding: const EdgeInsets.all(AppDimensions.spacingXL),
               children: [
                 Text(
-                  l10n.dosingPumpHeadSummaryTitle(head: headId.toUpperCase()),
+                  l10n.dosingPumpHeadSummaryTitle(headId.toUpperCase()),
                   style: theme.textTheme.titleMedium,
                 ),
                 const SizedBox(height: AppDimensions.spacingS),
@@ -166,9 +166,7 @@ class _CalibrationRecordCard extends StatelessWidget {
                 children: [
                   Chip(
                     label: Text(
-                      l10n.dosingCalibrationRecordSpeed(
-                        speed: record.speedProfile,
-                      ),
+                      l10n.dosingCalibrationRecordSpeed(record.speedProfile),
                     ),
                   ),
                   const Spacer(),
@@ -183,7 +181,7 @@ class _CalibrationRecordCard extends StatelessWidget {
               const SizedBox(height: AppDimensions.spacingM),
               Text(
                 l10n.dosingCalibrationRecordFlow(
-                  flow: record.flowRateMlPerMin.toStringAsFixed(1),
+                  record.flowRateMlPerMin.toStringAsFixed(1),
                 ),
                 style: theme.textTheme.titleMedium,
               ),
@@ -208,18 +206,18 @@ class _CalibrationRecordCard extends StatelessWidget {
       context,
     ).showSnackBar(SnackBar(content: Text(l10n.comingSoon)));
   }
+}
 
-  void _maybeShowError(BuildContext context, AppErrorCode? code) {
-    if (code == null) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = context.read<PumpHeadCalibrationController>();
-      final l10n = AppLocalizations.of(context);
-      final message = describeAppError(l10n, code);
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
-      controller.clearError();
-    });
-  }
+void _maybeShowCalibrationError(BuildContext context, AppErrorCode? code) {
+  if (code == null) return;
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    final controller = context.read<PumpHeadCalibrationController>();
+    final l10n = AppLocalizations.of(context);
+    final message = describeAppError(l10n, code);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+    controller.clearError();
+  });
 }

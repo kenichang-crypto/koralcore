@@ -18,6 +18,7 @@ library;
 
 import '../../platform/contracts/device_repository.dart';
 import '../../domain/doser_dosing/doser_schedule.dart';
+import '../../domain/doser_dosing/doser_schedule_type.dart';
 import '../../domain/doser_dosing/doser_schedule_validator.dart';
 
 /// SetDoserScheduleUseCase

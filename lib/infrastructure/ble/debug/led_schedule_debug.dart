@@ -1,16 +1,15 @@
 import 'dart:typed_data';
 
-import '../../domain/led_lighting/led_channel.dart';
-import '../../domain/led_lighting/led_channel_group.dart';
-import '../../domain/led_lighting/led_channel_value.dart';
-import '../../domain/led_lighting/led_custom_schedule.dart';
-import '../../domain/led_lighting/led_daily_schedule.dart';
-import '../../domain/led_lighting/led_intensity.dart';
-import '../../domain/led_lighting/led_scene.dart';
-import '../../domain/led_lighting/led_scene_schedule.dart';
-import '../../domain/led_lighting/led_spectrum.dart';
-import '../../domain/led_lighting/time_of_day.dart';
-import '../../domain/led_lighting/weekday.dart';
+import '../../../domain/led_lighting/led_channel_group.dart';
+import '../../../domain/led_lighting/led_channel_value.dart';
+import '../../../domain/led_lighting/led_custom_schedule.dart';
+import '../../../domain/led_lighting/led_daily_schedule.dart';
+import '../../../domain/led_lighting/led_intensity.dart';
+import '../../../domain/led_lighting/led_scene.dart';
+import '../../../domain/led_lighting/led_scene_schedule.dart';
+import '../../../domain/led_lighting/led_spectrum.dart';
+import '../../../domain/led_lighting/time_of_day.dart';
+import '../../../domain/led_lighting/weekday.dart';
 import '../encoder/led/led_custom_schedule_encoder.dart';
 import '../encoder/led/led_daily_schedule_encoder.dart';
 import '../encoder/led/led_scene_schedule_encoder.dart';

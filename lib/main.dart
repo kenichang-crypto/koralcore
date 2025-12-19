@@ -8,7 +8,7 @@ import 'theme/theme.dart';
 import 'ui/app/main_scaffold.dart';
 import 'ui/app/navigation_controller.dart';
 import 'ui/features/device/controllers/device_list_controller.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

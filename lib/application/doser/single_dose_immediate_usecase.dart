@@ -44,7 +44,7 @@ class SingleDoseImmediateUseCase {
     required String deviceId,
     required SingleDoseImmediate dose,
   }) async {
-    final DeviceContext deviceContext = currentDeviceSession.requireContext();
+    final DeviceContext deviceContext = currentDeviceSession.requireContext;
 
     if (deviceContext.deviceId != deviceId) {
       throw AppError(

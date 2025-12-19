@@ -60,7 +60,7 @@ class ApplyScheduleUseCase {
   Future<ScheduleResult> execute({required DoserSchedule schedule}) async {
     final DeviceContext deviceContext;
     try {
-      deviceContext = currentDeviceSession.requireContext();
+      deviceContext = currentDeviceSession.requireContext;
     } on AppError catch (error) {
       return ScheduleResult.failure(errorCode: error.code);
     }
@@ -188,7 +188,7 @@ class ApplyScheduleUseCase {
     required void Function(ScheduleResult failure) onFailure,
   }) {
     try {
-      return currentDeviceSession.requireContext();
+      return currentDeviceSession.requireContext;
     } on AppError catch (error) {
       onFailure(ScheduleResult.failure(errorCode: error.code));
       return null;

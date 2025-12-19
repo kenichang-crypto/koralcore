@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -61,7 +61,7 @@ class _PumpHeadDetailView extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(l10n.dosingPumpHeadSummaryTitle(head: summary.headId)),
+            title: Text(l10n.dosingPumpHeadSummaryTitle(summary.headId)),
           ),
           body: RefreshIndicator(
             onRefresh: controller.refresh,
@@ -173,7 +173,7 @@ class _StatusCard extends StatelessWidget {
             ),
             const SizedBox(height: AppDimensions.spacingL),
             Text(
-              l10n.homeStatusConnected(device: deviceName),
+              l10n.homeStatusConnected(deviceName),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: AppColors.grey600,
               ),
@@ -224,10 +224,9 @@ class _MetricsGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
-        final cardWidth = math.max(
-          160,
-          (availableWidth - AppDimensions.spacingL) / 2,
-        );
+        final double cardWidth = math
+            .max(160, (availableWidth - AppDimensions.spacingL) / 2)
+            .toDouble();
 
         return Wrap(
           spacing: AppDimensions.spacingL,
@@ -368,7 +367,7 @@ class _TodayDoseCard extends StatelessWidget {
 
 class _TodayDoseValue extends StatelessWidget {
   final String label;
-  final double value;
+  final double? value;
   final bool emphasize;
 
   const _TodayDoseValue({
@@ -387,12 +386,16 @@ class _TodayDoseValue extends StatelessWidget {
         ? theme.textTheme.headlineMedium
         : theme.textTheme.titleMedium;
 
+    final String valueText = value == null
+        ? '—'
+        : '${value!.toStringAsFixed(1)} ml';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: labelStyle),
         const SizedBox(height: AppDimensions.spacingXS),
-        Text('${value.toStringAsFixed(1)} ml', style: valueStyle),
+        Text(valueText, style: valueStyle),
       ],
     );
   }

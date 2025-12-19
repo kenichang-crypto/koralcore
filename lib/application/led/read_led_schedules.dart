@@ -64,7 +64,7 @@ class _LedScheduleSeed {
 
 int _minutes(int hour, int minute) => hour * 60 + minute;
 
-const Map<String, _LedScheduleSeed> _scheduleSeeds = {
+final Map<String, _LedScheduleSeed> _scheduleSeeds = {
   'default': _LedScheduleSeed(
     latency: Duration(milliseconds: 180),
     entries: [

@@ -1,4 +1,5 @@
 import 'doser_schedule.dart';
+import 'doser_schedule_type.dart';
 import 'schedule_time_models.dart';
 import 'weekday.dart';
 
@@ -26,7 +27,7 @@ class DoserScheduleValidator {
 
     // Type-specific rules
     switch (schedule.type) {
-      case var t when t == DoserScheduleType.h24:
+      case DoserScheduleType.h24:
         // time must be TimeRange(00:00 ~ 23:59)
         if (schedule.time is! TimeRange) {
           errors.add('h24 schedule time must be a TimeRange');
@@ -57,7 +58,7 @@ class DoserScheduleValidator {
         }
         break;
 
-      case var t when t == DoserScheduleType.custom:
+      case DoserScheduleType.custom:
         // time must be TimeRange
         if (schedule.time is! TimeRange) {
           errors.add('custom schedule time must be a TimeRange');
@@ -71,7 +72,7 @@ class DoserScheduleValidator {
         }
         break;
 
-      case var t when t == DoserScheduleType.oneshotSchedule:
+      case DoserScheduleType.oneshotSchedule:
         // time must be FixedTime
         if (schedule.time is! FixedTime) {
           errors.add('oneshotSchedule time must be a FixedTime');

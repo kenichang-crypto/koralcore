@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import '../../domain/device/device_context.dart';
 import '../../domain/led_lighting/led_schedule.dart';
-import '../../domain/led_lighting/led_schedule_type.dart';
 import '../../infrastructure/ble/ble_adapter.dart';
 import '../../infrastructure/ble/schedule/led/led_schedule_command_builder.dart';
 import '../../infrastructure/ble/schedule/led/led_schedule_payload.dart';
@@ -41,7 +40,7 @@ class ApplyLedScheduleUseCase {
   Future<LedScheduleResult> execute({required LedSchedule schedule}) async {
     final DeviceContext deviceContext;
     try {
-      deviceContext = currentDeviceSession.requireContext();
+      deviceContext = currentDeviceSession.requireContext;
     } on AppError catch (error) {
       return LedScheduleResult.failure(errorCode: error.code);
     }

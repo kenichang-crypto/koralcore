@@ -1,14 +1,13 @@
 library;
 
-import 'dart:typed_data';
-
 import '../../infrastructure/ble/ble_adapter.dart';
 import '../../infrastructure/ble/ble_adapter_impl.dart';
 import '../../infrastructure/ble/doser/ble_today_totals_data_source.dart';
 import '../../infrastructure/ble/doser/today_totals_data_source.dart';
+import '../../infrastructure/ble/platform_channels/ble_platform_transport_writer.dart';
 import '../../infrastructure/ble/schedule/schedule_sender.dart';
+import '../../infrastructure/ble/transport/ble_read_transport.dart';
 import '../../infrastructure/ble/transport/ble_transport_log_buffer.dart';
-import '../../infrastructure/ble/transport/ble_transport_models.dart';
 import '../../infrastructure/repositories/device_repository_impl.dart';
 import '../../infrastructure/repositories/doser_repository_impl.dart';
 import '../../infrastructure/repositories/lighting_repository_impl.dart';
@@ -31,8 +30,13 @@ import '../doser/schedule_capability_guard.dart';
 import '../doser/schedule_result_mapper.dart';
 import '../doser/update_pump_head_settings.dart';
 import '../led/read_led_scenes.dart';
+import '../led/led_schedule_store.dart';
+import '../led/lighting_state_store.dart';
 import '../led/read_led_schedule_summary_usecase.dart';
 import '../led/read_led_schedules.dart';
+import '../led/read_lighting_state.dart';
+import '../led/save_led_schedule_usecase.dart';
+import '../led/set_channel_intensity.dart';
 import '../session/current_device_session.dart';
 
 /// Root dependency graph for the UI layer.
@@ -52,6 +56,9 @@ class AppContext {
   final ReadLedScenesUseCase readLedScenesUseCase;
   final ReadLedScheduleUseCase readLedScheduleUseCase;
   final ReadLedScheduleSummaryUseCase readLedScheduleSummaryUseCase;
+  final SaveLedScheduleUseCase saveLedScheduleUseCase;
+  final ReadLightingStateUseCase readLightingStateUseCase;
+  final SetChannelIntensityUseCase setChannelIntensityUseCase;
   final UpdatePumpHeadSettingsUseCase updatePumpHeadSettingsUseCase;
   final SingleDoseImmediateUseCase singleDoseImmediateUseCase;
   final SingleDoseTimedUseCase singleDoseTimedUseCase;
@@ -72,6 +79,9 @@ class AppContext {
     required this.readLedScenesUseCase,
     required this.readLedScheduleUseCase,
     required this.readLedScheduleSummaryUseCase,
+    required this.saveLedScheduleUseCase,
+    required this.readLightingStateUseCase,
+    required this.setChannelIntensityUseCase,
     required this.updatePumpHeadSettingsUseCase,
     required this.singleDoseImmediateUseCase,
     required this.singleDoseTimedUseCase,
@@ -83,12 +93,17 @@ class AppContext {
     const LedPort ledPort = LightingRepositoryImpl();
     final currentDeviceSession = CurrentDeviceSession();
     final BleTransportLogBuffer transportLogBuffer = BleTransportLogBuffer();
+    final BlePlatformTransportWriter platformTransportWriter =
+        BlePlatformTransportWriter();
     final BleAdapter bleAdapter = BleAdapterImpl(
-      transportWriter: _noopBleTransportWriter,
+      transportWriter: platformTransportWriter.write,
       observer: transportLogBuffer,
     );
+    final BleReadTransport bleReadTransport = BleAdapterReadTransport(
+      adapter: bleAdapter,
+    );
     final TodayTotalsDataSource todayTotalsDataSource =
-        BleTodayTotalsDataSource(bleAdapter: bleAdapter);
+        BleTodayTotalsDataSource(transport: bleReadTransport);
     final DosingPort dosingPort = DoserRepositoryImpl(
       todayTotalsDataSource: todayTotalsDataSource,
     );
@@ -101,6 +116,10 @@ class AppContext {
     final ScheduleSender scheduleSender = ScheduleSender(
       bleAdapter: bleAdapter,
     );
+    final LightingStateMemoryStore lightingStateMemoryStore =
+        LightingStateMemoryStore();
+    final LedScheduleMemoryStore ledScheduleMemoryStore =
+        LedScheduleMemoryStore();
 
     return AppContext._(
       deviceRepository: deviceRepository,
@@ -132,10 +151,21 @@ class AppContext {
       ),
       readCalibrationHistoryUseCase: const ReadCalibrationHistoryUseCase(),
       readLedScenesUseCase: const ReadLedScenesUseCase(),
-      readLedScheduleUseCase: const ReadLedScheduleUseCase(),
+      readLedScheduleUseCase: ReadLedScheduleUseCase(
+        store: ledScheduleMemoryStore,
+      ),
       readLedScheduleSummaryUseCase: ReadLedScheduleSummaryUseCase(
         ledPort: ledPort,
         currentDeviceSession: currentDeviceSession,
+      ),
+      saveLedScheduleUseCase: SaveLedScheduleUseCase(
+        store: ledScheduleMemoryStore,
+      ),
+      readLightingStateUseCase: ReadLightingStateUseCase(
+        store: lightingStateMemoryStore,
+      ),
+      setChannelIntensityUseCase: SetChannelIntensityUseCase(
+        store: lightingStateMemoryStore,
       ),
       updatePumpHeadSettingsUseCase: const UpdatePumpHeadSettingsUseCase(),
       singleDoseImmediateUseCase: SingleDoseImmediateUseCase(
@@ -157,12 +187,4 @@ class AppContext {
       ),
     );
   }
-}
-
-Future<BleWriteResult> _noopBleTransportWriter({
-  required String deviceId,
-  required Uint8List payload,
-  required BleWriteMode mode,
-}) async {
-  return const BleWriteResult.ack();
 }

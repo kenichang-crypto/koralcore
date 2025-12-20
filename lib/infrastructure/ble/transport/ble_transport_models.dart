@@ -95,6 +95,8 @@ typedef BleTransportWriter =
       required String deviceId,
       required Uint8List payload,
       required BleWriteMode mode,
+      required Duration timeout,
+      bool expectsResponsePayload,
     });
 
 class BleWriteException implements Exception {

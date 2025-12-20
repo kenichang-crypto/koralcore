@@ -373,6 +373,162 @@ abstract class AppLocalizations {
   /// **'Dose history'**
   String get dosingEntryHistory;
 
+  /// No description provided for @dosingScheduleAddButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add schedule'**
+  String get dosingScheduleAddButton;
+
+  /// No description provided for @dosingScheduleEditTitleNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New schedule'**
+  String get dosingScheduleEditTitleNew;
+
+  /// No description provided for @dosingScheduleEditTitleEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit schedule'**
+  String get dosingScheduleEditTitleEdit;
+
+  /// No description provided for @dosingScheduleEditDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure dosing windows for this pump head.'**
+  String get dosingScheduleEditDescription;
+
+  /// No description provided for @dosingScheduleEditTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule type'**
+  String get dosingScheduleEditTypeLabel;
+
+  /// No description provided for @dosingScheduleEditDoseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Dose per event'**
+  String get dosingScheduleEditDoseLabel;
+
+  /// No description provided for @dosingScheduleEditDoseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the amount in milliliters.'**
+  String get dosingScheduleEditDoseHint;
+
+  /// No description provided for @dosingScheduleEditEventsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Events per day'**
+  String get dosingScheduleEditEventsLabel;
+
+  /// No description provided for @dosingScheduleEditStartTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'First dose'**
+  String get dosingScheduleEditStartTimeLabel;
+
+  /// No description provided for @dosingScheduleEditWindowStartLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Window start'**
+  String get dosingScheduleEditWindowStartLabel;
+
+  /// No description provided for @dosingScheduleEditWindowEndLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Window end'**
+  String get dosingScheduleEditWindowEndLabel;
+
+  /// No description provided for @dosingScheduleEditWindowEventsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Events per window'**
+  String get dosingScheduleEditWindowEventsLabel;
+
+  /// No description provided for @dosingScheduleEditRecurrenceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurrence'**
+  String get dosingScheduleEditRecurrenceLabel;
+
+  /// No description provided for @dosingScheduleEditEnabledToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable schedule'**
+  String get dosingScheduleEditEnabledToggle;
+
+  /// No description provided for @dosingScheduleEditSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save schedule'**
+  String get dosingScheduleEditSave;
+
+  /// No description provided for @dosingScheduleEditSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule saved.'**
+  String get dosingScheduleEditSuccess;
+
+  /// No description provided for @dosingScheduleEditInvalidDose.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a dose greater than zero.'**
+  String get dosingScheduleEditInvalidDose;
+
+  /// No description provided for @dosingScheduleEditInvalidWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'End time must be after start time.'**
+  String get dosingScheduleEditInvalidWindow;
+
+  /// No description provided for @dosingScheduleEditTemplateDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Use daily average template'**
+  String get dosingScheduleEditTemplateDaily;
+
+  /// No description provided for @dosingScheduleEditTemplateCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Use custom window template'**
+  String get dosingScheduleEditTemplateCustom;
+
+  /// No description provided for @dosingManualPageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Run an on-demand dose from this pump head.'**
+  String get dosingManualPageSubtitle;
+
+  /// No description provided for @dosingManualDoseInputLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Dose amount'**
+  String get dosingManualDoseInputLabel;
+
+  /// No description provided for @dosingManualDoseInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the amount in milliliters.'**
+  String get dosingManualDoseInputHint;
+
+  /// No description provided for @dosingManualConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send manual dose?'**
+  String get dosingManualConfirmTitle;
+
+  /// No description provided for @dosingManualConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This dose will start immediately. Make sure your dosing line is ready.'**
+  String get dosingManualConfirmMessage;
+
+  /// No description provided for @dosingManualInvalidDose.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a dose greater than zero.'**
+  String get dosingManualInvalidDose;
+
   /// No description provided for @ledHeader.
   ///
   /// In en, this message translates to:
@@ -391,6 +547,12 @@ abstract class AppLocalizations {
   /// **'Adjust intensity'**
   String get ledEntryIntensity;
 
+  /// No description provided for @ledIntensityEntrySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tune output for each lighting channel.'**
+  String get ledIntensityEntrySubtitle;
+
   /// No description provided for @ledEntryPrograms.
   ///
   /// In en, this message translates to:
@@ -403,11 +565,161 @@ abstract class AppLocalizations {
   /// **'Manual control'**
   String get ledEntryManual;
 
+  /// No description provided for @ledScheduleAddButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add schedule'**
+  String get ledScheduleAddButton;
+
+  /// No description provided for @ledScheduleEditTitleNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New lighting schedule'**
+  String get ledScheduleEditTitleNew;
+
+  /// No description provided for @ledScheduleEditTitleEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit lighting schedule'**
+  String get ledScheduleEditTitleEdit;
+
+  /// No description provided for @ledScheduleEditDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure time windows and intensity levels.'**
+  String get ledScheduleEditDescription;
+
+  /// No description provided for @ledScheduleEditNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule name'**
+  String get ledScheduleEditNameLabel;
+
+  /// No description provided for @ledScheduleEditNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a label'**
+  String get ledScheduleEditNameHint;
+
+  /// No description provided for @ledScheduleEditInvalidName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a schedule name.'**
+  String get ledScheduleEditInvalidName;
+
+  /// No description provided for @ledScheduleEditTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule type'**
+  String get ledScheduleEditTypeLabel;
+
+  /// No description provided for @ledScheduleEditStartLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Start time'**
+  String get ledScheduleEditStartLabel;
+
+  /// No description provided for @ledScheduleEditEndLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'End time'**
+  String get ledScheduleEditEndLabel;
+
+  /// No description provided for @ledScheduleEditRecurrenceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurrence'**
+  String get ledScheduleEditRecurrenceLabel;
+
+  /// No description provided for @ledScheduleEditEnabledToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable schedule'**
+  String get ledScheduleEditEnabledToggle;
+
+  /// No description provided for @ledScheduleEditChannelsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Channels'**
+  String get ledScheduleEditChannelsHeader;
+
+  /// No description provided for @ledScheduleEditChannelWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'Cool white'**
+  String get ledScheduleEditChannelWhite;
+
+  /// No description provided for @ledScheduleEditChannelBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Royal blue'**
+  String get ledScheduleEditChannelBlue;
+
+  /// No description provided for @ledScheduleEditSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save schedule'**
+  String get ledScheduleEditSave;
+
+  /// No description provided for @ledScheduleEditSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Lighting schedule saved.'**
+  String get ledScheduleEditSuccess;
+
+  /// No description provided for @ledScheduleEditInvalidWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'End time must be after start time.'**
+  String get ledScheduleEditInvalidWindow;
+
+  /// No description provided for @ledControlTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Intensity & spectrum'**
+  String get ledControlTitle;
+
+  /// No description provided for @ledControlSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust each lighting channel, then apply when ready.'**
+  String get ledControlSubtitle;
+
+  /// No description provided for @ledControlChannelsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Channels'**
+  String get ledControlChannelsSection;
+
+  /// No description provided for @ledControlValueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% output'**
+  String ledControlValueLabel(int percent);
+
+  /// No description provided for @ledControlApplySuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'LED settings updated.'**
+  String get ledControlApplySuccess;
+
+  /// No description provided for @ledControlEmptyState.
+  ///
+  /// In en, this message translates to:
+  /// **'No adjustable LED channels yet.'**
+  String get ledControlEmptyState;
+
   /// No description provided for @comingSoon.
   ///
   /// In en, this message translates to:
   /// **'Coming soon'**
   String get comingSoon;
+
+  /// No description provided for @actionApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get actionApply;
 
   /// No description provided for @actionCancel.
   ///

@@ -5,6 +5,7 @@ import '../../../../application/common/app_session.dart';
 import '../../../../theme/dimensions.dart';
 import '../../../components/ble_guard.dart';
 import '../models/pump_head_summary.dart';
+import 'manual_dosing_page.dart';
 import 'pump_head_detail_page.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 
@@ -63,8 +64,13 @@ class DosingMainPage extends StatelessWidget {
           ),
           _EntryTile(
             title: l10n.dosingEntryManual,
-            subtitle: l10n.comingSoon,
+            subtitle: l10n.dosingManualPageSubtitle,
             enabled: isConnected,
+            onTapWhenEnabled: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ManualDosingPage()),
+              );
+            },
           ),
           _EntryTile(
             title: l10n.dosingEntryCalibration,
@@ -157,11 +163,13 @@ class _EntryTile extends StatelessWidget {
   final String title;
   final String subtitle;
   final bool enabled;
+  final VoidCallback? onTapWhenEnabled;
 
   const _EntryTile({
     required this.title,
     required this.subtitle,
     required this.enabled,
+    this.onTapWhenEnabled,
   });
 
   @override
@@ -175,9 +183,13 @@ class _EntryTile extends StatelessWidget {
         trailing: const Icon(Icons.chevron_right),
         onTap: enabled
             ? () {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(subtitle)));
+                if (onTapWhenEnabled != null) {
+                  onTapWhenEnabled!();
+                } else {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(subtitle)));
+                }
               }
             : () {
                 showBleGuardDialog(context);

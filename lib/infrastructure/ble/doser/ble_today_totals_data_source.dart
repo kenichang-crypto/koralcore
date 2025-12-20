@@ -3,21 +3,22 @@ library;
 import 'dart:typed_data';
 
 import '../../../platform/contracts/dosing_port.dart';
-import '../../ble/ble_adapter.dart';
 import '../../ble/response/ble_error_code.dart';
+import '../../ble/transport/ble_read_transport.dart';
 import '../../ble/transport/ble_transport_models.dart';
 import 'today_totals_data_source.dart';
 
 /// Executes BLE read opcodes (0x7E / 0x7A) via the hardened adapter queue and
 /// returns the raw payload for repository-level parsing.
 class BleTodayTotalsDataSource implements TodayTotalsDataSource {
-  final BleAdapter bleAdapter;
+  final BleReadTransport _transport;
   final BleWriteOptions readOptions;
 
   const BleTodayTotalsDataSource({
-    required this.bleAdapter,
+    required BleReadTransport transport,
     BleWriteOptions? readOptions,
-  }) : readOptions = readOptions ?? const BleWriteOptions();
+  }) : _transport = transport,
+       readOptions = readOptions ?? const BleWriteOptions();
 
   @override
   Future<TodayTotalsPacket?> read({
@@ -26,12 +27,14 @@ class BleTodayTotalsDataSource implements TodayTotalsDataSource {
     required TodayDoseReadOpcode opcode,
   }) async {
     final Uint8List request = _buildRequest(opcode: opcode, pumpId: pumpId);
+    final int opcodeByte = request.isNotEmpty ? request.first : 0;
 
-    List<int>? payload;
+    Uint8List? payload;
     try {
-      payload = await bleAdapter.readBytes(
+      payload = await _transport.read(
         deviceId: deviceId,
-        data: request,
+        opcode: opcodeByte,
+        payload: request,
         options: readOptions,
       );
     } on BleCommandRejectedException catch (error) {

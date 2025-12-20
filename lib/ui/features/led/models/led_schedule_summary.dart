@@ -4,6 +4,18 @@ enum LedScheduleType { dailyProgram, customWindow, sceneBased }
 
 enum LedScheduleRecurrence { everyday, weekdays, weekends }
 
+class LedScheduleChannelValue {
+  final String id;
+  final String label;
+  final int percentage;
+
+  const LedScheduleChannelValue({
+    required this.id,
+    required this.label,
+    required this.percentage,
+  });
+}
+
 class LedScheduleSummary {
   final String id;
   final String title;
@@ -13,6 +25,7 @@ class LedScheduleSummary {
   final TimeOfDay endTime;
   final String sceneName;
   final bool isEnabled;
+  final List<LedScheduleChannelValue> channels;
 
   const LedScheduleSummary({
     required this.id,
@@ -23,5 +36,6 @@ class LedScheduleSummary {
     required this.endTime,
     required this.sceneName,
     required this.isEnabled,
+    this.channels = const [],
   });
 }

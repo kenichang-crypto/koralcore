@@ -7,10 +7,8 @@ import '../../../../application/common/app_session.dart';
 import '../../../../application/doser/apply_schedule_usecase.dart';
 import '../../../../application/doser/read_schedule.dart';
 import '../../../../application/doser/schedule_result.dart';
-import '../../../../domain/doser_dosing/pump_speed.dart';
 import '../../../../domain/doser_schedule/custom_window_schedule_definition.dart';
 import '../../../../domain/doser_schedule/daily_average_schedule_definition.dart';
-import '../../../../domain/doser_schedule/schedule_weekday.dart';
 import '../models/pump_head_schedule_entry.dart';
 
 class PumpHeadScheduleController extends ChangeNotifier {
@@ -20,9 +18,10 @@ class PumpHeadScheduleController extends ChangeNotifier {
   final ApplyScheduleUseCase applyScheduleUseCase;
 
   List<PumpHeadScheduleEntry> _entries = const [];
+  List<PumpHeadScheduleEntry> _remoteEntries = const [];
+  final Map<String, PumpHeadScheduleEntry> _localOverrides =
+      <String, PumpHeadScheduleEntry>{};
   bool _isLoading = true;
-  bool _isApplyingDailyAverage = false;
-  bool _isApplyingCustomWindow = false;
   AppErrorCode? _lastErrorCode;
 
   PumpHeadScheduleController({
@@ -34,8 +33,6 @@ class PumpHeadScheduleController extends ChangeNotifier {
 
   List<PumpHeadScheduleEntry> get entries => _entries;
   bool get isLoading => _isLoading;
-  bool get isApplyingDailyAverage => _isApplyingDailyAverage;
-  bool get isApplyingCustomWindow => _isApplyingCustomWindow;
   AppErrorCode? get lastErrorCode => _lastErrorCode;
 
   Future<void> refresh() async {
@@ -54,13 +51,16 @@ class PumpHeadScheduleController extends ChangeNotifier {
     try {
       final List<ReadScheduleEntrySnapshot> snapshots =
           await readScheduleUseCase.execute(deviceId: deviceId, headId: headId);
-      _entries = snapshots.map(_mapSnapshot).toList(growable: false);
+      _remoteEntries = snapshots.map(_mapSnapshot).toList(growable: false);
+      _mergeEntries();
       _clearErrorFlag();
     } on AppError catch (error) {
-      _entries = const [];
+      _remoteEntries = const [];
+      _mergeEntries();
       _setError(error.code);
     } catch (_) {
-      _entries = const [];
+      _remoteEntries = const [];
+      _mergeEntries();
       _setError(AppErrorCode.unknownError);
     } finally {
       _isLoading = false;
@@ -68,13 +68,10 @@ class PumpHeadScheduleController extends ChangeNotifier {
     }
   }
 
-  void clearError() {
-    if (_lastErrorCode == null) return;
-    _lastErrorCode = null;
-    notifyListeners();
-  }
-
-  Future<bool> applyDailyAverageSchedule() async {
+  Future<bool> saveDailyAverageSchedule({
+    required DailyAverageScheduleDefinition definition,
+    required PumpHeadScheduleEntry preview,
+  }) async {
     final String? deviceId = session.activeDeviceId;
     if (deviceId == null) {
       _setError(AppErrorCode.noActiveDevice);
@@ -82,21 +79,12 @@ class PumpHeadScheduleController extends ChangeNotifier {
       return false;
     }
 
-    if (_isApplyingDailyAverage) {
-      return false;
-    }
-
-    _isApplyingDailyAverage = true;
-    notifyListeners();
-
     try {
-      final DailyAverageScheduleDefinition schedule =
-          _buildDailyAverageScheduleDefinition();
       final ScheduleResult result = await applyScheduleUseCase
-          .applyDailyAverageSchedule(deviceId: deviceId, schedule: schedule);
+          .applyDailyAverageSchedule(deviceId: deviceId, schedule: definition);
 
       if (result.isSuccess) {
-        await refresh();
+        upsertLocalEntry(preview);
         return true;
       }
 
@@ -111,13 +99,13 @@ class PumpHeadScheduleController extends ChangeNotifier {
       _setError(AppErrorCode.unknownError);
       notifyListeners();
       return false;
-    } finally {
-      _isApplyingDailyAverage = false;
-      notifyListeners();
     }
   }
 
-  Future<bool> applyCustomWindowSchedule() async {
+  Future<bool> saveCustomWindowSchedule({
+    required CustomWindowScheduleDefinition definition,
+    required PumpHeadScheduleEntry preview,
+  }) async {
     final String? deviceId = session.activeDeviceId;
     if (deviceId == null) {
       _setError(AppErrorCode.noActiveDevice);
@@ -125,21 +113,12 @@ class PumpHeadScheduleController extends ChangeNotifier {
       return false;
     }
 
-    if (_isApplyingCustomWindow) {
-      return false;
-    }
-
-    _isApplyingCustomWindow = true;
-    notifyListeners();
-
     try {
-      final CustomWindowScheduleDefinition schedule =
-          _buildCustomWindowScheduleDefinition();
       final ScheduleResult result = await applyScheduleUseCase
-          .applyCustomWindowSchedule(deviceId: deviceId, schedule: schedule);
+          .applyCustomWindowSchedule(deviceId: deviceId, schedule: definition);
 
       if (result.isSuccess) {
-        await refresh();
+        upsertLocalEntry(preview);
         return true;
       }
 
@@ -154,9 +133,6 @@ class PumpHeadScheduleController extends ChangeNotifier {
       _setError(AppErrorCode.unknownError);
       notifyListeners();
       return false;
-    } finally {
-      _isApplyingCustomWindow = false;
-      notifyListeners();
     }
   }
 
@@ -211,82 +187,5 @@ class PumpHeadScheduleController extends ChangeNotifier {
 
   void _setError(AppErrorCode code) {
     _lastErrorCode = code;
-  }
-
-  DailyAverageScheduleDefinition _buildDailyAverageScheduleDefinition() {
-    final int pumpId = _pumpIdFromHeadId(headId);
-    final Set<ScheduleWeekday> repeatDays = ScheduleWeekday.values.toSet();
-    final List<DailyDoseSlot> slots = <DailyDoseSlot>[
-      DailyDoseSlot(hour: 0, minute: 0, doseMl: 0.8, speed: PumpSpeed.low),
-      DailyDoseSlot(hour: 6, minute: 0, doseMl: 0.8, speed: PumpSpeed.low),
-      DailyDoseSlot(hour: 12, minute: 0, doseMl: 0.8, speed: PumpSpeed.low),
-      DailyDoseSlot(hour: 18, minute: 0, doseMl: 0.8, speed: PumpSpeed.low),
-    ];
-
-    return DailyAverageScheduleDefinition(
-      scheduleId: 'daily-$pumpId',
-      pumpId: pumpId,
-      repeatDays: repeatDays,
-      slots: slots,
-    );
-  }
-
-  CustomWindowScheduleDefinition _buildCustomWindowScheduleDefinition() {
-    final int pumpId = _pumpIdFromHeadId(headId);
-    final List<ScheduleWindowChunk> chunks = <ScheduleWindowChunk>[
-      ScheduleWindowChunk(
-        chunkIndex: 0,
-        windowStartMinute: 0,
-        windowEndMinute: 120,
-        events: const <WindowDoseEvent>[
-          WindowDoseEvent(
-            minuteOffset: 0,
-            doseMl: 0.9,
-            speed: PumpSpeed.medium,
-          ),
-          WindowDoseEvent(
-            minuteOffset: 60,
-            doseMl: 0.9,
-            speed: PumpSpeed.medium,
-          ),
-        ],
-      ),
-      ScheduleWindowChunk(
-        chunkIndex: 1,
-        windowStartMinute: 240,
-        windowEndMinute: 360,
-        events: const <WindowDoseEvent>[
-          WindowDoseEvent(minuteOffset: 15, doseMl: 1.1, speed: PumpSpeed.high),
-          WindowDoseEvent(minuteOffset: 75, doseMl: 1.1, speed: PumpSpeed.high),
-        ],
-      ),
-      ScheduleWindowChunk(
-        chunkIndex: 2,
-        windowStartMinute: 720,
-        windowEndMinute: 900,
-        events: const <WindowDoseEvent>[
-          WindowDoseEvent(minuteOffset: 0, doseMl: 1.3, speed: PumpSpeed.low),
-          WindowDoseEvent(minuteOffset: 90, doseMl: 1.3, speed: PumpSpeed.low),
-        ],
-      ),
-    ];
-
-    return CustomWindowScheduleDefinition(
-      scheduleId: 'custom-$pumpId',
-      pumpId: pumpId,
-      chunks: chunks,
-    );
-  }
-
-  int _pumpIdFromHeadId(String value) {
-    final String normalized = value.trim().toUpperCase();
-    if (normalized.isEmpty) {
-      return 1;
-    }
-    final int candidate = normalized.codeUnitAt(0) - 64;
-    if (candidate < 1) {
-      return 1;
-    }
-    return candidate;
   }
 }

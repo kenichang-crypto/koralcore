@@ -44,10 +44,10 @@ class PumpHeadSettingsPage extends StatelessWidget {
 
 class _PumpHeadSettingsView extends StatefulWidget {
                         Text(
-                          l10n.dosingPumpHeadSummaryTitle(
+                          l10n.dosingPumpHeadSummaryTitle Function(
                             widget.headId.toUpperCase(),
-                          ),
-  const _PumpHeadSettingsView({
+                          ) Function ,
+  PumpHeadSettingsView({
     required this.headId,
     required this.initialName,
     required this.initialDelaySeconds,

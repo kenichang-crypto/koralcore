@@ -11,6 +11,7 @@ import '../../../components/ble_guard.dart';
 import '../../../components/app_error_presenter.dart';
 import '../controllers/led_schedule_list_controller.dart';
 import '../models/led_schedule_summary.dart';
+import 'led_schedule_edit_page.dart';
 
 class LedScheduleListPage extends StatelessWidget {
   const LedScheduleListPage({super.key});
@@ -29,9 +30,14 @@ class LedScheduleListPage extends StatelessWidget {
   }
 }
 
-class _LedScheduleListView extends StatelessWidget {
+class _LedScheduleListView extends StatefulWidget {
   const _LedScheduleListView();
 
+  @override
+  State<_LedScheduleListView> createState() => _LedScheduleListViewState();
+}
+
+class _LedScheduleListViewState extends State<_LedScheduleListView> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -53,6 +59,17 @@ class _LedScheduleListView extends StatelessWidget {
                   l10n.ledScheduleListSubtitle,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: AppColors.grey700,
+                  ),
+                ),
+                const SizedBox(height: AppDimensions.spacingS),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: FilledButton.icon(
+                    onPressed: isConnected
+                        ? () => _openEditor(controller: controller, l10n: l10n)
+                        : () => showBleGuardDialog(context),
+                    icon: const Icon(Icons.add),
+                    label: Text(l10n.ledScheduleAddButton),
                   ),
                 ),
                 const SizedBox(height: AppDimensions.spacingL),
@@ -77,8 +94,14 @@ class _LedScheduleListView extends StatelessWidget {
                       ),
                       child: _ScheduleCard(
                         schedule: schedule,
-                        isConnected: isConnected,
                         l10n: l10n,
+                        onTap: isConnected
+                            ? () => _openEditor(
+                                controller: controller,
+                                l10n: l10n,
+                                schedule: schedule,
+                              )
+                            : () => showBleGuardDialog(context),
                       ),
                     ),
                   ),
@@ -88,6 +111,28 @@ class _LedScheduleListView extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> _openEditor({
+    required LedScheduleListController controller,
+    required AppLocalizations l10n,
+    LedScheduleSummary? schedule,
+  }) async {
+    final result = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => LedScheduleEditPage(initialSchedule: schedule),
+      ),
+    );
+    if (result != true) {
+      return;
+    }
+    await controller.refresh();
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.ledScheduleEditSuccess)));
   }
 }
 
@@ -127,14 +172,10 @@ class _ScheduleEmptyState extends StatelessWidget {
 
 class _ScheduleCard extends StatelessWidget {
   final LedScheduleSummary schedule;
-  final bool isConnected;
   final AppLocalizations l10n;
+  final VoidCallback? onTap;
 
-  const _ScheduleCard({
-    required this.schedule,
-    required this.isConnected,
-    required this.l10n,
-  });
+  const _ScheduleCard({required this.schedule, required this.l10n, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -148,9 +189,7 @@ class _ScheduleCard extends StatelessWidget {
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(AppDimensions.radiusL),
-        onTap: isConnected
-            ? () => _showComingSoon(context)
-            : () => showBleGuardDialog(context),
+        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(AppDimensions.spacingL),
           child: Column(
@@ -209,6 +248,23 @@ class _ScheduleCard extends StatelessWidget {
                   color: AppColors.grey700,
                 ),
               ),
+              if (schedule.channels.isNotEmpty) ...[
+                const SizedBox(height: AppDimensions.spacingS),
+                Wrap(
+                  spacing: AppDimensions.spacingS,
+                  runSpacing: AppDimensions.spacingXS,
+                  children: schedule.channels
+                      .map(
+                        (channel) => Chip(
+                          label: Text(
+                            '${channel.label} ${channel.percentage}%',
+                          ),
+                          backgroundColor: AppColors.ocean500.withOpacity(0.08),
+                        ),
+                      )
+                      .toList(growable: false),
+                ),
+              ],
             ],
           ),
         ),
@@ -246,12 +302,6 @@ class _ScheduleCard extends StatelessWidget {
     final startDate = DateTime(2020, 1, 1, start.hour, start.minute);
     final endDate = DateTime(2020, 1, 1, end.hour, end.minute);
     return '${formatter.format(startDate)} – ${formatter.format(endDate)}';
-  }
-
-  void _showComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l10n.comingSoon)));
   }
 }
 

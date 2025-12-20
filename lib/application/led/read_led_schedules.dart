@@ -4,10 +4,23 @@ import 'dart:async';
 
 import '../common/app_error.dart';
 import '../common/app_error_code.dart';
+import 'led_schedule_store.dart';
 
 enum ReadLedScheduleType { dailyProgram, customWindow, sceneBased }
 
 enum ReadLedScheduleRecurrence { everyDay, weekdays, weekends }
+
+class ReadLedScheduleChannelSnapshot {
+  final String id;
+  final String label;
+  final int percentage;
+
+  const ReadLedScheduleChannelSnapshot({
+    required this.id,
+    required this.label,
+    required this.percentage,
+  });
+}
 
 class ReadLedScheduleSnapshot {
   final String id;
@@ -18,6 +31,7 @@ class ReadLedScheduleSnapshot {
   final int endMinutesFromMidnight;
   final String sceneName;
   final bool isEnabled;
+  final List<ReadLedScheduleChannelSnapshot> channels;
 
   const ReadLedScheduleSnapshot({
     required this.id,
@@ -28,6 +42,7 @@ class ReadLedScheduleSnapshot {
     required this.endMinutesFromMidnight,
     required this.sceneName,
     required this.isEnabled,
+    required this.channels,
   });
 }
 
@@ -35,94 +50,56 @@ class ReadLedScheduleSnapshot {
 /// The final BLE transport wiring will plug in once the firmware protocol
 /// stabilizes, but this snapshot list keeps the UI unblocked.
 class ReadLedScheduleUseCase {
-  const ReadLedScheduleUseCase();
+  final LedScheduleMemoryStore store;
+
+  const ReadLedScheduleUseCase({required this.store});
 
   Future<List<ReadLedScheduleSnapshot>> execute({
     required String deviceId,
   }) async {
-    final _LedScheduleSeed? seed =
-        _scheduleSeeds[deviceId] ?? _scheduleSeeds['default'];
-
-    if (seed == null) {
+    if (deviceId.isEmpty) {
       throw const AppError(
-        code: AppErrorCode.invalidParam,
-        message: 'Unknown device id for LED schedules.',
+        code: AppErrorCode.noActiveDevice,
+        message: 'LED schedules require an active device id.',
       );
     }
 
-    await Future<void>.delayed(seed.latency);
-    return List<ReadLedScheduleSnapshot>.unmodifiable(seed.entries);
+    final List<LedScheduleRecord> records = await store.listSchedules(
+      deviceId: deviceId,
+    );
+    return records.map(mapLedScheduleRecordToSnapshot).toList(growable: false);
   }
 }
 
-class _LedScheduleSeed {
-  final Duration latency;
-  final List<ReadLedScheduleSnapshot> entries;
-
-  const _LedScheduleSeed({required this.latency, required this.entries});
+ReadLedScheduleSnapshot mapLedScheduleRecordToSnapshot(
+  LedScheduleRecord record,
+) {
+  return ReadLedScheduleSnapshot(
+    id: record.id,
+    title: record.title,
+    type: record.type,
+    recurrence: record.recurrence,
+    startMinutesFromMidnight: record.startMinutesFromMidnight,
+    endMinutesFromMidnight: record.endMinutesFromMidnight,
+    sceneName: record.sceneName ?? _formatChannelSummary(record.channels),
+    isEnabled: record.isEnabled,
+    channels: record.channels
+        .map(
+          (channel) => ReadLedScheduleChannelSnapshot(
+            id: channel.id,
+            label: channel.label,
+            percentage: channel.percentage,
+          ),
+        )
+        .toList(growable: false),
+  );
 }
 
-int _minutes(int hour, int minute) => hour * 60 + minute;
-
-final Map<String, _LedScheduleSeed> _scheduleSeeds = {
-  'default': _LedScheduleSeed(
-    latency: Duration(milliseconds: 180),
-    entries: [
-      ReadLedScheduleSnapshot(
-        id: 'daily_curve',
-        title: 'Daily ramp',
-        type: ReadLedScheduleType.dailyProgram,
-        recurrence: ReadLedScheduleRecurrence.everyDay,
-        startMinutesFromMidnight: _minutes(6, 0),
-        endMinutesFromMidnight: _minutes(22, 0),
-        sceneName: 'Sunrise Blend',
-        isEnabled: true,
-      ),
-      ReadLedScheduleSnapshot(
-        id: 'custom_midday',
-        title: 'Midday punch',
-        type: ReadLedScheduleType.customWindow,
-        recurrence: ReadLedScheduleRecurrence.weekdays,
-        startMinutesFromMidnight: _minutes(11, 0),
-        endMinutesFromMidnight: _minutes(15, 0),
-        sceneName: 'Reef Crest',
-        isEnabled: true,
-      ),
-      ReadLedScheduleSnapshot(
-        id: 'moon_scene',
-        title: 'Moonlight scene',
-        type: ReadLedScheduleType.sceneBased,
-        recurrence: ReadLedScheduleRecurrence.weekends,
-        startMinutesFromMidnight: _minutes(22, 30),
-        endMinutesFromMidnight: _minutes(23, 59),
-        sceneName: 'Moonlight',
-        isEnabled: false,
-      ),
-    ],
-  ),
-  'lagoon_x2': _LedScheduleSeed(
-    latency: Duration(milliseconds: 150),
-    entries: [
-      ReadLedScheduleSnapshot(
-        id: 'lagoon_daily',
-        title: 'Lagoon daylight',
-        type: ReadLedScheduleType.dailyProgram,
-        recurrence: ReadLedScheduleRecurrence.everyDay,
-        startMinutesFromMidnight: _minutes(7, 0),
-        endMinutesFromMidnight: _minutes(21, 30),
-        sceneName: 'Lagoon Crest',
-        isEnabled: true,
-      ),
-      ReadLedScheduleSnapshot(
-        id: 'lagoon_evening',
-        title: 'Evening shimmer',
-        type: ReadLedScheduleType.customWindow,
-        recurrence: ReadLedScheduleRecurrence.weekends,
-        startMinutesFromMidnight: _minutes(20, 0),
-        endMinutesFromMidnight: _minutes(23, 0),
-        sceneName: 'Shimmer Blues',
-        isEnabled: true,
-      ),
-    ],
-  ),
-};
+String _formatChannelSummary(List<LedScheduleChannelState> channels) {
+  if (channels.isEmpty) {
+    return 'Custom spectrum';
+  }
+  return channels
+      .map((channel) => '${channel.label} ${channel.percentage}%')
+      .join(' / ');
+}

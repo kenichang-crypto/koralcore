@@ -12,6 +12,7 @@ import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/pump_head_schedule_controller.dart';
 import '../models/pump_head_schedule_entry.dart';
+import 'schedule_edit_page.dart';
 
 class PumpHeadSchedulePage extends StatelessWidget {
   final String headId;
@@ -47,8 +48,6 @@ class _PumpHeadScheduleView extends StatelessWidget {
         final theme = Theme.of(context);
         final isConnected = session.isBleConnected;
         final entries = controller.entries;
-        final bool isApplyingDaily = controller.isApplyingDailyAverage;
-        final bool isApplyingCustom = controller.isApplyingCustomWindow;
         _maybeShowError(context, controller.lastErrorCode);
 
         return Scaffold(
@@ -71,30 +70,32 @@ class _PumpHeadScheduleView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: AppDimensions.spacingL),
-                FilledButton(
-                  onPressed: isConnected && !isApplyingDaily
-                      ? () => _applyDailyAverageSchedule(context)
+                FilledButton.icon(
+                  onPressed: isConnected
+                      ? () => _openScheduleEditor(context)
                       : null,
-                  child: isApplyingDaily
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                  icon: const Icon(Icons.add),
+                  label: Text(l10n.dosingScheduleAddButton),
+                ),
+                const SizedBox(height: AppDimensions.spacingS),
+                FilledButton(
+                  onPressed: isConnected
+                      ? () => _openScheduleEditor(
+                          context,
+                          templateType: PumpHeadScheduleType.dailyAverage,
                         )
-                      : Text(l10n.dosingScheduleApplyDailyAverage),
+                      : null,
+                  child: Text(l10n.dosingScheduleEditTemplateDaily),
                 ),
                 const SizedBox(height: AppDimensions.spacingS),
                 OutlinedButton(
-                  onPressed: isConnected && !isApplyingCustom
-                      ? () => _applyCustomWindowSchedule(context)
-                      : null,
-                  child: isApplyingCustom
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                  onPressed: isConnected
+                      ? () => _openScheduleEditor(
+                          context,
+                          templateType: PumpHeadScheduleType.customWindow,
                         )
-                      : Text(l10n.dosingScheduleApplyCustomWindow),
+                      : null,
+                  child: Text(l10n.dosingScheduleEditTemplateCustom),
                 ),
                 const SizedBox(height: AppDimensions.spacingL),
                 if (!isConnected) ...[
@@ -120,6 +121,7 @@ class _PumpHeadScheduleView extends StatelessWidget {
                         entry: entry,
                         isConnected: isConnected,
                         l10n: l10n,
+                        onTap: () => _openScheduleEditor(context, entry: entry),
                       ),
                     ),
                   ),
@@ -145,24 +147,28 @@ class _PumpHeadScheduleView extends StatelessWidget {
     });
   }
 
-  Future<void> _applyDailyAverageSchedule(BuildContext context) async {
-    final controller = context.read<PumpHeadScheduleController>();
-    final bool success = await controller.applyDailyAverageSchedule();
-    if (!context.mounted || !success) return;
-    final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.dosingScheduleApplyDailyAverageSuccess)),
+  Future<void> _openScheduleEditor(
+    BuildContext context, {
+    PumpHeadScheduleType? templateType,
+    PumpHeadScheduleEntry? entry,
+  }) async {
+    final bool? saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => ScheduleEditPage(
+          headId: headId,
+          initialEntry: entry,
+          initialType:
+              templateType ?? entry?.type ?? PumpHeadScheduleType.dailyAverage,
+        ),
+      ),
     );
-  }
 
-  Future<void> _applyCustomWindowSchedule(BuildContext context) async {
-    final controller = context.read<PumpHeadScheduleController>();
-    final bool success = await controller.applyCustomWindowSchedule();
-    if (!context.mounted || !success) return;
-    final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.dosingScheduleApplyCustomWindowSuccess)),
-    );
+    if (saved == true && context.mounted) {
+      final l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.dosingScheduleEditSuccess)));
+    }
   }
 }
 
@@ -204,11 +210,13 @@ class _ScheduleEntryCard extends StatelessWidget {
   final PumpHeadScheduleEntry entry;
   final bool isConnected;
   final AppLocalizations l10n;
+  final VoidCallback onTap;
 
   const _ScheduleEntryCard({
     required this.entry,
     required this.isConnected,
     required this.l10n,
+    required this.onTap,
   });
 
   @override
@@ -229,9 +237,7 @@ class _ScheduleEntryCard extends StatelessWidget {
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(AppDimensions.radiusL),
-        onTap: isConnected
-            ? () => _showComingSoon(context)
-            : () => showBleGuardDialog(context),
+        onTap: isConnected ? onTap : () => showBleGuardDialog(context),
         child: Padding(
           padding: const EdgeInsets.all(AppDimensions.spacingL),
           child: Column(
@@ -328,11 +334,5 @@ class _ScheduleEntryCard extends StatelessWidget {
   String _formatTime(TimeOfDay time) {
     final date = DateTime(2020, 1, 1, time.hour, time.minute);
     return DateFormat('h:mm a').format(date);
-  }
-
-  void _showComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l10n.comingSoon)));
   }
 }

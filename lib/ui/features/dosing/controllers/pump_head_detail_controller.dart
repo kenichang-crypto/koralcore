@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 
 import '../../../../application/common/app_error.dart';
 import '../../../../application/common/app_error_code.dart';
@@ -14,7 +15,8 @@ import '../../../../domain/doser_dosing/single_dose_timed.dart';
 import '../../../../domain/doser_schedule/dosing_schedule_summary.dart';
 import '../models/pump_head_summary.dart';
 
-class PumpHeadDetailController extends ChangeNotifier {
+class PumpHeadDetailController extends ChangeNotifier
+    with WidgetsBindingObserver {
   static const double _defaultManualDoseMl = 1.0;
   static const double _defaultTimedDoseMl = 0.5;
   static const Duration _defaultTimedLeadDuration = Duration(minutes: 5);
@@ -28,13 +30,16 @@ class PumpHeadDetailController extends ChangeNotifier {
 
   PumpHeadSummary _summary;
   bool _isLoading = true;
-  bool _isTodayDoseLoading = true;
   bool _isScheduleSummaryLoading = true;
   bool _isManualDoseInFlight = false;
   bool _isTimedDoseInFlight = false;
   AppErrorCode? _lastErrorCode;
-  TodayDoseSummary? _todayDoseSummary;
+  TodayDoseReadState _todayDoseState = const TodayDoseReadState.idle();
   DosingScheduleSummary? _scheduleSummary;
+  Future<void>? _refreshInProgress;
+  String? _refreshDeviceId;
+  String? _activeDeviceId;
+  bool _isDisposed = false;
 
   PumpHeadDetailController({
     required this.headId,
@@ -43,71 +48,150 @@ class PumpHeadDetailController extends ChangeNotifier {
     required this.readDosingScheduleSummaryUseCase,
     required this.singleDoseImmediateUseCase,
     required this.singleDoseTimedUseCase,
-  }) : _summary = PumpHeadSummary.demo(headId);
+  }) : _summary = PumpHeadSummary.demo(headId) {
+    WidgetsBinding.instance.addObserver(this);
+    session.addListener(_handleSessionChanged);
+  }
 
   PumpHeadSummary get summary => _summary;
   bool get isLoading => _isLoading;
-  bool get isTodayDoseLoading => _isTodayDoseLoading;
+  bool get isTodayDoseLoading => _todayDoseState.isLoading;
   bool get isScheduleSummaryLoading => _isScheduleSummaryLoading;
   bool get isManualDoseInFlight => _isManualDoseInFlight;
   bool get isTimedDoseInFlight => _isTimedDoseInFlight;
-  TodayDoseSummary? get todayDoseSummary => _todayDoseSummary;
+  TodayDoseSummary? get todayDoseSummary => _todayDoseState.summary;
   DosingScheduleSummary? get dosingScheduleSummary => _scheduleSummary;
   AppErrorCode? get lastErrorCode => _lastErrorCode;
 
   bool get canDisplayData => session.isBleConnected && !isLoading;
 
-  Future<void> refresh() async {
+  Future<void> refresh() {
     final String? deviceId = session.activeDeviceId;
+    if (_refreshInProgress != null && _refreshDeviceId == deviceId) {
+      return _refreshInProgress!;
+    }
+
+    final Future<void> refreshTask = _performRefresh(deviceId);
+    _refreshDeviceId = deviceId;
+    _refreshInProgress = refreshTask.whenComplete(() {
+      if (identical(_refreshInProgress, refreshTask)) {
+        _refreshInProgress = null;
+        _refreshDeviceId = null;
+      }
+    });
+
+    return _refreshInProgress!;
+  }
+
+  Future<void> _performRefresh(String? deviceId) async {
     if (deviceId == null) {
-      _summary = PumpHeadSummary.demo(headId);
-      _isLoading = false;
-      _isTodayDoseLoading = false;
-      _isScheduleSummaryLoading = false;
-      _todayDoseSummary = null;
-      _scheduleSummary = null;
-      _setError(AppErrorCode.noActiveDevice);
-      notifyListeners();
+      _handleNoActiveDevice();
       return;
     }
 
+    final bool deviceChanged = _activeDeviceId != deviceId;
+    _activeDeviceId = deviceId;
+
     _isLoading = true;
-    _isTodayDoseLoading = true;
     _isScheduleSummaryLoading = true;
-    notifyListeners();
+    _todayDoseState = TodayDoseReadState.loading(
+      previousSummary: deviceChanged ? null : _todayDoseState.summary,
+    );
+    if (deviceChanged) {
+      _summary = _summary.copyWith(todayDispensedMl: 0);
+      _scheduleSummary = null;
+    }
+    _notifyListenersIfActive();
+
+    final List<AppErrorCode?> results = await Future.wait<AppErrorCode?>(
+      <Future<AppErrorCode?>>[
+        _loadTodayTotals(deviceId),
+        _loadScheduleSummary(deviceId),
+      ],
+      eagerError: false,
+    );
+
+    if (!_shouldApplyResult(deviceId)) {
+      return;
+    }
 
     AppErrorCode? failure;
-
-    await Future.wait(<Future<void>>[
-      _loadTodayTotals(deviceId).catchError((Object error) {
-        failure ??= _mapErrorCode(error);
-      }),
-      _loadScheduleSummary(deviceId).catchError((Object error) {
-        failure ??= _mapErrorCode(error);
-      }),
-    ], eagerError: false);
+    for (final AppErrorCode? code in results) {
+      failure ??= code;
+    }
 
     if (failure == null) {
       _clearErrorFlag();
     } else {
-      _setError(failure!);
+      _setError(failure);
     }
 
     _isLoading = false;
+    _notifyListenersIfActive();
+  }
+
+  void _handleNoActiveDevice() {
+    _activeDeviceId = null;
+    _summary = PumpHeadSummary.demo(headId);
+    _isLoading = false;
+    _isScheduleSummaryLoading = false;
+    _todayDoseState = const TodayDoseReadState.idle();
+    _scheduleSummary = null;
+    _setError(AppErrorCode.noActiveDevice);
+    _notifyListenersIfActive();
+  }
+
+  bool _shouldApplyResult(String deviceId) {
+    return !_isDisposed && _activeDeviceId == deviceId;
+  }
+
+  void _notifyListenersIfActive() {
+    if (_isDisposed) {
+      return;
+    }
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    WidgetsBinding.instance.removeObserver(this);
+    session.removeListener(_handleSessionChanged);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      refresh();
+    }
+  }
+
+  void _handleSessionChanged() {
+    final bool isConnected = session.isBleConnected;
+    final bool deviceChanged = _activeDeviceId != session.activeDeviceId;
+
+    if (deviceChanged) {
+      refresh();
+      return;
+    }
+
+    if (!isConnected) {
+      _handleNoActiveDevice();
+    }
   }
 
   void clearError() {
     if (_lastErrorCode == null) return;
     _lastErrorCode = null;
-    notifyListeners();
+    _notifyListenersIfActive();
   }
 
   Future<bool> sendManualDose() async {
     final String? deviceId = session.activeDeviceId;
     if (deviceId == null) {
       _setError(AppErrorCode.noActiveDevice);
-      notifyListeners();
+      _notifyListenersIfActive();
       return false;
     }
 
@@ -116,7 +200,7 @@ class PumpHeadDetailController extends ChangeNotifier {
     }
 
     _isManualDoseInFlight = true;
-    notifyListeners();
+    _notifyListenersIfActive();
 
     try {
       final SingleDoseImmediate dose = SingleDoseImmediate(
@@ -131,15 +215,15 @@ class PumpHeadDetailController extends ChangeNotifier {
       return true;
     } on AppError catch (error) {
       _setError(error.code);
-      notifyListeners();
+      _notifyListenersIfActive();
       return false;
     } catch (_) {
       _setError(AppErrorCode.unknownError);
-      notifyListeners();
+      _notifyListenersIfActive();
       return false;
     } finally {
       _isManualDoseInFlight = false;
-      notifyListeners();
+      _notifyListenersIfActive();
     }
   }
 
@@ -147,7 +231,7 @@ class PumpHeadDetailController extends ChangeNotifier {
     final String? deviceId = session.activeDeviceId;
     if (deviceId == null) {
       _setError(AppErrorCode.noActiveDevice);
-      notifyListeners();
+      _notifyListenersIfActive();
       return false;
     }
 
@@ -156,7 +240,7 @@ class PumpHeadDetailController extends ChangeNotifier {
     }
 
     _isTimedDoseInFlight = true;
-    notifyListeners();
+    _notifyListenersIfActive();
 
     try {
       final SingleDoseTimed dose = SingleDoseTimed(
@@ -171,15 +255,15 @@ class PumpHeadDetailController extends ChangeNotifier {
       return true;
     } on AppError catch (error) {
       _setError(error.code);
-      notifyListeners();
+      _notifyListenersIfActive();
       return false;
     } catch (_) {
       _setError(AppErrorCode.unknownError);
-      notifyListeners();
+      _notifyListenersIfActive();
       return false;
     } finally {
       _isTimedDoseInFlight = false;
-      notifyListeners();
+      _notifyListenersIfActive();
     }
   }
 
@@ -192,36 +276,66 @@ class PumpHeadDetailController extends ChangeNotifier {
     _lastErrorCode = code;
   }
 
-  AppErrorCode _mapErrorCode(Object error) {
-    if (error is AppError) {
-      return error.code;
-    }
-    return AppErrorCode.unknownError;
-  }
-
-  Future<void> _loadTodayTotals(String deviceId) async {
+  Future<AppErrorCode?> _loadTodayTotals(String deviceId) async {
     try {
       final TodayDoseSummary? summary = await readTodayTotalUseCase.execute(
         deviceId: deviceId,
         headId: headId,
       );
-      _todayDoseSummary = summary;
-      if (summary != null) {
-        _summary = _summary.copyWith(todayDispensedMl: summary.totalMl);
+      if (!_shouldApplyResult(deviceId)) {
+        return null;
       }
-    } finally {
-      _isTodayDoseLoading = false;
+      if (summary == null) {
+        _todayDoseState = const TodayDoseReadState.empty();
+        return null;
+      }
+      _todayDoseState = TodayDoseReadState.success(summary);
+      _summary = _summary.copyWith(todayDispensedMl: summary.totalMl);
+      return null;
+    } on AppError catch (error) {
+      if (_shouldApplyResult(deviceId)) {
+        _todayDoseState = TodayDoseReadState.failure(
+          error.code,
+          previousSummary: _todayDoseState.summary,
+        );
+      }
+      return error.code;
+    } catch (_) {
+      if (_shouldApplyResult(deviceId)) {
+        _todayDoseState = TodayDoseReadState.failure(
+          AppErrorCode.unknownError,
+          previousSummary: _todayDoseState.summary,
+        );
+      }
+      return AppErrorCode.unknownError;
     }
   }
 
-  Future<void> _loadScheduleSummary(String deviceId) async {
+  Future<AppErrorCode?> _loadScheduleSummary(String deviceId) async {
     try {
-      _scheduleSummary = await readDosingScheduleSummaryUseCase.execute(
-        deviceId: deviceId,
-        headId: headId,
-      );
+      final DosingScheduleSummary? summary =
+          await readDosingScheduleSummaryUseCase.execute(
+            deviceId: deviceId,
+            headId: headId,
+          );
+      if (_shouldApplyResult(deviceId)) {
+        _scheduleSummary = summary;
+      }
+      return null;
+    } on AppError catch (error) {
+      if (_shouldApplyResult(deviceId)) {
+        _scheduleSummary = null;
+      }
+      return error.code;
+    } catch (_) {
+      if (_shouldApplyResult(deviceId)) {
+        _scheduleSummary = null;
+      }
+      return AppErrorCode.unknownError;
     } finally {
-      _isScheduleSummaryLoading = false;
+      if (_shouldApplyResult(deviceId)) {
+        _isScheduleSummaryLoading = false;
+      }
     }
   }
 
@@ -236,4 +350,33 @@ class PumpHeadDetailController extends ChangeNotifier {
     }
     return candidate;
   }
+}
+
+class TodayDoseReadState {
+  final bool isLoading;
+  final TodayDoseSummary? summary;
+  final AppErrorCode? errorCode;
+
+  const TodayDoseReadState._({
+    required this.isLoading,
+    this.summary,
+    this.errorCode,
+  });
+
+  const TodayDoseReadState.idle()
+    : this._(isLoading: false, summary: null, errorCode: null);
+
+  TodayDoseReadState.loading({TodayDoseSummary? previousSummary})
+    : this._(isLoading: true, summary: previousSummary, errorCode: null);
+
+  const TodayDoseReadState.empty()
+    : this._(isLoading: false, summary: null, errorCode: null);
+
+  TodayDoseReadState.success(TodayDoseSummary summary)
+    : this._(isLoading: false, summary: summary, errorCode: null);
+
+  TodayDoseReadState.failure(
+    AppErrorCode code, {
+    TodayDoseSummary? previousSummary,
+  }) : this._(isLoading: false, summary: previousSummary, errorCode: code);
 }

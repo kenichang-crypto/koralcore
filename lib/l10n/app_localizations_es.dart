@@ -145,6 +145,88 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dosingEntryHistory => 'Historial de dosis';
 
   @override
+  String get dosingScheduleAddButton => 'Add schedule';
+
+  @override
+  String get dosingScheduleEditTitleNew => 'New schedule';
+
+  @override
+  String get dosingScheduleEditTitleEdit => 'Edit schedule';
+
+  @override
+  String get dosingScheduleEditDescription =>
+      'Configure dosing windows for this pump head.';
+
+  @override
+  String get dosingScheduleEditTypeLabel => 'Schedule type';
+
+  @override
+  String get dosingScheduleEditDoseLabel => 'Dose per event';
+
+  @override
+  String get dosingScheduleEditDoseHint => 'Enter the amount in milliliters.';
+
+  @override
+  String get dosingScheduleEditEventsLabel => 'Events per day';
+
+  @override
+  String get dosingScheduleEditStartTimeLabel => 'First dose';
+
+  @override
+  String get dosingScheduleEditWindowStartLabel => 'Window start';
+
+  @override
+  String get dosingScheduleEditWindowEndLabel => 'Window end';
+
+  @override
+  String get dosingScheduleEditWindowEventsLabel => 'Events per window';
+
+  @override
+  String get dosingScheduleEditRecurrenceLabel => 'Recurrence';
+
+  @override
+  String get dosingScheduleEditEnabledToggle => 'Enable schedule';
+
+  @override
+  String get dosingScheduleEditSave => 'Save schedule';
+
+  @override
+  String get dosingScheduleEditSuccess => 'Schedule saved.';
+
+  @override
+  String get dosingScheduleEditInvalidDose => 'Enter a dose greater than zero.';
+
+  @override
+  String get dosingScheduleEditInvalidWindow =>
+      'End time must be after start time.';
+
+  @override
+  String get dosingScheduleEditTemplateDaily => 'Use daily average template';
+
+  @override
+  String get dosingScheduleEditTemplateCustom => 'Use custom window template';
+
+  @override
+  String get dosingManualPageSubtitle =>
+      'Ejecuta una dosis a demanda desde esta cabeza de bomba.';
+
+  @override
+  String get dosingManualDoseInputLabel => 'Cantidad de dosis';
+
+  @override
+  String get dosingManualDoseInputHint => 'Ingresa la cantidad en mililitros.';
+
+  @override
+  String get dosingManualConfirmTitle => '¿Enviar dosis manual?';
+
+  @override
+  String get dosingManualConfirmMessage =>
+      'Esta dosis comenzará de inmediato. Asegúrate de que tu línea de dosificación esté lista.';
+
+  @override
+  String get dosingManualInvalidDose => 'Ingresa una dosis mayor que cero.';
+
+  @override
   String get ledHeader => 'Iluminación';
 
   @override
@@ -154,13 +236,97 @@ class AppLocalizationsEs extends AppLocalizations {
   String get ledEntryIntensity => 'Ajustar intensidad';
 
   @override
+  String get ledIntensityEntrySubtitle =>
+      'Tune output for each lighting channel.';
+
+  @override
   String get ledEntryPrograms => 'Escenas y programas';
 
   @override
   String get ledEntryManual => 'Control manual';
 
   @override
+  String get ledScheduleAddButton => 'Add schedule';
+
+  @override
+  String get ledScheduleEditTitleNew => 'New lighting schedule';
+
+  @override
+  String get ledScheduleEditTitleEdit => 'Edit lighting schedule';
+
+  @override
+  String get ledScheduleEditDescription =>
+      'Configure time windows and intensity levels.';
+
+  @override
+  String get ledScheduleEditNameLabel => 'Schedule name';
+
+  @override
+  String get ledScheduleEditNameHint => 'Enter a label';
+
+  @override
+  String get ledScheduleEditInvalidName => 'Enter a schedule name.';
+
+  @override
+  String get ledScheduleEditTypeLabel => 'Schedule type';
+
+  @override
+  String get ledScheduleEditStartLabel => 'Start time';
+
+  @override
+  String get ledScheduleEditEndLabel => 'End time';
+
+  @override
+  String get ledScheduleEditRecurrenceLabel => 'Recurrence';
+
+  @override
+  String get ledScheduleEditEnabledToggle => 'Enable schedule';
+
+  @override
+  String get ledScheduleEditChannelsHeader => 'Channels';
+
+  @override
+  String get ledScheduleEditChannelWhite => 'Cool white';
+
+  @override
+  String get ledScheduleEditChannelBlue => 'Royal blue';
+
+  @override
+  String get ledScheduleEditSave => 'Save schedule';
+
+  @override
+  String get ledScheduleEditSuccess => 'Lighting schedule saved.';
+
+  @override
+  String get ledScheduleEditInvalidWindow =>
+      'End time must be after start time.';
+
+  @override
+  String get ledControlTitle => 'Intensity & spectrum';
+
+  @override
+  String get ledControlSubtitle =>
+      'Adjust each lighting channel, then apply when ready.';
+
+  @override
+  String get ledControlChannelsSection => 'Channels';
+
+  @override
+  String ledControlValueLabel(int percent) {
+    return '$percent% output';
+  }
+
+  @override
+  String get ledControlApplySuccess => 'LED settings updated.';
+
+  @override
+  String get ledControlEmptyState => 'No adjustable LED channels yet.';
+
+  @override
   String get comingSoon => 'Muy pronto';
+
+  @override
+  String get actionApply => 'Apply';
 
   @override
   String get actionCancel => 'Cancelar';

@@ -13,6 +13,8 @@ import '../../../components/app_error_presenter.dart';
 import '../controllers/led_scene_list_controller.dart';
 import '../controllers/led_schedule_summary_controller.dart';
 import '../models/led_scene_summary.dart';
+import 'led_control_page.dart';
+import 'led_schedule_edit_page.dart';
 import 'led_scene_list_page.dart';
 import 'led_schedule_list_page.dart';
 
@@ -64,9 +66,32 @@ class LedMainPage extends StatelessWidget {
               readLedScheduleSummaryUseCase:
                   appContext.readLedScheduleSummaryUseCase,
             )..refresh(),
-            child: _LedScheduleSummaryCard(l10n: l10n),
+            child: _LedScheduleSummarySection(
+              l10n: l10n,
+              isConnected: isConnected,
+            ),
           ),
           const SizedBox(height: AppDimensions.spacingXL),
+          _EntryTile(
+            title: l10n.ledEntryIntensity,
+            subtitle: l10n.ledIntensityEntrySubtitle,
+            enabled: isConnected,
+            onTapWhenEnabled: () {
+              final messenger = ScaffoldMessenger.of(context);
+              Navigator.of(context)
+                  .push<bool>(
+                    MaterialPageRoute(builder: (_) => const LedControlPage()),
+                  )
+                  .then((result) {
+                    if (result != true) {
+                      return;
+                    }
+                    messenger.showSnackBar(
+                      SnackBar(content: Text(l10n.ledControlApplySuccess)),
+                    );
+                  });
+            },
+          ),
           _EntryTile(
             title: l10n.ledEntryScenes,
             subtitle: l10n.ledScenesListSubtitle,
@@ -531,6 +556,54 @@ class _LedScheduleSummaryCard extends StatelessWidget {
     final hour = normalized ~/ 60;
     final minute = normalized % 60;
     return TimeOfDay(hour: hour, minute: minute);
+  }
+}
+
+class _LedScheduleSummarySection extends StatelessWidget {
+  final AppLocalizations l10n;
+  final bool isConnected;
+
+  const _LedScheduleSummarySection({
+    required this.l10n,
+    required this.isConnected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _LedScheduleSummaryCard(l10n: l10n),
+        const SizedBox(height: AppDimensions.spacingM),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: FilledButton.icon(
+            onPressed: isConnected
+                ? () => _openEditor(context)
+                : () => showBleGuardDialog(context),
+            icon: const Icon(Icons.add),
+            label: Text(l10n.ledScheduleAddButton),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _openEditor(BuildContext context) async {
+    final result = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => const LedScheduleEditPage()),
+    );
+    if (result != true) {
+      return;
+    }
+
+    final LedScheduleSummaryController controller = context
+        .read<LedScheduleSummaryController>();
+    await controller.refresh();
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showSnackBar(
+      SnackBar(content: Text(l10n.ledScheduleEditSuccess)),
+    );
   }
 }
 

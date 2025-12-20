@@ -76,6 +76,15 @@ class LedScheduleListController extends ChangeNotifier {
       endTime: _minutesToTime(snapshot.endMinutesFromMidnight),
       sceneName: snapshot.sceneName,
       isEnabled: snapshot.isEnabled,
+      channels: snapshot.channels
+          .map(
+            (channel) => LedScheduleChannelValue(
+              id: channel.id,
+              label: channel.label,
+              percentage: channel.percentage,
+            ),
+          )
+          .toList(growable: false),
     );
   }
 

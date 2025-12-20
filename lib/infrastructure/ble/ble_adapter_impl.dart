@@ -283,12 +283,13 @@ class BleAdapterImpl implements BleAdapter {
         deviceId: command.deviceId,
         payload: command.payload,
         mode: command.options.mode,
+        timeout: command.options.timeout,
+        expectsResponsePayload: command.responseCompleter != null,
       );
 
-      final BleWriteResult result =
-          command.options.mode == BleWriteMode.withResponse
-          ? await writerFuture.timeout(command.options.timeout)
-          : await writerFuture;
+      final BleWriteResult result = await writerFuture.timeout(
+        command.options.timeout,
+      );
 
       switch (result.status) {
         case BleTransportResult.ack:

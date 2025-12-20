@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../application/common/app_error_code.dart';
+import '../../../application/system/ble_readiness_controller.dart';
 import '../../../theme/dimensions.dart';
 import '../../components/app_error_presenter.dart';
+import '../../components/ble_guard.dart';
 import 'controllers/device_list_controller.dart';
 import 'widgets/device_card.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
@@ -48,6 +50,24 @@ class _DevicePageState extends State<DevicePage> {
                   l10n.deviceHeader,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Consumer<BleReadinessController>(
+                builder: (context, bleController, _) {
+                  if (bleController.snapshot.isReady) {
+                    return const SizedBox.shrink();
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppDimensions.spacingXL,
+                      0,
+                      AppDimensions.spacingXL,
+                      AppDimensions.spacingL,
+                    ),
+                    child: const BleGuardBanner(),
+                  );
+                },
               ),
             ),
             SliverToBoxAdapter(

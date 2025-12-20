@@ -188,4 +188,38 @@ class PumpHeadScheduleController extends ChangeNotifier {
   void _setError(AppErrorCode code) {
     _lastErrorCode = code;
   }
+
+  void _mergeEntries() {
+    final List<PumpHeadScheduleEntry> merged = <PumpHeadScheduleEntry>[];
+    final Set<String> seen = <String>{};
+
+    for (final PumpHeadScheduleEntry entry in _remoteEntries) {
+      final PumpHeadScheduleEntry next = _localOverrides[entry.id] ?? entry;
+      merged.add(next);
+      seen.add(entry.id);
+    }
+
+    for (final PumpHeadScheduleEntry override in _localOverrides.values) {
+      if (seen.contains(override.id)) {
+        continue;
+      }
+      merged.add(override);
+    }
+
+    _entries = merged;
+  }
+
+  void upsertLocalEntry(PumpHeadScheduleEntry entry) {
+    _localOverrides[entry.id] = entry;
+    _mergeEntries();
+    notifyListeners();
+  }
+
+  void clearError() {
+    if (_lastErrorCode == null) {
+      return;
+    }
+    _lastErrorCode = null;
+    notifyListeners();
+  }
 }

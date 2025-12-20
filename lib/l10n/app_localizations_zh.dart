@@ -59,6 +59,92 @@ class AppLocalizationsZh extends AppLocalizations {
   String get bleGuardDialogButton => 'Got it';
 
   @override
+  String get bleOnboardingPermissionTitle => 'Enable Bluetooth access';
+
+  @override
+  String get bleOnboardingPermissionCopy =>
+      'We use Bluetooth to discover and control your Koral hardware nearby.';
+
+  @override
+  String get bleOnboardingPermissionCta => 'Allow access';
+
+  @override
+  String get bleOnboardingSettingsTitle => 'Permission required in Settings';
+
+  @override
+  String get bleOnboardingSettingsCopy =>
+      'Bluetooth access was previously denied. Open system settings to enable it.';
+
+  @override
+  String get bleOnboardingSettingsCta => 'Open settings';
+
+  @override
+  String get bleOnboardingLocationTitle => 'Allow location access';
+
+  @override
+  String get bleOnboardingLocationCopy =>
+      'Android requires location access on older versions to scan for Bluetooth devices.';
+
+  @override
+  String get bleOnboardingBluetoothOffTitle => 'Turn on Bluetooth';
+
+  @override
+  String get bleOnboardingBluetoothOffCopy =>
+      'Bluetooth must stay on to keep scanning and control your devices.';
+
+  @override
+  String get bleOnboardingBluetoothCta => 'Open Bluetooth settings';
+
+  @override
+  String get bleOnboardingUnavailableTitle => 'Bluetooth unavailable';
+
+  @override
+  String get bleOnboardingUnavailableCopy =>
+      'This device does not expose a Bluetooth radio that KoralCore can use.';
+
+  @override
+  String get bleOnboardingRetryCta => 'Retry';
+
+  @override
+  String get bleOnboardingLearnMore => 'Learn more';
+
+  @override
+  String get bleOnboardingSheetTitle => 'Why KoralCore needs Bluetooth';
+
+  @override
+  String get bleOnboardingSheetDescription =>
+      'Bluetooth powers discovery and control of your dosing and lighting hardware. Here\'s what happens once you grant access.';
+
+  @override
+  String get bleOnboardingSheetSearchTitle => 'Find nearby devices';
+
+  @override
+  String get bleOnboardingSheetSearchCopy =>
+      'Scan for Reef Dose, Reef LED, and other Koral equipment around your tank.';
+
+  @override
+  String get bleOnboardingSheetControlTitle => 'Control dosing and lighting';
+
+  @override
+  String get bleOnboardingSheetControlCopy =>
+      'Sync schedules, send commands, and keep firmware up to date over a secure BLE link.';
+
+  @override
+  String get bleOnboardingSheetFooter =>
+      'As soon as Bluetooth is ready we automatically resume scanning.';
+
+  @override
+  String get bleOnboardingDisabledHint =>
+      'Grant Bluetooth access to start scanning.';
+
+  @override
+  String get bleOnboardingBlockedEmptyTitle => 'Bluetooth setup required';
+
+  @override
+  String get bleOnboardingBlockedEmptyCopy =>
+      'Allow Bluetooth access or turn it on to discover your reef hardware.';
+
+  @override
   String get bluetoothHeader => 'Nearby devices';
 
   @override

@@ -211,6 +211,156 @@ abstract class AppLocalizations {
   /// **'Got it'**
   String get bleGuardDialogButton;
 
+  /// No description provided for @bleOnboardingPermissionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Bluetooth access'**
+  String get bleOnboardingPermissionTitle;
+
+  /// No description provided for @bleOnboardingPermissionCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'We use Bluetooth to discover and control your Koral hardware nearby.'**
+  String get bleOnboardingPermissionCopy;
+
+  /// No description provided for @bleOnboardingPermissionCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow access'**
+  String get bleOnboardingPermissionCta;
+
+  /// No description provided for @bleOnboardingSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission required in Settings'**
+  String get bleOnboardingSettingsTitle;
+
+  /// No description provided for @bleOnboardingSettingsCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth access was previously denied. Open system settings to enable it.'**
+  String get bleOnboardingSettingsCopy;
+
+  /// No description provided for @bleOnboardingSettingsCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get bleOnboardingSettingsCta;
+
+  /// No description provided for @bleOnboardingLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow location access'**
+  String get bleOnboardingLocationTitle;
+
+  /// No description provided for @bleOnboardingLocationCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Android requires location access on older versions to scan for Bluetooth devices.'**
+  String get bleOnboardingLocationCopy;
+
+  /// No description provided for @bleOnboardingBluetoothOffTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Bluetooth'**
+  String get bleOnboardingBluetoothOffTitle;
+
+  /// No description provided for @bleOnboardingBluetoothOffCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth must stay on to keep scanning and control your devices.'**
+  String get bleOnboardingBluetoothOffCopy;
+
+  /// No description provided for @bleOnboardingBluetoothCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Bluetooth settings'**
+  String get bleOnboardingBluetoothCta;
+
+  /// No description provided for @bleOnboardingUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth unavailable'**
+  String get bleOnboardingUnavailableTitle;
+
+  /// No description provided for @bleOnboardingUnavailableCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'This device does not expose a Bluetooth radio that KoralCore can use.'**
+  String get bleOnboardingUnavailableCopy;
+
+  /// No description provided for @bleOnboardingRetryCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get bleOnboardingRetryCta;
+
+  /// No description provided for @bleOnboardingLearnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn more'**
+  String get bleOnboardingLearnMore;
+
+  /// No description provided for @bleOnboardingSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why KoralCore needs Bluetooth'**
+  String get bleOnboardingSheetTitle;
+
+  /// No description provided for @bleOnboardingSheetDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth powers discovery and control of your dosing and lighting hardware. Here\'s what happens once you grant access.'**
+  String get bleOnboardingSheetDescription;
+
+  /// No description provided for @bleOnboardingSheetSearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find nearby devices'**
+  String get bleOnboardingSheetSearchTitle;
+
+  /// No description provided for @bleOnboardingSheetSearchCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan for Reef Dose, Reef LED, and other Koral equipment around your tank.'**
+  String get bleOnboardingSheetSearchCopy;
+
+  /// No description provided for @bleOnboardingSheetControlTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Control dosing and lighting'**
+  String get bleOnboardingSheetControlTitle;
+
+  /// No description provided for @bleOnboardingSheetControlCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync schedules, send commands, and keep firmware up to date over a secure BLE link.'**
+  String get bleOnboardingSheetControlCopy;
+
+  /// No description provided for @bleOnboardingSheetFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'As soon as Bluetooth is ready we automatically resume scanning.'**
+  String get bleOnboardingSheetFooter;
+
+  /// No description provided for @bleOnboardingDisabledHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Grant Bluetooth access to start scanning.'**
+  String get bleOnboardingDisabledHint;
+
+  /// No description provided for @bleOnboardingBlockedEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth setup required'**
+  String get bleOnboardingBlockedEmptyTitle;
+
+  /// No description provided for @bleOnboardingBlockedEmptyCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Bluetooth access or turn it on to discover your reef hardware.'**
+  String get bleOnboardingBlockedEmptyCopy;
+
   /// No description provided for @bluetoothHeader.
   ///
   /// In en, this message translates to:

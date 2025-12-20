@@ -43,11 +43,11 @@ class PumpHeadSettingsPage extends StatelessWidget {
 }
 
 class _PumpHeadSettingsView extends StatefulWidget {
-                        Text(
-                          l10n.dosingPumpHeadSummaryTitle Function(
-                            widget.headId.toUpperCase(),
-                          ) Function ,
-  PumpHeadSettingsView({
+  final String headId;
+  final String initialName;
+  final int initialDelaySeconds;
+
+  const _PumpHeadSettingsView({
     required this.headId,
     required this.initialName,
     required this.initialDelaySeconds,
@@ -124,7 +124,9 @@ class _PumpHeadSettingsViewState extends State<_PumpHeadSettingsView> {
   }
 
   Future<bool> _handleWillPop(AppLocalizations l10n) async {
-                        l10n.dosingPumpHeadSettingsDelayOption(value),
+    if (!_isDirty) {
+      return true;
+    }
     return _confirmDiscard(l10n);
   }
 

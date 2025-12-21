@@ -11,9 +11,11 @@ import '../../infrastructure/ble/transport/ble_transport_log_buffer.dart';
 import '../../infrastructure/repositories/device_repository_impl.dart';
 import '../../infrastructure/repositories/doser_repository_impl.dart';
 import '../../infrastructure/repositories/lighting_repository_impl.dart';
+import '../../infrastructure/repositories/pump_head_repository_impl.dart';
 import '../../platform/contracts/device_repository.dart';
 import '../../platform/contracts/dosing_port.dart';
 import '../../platform/contracts/led_port.dart';
+import '../../platform/contracts/pump_head_repository.dart';
 import '../common/app_error_mapper.dart';
 import '../device/connect_device_usecase.dart';
 import '../device/disconnect_device_usecase.dart';
@@ -42,6 +44,7 @@ import '../session/current_device_session.dart';
 /// Root dependency graph for the UI layer.
 class AppContext {
   final DeviceRepository deviceRepository;
+  final PumpHeadRepository pumpHeadRepository;
   final CurrentDeviceSession currentDeviceSession;
   final BleAdapter bleAdapter;
 
@@ -66,6 +69,7 @@ class AppContext {
 
   AppContext._({
     required this.deviceRepository,
+    required this.pumpHeadRepository,
     required this.currentDeviceSession,
     required this.bleAdapter,
     required this.scanDevicesUseCase,
@@ -90,6 +94,7 @@ class AppContext {
 
   factory AppContext.bootstrap() {
     final DeviceRepository deviceRepository = DeviceRepositoryImpl();
+    final PumpHeadRepository pumpHeadRepository = PumpHeadRepositoryImpl();
     const LedPort ledPort = LightingRepositoryImpl();
     final currentDeviceSession = CurrentDeviceSession();
     final BleTransportLogBuffer transportLogBuffer = BleTransportLogBuffer();
@@ -128,6 +133,7 @@ class AppContext {
 
     return AppContext._(
       deviceRepository: deviceRepository,
+      pumpHeadRepository: pumpHeadRepository,
       currentDeviceSession: currentDeviceSession,
       bleAdapter: bleAdapter,
       scanDevicesUseCase: ScanDevicesUseCase(
@@ -175,6 +181,7 @@ class AppContext {
         currentDeviceSession: currentDeviceSession,
         bleAdapter: bleAdapter,
         readTodayTotalUseCase: readTodayTotalUseCase,
+        pumpHeadRepository: pumpHeadRepository,
       ),
       singleDoseTimedUseCase: SingleDoseTimedUseCase(
         deviceRepository: deviceRepository,

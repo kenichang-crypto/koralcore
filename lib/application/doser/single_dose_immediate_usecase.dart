@@ -1,11 +1,13 @@
 import 'dart:typed_data';
 
 import '../../domain/device/device_context.dart';
+import '../../domain/doser_dosing/pump_head.dart';
 import '../../domain/doser_dosing/single_dose_immediate.dart';
 import '../../infrastructure/ble/ble_adapter.dart';
 import '../../infrastructure/ble/encoder/doser/immediate_single_dose_encoder.dart';
 import '../../infrastructure/ble/transport/ble_transport_models.dart';
 import '../../platform/contracts/device_repository.dart';
+import '../../platform/contracts/pump_head_repository.dart';
 import '../common/app_error.dart';
 import '../common/app_error_code.dart';
 import '../session/current_device_session.dart';
@@ -22,14 +24,18 @@ class SingleDoseImmediateUseCase {
   final DeviceRepository deviceRepository;
   final CurrentDeviceSession currentDeviceSession;
   final BleAdapter bleAdapter;
+  final PumpHeadRepository pumpHeadRepository;
   final BleWriteOptions writeOptions;
   final ImmediateSingleDoseEncoder immediateSingleDoseEncoder;
   final ReadTodayTotalUseCase readTodayTotalUseCase;
+
+  static const double _defaultDailyLimitMl = 30.0;
 
   SingleDoseImmediateUseCase({
     required this.deviceRepository,
     required this.currentDeviceSession,
     required this.bleAdapter,
+    required this.pumpHeadRepository,
     required this.readTodayTotalUseCase,
     BleWriteOptions? writeOptions,
     ImmediateSingleDoseEncoder? immediateSingleDoseEncoder,
@@ -68,9 +74,21 @@ class SingleDoseImmediateUseCase {
       );
     }
 
+    final PumpHead? pumpHead = await _maybeLoadPumpHead(deviceId, dose.pumpId);
+    _validatePumpHeadState(pumpHead, dose);
+
     final Uint8List payload = Uint8List.fromList(
       immediateSingleDoseEncoder.encode(dose),
     );
+
+    final bool shouldUpdateStatus = pumpHead != null;
+    if (shouldUpdateStatus) {
+      await _setPumpHeadStatus(
+        deviceId: deviceId,
+        pumpId: dose.pumpId,
+        status: PumpHeadStatus.running,
+      );
+    }
 
     try {
       await bleAdapter.writeBytes(
@@ -79,15 +97,86 @@ class SingleDoseImmediateUseCase {
         options: writeOptions,
       );
       await _refreshTodayTotals(deviceId: deviceId, pumpId: dose.pumpId);
+      if (shouldUpdateStatus) {
+        await _setPumpHeadStatus(
+          deviceId: deviceId,
+          pumpId: dose.pumpId,
+          status: PumpHeadStatus.idle,
+        );
+      }
     } on BleWriteTimeoutException catch (error) {
+      if (shouldUpdateStatus) {
+        await _setPumpHeadStatus(
+          deviceId: deviceId,
+          pumpId: dose.pumpId,
+          status: PumpHeadStatus.error,
+        );
+      }
       throw AppError(code: AppErrorCode.transportError, message: error.message);
     } on BleWriteException catch (error) {
+      if (shouldUpdateStatus) {
+        await _setPumpHeadStatus(
+          deviceId: deviceId,
+          pumpId: dose.pumpId,
+          status: PumpHeadStatus.error,
+        );
+      }
       throw AppError(code: AppErrorCode.transportError, message: error.message);
     }
   }
 
   bool _hasFractionalComponent(double value) {
     return value != value.truncateToDouble();
+  }
+
+  Future<PumpHead?> _maybeLoadPumpHead(String deviceId, int pumpId) async {
+    try {
+      return await pumpHeadRepository.getHead(deviceId, pumpId);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void _validatePumpHeadState(PumpHead? pumpHead, SingleDoseImmediate dose) {
+    if (pumpHead != null && pumpHead.status != PumpHeadStatus.idle) {
+      throw const AppError(
+        code: AppErrorCode.deviceBusy,
+        message: 'Pump head is busy',
+      );
+    }
+
+    final double currentTotal = pumpHead?.todayDispensedMl ?? 0;
+    final double dailyLimit = _resolveDailyLimit(pumpHead);
+    if (currentTotal + dose.doseMl > dailyLimit) {
+      throw const AppError(
+        code: AppErrorCode.invalidParam,
+        message: 'Manual dose exceeds daily allowance',
+      );
+    }
+  }
+
+  double _resolveDailyLimit(PumpHead? pumpHead) {
+    final double target = pumpHead?.dailyTargetMl ?? 0;
+    if (target > 0) {
+      return target;
+    }
+    return _defaultDailyLimitMl;
+  }
+
+  Future<void> _setPumpHeadStatus({
+    required String deviceId,
+    required int pumpId,
+    required PumpHeadStatus status,
+  }) async {
+    try {
+      await pumpHeadRepository.updateStatus(
+        deviceId: deviceId,
+        pumpId: pumpId,
+        status: status,
+      );
+    } catch (_) {
+      // Intentionally swallow status update errors.
+    }
   }
 
   Future<void> _refreshTodayTotals({

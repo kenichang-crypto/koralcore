@@ -1,3 +1,5 @@
+enum PumpHeadStatus { idle, running, error }
+
 class PumpHead {
   final String headId;
   final int pumpId;
@@ -7,6 +9,7 @@ class PumpHead {
   final double flowRateMlPerMin;
   final DateTime? lastDoseAt;
   final String statusKey;
+  final PumpHeadStatus status;
 
   const PumpHead({
     required this.headId,
@@ -17,6 +20,7 @@ class PumpHead {
     required this.flowRateMlPerMin,
     required this.lastDoseAt,
     required this.statusKey,
+    this.status = PumpHeadStatus.idle,
   });
 
   PumpHead copyWith({
@@ -28,6 +32,7 @@ class PumpHead {
     double? flowRateMlPerMin,
     DateTime? lastDoseAt,
     String? statusKey,
+    PumpHeadStatus? status,
   }) {
     return PumpHead(
       headId: headId ?? this.headId,
@@ -38,6 +43,7 @@ class PumpHead {
       flowRateMlPerMin: flowRateMlPerMin ?? this.flowRateMlPerMin,
       lastDoseAt: lastDoseAt ?? this.lastDoseAt,
       statusKey: statusKey ?? this.statusKey,
+      status: status ?? this.status,
     );
   }
 }

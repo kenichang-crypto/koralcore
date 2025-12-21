@@ -21,6 +21,11 @@ class PumpHeadRepositoryImpl extends PumpHeadRepository {
   }
 
   @override
+  Future<PumpHead?> getHead(String deviceId, int pumpId) async {
+    return _ensureStore(deviceId).headByPumpId(pumpId);
+  }
+
+  @override
   Future<void> saveHeads(String deviceId, List<PumpHead> heads) async {
     final store = _ensureStore(deviceId);
     store.setHeads(heads);
@@ -41,6 +46,16 @@ class PumpHeadRepositoryImpl extends PumpHeadRepository {
     );
   }
 
+  @override
+  Future<void> updateStatus({
+    required String deviceId,
+    required int pumpId,
+    required PumpHeadStatus status,
+  }) async {
+    final store = _ensureStore(deviceId);
+    store.updateStatus(pumpId: pumpId, status: status);
+  }
+
   _PumpHeadStore _ensureStore(String deviceId) {
     return _stores.putIfAbsent(deviceId, () => _PumpHeadStore(deviceId));
   }
@@ -56,6 +71,14 @@ class _PumpHeadStore {
 
   List<PumpHead> get heads => _heads;
   Stream<List<PumpHead>> get stream => _controller.stream;
+
+  PumpHead? headByPumpId(int pumpId) {
+    try {
+      return _heads.firstWhere((element) => element.pumpId == pumpId);
+    } catch (_) {
+      return null;
+    }
+  }
 
   void setHeads(List<PumpHead> next) {
     _heads = List.unmodifiable(next);
@@ -78,6 +101,23 @@ class _PumpHeadStore {
             todayDispensedMl: totalMl ?? head.todayDispensedMl,
             lastDoseAt: lastDoseAt ?? head.lastDoseAt,
           );
+        })
+        .toList(growable: false);
+
+    if (changed) {
+      setHeads(updated);
+    }
+  }
+
+  void updateStatus({required int pumpId, required PumpHeadStatus status}) {
+    bool changed = false;
+    final List<PumpHead> updated = _heads
+        .map((head) {
+          if (head.pumpId != pumpId) {
+            return head;
+          }
+          changed = head.status != status;
+          return head.copyWith(status: status);
         })
         .toList(growable: false);
 

@@ -81,12 +81,22 @@ class _DevicePageState extends State<DevicePage> {
                 ),
               ),
               const SliverToBoxAdapter(child: SizedBox(height: ReefSpacing.lg)),
-              if (controller.devices.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: _EmptyState(
-                    l10n: l10n,
-                    onScan: () => controller.refresh(),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: ReefSpacing.xl),
+                sliver: SliverToBoxAdapter(
+                  child: _SectionHeader(title: l10n.deviceHeader),
+                ),
+              ),
+              if (controller.savedDevices.isEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: ReefSpacing.xl,
+                    ),
+                    child: _EmptyState(
+                      l10n: l10n,
+                      onScan: () => controller.refresh(),
+                    ),
                   ),
                 )
               else
@@ -103,7 +113,7 @@ class _DevicePageState extends State<DevicePage> {
                           childAspectRatio: .85,
                         ),
                     delegate: SliverChildBuilderDelegate((context, index) {
-                      final device = controller.devices[index];
+                      final device = controller.savedDevices[index];
                       final isSelected = controller.selectedIds.contains(
                         device.id,
                       );
@@ -115,7 +125,52 @@ class _DevicePageState extends State<DevicePage> {
                         onConnect: () => controller.connect(device.id),
                         onDisconnect: () => controller.disconnect(device.id),
                       );
-                    }, childCount: controller.devices.length),
+                    }, childCount: controller.savedDevices.length),
+                  ),
+                ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: ReefSpacing.xl),
+                sliver: SliverToBoxAdapter(
+                  child: _SectionHeader(title: l10n.bluetoothHeader),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: ReefSpacing.xl),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    childCount: controller.discoveredDevices.length,
+                    (context, index) {
+                      final device = controller.discoveredDevices[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: ReefSpacing.md),
+                        child: DeviceCard(
+                          device: device,
+                          selectionMode: false,
+                          isSelected: false,
+                          onSelect: null,
+                          onConnect: () => controller.connect(device.id),
+                          onDisconnect: () => controller.disconnect(device.id),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              if (controller.discoveredDevices.isEmpty)
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: ReefSpacing.xl,
+                  ),
+                  sliver: SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: ReefSpacing.xxl),
+                      child: Text(
+                        l10n.bluetoothEmptyState,
+                        style: ReefTextStyles.body.copyWith(
+                          color: ReefColors.surface,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               const SliverToBoxAdapter(
@@ -173,7 +228,7 @@ class _ActionsBar extends StatelessWidget {
         const SizedBox(width: ReefSpacing.md),
         if (!controller.selectionMode) ...[
           OutlinedButton(
-            onPressed: controller.devices.isEmpty
+            onPressed: controller.savedDevices.isEmpty
                 ? null
                 : controller.enterSelectionMode,
             child: Text(l10n.deviceSelectMode),
@@ -276,6 +331,28 @@ class _EmptyState extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+
+  const _SectionHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(
+        top: ReefSpacing.xl,
+        bottom: ReefSpacing.md,
+      ),
+      child: Text(
+        title,
+        style: ReefTextStyles.subheaderAccent.copyWith(
+          color: ReefColors.surface,
         ),
       ),
     );

@@ -156,58 +156,43 @@ class _DeviceList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (controller.devices.isEmpty) {
-      return Center(
-        child: Card(
-          color: ReefColors.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(ReefRadius.md),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(ReefSpacing.lg),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.devices_other,
-                  size: 40,
-                  color: ReefColors.textSecondary,
-                ),
-                const SizedBox(height: ReefSpacing.md),
-                Text(
-                  l10n.bluetoothEmptyState,
-                  style: ReefTextStyles.subheaderAccent.copyWith(
-                    color: ReefColors.textPrimary,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: ReefSpacing.sm),
-                Text(
-                  l10n.bluetoothScanCta,
-                  style: ReefTextStyles.caption1.copyWith(
-                    color: ReefColors.textSecondary,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+    final savedDevices = controller.savedDevices;
+    final discoveredDevices = controller.discoveredDevices;
+
+    return ListView(
+      children: [
+        _SectionHeader(title: l10n.deviceHeader),
+        if (savedDevices.isEmpty)
+          const _SavedEmptyCard()
+        else ...[
+          ...savedDevices.map(
+            (device) => Padding(
+              padding: const EdgeInsets.only(bottom: ReefSpacing.md),
+              child: _DeviceTile(
+                device: device,
+                onConnect: () => controller.connect(device.id),
+                onDisconnect: () => controller.disconnect(device.id),
+              ),
             ),
           ),
-        ),
-      );
-    }
-
-    return ListView.separated(
-      itemCount: controller.devices.length,
-      separatorBuilder: (context, index) =>
-          const SizedBox(height: ReefSpacing.md),
-      itemBuilder: (context, index) {
-        final device = controller.devices[index];
-        return _DeviceTile(
-          device: device,
-          onConnect: () => controller.connect(device.id),
-          onDisconnect: () => controller.disconnect(device.id),
-        );
-      },
+        ],
+        const SizedBox(height: ReefSpacing.lg),
+        _SectionHeader(title: l10n.bluetoothHeader),
+        if (discoveredDevices.isEmpty)
+          _DiscoveredEmptyCard(l10n: l10n)
+        else ...[
+          ...discoveredDevices.map(
+            (device) => Padding(
+              padding: const EdgeInsets.only(bottom: ReefSpacing.md),
+              child: _DeviceTile(
+                device: device,
+                onConnect: () => controller.connect(device.id),
+                onDisconnect: () => controller.disconnect(device.id),
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
@@ -356,6 +341,108 @@ class _DeviceTile extends StatelessWidget {
                             : l10n.bluetoothConnect,
                       ),
                     ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+
+  const _SectionHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: ReefSpacing.md),
+      child: Text(
+        title,
+        style: ReefTextStyles.subheaderAccent.copyWith(
+          color: ReefColors.surface,
+        ),
+      ),
+    );
+  }
+}
+
+class _SavedEmptyCard extends StatelessWidget {
+  const _SavedEmptyCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Card(
+      color: ReefColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.md),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(ReefSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l10n.deviceEmptyTitle,
+              style: ReefTextStyles.subheaderAccent.copyWith(
+                color: ReefColors.textPrimary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: ReefSpacing.sm),
+            Text(
+              l10n.deviceEmptySubtitle,
+              style: ReefTextStyles.caption1.copyWith(
+                color: ReefColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DiscoveredEmptyCard extends StatelessWidget {
+  final AppLocalizations l10n;
+
+  const _DiscoveredEmptyCard({required this.l10n});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: ReefColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.md),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(ReefSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.devices_other,
+              size: 40,
+              color: ReefColors.textSecondary,
+            ),
+            const SizedBox(height: ReefSpacing.md),
+            Text(
+              l10n.bluetoothEmptyState,
+              style: ReefTextStyles.subheaderAccent.copyWith(
+                color: ReefColors.textPrimary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: ReefSpacing.sm),
+            Text(
+              l10n.bluetoothScanCta,
+              style: ReefTextStyles.caption1.copyWith(
+                color: ReefColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),

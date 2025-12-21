@@ -17,10 +17,11 @@ class DeviceListController extends ChangeNotifier {
   final ConnectDeviceUseCase _connectDeviceUseCase;
   final DisconnectDeviceUseCase _disconnectDeviceUseCase;
   final RemoveDeviceUseCase _removeDeviceUseCase;
+  StreamSubscription<List<DeviceSnapshot>>? _savedSubscription;
+  StreamSubscription<List<DeviceSnapshot>>? _scanSubscription;
 
-  StreamSubscription<List<DeviceSnapshot>>? _subscription;
-
-  List<DeviceSnapshot> _devices = const [];
+  List<DeviceSnapshot> _savedDevices = const [];
+  List<DeviceSnapshot> _discoveredDevices = const [];
   bool _isScanning = false;
   bool _selectionMode = false;
   final Set<String> _selection = <String>{};
@@ -31,14 +32,23 @@ class DeviceListController extends ChangeNotifier {
       _connectDeviceUseCase = context.connectDeviceUseCase,
       _disconnectDeviceUseCase = context.disconnectDeviceUseCase,
       _removeDeviceUseCase = context.removeDeviceUseCase {
-    _subscription = _scanDevicesUseCase.observe().listen((devices) {
-      _devices = devices;
-      _selection.removeWhere((id) => !_devices.any((d) => d.id == id));
+    _savedSubscription = context.deviceRepository
+        .observeSavedDevices()
+        .map((items) => items.map(DeviceSnapshot.fromMap).toList())
+        .listen((devices) {
+          _savedDevices = devices;
+          _selection.removeWhere((id) => !_savedDevices.any((d) => d.id == id));
+          notifyListeners();
+        });
+
+    _scanSubscription = _scanDevicesUseCase.observe().listen((devices) {
+      _discoveredDevices = devices;
       notifyListeners();
     });
   }
 
-  List<DeviceSnapshot> get devices => _devices;
+  List<DeviceSnapshot> get savedDevices => _savedDevices;
+  List<DeviceSnapshot> get discoveredDevices => _discoveredDevices;
   bool get isScanning => _isScanning;
   bool get selectionMode => _selectionMode;
   Set<String> get selectedIds => Set.unmodifiable(_selection);
@@ -123,7 +133,8 @@ class DeviceListController extends ChangeNotifier {
 
   @override
   void dispose() {
-    _subscription?.cancel();
+    _savedSubscription?.cancel();
+    _scanSubscription?.cancel();
     super.dispose();
   }
 }

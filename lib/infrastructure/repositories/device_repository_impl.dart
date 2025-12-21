@@ -108,7 +108,21 @@ class DeviceRepositoryImpl extends DeviceRepository {
 
   @override
   Future<void> removeSavedDevice(String deviceId) async {
-    _savedRecords.removeWhere((record) => record.id == deviceId);
+    final int index = _indexOf(deviceId, allowMissing: true);
+    if (index == -1) {
+      return;
+    }
+
+    final _DeviceRecord record = _savedRecords[index];
+    if (record.isMaster) {
+      throw const AppError(
+        code: AppErrorCode.invalidParam,
+        message: 'Cannot remove a master device from the registry.',
+      );
+    }
+
+    _savedRecords.removeAt(index);
+    _removeDiscoveredRecord(deviceId);
     if (_currentDeviceId == deviceId) {
       _currentDeviceId = null;
     }
@@ -213,6 +227,14 @@ class DeviceRepositoryImpl extends DeviceRepository {
             .map((record) => record.toMap())
             .toList(growable: false),
       );
+    }
+  }
+
+  void _removeDiscoveredRecord(String deviceId) {
+    final int before = _discoveredRecords.length;
+    _discoveredRecords.removeWhere((record) => record.id == deviceId);
+    if (_discoveredRecords.length != before) {
+      _emitDiscovered();
     }
   }
 

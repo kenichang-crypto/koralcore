@@ -5,8 +5,10 @@ import 'package:provider/provider.dart';
 import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_radius.dart';
+import '../../../theme/reef_spacing.dart';
+import '../../../theme/reef_text.dart';
 import '../../../../domain/led_lighting/led_schedule_overview.dart';
 import '../../../components/ble_guard.dart';
 import '../../../components/app_error_presenter.dart';
@@ -26,93 +28,103 @@ class LedMainPage extends StatelessWidget {
     final session = context.watch<AppSession>();
     final appContext = context.read<AppContext>();
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
     final deviceName = session.activeDeviceName ?? l10n.ledDetailUnknownDevice;
     final isConnected = session.isBleConnected;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.ledHeader)),
-      body: ListView(
-        padding: const EdgeInsets.all(AppDimensions.spacingXL),
-        children: [
-          Text(
-            l10n.ledSubHeader,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: AppColors.grey700,
+      backgroundColor: ReefColors.primaryStrong,
+      appBar: AppBar(
+        backgroundColor: ReefColors.primary,
+        foregroundColor: ReefColors.onPrimary,
+        elevation: 0,
+        titleTextStyle: ReefTextStyles.title2.copyWith(
+          color: ReefColors.onPrimary,
+        ),
+        title: Text(l10n.ledHeader),
+      ),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(ReefSpacing.xl),
+          children: [
+            Text(
+              l10n.ledSubHeader,
+              style: ReefTextStyles.body.copyWith(color: ReefColors.surface),
             ),
-          ),
-          const SizedBox(height: AppDimensions.spacingL),
-          if (!isConnected) ...[
-            const BleGuardBanner(),
-            const SizedBox(height: AppDimensions.spacingXL),
-          ],
-          _DeviceHeaderCard(
-            deviceName: deviceName,
-            isConnected: isConnected,
-            l10n: l10n,
-          ),
-          const SizedBox(height: AppDimensions.spacingXL),
-          ChangeNotifierProvider<LedSceneListController>(
-            create: (_) => LedSceneListController(
-              session: session,
-              readLedScenesUseCase: appContext.readLedScenesUseCase,
-            )..refresh(),
-            child: _SceneCarousel(isConnected: isConnected, l10n: l10n),
-          ),
-          const SizedBox(height: AppDimensions.spacingXL),
-          ChangeNotifierProvider<LedScheduleSummaryController>(
-            create: (_) => LedScheduleSummaryController(
-              session: session,
-              readLedScheduleSummaryUseCase:
-                  appContext.readLedScheduleSummaryUseCase,
-            )..refresh(),
-            child: _LedScheduleSummarySection(
-              l10n: l10n,
+            const SizedBox(height: ReefSpacing.lg),
+            if (!isConnected) ...[
+              const BleGuardBanner(),
+              const SizedBox(height: ReefSpacing.xl),
+            ],
+            _DeviceHeaderCard(
+              deviceName: deviceName,
               isConnected: isConnected,
+              l10n: l10n,
             ),
-          ),
-          const SizedBox(height: AppDimensions.spacingXL),
-          _EntryTile(
-            title: l10n.ledEntryIntensity,
-            subtitle: l10n.ledIntensityEntrySubtitle,
-            enabled: isConnected,
-            onTapWhenEnabled: () {
-              final messenger = ScaffoldMessenger.of(context);
-              Navigator.of(context)
-                  .push<bool>(
-                    MaterialPageRoute(builder: (_) => const LedControlPage()),
-                  )
-                  .then((result) {
-                    if (result != true) {
-                      return;
-                    }
-                    messenger.showSnackBar(
-                      SnackBar(content: Text(l10n.ledControlApplySuccess)),
-                    );
-                  });
-            },
-          ),
-          _EntryTile(
-            title: l10n.ledEntryScenes,
-            subtitle: l10n.ledScenesListSubtitle,
-            enabled: isConnected,
-            onTapWhenEnabled: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const LedSceneListPage()),
-              );
-            },
-          ),
-          _EntryTile(
-            title: l10n.ledEntrySchedule,
-            subtitle: l10n.ledScheduleListSubtitle,
-            enabled: isConnected,
-            onTapWhenEnabled: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const LedScheduleListPage()),
-              );
-            },
-          ),
-        ],
+            const SizedBox(height: ReefSpacing.xl),
+            ChangeNotifierProvider<LedSceneListController>(
+              create: (_) => LedSceneListController(
+                session: session,
+                readLedScenesUseCase: appContext.readLedScenesUseCase,
+              )..refresh(),
+              child: _SceneCarousel(isConnected: isConnected, l10n: l10n),
+            ),
+            const SizedBox(height: ReefSpacing.xl),
+            ChangeNotifierProvider<LedScheduleSummaryController>(
+              create: (_) => LedScheduleSummaryController(
+                session: session,
+                readLedScheduleSummaryUseCase:
+                    appContext.readLedScheduleSummaryUseCase,
+              )..refresh(),
+              child: _LedScheduleSummarySection(
+                l10n: l10n,
+                isConnected: isConnected,
+              ),
+            ),
+            const SizedBox(height: ReefSpacing.xl),
+            _EntryTile(
+              title: l10n.ledEntryIntensity,
+              subtitle: l10n.ledIntensityEntrySubtitle,
+              enabled: isConnected,
+              onTapWhenEnabled: () {
+                final messenger = ScaffoldMessenger.of(context);
+                Navigator.of(context)
+                    .push<bool>(
+                      MaterialPageRoute(builder: (_) => const LedControlPage()),
+                    )
+                    .then((result) {
+                      if (result != true) {
+                        return;
+                      }
+                      messenger.showSnackBar(
+                        SnackBar(content: Text(l10n.ledControlApplySuccess)),
+                      );
+                    });
+              },
+            ),
+            _EntryTile(
+              title: l10n.ledEntryScenes,
+              subtitle: l10n.ledScenesListSubtitle,
+              enabled: isConnected,
+              onTapWhenEnabled: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const LedSceneListPage()),
+                );
+              },
+            ),
+            _EntryTile(
+              title: l10n.ledEntrySchedule,
+              subtitle: l10n.ledScheduleListSubtitle,
+              enabled: isConnected,
+              onTapWhenEnabled: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const LedScheduleListPage(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -131,15 +143,20 @@ class _DeviceHeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final statusText = isConnected
         ? l10n.deviceStateConnected
         : l10n.deviceStateDisconnected;
-    final statusColor = isConnected ? AppColors.ocean500 : AppColors.grey500;
+    final statusColor = isConnected
+        ? ReefColors.success
+        : ReefColors.textSecondary.withOpacity(0.6);
 
     return Card(
+      color: ReefColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.lg),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingXL),
+        padding: const EdgeInsets.all(ReefSpacing.xl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -150,8 +167,13 @@ class _DeviceHeaderCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(deviceName, style: theme.textTheme.headlineSmall),
-                      const SizedBox(height: AppDimensions.spacingS),
+                      Text(
+                        deviceName,
+                        style: ReefTextStyles.title1.copyWith(
+                          color: ReefColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: ReefSpacing.sm),
                       Row(
                         children: [
                           Container(
@@ -162,10 +184,10 @@ class _DeviceHeaderCard extends StatelessWidget {
                               shape: BoxShape.circle,
                             ),
                           ),
-                          const SizedBox(width: AppDimensions.spacingS),
+                          const SizedBox(width: ReefSpacing.sm),
                           Text(
                             statusText,
-                            style: theme.textTheme.bodyMedium?.copyWith(
+                            style: ReefTextStyles.body.copyWith(
                               color: statusColor,
                             ),
                           ),
@@ -181,11 +203,11 @@ class _DeviceHeaderCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: AppDimensions.spacingM),
+            const SizedBox(height: ReefSpacing.md),
             Text(
               l10n.ledDetailHeaderHint,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: AppColors.grey700,
+              style: ReefTextStyles.caption1.copyWith(
+                color: ReefColors.textSecondary,
               ),
             ),
           ],
@@ -210,7 +232,7 @@ class _SceneCarousel extends StatelessWidget {
           title: l10n.ledScenesPlaceholderTitle,
           subtitle: l10n.ledScenesPlaceholderSubtitle,
         ),
-        const SizedBox(height: AppDimensions.spacingM),
+        const SizedBox(height: ReefSpacing.md),
         SizedBox(
           height: 190,
           child: Consumer<LedSceneListController>(
@@ -231,7 +253,7 @@ class _SceneCarousel extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 itemCount: scenes.length,
                 separatorBuilder: (_, __) =>
-                    const SizedBox(width: AppDimensions.spacingM),
+                    const SizedBox(width: ReefSpacing.md),
                 itemBuilder: (context, index) {
                   final scene = scenes[index];
                   return SizedBox(
@@ -259,20 +281,28 @@ class _SceneCarouselEmptyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Card(
+      color: ReefColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.md),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        padding: const EdgeInsets.all(ReefSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(l10n.ledScenesEmptyTitle, style: theme.textTheme.titleMedium),
-            const SizedBox(height: AppDimensions.spacingXS),
+            Text(
+              l10n.ledScenesEmptyTitle,
+              style: ReefTextStyles.subheaderAccent.copyWith(
+                color: ReefColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: ReefSpacing.xs),
             Text(
               l10n.ledScenesEmptySubtitle,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: AppColors.grey700,
+              style: ReefTextStyles.caption1.copyWith(
+                color: ReefColors.textSecondary,
               ),
             ),
           ],
@@ -295,14 +325,16 @@ class _ScenePreviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final statusLabel = scene.isEnabled
         ? l10n.ledSceneStatusEnabled
         : l10n.ledSceneStatusDisabled;
     final statusColor = scene.isEnabled ? Colors.white : Colors.white70;
-
     return Card(
+      color: ReefColors.surface,
       clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.md),
+      ),
       child: InkWell(
         onTap: isConnected
             ? () => _showComingSoon(context, l10n)
@@ -315,7 +347,7 @@ class _ScenePreviewCard extends StatelessWidget {
               end: Alignment.bottomRight,
             ),
           ),
-          padding: const EdgeInsets.all(AppDimensions.spacingL),
+          padding: const EdgeInsets.all(ReefSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -325,14 +357,14 @@ class _ScenePreviewCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       scene.name,
-                      style: theme.textTheme.titleMedium?.copyWith(
+                      style: ReefTextStyles.subheaderAccent.copyWith(
                         color: Colors.white,
                       ),
                     ),
                   ),
                   Text(
                     statusLabel,
-                    style: theme.textTheme.bodySmall?.copyWith(
+                    style: ReefTextStyles.caption1.copyWith(
                       color: statusColor,
                       fontWeight: FontWeight.w600,
                     ),
@@ -342,9 +374,7 @@ class _ScenePreviewCard extends StatelessWidget {
               const Spacer(),
               Text(
                 scene.description,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.white70,
-                ),
+                style: ReefTextStyles.caption1.copyWith(color: Colors.white70),
               ),
             ],
           ),
@@ -422,7 +452,6 @@ class _LedScheduleSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final bool use24h =
         MediaQuery.maybeOf(context)?.alwaysUse24HourFormat ?? false;
     final materialLocalizations = MaterialLocalizations.of(context);
@@ -434,10 +463,14 @@ class _LedScheduleSummaryCard extends StatelessWidget {
           title: l10n.ledScheduleSummaryTitle,
           subtitle: l10n.ledScheduleListSubtitle,
         ),
-        const SizedBox(height: AppDimensions.spacingM),
+        const SizedBox(height: ReefSpacing.md),
         Card(
+          color: ReefColors.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(ReefRadius.md),
+          ),
           child: Padding(
-            padding: const EdgeInsets.all(AppDimensions.spacingL),
+            padding: const EdgeInsets.all(ReefSpacing.lg),
             child: Consumer<LedScheduleSummaryController>(
               builder: (context, controller, _) {
                 _maybeShowScheduleSummaryError(context, controller);
@@ -453,8 +486,8 @@ class _LedScheduleSummaryCard extends StatelessWidget {
                 if (summary == null || !summary.hasSchedule) {
                   return Text(
                     l10n.ledScheduleSummaryEmpty,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: AppColors.grey700,
+                    style: ReefTextStyles.body.copyWith(
+                      color: ReefColors.textSecondary,
                     ),
                   );
                 }
@@ -476,57 +509,65 @@ class _LedScheduleSummaryCard extends StatelessWidget {
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: AppDimensions.spacingM,
-                            vertical: AppDimensions.spacingXS,
+                            horizontal: ReefSpacing.md,
+                            vertical: ReefSpacing.xs,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.ocean500.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(
-                              AppDimensions.radiusM,
-                            ),
+                            color: ReefColors.info.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(ReefRadius.md),
                           ),
                           child: Text(
                             modeLabel,
-                            style: theme.textTheme.labelLarge?.copyWith(
-                              color: AppColors.ocean500,
+                            style: ReefTextStyles.caption1Accent.copyWith(
+                              color: ReefColors.info,
                             ),
                           ),
                         ),
-                        const SizedBox(width: AppDimensions.spacingS),
+                        const SizedBox(width: ReefSpacing.sm),
                         Text(
                           summary.isEnabled
                               ? l10n.ledScheduleStatusEnabled
                               : l10n.ledScheduleStatusDisabled,
-                          style: theme.textTheme.bodySmall?.copyWith(
+                          style: ReefTextStyles.caption1.copyWith(
                             color: summary.isEnabled
-                                ? AppColors.success
-                                : AppColors.warning,
+                                ? ReefColors.success
+                                : ReefColors.warning,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppDimensions.spacingM),
+                    const SizedBox(height: ReefSpacing.lg),
                     if ((summary.label ?? '').isNotEmpty) ...[
                       Text(
                         l10n.ledScheduleSummaryLabel,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: AppColors.grey700,
+                        style: ReefTextStyles.caption1.copyWith(
+                          color: ReefColors.textSecondary,
                         ),
                       ),
-                      const SizedBox(height: AppDimensions.spacingXS),
-                      Text(summary.label!, style: theme.textTheme.titleMedium),
-                      const SizedBox(height: AppDimensions.spacingM),
+                      const SizedBox(height: ReefSpacing.xs),
+                      Text(
+                        summary.label!,
+                        style: ReefTextStyles.subheaderAccent.copyWith(
+                          color: ReefColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: ReefSpacing.lg),
                     ],
                     if (windowLabel != null) ...[
                       Text(
                         l10n.ledScheduleSummaryWindowLabel,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: AppColors.grey700,
+                        style: ReefTextStyles.caption1.copyWith(
+                          color: ReefColors.textSecondary,
                         ),
                       ),
-                      const SizedBox(height: AppDimensions.spacingXS),
-                      Text(windowLabel, style: theme.textTheme.titleMedium),
+                      const SizedBox(height: ReefSpacing.xs),
+                      Text(
+                        windowLabel,
+                        style: ReefTextStyles.subheaderAccent.copyWith(
+                          color: ReefColors.textPrimary,
+                        ),
+                      ),
                     ],
                   ],
                 );
@@ -574,7 +615,7 @@ class _LedScheduleSummarySection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _LedScheduleSummaryCard(l10n: l10n),
-        const SizedBox(height: AppDimensions.spacingM),
+        const SizedBox(height: ReefSpacing.md),
         Align(
           alignment: Alignment.centerLeft,
           child: FilledButton.icon(
@@ -623,13 +664,33 @@ class _EntryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final Color titleColor = enabled
+        ? ReefColors.textPrimary
+        : ReefColors.textSecondary;
+    final Color subtitleColor = enabled
+        ? ReefColors.textSecondary
+        : ReefColors.textSecondary.withOpacity(0.6);
+
     return Card(
-      margin: const EdgeInsets.only(bottom: AppDimensions.spacingM),
+      color: ReefColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.md),
+      ),
+      margin: const EdgeInsets.only(bottom: ReefSpacing.md),
       child: ListTile(
-        enabled: enabled,
-        title: Text(title),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.chevron_right),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: ReefSpacing.lg,
+          vertical: ReefSpacing.md,
+        ),
+        title: Text(
+          title,
+          style: ReefTextStyles.subheaderAccent.copyWith(color: titleColor),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: ReefTextStyles.caption1.copyWith(color: subtitleColor),
+        ),
+        trailing: Icon(Icons.chevron_right, color: titleColor),
         onTap: enabled
             ? (onTapWhenEnabled ?? () => _showComingSoon(context, l10n))
             : () => showBleGuardDialog(context),
@@ -646,15 +707,21 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: theme.textTheme.titleLarge),
-        const SizedBox(height: AppDimensions.spacingXS),
+        Text(
+          title,
+          style: ReefTextStyles.subheaderAccent.copyWith(
+            color: ReefColors.surface,
+          ),
+        ),
+        const SizedBox(height: ReefSpacing.xs),
         Text(
           subtitle,
-          style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.grey700),
+          style: ReefTextStyles.caption1.copyWith(
+            color: ReefColors.surface.withOpacity(0.8),
+          ),
         ),
       ],
     );

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../theme/colors.dart';
-import '../../theme/dimensions.dart';
+import '../theme/reef_colors.dart';
+import '../theme/reef_radius.dart';
+import '../theme/reef_spacing.dart';
+import '../theme/reef_text.dart';
 
 class FeatureEntryCard extends StatelessWidget {
   final String title;
@@ -22,23 +24,23 @@ class FeatureEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Opacity(
       opacity: enabled ? 1 : 0.45,
       child: Card(
+        color: ReefColors.surface,
         child: InkWell(
-          borderRadius: BorderRadius.circular(AppDimensions.radiusL),
+          borderRadius: BorderRadius.circular(ReefRadius.lg),
           onTap: enabled ? onTap : null,
           child: Padding(
-            padding: const EdgeInsets.all(AppDimensions.spacingXL),
+            padding: const EdgeInsets.all(ReefSpacing.xl),
             child: Row(
               children: [
                 Container(
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: AppColors.ocean500.withOpacity(.08),
-                    borderRadius: BorderRadius.circular(16),
+                    color: ReefColors.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(ReefRadius.md),
                   ),
                   child: Center(
                     child: SvgPicture.asset(
@@ -46,29 +48,34 @@ class FeatureEntryCard extends StatelessWidget {
                       width: 28,
                       height: 28,
                       colorFilter: const ColorFilter.mode(
-                        AppColors.ocean500,
+                        ReefColors.primary,
                         BlendMode.srcIn,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: AppDimensions.spacingL),
+                const SizedBox(width: ReefSpacing.lg),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: theme.textTheme.titleMedium),
-                      const SizedBox(height: AppDimensions.spacingS),
+                      Text(
+                        title,
+                        style: ReefTextStyles.subheaderAccent.copyWith(
+                          color: ReefColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: ReefSpacing.sm),
                       Text(
                         subtitle,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: AppColors.grey700,
+                        style: ReefTextStyles.body.copyWith(
+                          color: ReefColors.textSecondary,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right, color: AppColors.grey500),
+                const Icon(Icons.chevron_right, color: ReefColors.textTertiary),
               ],
             ),
           ),

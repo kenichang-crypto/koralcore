@@ -9,8 +9,10 @@ import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../domain/doser_schedule/dosing_schedule_summary.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_radius.dart';
+import '../../../theme/reef_spacing.dart';
+import '../../../theme/reef_text.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/pump_head_detail_controller.dart';
@@ -60,18 +62,25 @@ class _PumpHeadDetailView extends StatelessWidget {
         _maybeShowError(context, controller.lastErrorCode);
 
         return Scaffold(
+          backgroundColor: ReefColors.surfaceMuted,
           appBar: AppBar(
+            backgroundColor: ReefColors.primary,
+            foregroundColor: ReefColors.onPrimary,
+            elevation: 0,
+            titleTextStyle: ReefTextStyles.title2.copyWith(
+              color: ReefColors.onPrimary,
+            ),
             title: Text(l10n.dosingPumpHeadSummaryTitle(summary.headId)),
           ),
           body: RefreshIndicator(
             onRefresh: controller.refresh,
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(AppDimensions.spacingXL),
+              padding: const EdgeInsets.all(ReefSpacing.xl),
               children: [
                 if (!isConnected) ...[
                   const BleGuardBanner(),
-                  const SizedBox(height: AppDimensions.spacingXL),
+                  const SizedBox(height: ReefSpacing.xl),
                 ],
                 _StatusCard(
                   summary: summary,
@@ -79,25 +88,25 @@ class _PumpHeadDetailView extends StatelessWidget {
                   isLoading: controller.isLoading,
                   l10n: l10n,
                 ),
-                const SizedBox(height: AppDimensions.spacingXL),
+                const SizedBox(height: ReefSpacing.xl),
                 _MetricsGrid(summary: summary, l10n: l10n),
-                const SizedBox(height: AppDimensions.spacingXL),
+                const SizedBox(height: ReefSpacing.xl),
                 _TodayDoseCard(controller: controller, l10n: l10n),
-                const SizedBox(height: AppDimensions.spacingXL),
+                const SizedBox(height: ReefSpacing.xl),
                 _ScheduleSummaryCard(controller: controller, l10n: l10n),
-                const SizedBox(height: AppDimensions.spacingXL),
+                const SizedBox(height: ReefSpacing.xl),
                 _ScheduleOverviewTile(
                   headId: headId,
                   isConnected: isConnected,
                   l10n: l10n,
                 ),
-                const SizedBox(height: AppDimensions.spacingXL),
+                const SizedBox(height: ReefSpacing.xl),
                 _CalibrationHistoryTile(
                   headId: headId,
                   isConnected: isConnected,
                   l10n: l10n,
                 ),
-                const SizedBox(height: AppDimensions.spacingXL),
+                const SizedBox(height: ReefSpacing.xl),
                 _SettingsTile(
                   headId: headId,
                   initialName: summary.displayName,
@@ -105,13 +114,13 @@ class _PumpHeadDetailView extends StatelessWidget {
                   isConnected: isConnected,
                   l10n: l10n,
                 ),
-                const SizedBox(height: AppDimensions.spacingXL),
+                const SizedBox(height: ReefSpacing.xl),
                 _ActionButtons(
                   isConnected: isConnected,
                   l10n: l10n,
                   controller: controller,
                 ),
-                const SizedBox(height: AppDimensions.spacingXXL),
+                const SizedBox(height: ReefSpacing.xxl),
               ],
             ),
           ),
@@ -136,33 +145,45 @@ class _StatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Card(
+      color: ReefColors.primary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.lg),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingXL),
+        padding: const EdgeInsets.all(ReefSpacing.xl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(summary.displayName, style: theme.textTheme.headlineSmall),
-            const SizedBox(height: AppDimensions.spacingS),
             Text(
-              summary.additiveName,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: AppColors.grey700,
+              summary.displayName,
+              style: ReefTextStyles.title1.copyWith(
+                color: ReefColors.onPrimary,
               ),
             ),
-            const SizedBox(height: AppDimensions.spacingL),
+            const SizedBox(height: ReefSpacing.sm),
+            Text(
+              summary.additiveName,
+              style: ReefTextStyles.body.copyWith(
+                color: ReefColors.onPrimary.withOpacity(0.85),
+              ),
+            ),
+            const SizedBox(height: ReefSpacing.lg),
             Row(
               children: [
                 Chip(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(ReefRadius.xs),
+                  ),
+                  side: BorderSide.none,
                   label: Text(_statusLabel(l10n, summary.statusKey)),
-                  backgroundColor: AppColors.ocean500.withOpacity(0.1),
-                  labelStyle: theme.textTheme.labelLarge?.copyWith(
-                    color: AppColors.ocean500,
+                  backgroundColor: ReefColors.surface.withOpacity(0.2),
+                  labelStyle: ReefTextStyles.caption1Accent.copyWith(
+                    color: ReefColors.onPrimary,
                   ),
                 ),
                 if (isLoading) ...[
-                  const SizedBox(width: AppDimensions.spacingM),
+                  const SizedBox(width: ReefSpacing.md),
                   const SizedBox(
                     width: 18,
                     height: 18,
@@ -171,11 +192,11 @@ class _StatusCard extends StatelessWidget {
                 ],
               ],
             ),
-            const SizedBox(height: AppDimensions.spacingL),
+            const SizedBox(height: ReefSpacing.lg),
             Text(
               l10n.homeStatusConnected(deviceName),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: AppColors.grey600,
+              style: ReefTextStyles.caption1.copyWith(
+                color: ReefColors.textSecondary.withOpacity(0.85),
               ),
             ),
           ],
@@ -225,12 +246,12 @@ class _MetricsGrid extends StatelessWidget {
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
         final double cardWidth = math
-            .max(160, (availableWidth - AppDimensions.spacingL) / 2)
+            .max(160, (availableWidth - ReefSpacing.lg) / 2)
             .toDouble();
 
         return Wrap(
-          spacing: AppDimensions.spacingL,
-          runSpacing: AppDimensions.spacingL,
+          spacing: ReefSpacing.lg,
+          runSpacing: ReefSpacing.lg,
           children: metricCards
               .map(
                 (metric) => SizedBox(
@@ -261,21 +282,29 @@ class _MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Card(
+      color: ReefColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.md),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        padding: const EdgeInsets.all(ReefSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               label,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: AppColors.grey700,
+              style: ReefTextStyles.caption1.copyWith(
+                color: ReefColors.textSecondary,
               ),
             ),
-            const SizedBox(height: AppDimensions.spacingS),
-            Text(value, style: theme.textTheme.titleMedium),
+            const SizedBox(height: ReefSpacing.sm),
+            Text(
+              value,
+              style: ReefTextStyles.subheaderAccent.copyWith(
+                color: ReefColors.textPrimary,
+              ),
+            ),
           ],
         ),
       ),
@@ -298,8 +327,6 @@ class _TodayDoseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     Widget content;
     if (controller.isTodayDoseLoading) {
       content = const SizedBox(
@@ -311,7 +338,7 @@ class _TodayDoseCard extends StatelessWidget {
       if (summary == null) {
         content = Text(
           l10n.dosingTodayTotalEmpty,
-          style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.grey700),
+          style: ReefTextStyles.body.copyWith(color: ReefColors.textSecondary),
         );
       } else {
         content = Row(
@@ -324,7 +351,7 @@ class _TodayDoseCard extends StatelessWidget {
                 emphasize: true,
               ),
             ),
-            const SizedBox(width: AppDimensions.spacingL),
+            const SizedBox(width: ReefSpacing.lg),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,7 +360,7 @@ class _TodayDoseCard extends StatelessWidget {
                     label: l10n.dosingTodayTotalScheduled,
                     value: summary.scheduledMl,
                   ),
-                  const SizedBox(height: AppDimensions.spacingM),
+                  const SizedBox(height: ReefSpacing.md),
                   _TodayDoseValue(
                     label: l10n.dosingTodayTotalManual,
                     value: summary.manualMl,
@@ -347,16 +374,22 @@ class _TodayDoseCard extends StatelessWidget {
     }
 
     return Card(
+      color: ReefColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.md),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingXL),
+        padding: const EdgeInsets.all(ReefSpacing.xl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               l10n.dosingTodayTotalTitle,
-              style: theme.textTheme.titleMedium,
+              style: ReefTextStyles.title2.copyWith(
+                color: ReefColors.textPrimary,
+              ),
             ),
-            const SizedBox(height: AppDimensions.spacingM),
+            const SizedBox(height: ReefSpacing.md),
             content,
           ],
         ),
@@ -378,13 +411,12 @@ class _TodayDoseValue extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final TextStyle? labelStyle = theme.textTheme.bodySmall?.copyWith(
-      color: AppColors.grey700,
+    final TextStyle labelStyle = ReefTextStyles.caption1.copyWith(
+      color: ReefColors.textSecondary,
     );
-    final TextStyle? valueStyle = emphasize
-        ? theme.textTheme.headlineMedium
-        : theme.textTheme.titleMedium;
+    final TextStyle valueStyle = emphasize
+        ? ReefTextStyles.title1
+        : ReefTextStyles.subheaderAccent;
 
     final String valueText = value == null
         ? '—'
@@ -394,7 +426,7 @@ class _TodayDoseValue extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: labelStyle),
-        const SizedBox(height: AppDimensions.spacingXS),
+        const SizedBox(height: ReefSpacing.xs),
         Text(valueText, style: valueStyle),
       ],
     );
@@ -409,8 +441,6 @@ class _ScheduleSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     Widget content;
     if (controller.isScheduleSummaryLoading) {
       content = const SizedBox(
@@ -422,7 +452,7 @@ class _ScheduleSummaryCard extends StatelessWidget {
       if (summary == null || !summary.hasSchedule) {
         content = Text(
           l10n.dosingScheduleSummaryEmpty,
-          style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.grey700),
+          style: ReefTextStyles.body.copyWith(color: ReefColors.textSecondary),
         );
       } else {
         final List<String> countLabels = <String>[];
@@ -441,43 +471,51 @@ class _ScheduleSummaryCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Wrap(
-              spacing: AppDimensions.spacingS,
-              runSpacing: AppDimensions.spacingS,
+              spacing: ReefSpacing.sm,
+              runSpacing: ReefSpacing.sm,
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppDimensions.spacingM,
-                    vertical: AppDimensions.spacingXS,
+                    horizontal: ReefSpacing.md,
+                    vertical: ReefSpacing.xs,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.ocean500.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(AppDimensions.radiusM),
+                    color: ReefColors.info.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(ReefRadius.md),
                   ),
                   child: Text(
                     _scheduleSummaryModeLabel(summary.mode, l10n),
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: AppColors.ocean500,
+                    style: ReefTextStyles.caption1Accent.copyWith(
+                      color: ReefColors.info,
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: AppDimensions.spacingM),
+            const SizedBox(height: ReefSpacing.md),
             if (summary.totalMlPerDay != null)
               _ScheduleSummaryMetric(
                 label: l10n.dosingScheduleSummaryTotalLabel,
                 value: '${summary.totalMlPerDay!.toStringAsFixed(1)} ml',
               ),
             if (countLabels.isNotEmpty) ...[
-              const SizedBox(height: AppDimensions.spacingM),
+              const SizedBox(height: ReefSpacing.md),
               Wrap(
-                spacing: AppDimensions.spacingS,
-                runSpacing: AppDimensions.spacingS,
+                spacing: ReefSpacing.sm,
+                runSpacing: ReefSpacing.sm,
                 children: countLabels
                     .map(
                       (label) => Chip(
-                        label: Text(label),
-                        backgroundColor: AppColors.grey100,
+                        label: Text(
+                          label,
+                          style: ReefTextStyles.caption2.copyWith(
+                            color: ReefColors.textSecondary,
+                          ),
+                        ),
+                        backgroundColor: ReefColors.surfaceMuted,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(ReefRadius.xs),
+                        ),
                       ),
                     )
                     .toList(),
@@ -489,16 +527,22 @@ class _ScheduleSummaryCard extends StatelessWidget {
     }
 
     return Card(
+      color: ReefColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.md),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingXL),
+        padding: const EdgeInsets.all(ReefSpacing.xl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               l10n.dosingScheduleSummaryTitle,
-              style: theme.textTheme.titleMedium,
+              style: ReefTextStyles.title2.copyWith(
+                color: ReefColors.textPrimary,
+              ),
             ),
-            const SizedBox(height: AppDimensions.spacingM),
+            const SizedBox(height: ReefSpacing.md),
             content,
           ],
         ),
@@ -515,16 +559,22 @@ class _ScheduleSummaryMetric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: theme.textTheme.bodySmall?.copyWith(color: AppColors.grey700),
+          style: ReefTextStyles.caption1.copyWith(
+            color: ReefColors.textSecondary,
+          ),
         ),
-        const SizedBox(height: AppDimensions.spacingXS),
-        Text(value, style: theme.textTheme.titleMedium),
+        const SizedBox(height: ReefSpacing.xs),
+        Text(
+          value,
+          style: ReefTextStyles.subheaderAccent.copyWith(
+            color: ReefColors.textPrimary,
+          ),
+        ),
       ],
     );
   }
@@ -558,10 +608,31 @@ class _ScheduleOverviewTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: ReefColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.md),
+      ),
       child: ListTile(
-        title: Text(l10n.dosingScheduleViewButton),
-        subtitle: Text(l10n.dosingScheduleOverviewSubtitle),
-        trailing: const Icon(Icons.chevron_right),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: ReefSpacing.lg,
+          vertical: ReefSpacing.sm,
+        ),
+        title: Text(
+          l10n.dosingScheduleViewButton,
+          style: ReefTextStyles.subheaderAccent.copyWith(
+            color: ReefColors.textPrimary,
+          ),
+        ),
+        subtitle: Text(
+          l10n.dosingScheduleOverviewSubtitle,
+          style: ReefTextStyles.caption1.copyWith(
+            color: ReefColors.textSecondary,
+          ),
+        ),
+        trailing: const Icon(
+          Icons.chevron_right,
+          color: ReefColors.textSecondary,
+        ),
         onTap: () {
           if (!isConnected) {
             showBleGuardDialog(context);
@@ -592,10 +663,31 @@ class _CalibrationHistoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: ReefColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.md),
+      ),
       child: ListTile(
-        title: Text(l10n.dosingCalibrationHistoryViewButton),
-        subtitle: Text(l10n.dosingCalibrationHistorySubtitle),
-        trailing: const Icon(Icons.chevron_right),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: ReefSpacing.lg,
+          vertical: ReefSpacing.sm,
+        ),
+        title: Text(
+          l10n.dosingCalibrationHistoryViewButton,
+          style: ReefTextStyles.subheaderAccent.copyWith(
+            color: ReefColors.textPrimary,
+          ),
+        ),
+        subtitle: Text(
+          l10n.dosingCalibrationHistorySubtitle,
+          style: ReefTextStyles.caption1.copyWith(
+            color: ReefColors.textSecondary,
+          ),
+        ),
+        trailing: const Icon(
+          Icons.chevron_right,
+          color: ReefColors.textSecondary,
+        ),
         onTap: () {
           if (!isConnected) {
             showBleGuardDialog(context);
@@ -630,10 +722,31 @@ class _SettingsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: ReefColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.md),
+      ),
       child: ListTile(
-        title: Text(l10n.dosingPumpHeadSettingsTitle),
-        subtitle: Text(l10n.dosingPumpHeadSettingsSubtitle),
-        trailing: const Icon(Icons.chevron_right),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: ReefSpacing.lg,
+          vertical: ReefSpacing.sm,
+        ),
+        title: Text(
+          l10n.dosingPumpHeadSettingsTitle,
+          style: ReefTextStyles.subheaderAccent.copyWith(
+            color: ReefColors.textPrimary,
+          ),
+        ),
+        subtitle: Text(
+          l10n.dosingPumpHeadSettingsSubtitle,
+          style: ReefTextStyles.caption1.copyWith(
+            color: ReefColors.textSecondary,
+          ),
+        ),
+        trailing: const Icon(
+          Icons.chevron_right,
+          color: ReefColors.textSecondary,
+        ),
         onTap: () {
           if (!isConnected) {
             showBleGuardDialog(context);
@@ -673,6 +786,15 @@ class _ActionButtons extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: ReefColors.primaryStrong,
+            foregroundColor: ReefColors.onPrimary,
+            textStyle: ReefTextStyles.bodyAccent,
+            padding: const EdgeInsets.symmetric(vertical: ReefSpacing.sm),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(ReefRadius.lg),
+            ),
+          ),
           onPressed: isConnected && !isBusy
               ? () => _runManualDose(context)
               : null,
@@ -684,8 +806,17 @@ class _ActionButtons extends StatelessWidget {
                 )
               : Text(l10n.dosingPumpHeadManualDose),
         ),
-        const SizedBox(height: AppDimensions.spacingM),
+        const SizedBox(height: ReefSpacing.md),
         OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: ReefColors.primaryStrong,
+            textStyle: ReefTextStyles.bodyAccent,
+            padding: const EdgeInsets.symmetric(vertical: ReefSpacing.sm),
+            side: const BorderSide(color: ReefColors.primaryStrong),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(ReefRadius.lg),
+            ),
+          ),
           onPressed: isConnected && !isTimedBusy
               ? () => _scheduleTimedDose(context)
               : null,

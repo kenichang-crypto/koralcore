@@ -121,6 +121,11 @@ class AppContext {
     final LedScheduleMemoryStore ledScheduleMemoryStore =
         LedScheduleMemoryStore();
 
+    final ReadTodayTotalUseCase readTodayTotalUseCase = ReadTodayTotalUseCase(
+      dosingPort: dosingPort,
+      currentDeviceSession: currentDeviceSession,
+    );
+
     return AppContext._(
       deviceRepository: deviceRepository,
       currentDeviceSession: currentDeviceSession,
@@ -141,10 +146,7 @@ class AppContext {
         currentDeviceSession: currentDeviceSession,
       ),
       readScheduleUseCase: const ReadScheduleUseCase(),
-      readTodayTotalUseCase: ReadTodayTotalUseCase(
-        dosingPort: dosingPort,
-        currentDeviceSession: currentDeviceSession,
-      ),
+      readTodayTotalUseCase: readTodayTotalUseCase,
       readDosingScheduleSummaryUseCase: ReadDosingScheduleSummaryUseCase(
         dosingPort: dosingPort,
         currentDeviceSession: currentDeviceSession,
@@ -172,6 +174,7 @@ class AppContext {
         deviceRepository: deviceRepository,
         currentDeviceSession: currentDeviceSession,
         bleAdapter: bleAdapter,
+        readTodayTotalUseCase: readTodayTotalUseCase,
       ),
       singleDoseTimedUseCase: SingleDoseTimedUseCase(
         deviceRepository: deviceRepository,

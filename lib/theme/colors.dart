@@ -1,27 +1,29 @@
 import 'package:flutter/material.dart';
 
-/// Centralized palette aligned with reef-b-app neutral + teal scheme.
+import '../ui/theme/reef_colors.dart';
+
+/// Legacy palette aliases that now point to the Reef design system.
 class AppColors {
   AppColors._();
 
-  // Brand core
-  static const Color ocean600 = Color(0xFF045063);
-  static const Color ocean500 = Color(0xFF0A6E7F);
-  static const Color ocean300 = Color(0xFF4FB5C0);
+  // Brand core → map to Reef primaries so legacy callers inherit new hues.
+  static const Color ocean600 = ReefColors.primaryStrong;
+  static const Color ocean500 = ReefColors.primary;
+  static const Color ocean300 = ReefColors.primaryOverlay;
 
   // Functional
-  static const Color success = Color(0xFF00A676);
-  static const Color warning = Color(0xFFF2A43A);
-  static const Color danger = Color(0xFFE04F41);
+  static const Color success = ReefColors.success;
+  static const Color warning = ReefColors.warning;
+  static const Color danger = ReefColors.danger;
 
-  // Greyscale
-  static const Color grey900 = Color(0xFF0F1B2B);
-  static const Color grey700 = Color(0xFF3B4A5A);
-  static const Color grey600 = Color(0xFF4A5564);
-  static const Color grey500 = Color(0xFF6B7A8C);
-  static const Color grey300 = Color(0xFFB5C0CC);
-  static const Color grey100 = Color(0xFFE7ECF2);
-  static const Color grey050 = Color(0xFFF5F7FA);
+  // Greyscale → reuse Reef text / surface roles.
+  static const Color grey900 = ReefColors.textPrimary;
+  static const Color grey700 = ReefColors.textSecondary;
+  static const Color grey600 = ReefColors.textSecondary;
+  static const Color grey500 = ReefColors.textTertiary;
+  static const Color grey300 = ReefColors.textDisabled;
+  static const Color grey100 = ReefColors.surfaceMuted;
+  static const Color grey050 = ReefColors.surfaceMutedOverlay;
 
-  static const Color background = Color(0xFFF6FBFC);
+  static const Color background = ReefColors.primaryStrong;
 }

@@ -1,3 +1,5 @@
+import '../../../../domain/doser_dosing/pump_head.dart';
+
 class PumpHeadSummary {
   final String headId;
   final String additiveName;
@@ -39,28 +41,33 @@ class PumpHeadSummary {
     );
   }
 
-  factory PumpHeadSummary.demo(String headId) {
+  factory PumpHeadSummary.empty(String headId) {
     final normalized = headId.toUpperCase();
-    final index = _headIds.indexOf(normalized);
-    final now = DateTime.now();
-    final resolvedIndex = index == -1 ? 0 : index;
-
     return PumpHeadSummary(
       headId: normalized,
-      additiveName: _additives[resolvedIndex % _additives.length],
-      dailyTargetMl: 10 + (resolvedIndex * 2),
-      todayDispensedMl: 3.5 + (resolvedIndex * 1.2),
-      flowRateMlPerMin: 28 + (resolvedIndex * 1.5),
-      lastDoseAt: now.subtract(Duration(hours: resolvedIndex + 1)),
-      statusKey: 'ready',
+      additiveName: '',
+      dailyTargetMl: 0,
+      todayDispensedMl: 0,
+      flowRateMlPerMin: 0,
+      lastDoseAt: null,
+      statusKey: 'unknown',
     );
   }
-}
 
-const List<String> _headIds = ['A', 'B', 'C', 'D'];
-const List<String> _additives = [
-  'Alkalinity',
-  'Calcium',
-  'Magnesium',
-  'Trace Elements',
-];
+  factory PumpHeadSummary.fromPumpHead(PumpHead head) {
+    return PumpHeadSummary(
+      headId: head.headId,
+      additiveName: head.additiveName,
+      dailyTargetMl: head.dailyTargetMl,
+      todayDispensedMl: head.todayDispensedMl,
+      flowRateMlPerMin: head.flowRateMlPerMin,
+      lastDoseAt: head.lastDoseAt,
+      statusKey: head.statusKey,
+    );
+  }
+
+  @Deprecated('Use PumpHeadSummary.fromPumpHead or PumpHeadSummary.empty')
+  factory PumpHeadSummary.demo(String headId) {
+    return PumpHeadSummary.empty(headId);
+  }
+}

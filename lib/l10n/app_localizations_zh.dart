@@ -59,90 +59,81 @@ class AppLocalizationsZh extends AppLocalizations {
   String get bleGuardDialogButton => 'Got it';
 
   @override
-  String get bleOnboardingPermissionTitle => 'Enable Bluetooth access';
+  String get bleOnboardingPermissionTitle => '启用蓝牙访问';
 
   @override
-  String get bleOnboardingPermissionCopy =>
-      'We use Bluetooth to discover and control your Koral hardware nearby.';
+  String get bleOnboardingPermissionCopy => '我们使用蓝牙来发现和控制您附近的 Koral 硬件。';
 
   @override
-  String get bleOnboardingPermissionCta => 'Allow access';
+  String get bleOnboardingPermissionCta => '允许访问';
 
   @override
-  String get bleOnboardingSettingsTitle => 'Permission required in Settings';
+  String get bleOnboardingSettingsTitle => '设置中需要权限';
 
   @override
-  String get bleOnboardingSettingsCopy =>
-      'Bluetooth access was previously denied. Open system settings to enable it.';
+  String get bleOnboardingSettingsCopy => '蓝牙访问之前被拒绝。打开系统设置以启用它。';
 
   @override
-  String get bleOnboardingSettingsCta => 'Open settings';
+  String get bleOnboardingSettingsCta => '打开设置';
 
   @override
-  String get bleOnboardingLocationTitle => 'Allow location access';
+  String get bleOnboardingLocationTitle => '允许位置访问';
 
   @override
-  String get bleOnboardingLocationCopy =>
-      'Android requires location access on older versions to scan for Bluetooth devices.';
+  String get bleOnboardingLocationCopy => 'Android 需要旧版本上的位置访问权限才能扫描蓝牙设备。';
 
   @override
-  String get bleOnboardingBluetoothOffTitle => 'Turn on Bluetooth';
+  String get bleOnboardingBluetoothOffTitle => '打开蓝牙';
 
   @override
-  String get bleOnboardingBluetoothOffCopy =>
-      'Bluetooth must stay on to keep scanning and control your devices.';
+  String get bleOnboardingBluetoothOffCopy => '蓝牙必须保持打开状态才能继续扫描和控制您的设备。';
 
   @override
-  String get bleOnboardingBluetoothCta => 'Open Bluetooth settings';
+  String get bleOnboardingBluetoothCta => '打开蓝牙设置';
 
   @override
-  String get bleOnboardingUnavailableTitle => 'Bluetooth unavailable';
+  String get bleOnboardingUnavailableTitle => '蓝牙不可用';
 
   @override
-  String get bleOnboardingUnavailableCopy =>
-      'This device does not expose a Bluetooth radio that KoralCore can use.';
+  String get bleOnboardingUnavailableCopy => '此设备不公开 KoralCore 可以使用的蓝牙无线电。';
 
   @override
-  String get bleOnboardingRetryCta => 'Retry';
+  String get bleOnboardingRetryCta => '重试';
 
   @override
-  String get bleOnboardingLearnMore => 'Learn more';
+  String get bleOnboardingLearnMore => '了解更多';
 
   @override
-  String get bleOnboardingSheetTitle => 'Why KoralCore needs Bluetooth';
+  String get bleOnboardingSheetTitle => '为什么 KoralCore 需要蓝牙';
 
   @override
   String get bleOnboardingSheetDescription =>
-      'Bluetooth powers discovery and control of your dosing and lighting hardware. Here\'s what happens once you grant access.';
+      '蓝牙支持发现和控制您的剂量和照明硬件。以下是您授予访问权限后会发生的情况。';
 
   @override
-  String get bleOnboardingSheetSearchTitle => 'Find nearby devices';
+  String get bleOnboardingSheetSearchTitle => '查找附近的设备';
 
   @override
   String get bleOnboardingSheetSearchCopy =>
-      'Scan for Reef Dose, Reef LED, and other Koral equipment around your tank.';
+      '扫描水族箱周围的 Reef Dose、Reef LED 和其他 Koral 设备。';
 
   @override
-  String get bleOnboardingSheetControlTitle => 'Control dosing and lighting';
+  String get bleOnboardingSheetControlTitle => '控制剂量和照明';
 
   @override
-  String get bleOnboardingSheetControlCopy =>
-      'Sync schedules, send commands, and keep firmware up to date over a secure BLE link.';
+  String get bleOnboardingSheetControlCopy => '通过安全的 BLE 链路同步计划、发送命令并保持固件最新。';
 
   @override
-  String get bleOnboardingSheetFooter =>
-      'As soon as Bluetooth is ready we automatically resume scanning.';
+  String get bleOnboardingSheetFooter => '一旦蓝牙准备就绪，我们就会自动恢复扫描。';
 
   @override
-  String get bleOnboardingDisabledHint =>
-      'Grant Bluetooth access to start scanning.';
+  String get bleOnboardingDisabledHint => '授予蓝牙访问权限以开始扫描。';
 
   @override
-  String get bleOnboardingBlockedEmptyTitle => 'Bluetooth setup required';
+  String get bleOnboardingBlockedEmptyTitle => '需要蓝牙设置';
 
   @override
-  String get bleOnboardingBlockedEmptyCopy =>
-      'Allow Bluetooth access or turn it on to discover your reef hardware.';
+  String get bleOnboardingBlockedEmptyCopy => '允许蓝牙访问或将其打开以发现您的珊瑚礁硬件。';
 
   @override
   String get bluetoothHeader => 'Nearby devices';
@@ -230,66 +221,64 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dosingEntryHistory => 'Dose history';
 
   @override
-  String get dosingScheduleAddButton => 'Add schedule';
+  String get dosingScheduleAddButton => '添加日程';
 
   @override
-  String get dosingScheduleEditTitleNew => 'New schedule';
+  String get dosingScheduleEditTitleNew => '新时间表';
 
   @override
-  String get dosingScheduleEditTitleEdit => 'Edit schedule';
+  String get dosingScheduleEditTitleEdit => '编辑日程';
 
   @override
-  String get dosingScheduleEditDescription =>
-      'Configure dosing windows for this pump head.';
+  String get dosingScheduleEditDescription => '为此泵头配置计量窗口。';
 
   @override
-  String get dosingScheduleEditTypeLabel => 'Schedule type';
+  String get dosingScheduleEditTypeLabel => '日程类型';
 
   @override
-  String get dosingScheduleEditDoseLabel => 'Dose per event';
+  String get dosingScheduleEditDoseLabel => '每次事件的剂量';
 
   @override
-  String get dosingScheduleEditDoseHint => 'Enter the amount in milliliters.';
+  String get dosingScheduleEditDoseHint => '输入以毫升为单位的量。';
 
   @override
-  String get dosingScheduleEditEventsLabel => 'Events per day';
+  String get dosingScheduleEditEventsLabel => '每天的活动';
 
   @override
-  String get dosingScheduleEditStartTimeLabel => 'First dose';
+  String get dosingScheduleEditStartTimeLabel => '第一剂';
 
   @override
-  String get dosingScheduleEditWindowStartLabel => 'Window start';
+  String get dosingScheduleEditWindowStartLabel => '窗口启动';
 
   @override
-  String get dosingScheduleEditWindowEndLabel => 'Window end';
+  String get dosingScheduleEditWindowEndLabel => '窗端';
 
   @override
-  String get dosingScheduleEditWindowEventsLabel => 'Events per window';
+  String get dosingScheduleEditWindowEventsLabel => '每个窗口的事件';
 
   @override
-  String get dosingScheduleEditRecurrenceLabel => 'Recurrence';
+  String get dosingScheduleEditRecurrenceLabel => '复发';
 
   @override
-  String get dosingScheduleEditEnabledToggle => 'Enable schedule';
+  String get dosingScheduleEditEnabledToggle => '启用时间表';
 
   @override
-  String get dosingScheduleEditSave => 'Save schedule';
+  String get dosingScheduleEditSave => '保存日程';
 
   @override
-  String get dosingScheduleEditSuccess => 'Schedule saved.';
+  String get dosingScheduleEditSuccess => '时间表已保存。';
 
   @override
-  String get dosingScheduleEditInvalidDose => 'Enter a dose greater than zero.';
+  String get dosingScheduleEditInvalidDose => '输入大于零的剂量。';
 
   @override
-  String get dosingScheduleEditInvalidWindow =>
-      'End time must be after start time.';
+  String get dosingScheduleEditInvalidWindow => '结束时间必须晚于开始时间。';
 
   @override
-  String get dosingScheduleEditTemplateDaily => 'Use daily average template';
+  String get dosingScheduleEditTemplateDaily => '使用日平均模板';
 
   @override
-  String get dosingScheduleEditTemplateCustom => 'Use custom window template';
+  String get dosingScheduleEditTemplateCustom => '使用自定义窗口模板';
 
   @override
   String get dosingManualPageSubtitle =>
@@ -832,6 +821,83 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get bleGuardDialogButton => 'Got it';
 
   @override
+  String get bleOnboardingPermissionTitle => '啟用藍牙訪問';
+
+  @override
+  String get bleOnboardingPermissionCopy => '我們使用藍牙來發現和控制您附近的 Koral 硬件。';
+
+  @override
+  String get bleOnboardingPermissionCta => '允許訪問';
+
+  @override
+  String get bleOnboardingSettingsTitle => '設置中需要權限';
+
+  @override
+  String get bleOnboardingSettingsCopy => '藍牙訪問之前被拒絕。打開系統設置以啟用它。';
+
+  @override
+  String get bleOnboardingSettingsCta => '打開設置';
+
+  @override
+  String get bleOnboardingLocationTitle => '允許位置訪問';
+
+  @override
+  String get bleOnboardingLocationCopy => 'Android 需要舊版本上的位置訪問權限才能掃描藍牙設備。';
+
+  @override
+  String get bleOnboardingBluetoothOffTitle => '打開藍牙';
+
+  @override
+  String get bleOnboardingBluetoothOffCopy => '藍牙必須保持打開狀態才能繼續掃描和控制您的設備。';
+
+  @override
+  String get bleOnboardingBluetoothCta => '打開藍牙設置';
+
+  @override
+  String get bleOnboardingUnavailableTitle => '藍牙不可用';
+
+  @override
+  String get bleOnboardingUnavailableCopy => '此設備不公開 KoralCore 可以使用的藍牙無線電。';
+
+  @override
+  String get bleOnboardingRetryCta => '重試';
+
+  @override
+  String get bleOnboardingLearnMore => '了解更多';
+
+  @override
+  String get bleOnboardingSheetTitle => '為什麼 KoralCore 需要藍牙';
+
+  @override
+  String get bleOnboardingSheetDescription =>
+      '藍牙支持發現和控制您的劑量和照明硬件。以下是您授予訪問權限後會發生的情況。';
+
+  @override
+  String get bleOnboardingSheetSearchTitle => '查找附近的設備';
+
+  @override
+  String get bleOnboardingSheetSearchCopy =>
+      '掃描水族箱周圍的 Reef Dose、Reef LED 和其他 Koral 設備。';
+
+  @override
+  String get bleOnboardingSheetControlTitle => '控製劑量和照明';
+
+  @override
+  String get bleOnboardingSheetControlCopy => '通過安全的 BLE 鏈路同步計劃、發送命令並保持固件最新。';
+
+  @override
+  String get bleOnboardingSheetFooter => '一旦藍牙準備就緒，我們就會自動恢復掃描。';
+
+  @override
+  String get bleOnboardingDisabledHint => '授予藍牙訪問權限以開始掃描。';
+
+  @override
+  String get bleOnboardingBlockedEmptyTitle => '需要藍牙設置';
+
+  @override
+  String get bleOnboardingBlockedEmptyCopy => '允許藍牙訪問或將其打開以發現您的珊瑚礁硬件。';
+
+  @override
   String get bluetoothHeader => 'Nearby devices';
 
   @override
@@ -915,6 +981,66 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get dosingEntryHistory => 'Dose history';
+
+  @override
+  String get dosingScheduleAddButton => '添加日程';
+
+  @override
+  String get dosingScheduleEditTitleNew => '新時間表';
+
+  @override
+  String get dosingScheduleEditTitleEdit => '編輯日程';
+
+  @override
+  String get dosingScheduleEditDescription => '為此泵頭配置計量窗口。';
+
+  @override
+  String get dosingScheduleEditTypeLabel => '日程類型';
+
+  @override
+  String get dosingScheduleEditDoseLabel => '每次事件的劑量';
+
+  @override
+  String get dosingScheduleEditDoseHint => '輸入以毫升為單位的量。';
+
+  @override
+  String get dosingScheduleEditEventsLabel => '每天的活動';
+
+  @override
+  String get dosingScheduleEditStartTimeLabel => '第一劑';
+
+  @override
+  String get dosingScheduleEditWindowStartLabel => '窗口啟動';
+
+  @override
+  String get dosingScheduleEditWindowEndLabel => '窗端';
+
+  @override
+  String get dosingScheduleEditWindowEventsLabel => '每個窗口的事件';
+
+  @override
+  String get dosingScheduleEditRecurrenceLabel => '復發';
+
+  @override
+  String get dosingScheduleEditEnabledToggle => '啟用時間表';
+
+  @override
+  String get dosingScheduleEditSave => '保存日程';
+
+  @override
+  String get dosingScheduleEditSuccess => '時間表已保存。';
+
+  @override
+  String get dosingScheduleEditInvalidDose => '輸入大於零的劑量。';
+
+  @override
+  String get dosingScheduleEditInvalidWindow => '結束時間必須晚於開始時間。';
+
+  @override
+  String get dosingScheduleEditTemplateDaily => '使用日平均模板';
+
+  @override
+  String get dosingScheduleEditTemplateCustom => '使用自定義窗口模板';
 
   @override
   String get dosingManualPageSubtitle =>

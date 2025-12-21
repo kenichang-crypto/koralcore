@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../application/system/ble_readiness_controller.dart';
-import '../../theme/dimensions.dart';
-import 'package:koralcore/l10n/app_localizations.dart';
+import '../theme/reef_colors.dart';
+import '../theme/reef_radius.dart';
+import '../theme/reef_spacing.dart';
+import '../theme/reef_text.dart';
 
 class BleGuardBanner extends StatelessWidget {
   const BleGuardBanner({super.key});
@@ -21,14 +24,13 @@ class BleGuardBanner extends StatelessWidget {
           context,
           controller,
         );
-        final theme = Theme.of(context);
 
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(AppDimensions.spacingL),
+          padding: const EdgeInsets.all(ReefSpacing.lg),
           decoration: BoxDecoration(
-            color: model.accentColor.withOpacity(.12),
-            borderRadius: BorderRadius.circular(16),
+            color: model.accentColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(ReefRadius.lg),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,21 +38,39 @@ class BleGuardBanner extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(model.icon, color: model.accentColor),
-                  const SizedBox(width: AppDimensions.spacingS),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: model.accentColor.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(ReefRadius.md),
+                    ),
+                    child: Icon(model.icon, color: model.accentColor),
+                  ),
+                  const SizedBox(width: ReefSpacing.md),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(model.title, style: theme.textTheme.titleMedium),
-                        const SizedBox(height: AppDimensions.spacingXS),
-                        Text(model.message, style: theme.textTheme.bodyMedium),
+                        Text(
+                          model.title,
+                          style: ReefTextStyles.subheaderAccent.copyWith(
+                            color: ReefColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: ReefSpacing.xs),
+                        Text(
+                          model.message,
+                          style: ReefTextStyles.body.copyWith(
+                            color: ReefColors.textSecondary,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: AppDimensions.spacingM),
+              const SizedBox(height: ReefSpacing.md),
               _BleGuardActions(
                 snapshot: snapshot,
                 controller: controller,
@@ -85,8 +105,8 @@ class _BleGuardActions extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool showPrimary = primaryLabel != null && primaryAction != null;
     return Wrap(
-      spacing: AppDimensions.spacingS,
-      runSpacing: AppDimensions.spacingS,
+      spacing: ReefSpacing.sm,
+      runSpacing: ReefSpacing.sm,
       children: [
         if (showPrimary)
           FilledButton(
@@ -141,7 +161,7 @@ class _BleBannerModel {
       case BleBlockingReason.permissionPermanentlyDenied:
         return _BleBannerModel(
           icon: Icons.settings_applications,
-          accentColor: Colors.redAccent,
+          accentColor: ReefColors.danger,
           title: l10n.bleOnboardingSettingsTitle,
           message: l10n.bleOnboardingSettingsCopy,
           primaryLabel: l10n.bleOnboardingSettingsCta,
@@ -150,7 +170,7 @@ class _BleBannerModel {
       case BleBlockingReason.locationRequired:
         return _BleBannerModel(
           icon: Icons.location_on_outlined,
-          accentColor: Colors.orange,
+          accentColor: ReefColors.warning,
           title: l10n.bleOnboardingLocationTitle,
           message: l10n.bleOnboardingLocationCopy,
           primaryLabel: l10n.bleOnboardingPermissionCta,
@@ -159,7 +179,7 @@ class _BleBannerModel {
       case BleBlockingReason.permissionsNeeded:
         return _BleBannerModel(
           icon: Icons.bluetooth_searching,
-          accentColor: Colors.orange,
+          accentColor: ReefColors.info,
           title: l10n.bleOnboardingPermissionTitle,
           message: l10n.bleOnboardingPermissionCopy,
           primaryLabel: l10n.bleOnboardingPermissionCta,
@@ -168,7 +188,7 @@ class _BleBannerModel {
       case BleBlockingReason.bluetoothOff:
         return _BleBannerModel(
           icon: Icons.bluetooth_disabled,
-          accentColor: Colors.blueGrey,
+          accentColor: ReefColors.textSecondary,
           title: l10n.bleOnboardingBluetoothOffTitle,
           message: l10n.bleOnboardingBluetoothOffCopy,
           primaryLabel: l10n.bleOnboardingBluetoothCta,
@@ -177,14 +197,14 @@ class _BleBannerModel {
       case BleBlockingReason.bluetoothRestricted:
         return _BleBannerModel(
           icon: Icons.block,
-          accentColor: Colors.grey,
+          accentColor: ReefColors.textDisabled,
           title: l10n.bleOnboardingUnavailableTitle,
           message: l10n.bleOnboardingUnavailableCopy,
         );
       case BleBlockingReason.none:
         return _BleBannerModel(
           icon: Icons.info_outline,
-          accentColor: Colors.orange,
+          accentColor: ReefColors.info,
           title: l10n.bleOnboardingPermissionTitle,
           message: l10n.bleOnboardingPermissionCopy,
           primaryLabel: l10n.bleOnboardingPermissionCta,
@@ -204,18 +224,16 @@ Future<void> showBleOnboardingSheet(BuildContext context) {
         top: false,
         child: Padding(
           padding: EdgeInsets.only(
-            left: AppDimensions.spacingXL,
-            right: AppDimensions.spacingXL,
-            top: AppDimensions.spacingL,
+            left: ReefSpacing.xl,
+            right: ReefSpacing.xl,
+            top: ReefSpacing.lg,
             bottom:
-                MediaQuery.of(sheetContext).viewInsets.bottom +
-                AppDimensions.spacingXL,
+                MediaQuery.of(sheetContext).viewInsets.bottom + ReefSpacing.xl,
           ),
           child: Consumer<BleReadinessController>(
             builder: (context, controller, _) {
               final l10n = AppLocalizations.of(context);
               final snapshot = controller.snapshot;
-              final theme = Theme.of(context);
               final _BleBannerModel model = _BleBannerModel.fromSnapshot(
                 context,
                 controller,
@@ -227,26 +245,30 @@ Future<void> showBleOnboardingSheet(BuildContext context) {
                   children: [
                     Text(
                       l10n.bleOnboardingSheetTitle,
-                      style: theme.textTheme.titleLarge,
+                      style: ReefTextStyles.title1.copyWith(
+                        color: ReefColors.textPrimary,
+                      ),
                     ),
-                    const SizedBox(height: AppDimensions.spacingS),
+                    const SizedBox(height: ReefSpacing.sm),
                     Text(
                       l10n.bleOnboardingSheetDescription,
-                      style: theme.textTheme.bodyMedium,
+                      style: ReefTextStyles.body.copyWith(
+                        color: ReefColors.textSecondary,
+                      ),
                     ),
-                    const SizedBox(height: AppDimensions.spacingXL),
+                    const SizedBox(height: ReefSpacing.xl),
                     _BleSheetStep(
                       icon: Icons.radar,
                       title: l10n.bleOnboardingSheetSearchTitle,
                       message: l10n.bleOnboardingSheetSearchCopy,
                     ),
-                    const SizedBox(height: AppDimensions.spacingM),
+                    const SizedBox(height: ReefSpacing.sm),
                     _BleSheetStep(
                       icon: Icons.settings_remote,
                       title: l10n.bleOnboardingSheetControlTitle,
                       message: l10n.bleOnboardingSheetControlCopy,
                     ),
-                    const SizedBox(height: AppDimensions.spacingXL),
+                    const SizedBox(height: ReefSpacing.xl),
                     _BleGuardActions(
                       snapshot: snapshot,
                       controller: controller,
@@ -254,11 +276,11 @@ Future<void> showBleOnboardingSheet(BuildContext context) {
                       primaryAction: model.primaryAction,
                       l10n: l10n,
                     ),
-                    const SizedBox(height: AppDimensions.spacingM),
+                    const SizedBox(height: ReefSpacing.md),
                     Text(
                       l10n.bleOnboardingSheetFooter,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.black54,
+                      style: ReefTextStyles.caption1.copyWith(
+                        color: ReefColors.textTertiary,
                       ),
                     ),
                   ],
@@ -289,7 +311,6 @@ class _BleSheetStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -297,22 +318,27 @@ class _BleSheetStep extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withOpacity(.1),
-            borderRadius: BorderRadius.circular(12),
+            color: ReefColors.primary.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(ReefRadius.md),
           ),
-          child: Icon(icon, color: theme.colorScheme.primary),
+          child: Icon(icon, color: ReefColors.primary),
         ),
-        const SizedBox(width: AppDimensions.spacingM),
+        const SizedBox(width: ReefSpacing.md),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: theme.textTheme.titleMedium),
-              const SizedBox(height: AppDimensions.spacingXS),
+              Text(
+                title,
+                style: ReefTextStyles.subheaderAccent.copyWith(
+                  color: ReefColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: ReefSpacing.xs),
               Text(
                 message,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: Colors.black87,
+                style: ReefTextStyles.body.copyWith(
+                  color: ReefColors.textSecondary,
                 ),
               ),
             ],

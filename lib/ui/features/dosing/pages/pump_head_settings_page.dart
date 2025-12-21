@@ -5,8 +5,9 @@ import 'package:provider/provider.dart';
 import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_spacing.dart';
+import '../../../theme/reef_text.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/pump_head_settings_controller.dart';
@@ -178,36 +179,44 @@ class _PumpHeadSettingsViewState extends State<_PumpHeadSettingsView> {
     final l10n = AppLocalizations.of(context);
     return Consumer2<AppSession, PumpHeadSettingsController>(
       builder: (context, session, controller, _) {
-        final theme = Theme.of(context);
         final bool isConnected = session.isBleConnected;
 
-        return WillPopScope(
-          onWillPop: () => _handleWillPop(l10n),
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, _) async {
+            if (didPop) return;
+            final allow = await _handleWillPop(l10n);
+            if (allow && context.mounted) {
+              Navigator.of(context).pop();
+            }
+          },
           child: Scaffold(
             appBar: AppBar(title: Text(l10n.dosingPumpHeadSettingsTitle)),
             body: Column(
               children: [
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.all(AppDimensions.spacingXL),
+                    padding: const EdgeInsets.all(ReefSpacing.xl),
                     children: [
                       Text(
                         l10n.dosingPumpHeadSummaryTitle(
                           widget.headId.toUpperCase(),
                         ),
-                        style: theme.textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: AppDimensions.spacingS),
-                      Text(
-                        l10n.dosingPumpHeadSettingsSubtitle,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: AppColors.grey700,
+                        style: ReefTextStyles.subheaderAccent.copyWith(
+                          color: ReefColors.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: AppDimensions.spacingL),
+                      const SizedBox(height: ReefSpacing.sm),
+                      Text(
+                        l10n.dosingPumpHeadSettingsSubtitle,
+                        style: ReefTextStyles.body.copyWith(
+                          color: ReefColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: ReefSpacing.md),
                       if (!isConnected) ...[
                         const BleGuardBanner(),
-                        const SizedBox(height: AppDimensions.spacingXL),
+                        const SizedBox(height: ReefSpacing.xl),
                       ],
                       _NameCard(
                         controller: _nameController,
@@ -215,9 +224,9 @@ class _PumpHeadSettingsViewState extends State<_PumpHeadSettingsView> {
                         isEnabled: !controller.isSaving,
                         l10n: l10n,
                       ),
-                      const SizedBox(height: AppDimensions.spacingL),
+                      const SizedBox(height: ReefSpacing.md),
                       _TankPlaceholderCard(l10n: l10n),
-                      const SizedBox(height: AppDimensions.spacingL),
+                      const SizedBox(height: ReefSpacing.md),
                       _DelayCard(
                         currentDelay: _selectedDelay,
                         delayOptions: _delayOptions,
@@ -231,12 +240,12 @@ class _PumpHeadSettingsViewState extends State<_PumpHeadSettingsView> {
                           _refreshDirtyFlag();
                         },
                       ),
-                      const SizedBox(height: AppDimensions.spacingXL),
+                      const SizedBox(height: ReefSpacing.xl),
                     ],
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(AppDimensions.spacingXL),
+                  padding: const EdgeInsets.all(ReefSpacing.xl),
                   child: Row(
                     children: [
                       Expanded(
@@ -247,7 +256,7 @@ class _PumpHeadSettingsViewState extends State<_PumpHeadSettingsView> {
                           child: Text(l10n.dosingPumpHeadSettingsCancel),
                         ),
                       ),
-                      const SizedBox(width: AppDimensions.spacingM),
+                      const SizedBox(width: ReefSpacing.sm),
                       Expanded(
                         child: FilledButton(
                           onPressed: controller.isSaving
@@ -291,18 +300,19 @@ class _NameCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        padding: const EdgeInsets.all(ReefSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               l10n.dosingPumpHeadSettingsNameLabel,
-              style: theme.textTheme.titleSmall,
+              style: ReefTextStyles.subheader.copyWith(
+                color: ReefColors.textPrimary,
+              ),
             ),
-            const SizedBox(height: AppDimensions.spacingS),
+            const SizedBox(height: ReefSpacing.sm),
             TextField(
               controller: controller,
               enabled: isEnabled,
@@ -326,16 +336,27 @@ class _TankPlaceholderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Card(
       child: ListTile(
         enabled: false,
-        title: Text(l10n.dosingPumpHeadSettingsTankLabel),
+        title: Text(
+          l10n.dosingPumpHeadSettingsTankLabel,
+          style: ReefTextStyles.subheader.copyWith(
+            color: ReefColors.textPrimary,
+          ),
+        ),
         subtitle: Text(
           l10n.dosingPumpHeadSettingsTankPlaceholder,
-          style: theme.textTheme.bodySmall?.copyWith(color: AppColors.grey700),
+          style: ReefTextStyles.caption1.copyWith(
+            color: ReefColors.textSecondary,
+          ),
         ),
-        trailing: Text(l10n.comingSoon),
+        trailing: Text(
+          l10n.comingSoon,
+          style: ReefTextStyles.caption1Accent.copyWith(
+            color: ReefColors.textSecondary,
+          ),
+        ),
       ),
     );
   }
@@ -358,18 +379,19 @@ class _DelayCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        padding: const EdgeInsets.all(ReefSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               l10n.dosingPumpHeadSettingsDelayLabel,
-              style: theme.textTheme.titleSmall,
+              style: ReefTextStyles.subheader.copyWith(
+                color: ReefColors.textPrimary,
+              ),
             ),
-            const SizedBox(height: AppDimensions.spacingS),
+            const SizedBox(height: ReefSpacing.sm),
             DropdownButtonFormField<int>(
               initialValue: currentDelay,
               items: delayOptions
@@ -386,6 +408,9 @@ class _DelayCard extends StatelessWidget {
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 helperText: l10n.dosingPumpHeadSettingsDelaySubtitle,
+                helperStyle: ReefTextStyles.caption1.copyWith(
+                  color: ReefColors.textSecondary,
+                ),
               ),
             ),
           ],

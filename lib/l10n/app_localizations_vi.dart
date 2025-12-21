@@ -59,90 +59,91 @@ class AppLocalizationsVi extends AppLocalizations {
   String get bleGuardDialogButton => 'Got it';
 
   @override
-  String get bleOnboardingPermissionTitle => 'Enable Bluetooth access';
+  String get bleOnboardingPermissionTitle => 'Bật quyền truy cập Bluetooth';
 
   @override
   String get bleOnboardingPermissionCopy =>
-      'We use Bluetooth to discover and control your Koral hardware nearby.';
+      'Chúng tôi sử dụng Bluetooth để khám phá và kiểm soát phần cứng Koral của bạn ở gần.';
 
   @override
-  String get bleOnboardingPermissionCta => 'Allow access';
+  String get bleOnboardingPermissionCta => 'Cho phép truy cập';
 
   @override
-  String get bleOnboardingSettingsTitle => 'Permission required in Settings';
+  String get bleOnboardingSettingsTitle => 'Cần có quyền trong Cài đặt';
 
   @override
   String get bleOnboardingSettingsCopy =>
-      'Bluetooth access was previously denied. Open system settings to enable it.';
+      'Truy cập Bluetooth trước đây đã bị từ chối.Mở cài đặt hệ thống để kích hoạt nó.';
 
   @override
-  String get bleOnboardingSettingsCta => 'Open settings';
+  String get bleOnboardingSettingsCta => 'Mở cài đặt';
 
   @override
-  String get bleOnboardingLocationTitle => 'Allow location access';
+  String get bleOnboardingLocationTitle => 'Cho phép truy cập vị trí';
 
   @override
   String get bleOnboardingLocationCopy =>
-      'Android requires location access on older versions to scan for Bluetooth devices.';
+      'Android yêu cầu quyền truy cập vị trí trên các phiên bản cũ hơn để quét tìm thiết bị Bluetooth.';
 
   @override
-  String get bleOnboardingBluetoothOffTitle => 'Turn on Bluetooth';
+  String get bleOnboardingBluetoothOffTitle => 'Bật Bluetooth';
 
   @override
   String get bleOnboardingBluetoothOffCopy =>
-      'Bluetooth must stay on to keep scanning and control your devices.';
+      'Bluetooth phải luôn bật để tiếp tục quét và điều khiển thiết bị của bạn.';
 
   @override
-  String get bleOnboardingBluetoothCta => 'Open Bluetooth settings';
+  String get bleOnboardingBluetoothCta => 'Mở cài đặt Bluetooth';
 
   @override
-  String get bleOnboardingUnavailableTitle => 'Bluetooth unavailable';
+  String get bleOnboardingUnavailableTitle => 'Bluetooth không khả dụng';
 
   @override
   String get bleOnboardingUnavailableCopy =>
-      'This device does not expose a Bluetooth radio that KoralCore can use.';
+      'Thiết bị này không hiển thị đài Bluetooth mà KoralCore có thể sử dụng.';
 
   @override
-  String get bleOnboardingRetryCta => 'Retry';
+  String get bleOnboardingRetryCta => 'Thử lại';
 
   @override
-  String get bleOnboardingLearnMore => 'Learn more';
+  String get bleOnboardingLearnMore => 'Tìm hiểu thêm';
 
   @override
-  String get bleOnboardingSheetTitle => 'Why KoralCore needs Bluetooth';
+  String get bleOnboardingSheetTitle => 'Tại sao KoralCore cần Bluetooth';
 
   @override
   String get bleOnboardingSheetDescription =>
-      'Bluetooth powers discovery and control of your dosing and lighting hardware. Here\'s what happens once you grant access.';
+      'Bluetooth hỗ trợ việc phát hiện và kiểm soát phần cứng định lượng và chiếu sáng của bạn.Đây là những gì xảy ra sau khi bạn cấp quyền truy cập.';
 
   @override
-  String get bleOnboardingSheetSearchTitle => 'Find nearby devices';
+  String get bleOnboardingSheetSearchTitle => 'Tìm thiết bị ở gần';
 
   @override
   String get bleOnboardingSheetSearchCopy =>
-      'Scan for Reef Dose, Reef LED, and other Koral equipment around your tank.';
+      'Quét Reef Dose, Reef LED và các thiết bị Koral khác xung quanh bể của bạn.';
 
   @override
-  String get bleOnboardingSheetControlTitle => 'Control dosing and lighting';
+  String get bleOnboardingSheetControlTitle =>
+      'Kiểm soát liều lượng và ánh sáng';
 
   @override
   String get bleOnboardingSheetControlCopy =>
-      'Sync schedules, send commands, and keep firmware up to date over a secure BLE link.';
+      'Đồng bộ hóa lịch trình, gửi lệnh và cập nhật chương trình cơ sở qua liên kết BLE an toàn.';
 
   @override
   String get bleOnboardingSheetFooter =>
-      'As soon as Bluetooth is ready we automatically resume scanning.';
+      'Ngay khi Bluetooth sẵn sàng, chúng tôi sẽ tự động tiếp tục quét.';
 
   @override
   String get bleOnboardingDisabledHint =>
-      'Grant Bluetooth access to start scanning.';
+      'Cấp quyền truy cập Bluetooth để bắt đầu quét.';
 
   @override
-  String get bleOnboardingBlockedEmptyTitle => 'Bluetooth setup required';
+  String get bleOnboardingBlockedEmptyTitle => 'Cần thiết lập Bluetooth';
 
   @override
   String get bleOnboardingBlockedEmptyCopy =>
-      'Allow Bluetooth access or turn it on to discover your reef hardware.';
+      'Cho phép truy cập Bluetooth hoặc bật nó để khám phá phần cứng rạn san hô của bạn.';
 
   @override
   String get bluetoothHeader => 'Nearby devices';
@@ -230,66 +231,67 @@ class AppLocalizationsVi extends AppLocalizations {
   String get dosingEntryHistory => 'Dose history';
 
   @override
-  String get dosingScheduleAddButton => 'Add schedule';
+  String get dosingScheduleAddButton => 'Thêm lịch trình';
 
   @override
-  String get dosingScheduleEditTitleNew => 'New schedule';
+  String get dosingScheduleEditTitleNew => 'Lịch trình mới';
 
   @override
-  String get dosingScheduleEditTitleEdit => 'Edit schedule';
+  String get dosingScheduleEditTitleEdit => 'Chỉnh sửa lịch trình';
 
   @override
   String get dosingScheduleEditDescription =>
-      'Configure dosing windows for this pump head.';
+      'Cấu hình cửa sổ định lượng cho đầu bơm này.';
 
   @override
-  String get dosingScheduleEditTypeLabel => 'Schedule type';
+  String get dosingScheduleEditTypeLabel => 'Loại lịch trình';
 
   @override
-  String get dosingScheduleEditDoseLabel => 'Dose per event';
+  String get dosingScheduleEditDoseLabel => 'Liều mỗi sự kiện';
 
   @override
-  String get dosingScheduleEditDoseHint => 'Enter the amount in milliliters.';
+  String get dosingScheduleEditDoseHint => 'Nhập số lượng tính bằng mililit.';
 
   @override
-  String get dosingScheduleEditEventsLabel => 'Events per day';
+  String get dosingScheduleEditEventsLabel => 'Sự kiện mỗi ngày';
 
   @override
-  String get dosingScheduleEditStartTimeLabel => 'First dose';
+  String get dosingScheduleEditStartTimeLabel => 'Liều đầu tiên';
 
   @override
-  String get dosingScheduleEditWindowStartLabel => 'Window start';
+  String get dosingScheduleEditWindowStartLabel => 'Bắt đầu cửa sổ';
 
   @override
-  String get dosingScheduleEditWindowEndLabel => 'Window end';
+  String get dosingScheduleEditWindowEndLabel => 'Cuối cửa sổ';
 
   @override
-  String get dosingScheduleEditWindowEventsLabel => 'Events per window';
+  String get dosingScheduleEditWindowEventsLabel => 'Sự kiện trên mỗi cửa sổ';
 
   @override
-  String get dosingScheduleEditRecurrenceLabel => 'Recurrence';
+  String get dosingScheduleEditRecurrenceLabel => 'Tái phát';
 
   @override
-  String get dosingScheduleEditEnabledToggle => 'Enable schedule';
+  String get dosingScheduleEditEnabledToggle => 'Bật lịch trình';
 
   @override
-  String get dosingScheduleEditSave => 'Save schedule';
+  String get dosingScheduleEditSave => 'Lưu lịch trình';
 
   @override
-  String get dosingScheduleEditSuccess => 'Schedule saved.';
+  String get dosingScheduleEditSuccess => 'Đã lưu lịch trình.';
 
   @override
-  String get dosingScheduleEditInvalidDose => 'Enter a dose greater than zero.';
+  String get dosingScheduleEditInvalidDose => 'Nhập liều lớn hơn 0.';
 
   @override
   String get dosingScheduleEditInvalidWindow =>
-      'End time must be after start time.';
+      'Thời gian kết thúc phải sau thời gian bắt đầu.';
 
   @override
-  String get dosingScheduleEditTemplateDaily => 'Use daily average template';
+  String get dosingScheduleEditTemplateDaily =>
+      'Sử dụng mẫu trung bình hàng ngày';
 
   @override
-  String get dosingScheduleEditTemplateCustom => 'Use custom window template';
+  String get dosingScheduleEditTemplateCustom => 'Sử dụng mẫu cửa sổ tùy chỉnh';
 
   @override
   String get dosingManualPageSubtitle =>

@@ -59,90 +59,90 @@ class AppLocalizationsAr extends AppLocalizations {
   String get bleGuardDialogButton => 'Got it';
 
   @override
-  String get bleOnboardingPermissionTitle => 'Enable Bluetooth access';
+  String get bleOnboardingPermissionTitle => 'تمكين الوصول إلى البلوتوث';
 
   @override
   String get bleOnboardingPermissionCopy =>
-      'We use Bluetooth to discover and control your Koral hardware nearby.';
+      'نحن نستخدم تقنية Bluetooth لاكتشاف أجهزة Koral القريبة منك والتحكم فيها.';
 
   @override
-  String get bleOnboardingPermissionCta => 'Allow access';
+  String get bleOnboardingPermissionCta => 'السماح بالوصول';
 
   @override
-  String get bleOnboardingSettingsTitle => 'Permission required in Settings';
+  String get bleOnboardingSettingsTitle => 'الإذن مطلوب في الإعدادات';
 
   @override
   String get bleOnboardingSettingsCopy =>
-      'Bluetooth access was previously denied. Open system settings to enable it.';
+      'تم رفض الوصول إلى البلوتوث مسبقًا.افتح إعدادات النظام لتمكينه.';
 
   @override
-  String get bleOnboardingSettingsCta => 'Open settings';
+  String get bleOnboardingSettingsCta => 'افتح الإعدادات';
 
   @override
-  String get bleOnboardingLocationTitle => 'Allow location access';
+  String get bleOnboardingLocationTitle => 'السماح بالوصول إلى الموقع';
 
   @override
   String get bleOnboardingLocationCopy =>
-      'Android requires location access on older versions to scan for Bluetooth devices.';
+      'يتطلب Android الوصول إلى الموقع على الإصدارات الأقدم للبحث عن أجهزة Bluetooth.';
 
   @override
-  String get bleOnboardingBluetoothOffTitle => 'Turn on Bluetooth';
+  String get bleOnboardingBluetoothOffTitle => 'قم بتشغيل البلوتوث';
 
   @override
   String get bleOnboardingBluetoothOffCopy =>
-      'Bluetooth must stay on to keep scanning and control your devices.';
+      'يجب أن تظل تقنية Bluetooth قيد التشغيل لمواصلة فحص أجهزتك والتحكم فيها.';
 
   @override
-  String get bleOnboardingBluetoothCta => 'Open Bluetooth settings';
+  String get bleOnboardingBluetoothCta => 'افتح إعدادات البلوتوث';
 
   @override
-  String get bleOnboardingUnavailableTitle => 'Bluetooth unavailable';
+  String get bleOnboardingUnavailableTitle => 'البلوتوث غير متوفر';
 
   @override
   String get bleOnboardingUnavailableCopy =>
-      'This device does not expose a Bluetooth radio that KoralCore can use.';
+      'لا يعرض هذا الجهاز راديو Bluetooth الذي يمكن لـ KoralCore استخدامه.';
 
   @override
-  String get bleOnboardingRetryCta => 'Retry';
+  String get bleOnboardingRetryCta => 'أعد المحاولة';
 
   @override
-  String get bleOnboardingLearnMore => 'Learn more';
+  String get bleOnboardingLearnMore => 'يتعلم أكثر';
 
   @override
-  String get bleOnboardingSheetTitle => 'Why KoralCore needs Bluetooth';
+  String get bleOnboardingSheetTitle => 'لماذا يحتاج KoralCore إلى البلوتوث';
 
   @override
   String get bleOnboardingSheetDescription =>
-      'Bluetooth powers discovery and control of your dosing and lighting hardware. Here\'s what happens once you grant access.';
+      'تعمل تقنية Bluetooth على اكتشاف أجهزة الجرعات والإضاءة والتحكم فيها.إليك ما يحدث بمجرد منح حق الوصول.';
 
   @override
-  String get bleOnboardingSheetSearchTitle => 'Find nearby devices';
+  String get bleOnboardingSheetSearchTitle => 'البحث عن الأجهزة القريبة';
 
   @override
   String get bleOnboardingSheetSearchCopy =>
-      'Scan for Reef Dose, Reef LED, and other Koral equipment around your tank.';
+      'قم بالمسح بحثًا عن Reef Dose وReef LED وغيرها من معدات Koral الموجودة حول خزان الوقود.';
 
   @override
-  String get bleOnboardingSheetControlTitle => 'Control dosing and lighting';
+  String get bleOnboardingSheetControlTitle => 'التحكم في الجرعات والإضاءة';
 
   @override
   String get bleOnboardingSheetControlCopy =>
-      'Sync schedules, send commands, and keep firmware up to date over a secure BLE link.';
+      'مزامنة الجداول الزمنية وإرسال الأوامر والحفاظ على تحديث البرامج الثابتة عبر رابط BLE آمن.';
 
   @override
   String get bleOnboardingSheetFooter =>
-      'As soon as Bluetooth is ready we automatically resume scanning.';
+      'بمجرد أن يصبح البلوتوث جاهزًا، نستأنف المسح تلقائيًا.';
 
   @override
   String get bleOnboardingDisabledHint =>
-      'Grant Bluetooth access to start scanning.';
+      'امنح حق الوصول إلى Bluetooth لبدء المسح.';
 
   @override
-  String get bleOnboardingBlockedEmptyTitle => 'Bluetooth setup required';
+  String get bleOnboardingBlockedEmptyTitle => 'يلزم إعداد البلوتوث';
 
   @override
   String get bleOnboardingBlockedEmptyCopy =>
-      'Allow Bluetooth access or turn it on to discover your reef hardware.';
+      'اسمح بالوصول إلى Bluetooth أو قم بتشغيله لاكتشاف أجهزة الشعاب المرجانية الخاصة بك.';
 
   @override
   String get bluetoothHeader => 'Nearby devices';
@@ -230,66 +230,66 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dosingEntryHistory => 'Dose history';
 
   @override
-  String get dosingScheduleAddButton => 'Add schedule';
+  String get dosingScheduleAddButton => 'إضافة الجدول الزمني';
 
   @override
-  String get dosingScheduleEditTitleNew => 'New schedule';
+  String get dosingScheduleEditTitleNew => 'جدول زمني جديد';
 
   @override
-  String get dosingScheduleEditTitleEdit => 'Edit schedule';
+  String get dosingScheduleEditTitleEdit => 'تحرير الجدول الزمني';
 
   @override
   String get dosingScheduleEditDescription =>
-      'Configure dosing windows for this pump head.';
+      'قم بتكوين نوافذ الجرعات لرأس المضخة هذا.';
 
   @override
-  String get dosingScheduleEditTypeLabel => 'Schedule type';
+  String get dosingScheduleEditTypeLabel => 'نوع الجدول الزمني';
 
   @override
-  String get dosingScheduleEditDoseLabel => 'Dose per event';
+  String get dosingScheduleEditDoseLabel => 'الجرعة لكل حدث';
 
   @override
-  String get dosingScheduleEditDoseHint => 'Enter the amount in milliliters.';
+  String get dosingScheduleEditDoseHint => 'أدخل المبلغ بالملليلتر.';
 
   @override
-  String get dosingScheduleEditEventsLabel => 'Events per day';
+  String get dosingScheduleEditEventsLabel => 'الأحداث يوميا';
 
   @override
-  String get dosingScheduleEditStartTimeLabel => 'First dose';
+  String get dosingScheduleEditStartTimeLabel => 'الجرعة الأولى';
 
   @override
-  String get dosingScheduleEditWindowStartLabel => 'Window start';
+  String get dosingScheduleEditWindowStartLabel => 'بداية النافذة';
 
   @override
-  String get dosingScheduleEditWindowEndLabel => 'Window end';
+  String get dosingScheduleEditWindowEndLabel => 'نهاية النافذة';
 
   @override
-  String get dosingScheduleEditWindowEventsLabel => 'Events per window';
+  String get dosingScheduleEditWindowEventsLabel => 'الأحداث لكل نافذة';
 
   @override
-  String get dosingScheduleEditRecurrenceLabel => 'Recurrence';
+  String get dosingScheduleEditRecurrenceLabel => 'تكرار';
 
   @override
-  String get dosingScheduleEditEnabledToggle => 'Enable schedule';
+  String get dosingScheduleEditEnabledToggle => 'تمكين الجدول الزمني';
 
   @override
-  String get dosingScheduleEditSave => 'Save schedule';
+  String get dosingScheduleEditSave => 'حفظ الجدول الزمني';
 
   @override
-  String get dosingScheduleEditSuccess => 'Schedule saved.';
+  String get dosingScheduleEditSuccess => 'تم حفظ الجدول الزمني.';
 
   @override
-  String get dosingScheduleEditInvalidDose => 'Enter a dose greater than zero.';
+  String get dosingScheduleEditInvalidDose => 'أدخل جرعة أكبر من الصفر.';
 
   @override
   String get dosingScheduleEditInvalidWindow =>
-      'End time must be after start time.';
+      'يجب أن يكون وقت الانتهاء بعد وقت البدء.';
 
   @override
-  String get dosingScheduleEditTemplateDaily => 'Use daily average template';
+  String get dosingScheduleEditTemplateDaily => 'استخدم قالب المتوسط ​​اليومي';
 
   @override
-  String get dosingScheduleEditTemplateCustom => 'Use custom window template';
+  String get dosingScheduleEditTemplateCustom => 'استخدم قالب النافذة المخصص';
 
   @override
   String get dosingManualPageSubtitle =>

@@ -9,6 +9,7 @@ import '../../platform/contracts/device_repository.dart';
 import '../common/app_error.dart';
 import '../common/app_error_code.dart';
 import '../session/current_device_session.dart';
+import 'read_today_total.dart';
 
 /// SingleDoseImmediateUseCase
 ///
@@ -23,11 +24,13 @@ class SingleDoseImmediateUseCase {
   final BleAdapter bleAdapter;
   final BleWriteOptions writeOptions;
   final ImmediateSingleDoseEncoder immediateSingleDoseEncoder;
+  final ReadTodayTotalUseCase readTodayTotalUseCase;
 
   SingleDoseImmediateUseCase({
     required this.deviceRepository,
     required this.currentDeviceSession,
     required this.bleAdapter,
+    required this.readTodayTotalUseCase,
     BleWriteOptions? writeOptions,
     ImmediateSingleDoseEncoder? immediateSingleDoseEncoder,
   }) : writeOptions = writeOptions ?? const BleWriteOptions(),
@@ -75,6 +78,7 @@ class SingleDoseImmediateUseCase {
         data: payload,
         options: writeOptions,
       );
+      await _refreshTodayTotals(deviceId: deviceId, pumpId: dose.pumpId);
     } on BleWriteTimeoutException catch (error) {
       throw AppError(code: AppErrorCode.transportError, message: error.message);
     } on BleWriteException catch (error) {
@@ -84,5 +88,22 @@ class SingleDoseImmediateUseCase {
 
   bool _hasFractionalComponent(double value) {
     return value != value.truncateToDouble();
+  }
+
+  Future<void> _refreshTodayTotals({
+    required String deviceId,
+    required int pumpId,
+  }) async {
+    final String headId = _headIdFromPumpId(pumpId);
+    try {
+      await readTodayTotalUseCase.execute(deviceId: deviceId, headId: headId);
+    } catch (_) {
+      // Swallow refresh errors; manual dose already succeeded.
+    }
+  }
+
+  String _headIdFromPumpId(int pumpId) {
+    final int index = pumpId.clamp(1, 26) - 1;
+    return String.fromCharCode('A'.codeUnitAt(0) + index);
   }
 }

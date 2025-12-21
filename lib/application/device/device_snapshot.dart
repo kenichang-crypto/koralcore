@@ -7,6 +7,7 @@ class DeviceSnapshot {
   final int? rssi;
   final DeviceConnectionState state;
   final bool provisioned;
+  final bool isMaster;
 
   const DeviceSnapshot({
     required this.id,
@@ -14,6 +15,7 @@ class DeviceSnapshot {
     required this.state,
     this.rssi,
     this.provisioned = false,
+    this.isMaster = false,
   });
 
   bool get isConnected => state == DeviceConnectionState.connected;
@@ -27,6 +29,7 @@ class DeviceSnapshot {
       rssi: raw['rssi'] is num ? (raw['rssi'] as num).round() : null,
       state: _fromState(stateValue),
       provisioned: raw['provisioned'] == true,
+      isMaster: raw['isMaster'] == true,
     );
   }
 
@@ -47,6 +50,7 @@ class DeviceSnapshot {
     int? rssi,
     DeviceConnectionState? state,
     bool? provisioned,
+    bool? isMaster,
   }) {
     return DeviceSnapshot(
       id: id ?? this.id,
@@ -54,6 +58,7 @@ class DeviceSnapshot {
       rssi: rssi ?? this.rssi,
       state: state ?? this.state,
       provisioned: provisioned ?? this.provisioned,
+      isMaster: isMaster ?? this.isMaster,
     );
   }
 }

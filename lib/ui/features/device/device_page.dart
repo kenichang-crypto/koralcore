@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../../application/common/app_error_code.dart';
 import '../../../application/system/ble_readiness_controller.dart';
-import '../../../theme/dimensions.dart';
 import '../../components/app_error_presenter.dart';
 import '../../components/ble_guard.dart';
+import '../../theme/reef_colors.dart';
+import '../../theme/reef_radius.dart';
+import '../../theme/reef_spacing.dart';
+import '../../theme/reef_text.dart';
 import 'controllers/device_list_controller.dart';
 import 'widgets/device_card.dart';
-import 'package:koralcore/l10n/app_localizations.dart';
 
 class DevicePage extends StatefulWidget {
   const DevicePage({super.key});
@@ -21,7 +24,10 @@ class _DevicePageState extends State<DevicePage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => context.read<DeviceListController>().refresh());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<DeviceListController>().refresh();
+    });
   }
 
   @override
@@ -30,97 +36,93 @@ class _DevicePageState extends State<DevicePage> {
     _maybeShowError(controller.lastErrorCode);
     final l10n = AppLocalizations.of(context);
 
-    return SafeArea(
-      child: RefreshIndicator(
-        onRefresh: () => controller.refresh(),
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(
-            parent: AlwaysScrollableScrollPhysics(),
-          ),
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppDimensions.spacingXL,
-                  AppDimensions.spacingXL,
-                  AppDimensions.spacingXL,
-                  AppDimensions.spacingM,
-                ),
-                child: Text(
-                  l10n.deviceHeader,
-                  style: Theme.of(context).textTheme.headlineSmall,
+    return Scaffold(
+      backgroundColor: ReefColors.primaryStrong,
+      appBar: AppBar(
+        backgroundColor: ReefColors.primary,
+        foregroundColor: ReefColors.onPrimary,
+        elevation: 0,
+        titleSpacing: ReefSpacing.xl,
+        titleTextStyle: ReefTextStyles.title2.copyWith(
+          color: ReefColors.onPrimary,
+        ),
+        title: Text(l10n.deviceHeader),
+      ),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () => controller.refresh(),
+          child: CustomScrollView(
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            slivers: [
+              SliverToBoxAdapter(
+                child: Consumer<BleReadinessController>(
+                  builder: (context, bleController, _) {
+                    if (bleController.snapshot.isReady) {
+                      return const SizedBox.shrink();
+                    }
+                    return const Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        ReefSpacing.xl,
+                        ReefSpacing.lg,
+                        ReefSpacing.xl,
+                        ReefSpacing.lg,
+                      ),
+                      child: BleGuardBanner(),
+                    );
+                  },
                 ),
               ),
-            ),
-            SliverToBoxAdapter(
-              child: Consumer<BleReadinessController>(
-                builder: (context, bleController, _) {
-                  if (bleController.snapshot.isReady) {
-                    return const SizedBox.shrink();
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppDimensions.spacingXL,
-                      0,
-                      AppDimensions.spacingXL,
-                      AppDimensions.spacingL,
-                    ),
-                    child: const BleGuardBanner(),
-                  );
-                },
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimensions.spacingXL,
-                ),
-                child: _ActionsBar(controller: controller, l10n: l10n),
-              ),
-            ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: AppDimensions.spacingL),
-            ),
-            if (controller.devices.isEmpty)
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: _EmptyState(
-                  l10n: l10n,
-                  onScan: () => controller.refresh(),
-                ),
-              )
-            else
               SliverPadding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimensions.spacingXL,
-                ),
-                sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: AppDimensions.spacingXL,
-                    crossAxisSpacing: AppDimensions.spacingXL,
-                    childAspectRatio: .85,
-                  ),
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final device = controller.devices[index];
-                    final isSelected = controller.selectedIds.contains(
-                      device.id,
-                    );
-                    return DeviceCard(
-                      device: device,
-                      selectionMode: controller.selectionMode,
-                      isSelected: isSelected,
-                      onSelect: () => controller.toggleSelection(device.id),
-                      onConnect: () => controller.connect(device.id),
-                      onDisconnect: () => controller.disconnect(device.id),
-                    );
-                  }, childCount: controller.devices.length),
+                padding: const EdgeInsets.symmetric(horizontal: ReefSpacing.xl),
+                sliver: SliverToBoxAdapter(
+                  child: _ActionsBar(controller: controller, l10n: l10n),
                 ),
               ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: AppDimensions.spacingXXL),
-            ),
-          ],
+              const SliverToBoxAdapter(child: SizedBox(height: ReefSpacing.lg)),
+              if (controller.devices.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: _EmptyState(
+                    l10n: l10n,
+                    onScan: () => controller.refresh(),
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: ReefSpacing.xl,
+                  ),
+                  sliver: SliverGrid(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: ReefSpacing.xl,
+                          crossAxisSpacing: ReefSpacing.xl,
+                          childAspectRatio: .85,
+                        ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final device = controller.devices[index];
+                      final isSelected = controller.selectedIds.contains(
+                        device.id,
+                      );
+                      return DeviceCard(
+                        device: device,
+                        selectionMode: controller.selectionMode,
+                        isSelected: isSelected,
+                        onSelect: () => controller.toggleSelection(device.id),
+                        onConnect: () => controller.connect(device.id),
+                        onDisconnect: () => controller.disconnect(device.id),
+                      );
+                    }, childCount: controller.devices.length),
+                  ),
+                ),
+              const SliverToBoxAdapter(
+                child: SizedBox(height: ReefSpacing.xxl),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -168,7 +170,7 @@ class _ActionsBar extends StatelessWidget {
                 : l10n.bluetoothScanCta,
           ),
         ),
-        const SizedBox(width: AppDimensions.spacingM),
+        const SizedBox(width: ReefSpacing.md),
         if (!controller.selectionMode) ...[
           OutlinedButton(
             onPressed: controller.devices.isEmpty
@@ -180,15 +182,18 @@ class _ActionsBar extends StatelessWidget {
           Expanded(
             child: Text(
               l10n.deviceSelectionCount(controller.selectedIds.length),
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: ReefTextStyles.subheader.copyWith(
+                color: ReefColors.textSecondary,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           TextButton(
             onPressed: controller.exitSelectionMode,
             child: Text(l10n.actionCancel),
           ),
-          const SizedBox(width: AppDimensions.spacingS),
-          FilledButton.tonal(
+          const SizedBox(width: ReefSpacing.sm),
+          OutlinedButton(
             onPressed: controller.selectedIds.isEmpty
                 ? null
                 : () => _confirmDelete(context),
@@ -238,29 +243,41 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          l10n.deviceEmptyTitle,
-          style: Theme.of(context).textTheme.titleMedium,
+    return Center(
+      child: Card(
+        color: ReefColors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(ReefRadius.md),
         ),
-        const SizedBox(height: AppDimensions.spacingM),
-        Text(
-          l10n.deviceEmptySubtitle,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: Colors.black54),
-          textAlign: TextAlign.center,
+        child: Padding(
+          padding: const EdgeInsets.all(ReefSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                l10n.deviceEmptyTitle,
+                style: ReefTextStyles.subheaderAccent.copyWith(
+                  color: ReefColors.textPrimary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: ReefSpacing.sm),
+              Text(
+                l10n.deviceEmptySubtitle,
+                style: ReefTextStyles.body.copyWith(
+                  color: ReefColors.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: ReefSpacing.lg),
+              FilledButton(
+                onPressed: onScan,
+                child: Text(l10n.bluetoothScanCta),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: AppDimensions.spacingXL),
-        FilledButton(
-          onPressed: () {
-            onScan();
-          },
-          child: Text(l10n.bluetoothScanCta),
-        ),
-      ],
+      ),
     );
   }
 }

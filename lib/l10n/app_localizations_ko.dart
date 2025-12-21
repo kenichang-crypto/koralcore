@@ -59,90 +59,88 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bleGuardDialogButton => 'Got it';
 
   @override
-  String get bleOnboardingPermissionTitle => 'Enable Bluetooth access';
+  String get bleOnboardingPermissionTitle => '블루투스 액세스 활성화';
 
   @override
   String get bleOnboardingPermissionCopy =>
-      'We use Bluetooth to discover and control your Koral hardware nearby.';
+      '우리는 Bluetooth를 사용하여 근처에 있는 Koral 하드웨어를 검색하고 제어합니다.';
 
   @override
-  String get bleOnboardingPermissionCta => 'Allow access';
+  String get bleOnboardingPermissionCta => '액세스 허용';
 
   @override
-  String get bleOnboardingSettingsTitle => 'Permission required in Settings';
+  String get bleOnboardingSettingsTitle => '설정에 권한이 필요합니다';
 
   @override
   String get bleOnboardingSettingsCopy =>
-      'Bluetooth access was previously denied. Open system settings to enable it.';
+      '이전에 Bluetooth 액세스가 거부되었습니다.시스템 설정을 열어 활성화하세요.';
 
   @override
-  String get bleOnboardingSettingsCta => 'Open settings';
+  String get bleOnboardingSettingsCta => '설정 열기';
 
   @override
-  String get bleOnboardingLocationTitle => 'Allow location access';
+  String get bleOnboardingLocationTitle => '위치 액세스 허용';
 
   @override
   String get bleOnboardingLocationCopy =>
-      'Android requires location access on older versions to scan for Bluetooth devices.';
+      'Android에서는 Bluetooth 장치를 검색하려면 이전 버전에서 위치 액세스 권한이 필요합니다.';
 
   @override
-  String get bleOnboardingBluetoothOffTitle => 'Turn on Bluetooth';
+  String get bleOnboardingBluetoothOffTitle => '블루투스 켜기';
 
   @override
   String get bleOnboardingBluetoothOffCopy =>
-      'Bluetooth must stay on to keep scanning and control your devices.';
+      '장치를 계속 검색하고 제어하려면 Bluetooth가 켜져 있어야 합니다.';
 
   @override
-  String get bleOnboardingBluetoothCta => 'Open Bluetooth settings';
+  String get bleOnboardingBluetoothCta => '블루투스 설정 열기';
 
   @override
-  String get bleOnboardingUnavailableTitle => 'Bluetooth unavailable';
+  String get bleOnboardingUnavailableTitle => '블루투스를 사용할 수 없음';
 
   @override
   String get bleOnboardingUnavailableCopy =>
-      'This device does not expose a Bluetooth radio that KoralCore can use.';
+      '이 장치는 KoralCore가 사용할 수 있는 Bluetooth 라디오를 노출하지 않습니다.';
 
   @override
-  String get bleOnboardingRetryCta => 'Retry';
+  String get bleOnboardingRetryCta => '다시 해 보다';
 
   @override
-  String get bleOnboardingLearnMore => 'Learn more';
+  String get bleOnboardingLearnMore => '자세히 알아보기';
 
   @override
-  String get bleOnboardingSheetTitle => 'Why KoralCore needs Bluetooth';
+  String get bleOnboardingSheetTitle => 'KoralCore에 블루투스가 필요한 이유';
 
   @override
   String get bleOnboardingSheetDescription =>
-      'Bluetooth powers discovery and control of your dosing and lighting hardware. Here\'s what happens once you grant access.';
+      'Bluetooth는 투여 및 조명 하드웨어를 검색하고 제어하는 ​​데 도움을 줍니다.액세스 권한을 부여하면 다음과 같은 일이 발생합니다.';
 
   @override
-  String get bleOnboardingSheetSearchTitle => 'Find nearby devices';
+  String get bleOnboardingSheetSearchTitle => '주변 기기 찾기';
 
   @override
   String get bleOnboardingSheetSearchCopy =>
-      'Scan for Reef Dose, Reef LED, and other Koral equipment around your tank.';
+      '탱크 주변의 Reef Dose, Reef LED 및 기타 Koral 장비를 검색하십시오.';
 
   @override
-  String get bleOnboardingSheetControlTitle => 'Control dosing and lighting';
+  String get bleOnboardingSheetControlTitle => '투여 및 조명 제어';
 
   @override
   String get bleOnboardingSheetControlCopy =>
-      'Sync schedules, send commands, and keep firmware up to date over a secure BLE link.';
+      '보안 BLE 링크를 통해 일정을 동기화하고, 명령을 보내고, 펌웨어를 최신 상태로 유지하세요.';
 
   @override
-  String get bleOnboardingSheetFooter =>
-      'As soon as Bluetooth is ready we automatically resume scanning.';
+  String get bleOnboardingSheetFooter => 'Bluetooth가 준비되면 자동으로 검색을 재개합니다.';
 
   @override
-  String get bleOnboardingDisabledHint =>
-      'Grant Bluetooth access to start scanning.';
+  String get bleOnboardingDisabledHint => '스캔을 시작하려면 블루투스 액세스 권한을 부여하세요.';
 
   @override
-  String get bleOnboardingBlockedEmptyTitle => 'Bluetooth setup required';
+  String get bleOnboardingBlockedEmptyTitle => '블루투스 설정 필요';
 
   @override
   String get bleOnboardingBlockedEmptyCopy =>
-      'Allow Bluetooth access or turn it on to discover your reef hardware.';
+      'Bluetooth 액세스를 허용하거나 켜서 리프 하드웨어를 검색하세요.';
 
   @override
   String get bluetoothHeader => 'Nearby devices';
@@ -230,66 +228,64 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dosingEntryHistory => 'Dose history';
 
   @override
-  String get dosingScheduleAddButton => 'Add schedule';
+  String get dosingScheduleAddButton => '일정 추가';
 
   @override
-  String get dosingScheduleEditTitleNew => 'New schedule';
+  String get dosingScheduleEditTitleNew => '새로운 일정';
 
   @override
-  String get dosingScheduleEditTitleEdit => 'Edit schedule';
+  String get dosingScheduleEditTitleEdit => '일정 수정';
 
   @override
-  String get dosingScheduleEditDescription =>
-      'Configure dosing windows for this pump head.';
+  String get dosingScheduleEditDescription => '이 펌프 헤드에 대한 분배 창을 구성하십시오.';
 
   @override
-  String get dosingScheduleEditTypeLabel => 'Schedule type';
+  String get dosingScheduleEditTypeLabel => '일정 유형';
 
   @override
-  String get dosingScheduleEditDoseLabel => 'Dose per event';
+  String get dosingScheduleEditDoseLabel => '사건당 복용량';
 
   @override
-  String get dosingScheduleEditDoseHint => 'Enter the amount in milliliters.';
+  String get dosingScheduleEditDoseHint => '밀리리터 단위로 금액을 입력하세요.';
 
   @override
-  String get dosingScheduleEditEventsLabel => 'Events per day';
+  String get dosingScheduleEditEventsLabel => '일일 이벤트';
 
   @override
-  String get dosingScheduleEditStartTimeLabel => 'First dose';
+  String get dosingScheduleEditStartTimeLabel => '첫 번째 복용량';
 
   @override
-  String get dosingScheduleEditWindowStartLabel => 'Window start';
+  String get dosingScheduleEditWindowStartLabel => '창 시작';
 
   @override
-  String get dosingScheduleEditWindowEndLabel => 'Window end';
+  String get dosingScheduleEditWindowEndLabel => '창 끝';
 
   @override
-  String get dosingScheduleEditWindowEventsLabel => 'Events per window';
+  String get dosingScheduleEditWindowEventsLabel => '창당 이벤트';
 
   @override
-  String get dosingScheduleEditRecurrenceLabel => 'Recurrence';
+  String get dosingScheduleEditRecurrenceLabel => '회귀';
 
   @override
-  String get dosingScheduleEditEnabledToggle => 'Enable schedule';
+  String get dosingScheduleEditEnabledToggle => '일정 활성화';
 
   @override
-  String get dosingScheduleEditSave => 'Save schedule';
+  String get dosingScheduleEditSave => '일정 저장';
 
   @override
-  String get dosingScheduleEditSuccess => 'Schedule saved.';
+  String get dosingScheduleEditSuccess => '일정이 저장되었습니다.';
 
   @override
-  String get dosingScheduleEditInvalidDose => 'Enter a dose greater than zero.';
+  String get dosingScheduleEditInvalidDose => '0보다 큰 용량을 입력하세요.';
 
   @override
-  String get dosingScheduleEditInvalidWindow =>
-      'End time must be after start time.';
+  String get dosingScheduleEditInvalidWindow => '종료 시간은 시작 시간 이후여야 합니다.';
 
   @override
-  String get dosingScheduleEditTemplateDaily => 'Use daily average template';
+  String get dosingScheduleEditTemplateDaily => '일일 평균 템플릿 사용';
 
   @override
-  String get dosingScheduleEditTemplateCustom => 'Use custom window template';
+  String get dosingScheduleEditTemplateCustom => '사용자 정의 창 템플릿 사용';
 
   @override
   String get dosingManualPageSubtitle =>

@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'application/common/app_context.dart';
 import 'application/common/app_session.dart';
 import 'application/system/ble_readiness_controller.dart';
-import 'theme/theme.dart';
+import 'ui/theme/reef_theme.dart';
 import 'ui/app/main_scaffold.dart';
 import 'ui/app/navigation_controller.dart';
 import 'ui/features/device/controllers/device_list_controller.dart';
@@ -46,7 +46,7 @@ class _KoralCoreAppState extends State<KoralCoreApp> {
       ],
       child: MaterialApp(
         title: 'KoralCore',
-        theme: buildAppTheme(),
+        theme: ReefTheme.base(),
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,

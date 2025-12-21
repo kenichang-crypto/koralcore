@@ -85,22 +85,22 @@
   "ledScheduleEditSave": "Save schedule",
   "ledScheduleEditSuccess": "Lighting schedule saved.",
   "ledScheduleEditInvalidWindow": "End time must be after start time.",
-    "ledIntensityEntrySubtitle": "Tune output for each lighting channel.",
-    "ledControlTitle": "Intensity & spectrum",
-    "ledControlSubtitle": "Adjust each lighting channel, then apply when ready.",
-    "ledControlChannelsSection": "Channels",
-    "ledControlValueLabel": "{percent}% output",
-    "@ledControlValueLabel": {
-      "placeholders": {
-        "percent": {
-          "type": "int"
-        }
+  "ledIntensityEntrySubtitle": "Tune output for each lighting channel.",
+  "ledControlTitle": "Intensity & spectrum",
+  "ledControlSubtitle": "Adjust each lighting channel, then apply when ready.",
+  "ledControlChannelsSection": "Channels",
+  "ledControlValueLabel": "{percent}% output",
+  "@ledControlValueLabel": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
       }
-    },
-    "ledControlApplySuccess": "LED settings updated.",
-    "ledControlEmptyState": "No adjustable LED channels yet.",
+    }
+  },
+  "ledControlApplySuccess": "LED settings updated.",
+  "ledControlEmptyState": "No adjustable LED channels yet.",
   "comingSoon": "Muy pronto",
-    "actionApply": "Apply",
+  "actionApply": "Apply",
   "actionCancel": "Cancelar",
   "actionConfirm": "Confirmar",
   "actionRetry": "Reintentar",
@@ -271,5 +271,50 @@
   "ledScheduleStatusDisabled": "Disabled",
   "@ledScheduleStatusDisabled": {
     "description": "Label shown when an LED lighting schedule is disabled."
-  }
+  },
+  "bleOnboardingPermissionTitle": "Habilitar el acceso Bluetooth",
+  "bleOnboardingPermissionCopy": "Usamos Bluetooth para descubrir y controlar su hardware Koral cercano.",
+  "bleOnboardingPermissionCta": "Permitir acceso",
+  "bleOnboardingSettingsTitle": "Permiso requerido en Configuración",
+  "bleOnboardingSettingsCopy": "El acceso a Bluetooth fue denegado previamente.Abra la configuración del sistema para habilitarlo.",
+  "bleOnboardingSettingsCta": "Abrir configuración",
+  "bleOnboardingLocationTitle": "Permitir acceso a la ubicación",
+  "bleOnboardingLocationCopy": "Android requiere acceso a la ubicación en versiones anteriores para buscar dispositivos Bluetooth.",
+  "bleOnboardingBluetoothOffTitle": "Activar Bluetooth",
+  "bleOnboardingBluetoothOffCopy": "Bluetooth debe permanecer encendido para seguir escaneando y controlando sus dispositivos.",
+  "bleOnboardingBluetoothCta": "Abrir la configuración de Bluetooth",
+  "bleOnboardingUnavailableTitle": "Bluetooth no disponible",
+  "bleOnboardingUnavailableCopy": "Este dispositivo no expone una radio Bluetooth que KoralCore pueda usar.",
+  "bleOnboardingRetryCta": "Rever",
+  "bleOnboardingLearnMore": "Más información",
+  "bleOnboardingSheetTitle": "Por qué KoralCore necesita Bluetooth",
+  "bleOnboardingSheetDescription": "Bluetooth potencia el descubrimiento y control de su hardware de dosificación e iluminación.Esto es lo que sucede una vez que otorgas acceso.",
+  "bleOnboardingSheetSearchTitle": "Encuentra dispositivos cercanos",
+  "bleOnboardingSheetSearchCopy": "Busque Reef Dose, Reef LED y otros equipos Koral alrededor de su tanque.",
+  "bleOnboardingSheetControlTitle": "Controlar la dosificación y la iluminación.",
+  "bleOnboardingSheetControlCopy": "Sincronice horarios, envíe comandos y mantenga el firmware actualizado a través de un enlace BLE seguro.",
+  "bleOnboardingSheetFooter": "Tan pronto como Bluetooth esté listo, reanudaremos automáticamente el escaneo.",
+  "bleOnboardingDisabledHint": "Conceda acceso a Bluetooth para comenzar a escanear.",
+  "bleOnboardingBlockedEmptyTitle": "Se requiere configuración de Bluetooth",
+  "bleOnboardingBlockedEmptyCopy": "Permita el acceso a Bluetooth o actívelo para descubrir su hardware de arrecife.",
+  "dosingScheduleAddButton": "Agregar horario",
+  "dosingScheduleEditTitleNew": "Nuevo horario",
+  "dosingScheduleEditTitleEdit": "Editar horario",
+  "dosingScheduleEditDescription": "Configure ventanas de dosificación para este cabezal de bomba.",
+  "dosingScheduleEditTypeLabel": "Tipo de horario",
+  "dosingScheduleEditDoseLabel": "Dosis por evento",
+  "dosingScheduleEditDoseHint": "Ingrese la cantidad en mililitros.",
+  "dosingScheduleEditEventsLabel": "Eventos por día",
+  "dosingScheduleEditStartTimeLabel": "Primera dosis",
+  "dosingScheduleEditWindowStartLabel": "inicio de ventana",
+  "dosingScheduleEditWindowEndLabel": "final de la ventana",
+  "dosingScheduleEditWindowEventsLabel": "Eventos por ventana",
+  "dosingScheduleEditRecurrenceLabel": "Reaparición",
+  "dosingScheduleEditEnabledToggle": "Habilitar horario",
+  "dosingScheduleEditSave": "Guardar horario",
+  "dosingScheduleEditSuccess": "Horario guardado.",
+  "dosingScheduleEditInvalidDose": "Introduzca una dosis mayor que cero.",
+  "dosingScheduleEditInvalidWindow": "La hora de finalización debe ser posterior a la hora de inicio.",
+  "dosingScheduleEditTemplateDaily": "Usar plantilla de promedio diario",
+  "dosingScheduleEditTemplateCustom": "Usar plantilla de ventana personalizada"
 }

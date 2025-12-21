@@ -17,6 +17,20 @@ abstract class DeviceRepository {
   /// TODO: Replace `Map<String, dynamic>` with a concrete `DeviceDescriptor` domain model.
   Future<List<Map<String, dynamic>>> scanDevices({Duration? timeout});
 
+  /// Saved device registry --------------------------------------------------
+
+  /// Returns the current list of saved (paired) devices.
+  Future<List<Map<String, dynamic>>> listSavedDevices();
+
+  /// Observe saved device changes (paired devices only).
+  Stream<List<Map<String, dynamic>>> observeSavedDevices();
+
+  /// Adds or updates a saved device entry.
+  Future<void> addSavedDevice(Map<String, dynamic> device);
+
+  /// Removes a saved device entry.
+  Future<void> removeSavedDevice(String deviceId);
+
   /// Add a device to local listing.
   /// `device` may be a descriptor or device id with metadata.
   Future<void> addDevice(String deviceId, {Map<String, dynamic>? metadata});

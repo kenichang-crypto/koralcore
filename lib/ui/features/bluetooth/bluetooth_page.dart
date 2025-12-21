@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../../application/device/device_snapshot.dart';
 import '../../../application/system/ble_readiness_controller.dart';
-import '../../../theme/dimensions.dart';
 import '../../components/ble_guard.dart';
+import '../../theme/reef_colors.dart';
+import '../../theme/reef_radius.dart';
+import '../../theme/reef_spacing.dart';
+import '../../theme/reef_text.dart';
 import '../device/controllers/device_list_controller.dart';
-import 'package:koralcore/l10n/app_localizations.dart';
 
 class BluetoothPage extends StatefulWidget {
   const BluetoothPage({super.key});
@@ -48,47 +51,56 @@ class _BluetoothPageState extends State<BluetoothPage> {
     final controller = context.watch<DeviceListController>();
     final readiness = context.watch<BleReadinessController>().snapshot;
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
     final bool bleReady = readiness.isReady;
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingXL),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.bluetoothHeader, style: theme.textTheme.headlineSmall),
-            const SizedBox(height: AppDimensions.spacingS),
-            Text(
-              l10n.bleDisconnectedWarning,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: Colors.black54,
-              ),
-            ),
-            if (!bleReady) ...[
-              const SizedBox(height: AppDimensions.spacingL),
-              const BleGuardBanner(),
-            ] else ...[
-              const SizedBox(height: AppDimensions.spacingXL),
-            ],
-            _ScanButton(controller: controller, bleReady: bleReady, l10n: l10n),
-            if (!bleReady) ...[
-              const SizedBox(height: AppDimensions.spacingS),
+    return Scaffold(
+      backgroundColor: ReefColors.primaryStrong,
+      appBar: AppBar(
+        backgroundColor: ReefColors.primary,
+        foregroundColor: ReefColors.onPrimary,
+        elevation: 0,
+        titleTextStyle: ReefTextStyles.title2.copyWith(
+          color: ReefColors.onPrimary,
+        ),
+        title: Text(l10n.bluetoothHeader),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(ReefSpacing.xl),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Text(
-                l10n.bleOnboardingDisabledHint,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.black54,
-                ),
+                l10n.bleDisconnectedWarning,
+                style: ReefTextStyles.body.copyWith(color: ReefColors.surface),
               ),
-            ] else ...[
-              const SizedBox(height: AppDimensions.spacingL),
+              const SizedBox(height: ReefSpacing.md),
+              if (!bleReady) ...[
+                const BleGuardBanner(),
+                const SizedBox(height: ReefSpacing.lg),
+              ],
+              _ScanButton(
+                controller: controller,
+                bleReady: bleReady,
+                l10n: l10n,
+              ),
+              if (!bleReady) ...[
+                const SizedBox(height: ReefSpacing.sm),
+                Text(
+                  l10n.bleOnboardingDisabledHint,
+                  style: ReefTextStyles.caption1.copyWith(
+                    color: ReefColors.surface.withValues(alpha: 0.85),
+                  ),
+                ),
+              ],
+              const SizedBox(height: ReefSpacing.lg),
+              Expanded(
+                child: bleReady
+                    ? _DeviceList(controller: controller, l10n: l10n)
+                    : _BleBlockedState(l10n: l10n),
+              ),
             ],
-            Expanded(
-              child: bleReady
-                  ? _DeviceList(controller: controller, l10n: l10n)
-                  : _BleBlockedState(l10n: l10n),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -146,19 +158,48 @@ class _DeviceList extends StatelessWidget {
   Widget build(BuildContext context) {
     if (controller.devices.isEmpty) {
       return Center(
-        child: Text(
-          l10n.bluetoothEmptyState,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyLarge?.copyWith(color: Colors.black45),
+        child: Card(
+          color: ReefColors.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(ReefRadius.md),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(ReefSpacing.lg),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.devices_other,
+                  size: 40,
+                  color: ReefColors.textSecondary,
+                ),
+                const SizedBox(height: ReefSpacing.md),
+                Text(
+                  l10n.bluetoothEmptyState,
+                  style: ReefTextStyles.subheaderAccent.copyWith(
+                    color: ReefColors.textPrimary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: ReefSpacing.sm),
+                Text(
+                  l10n.bluetoothScanCta,
+                  style: ReefTextStyles.caption1.copyWith(
+                    color: ReefColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
         ),
       );
     }
 
     return ListView.separated(
       itemCount: controller.devices.length,
-      separatorBuilder: (_, __) =>
-          const SizedBox(height: AppDimensions.spacingS),
+      separatorBuilder: (context, index) =>
+          const SizedBox(height: ReefSpacing.md),
       itemBuilder: (context, index) {
         final device = controller.devices[index];
         return _DeviceTile(
@@ -178,29 +219,46 @@ class _BleBlockedState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.bluetooth_disabled, size: 48, color: Colors.black38),
-          const SizedBox(height: AppDimensions.spacingM),
-          Text(
-            l10n.bleOnboardingBlockedEmptyTitle,
-            style: theme.textTheme.titleMedium,
+      child: Card(
+        color: ReefColors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(ReefRadius.md),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(ReefSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.bluetooth_disabled,
+                size: 48,
+                color: ReefColors.warning,
+              ),
+              const SizedBox(height: ReefSpacing.md),
+              Text(
+                l10n.bleOnboardingBlockedEmptyTitle,
+                style: ReefTextStyles.subheaderAccent.copyWith(
+                  color: ReefColors.textPrimary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: ReefSpacing.sm),
+              Text(
+                l10n.bleOnboardingBlockedEmptyCopy,
+                style: ReefTextStyles.body.copyWith(
+                  color: ReefColors.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: ReefSpacing.lg),
+              TextButton(
+                onPressed: () => showBleOnboardingSheet(context),
+                child: Text(l10n.bleOnboardingLearnMore),
+              ),
+            ],
           ),
-          const SizedBox(height: AppDimensions.spacingS),
-          Text(
-            l10n.bleOnboardingBlockedEmptyCopy,
-            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.black54),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: AppDimensions.spacingL),
-          TextButton(
-            onPressed: () => showBleOnboardingSheet(context),
-            child: Text(l10n.bleOnboardingLearnMore),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -220,41 +278,88 @@ class _DeviceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final bool isConnected = device.isConnected;
+    final bool isConnecting = device.isConnecting;
+    final String statusLabel = isConnected
+        ? l10n.deviceStateConnected
+        : isConnecting
+        ? l10n.deviceStateConnecting
+        : l10n.deviceStateDisconnected;
+    final Color statusColor = isConnected
+        ? ReefColors.success
+        : isConnecting
+        ? ReefColors.warning
+        : ReefColors.textSecondary;
+
     return Card(
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppDimensions.spacingL,
-          vertical: AppDimensions.spacingS,
-        ),
-        title: Text(device.name),
-        subtitle: Text(_subtitle(l10n)),
-        trailing: device.isConnected
-            ? TextButton(
-                onPressed: onDisconnect,
-                child: Text(l10n.deviceActionDisconnect),
-              )
-            : ElevatedButton(
-                onPressed: device.isConnecting ? null : onConnect,
-                child: Text(
-                  device.isConnecting
-                      ? l10n.deviceStateConnecting
-                      : l10n.bluetoothConnect,
+      color: ReefColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.md),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(ReefSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    device.name,
+                    style: ReefTextStyles.subheaderAccent.copyWith(
+                      color: ReefColors.textPrimary,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: ReefSpacing.md,
+                    vertical: ReefSpacing.xs,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(ReefRadius.md),
+                  ),
+                  child: Text(
+                    statusLabel,
+                    style: ReefTextStyles.caption1.copyWith(
+                      color: statusColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (device.rssi != null) ...[
+              const SizedBox(height: ReefSpacing.sm),
+              Text(
+                'RSSI ${device.rssi} dBm',
+                style: ReefTextStyles.caption1.copyWith(
+                  color: ReefColors.textSecondary,
                 ),
               ),
+            ],
+            const SizedBox(height: ReefSpacing.md),
+            Align(
+              alignment: Alignment.centerRight,
+              child: isConnected
+                  ? OutlinedButton(
+                      onPressed: onDisconnect,
+                      child: Text(l10n.deviceActionDisconnect),
+                    )
+                  : FilledButton(
+                      onPressed: isConnecting ? null : onConnect,
+                      child: Text(
+                        isConnecting
+                            ? l10n.deviceStateConnecting
+                            : l10n.bluetoothConnect,
+                      ),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
-  }
-
-  String _subtitle(AppLocalizations l10n) {
-    final buffer = StringBuffer();
-    buffer.write(
-      device.isConnected
-          ? l10n.deviceStateConnected
-          : l10n.deviceStateDisconnected,
-    );
-    if (device.rssi != null) {
-      buffer.write(' • RSSI ${device.rssi} dBm');
-    }
-    return buffer.toString();
   }
 }

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 
 import '../../../../application/device/device_snapshot.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
-import 'package:koralcore/l10n/app_localizations.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_radius.dart';
+import '../../../theme/reef_spacing.dart';
+import '../../../theme/reef_text.dart';
 
 class DeviceCard extends StatelessWidget {
   final DeviceSnapshot device;
@@ -27,43 +29,25 @@ class DeviceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final stateLabel = _stateLabel(l10n);
-    final theme = Theme.of(context);
-
-    Widget actionButton;
-    if (device.isConnected) {
-      actionButton = OutlinedButton(
-        onPressed: selectionMode ? null : onDisconnect,
-        child: Text(l10n.deviceActionDisconnect),
-      );
-    } else {
-      actionButton = FilledButton(
-        onPressed: selectionMode || device.isConnecting ? null : onConnect,
-        child: Text(
-          device.isConnecting
-              ? l10n.deviceStateConnecting
-              : l10n.deviceActionConnect,
-        ),
-      );
-    }
+    final bool isConnected = device.isConnected;
+    final bool isConnecting = device.isConnecting;
+    final Color statusColor = isConnected
+        ? ReefColors.success
+        : isConnecting
+        ? ReefColors.warning
+        : ReefColors.textSecondary;
+    final borderColor = selectionMode && isSelected
+        ? ReefColors.info
+        : Colors.transparent;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       curve: Curves.easeOut,
-      padding: const EdgeInsets.all(AppDimensions.spacingL),
+      padding: const EdgeInsets.all(ReefSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusL),
-        border: Border.all(
-          color: isSelected ? AppColors.ocean500 : AppColors.grey100,
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: ReefColors.surface,
+        borderRadius: BorderRadius.circular(ReefRadius.lg),
+        border: Border.all(color: borderColor, width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,42 +58,66 @@ class DeviceCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   device.name,
-                  style: theme.textTheme.titleMedium,
+                  style: ReefTextStyles.subheaderAccent.copyWith(
+                    color: ReefColors.textPrimary,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               if (selectionMode)
                 IconButton(
+                  onPressed: onSelect,
                   icon: Icon(
                     isSelected ? Icons.check_circle : Icons.circle_outlined,
-                    color: isSelected ? AppColors.ocean500 : AppColors.grey300,
+                    color: isSelected
+                        ? ReefColors.info
+                        : ReefColors.textSecondary,
                   ),
-                  onPressed: onSelect,
                 ),
             ],
           ),
-          const SizedBox(height: AppDimensions.spacingM),
-          Chip(
-            label: Text(stateLabel),
-            backgroundColor: device.isConnected
-                ? AppColors.success.withOpacity(.12)
-                : AppColors.grey050,
-            labelStyle: theme.textTheme.labelLarge?.copyWith(
-              color: device.isConnected ? AppColors.success : AppColors.grey700,
+          const SizedBox(height: ReefSpacing.md),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: ReefSpacing.md,
+              vertical: ReefSpacing.xs,
             ),
-            side: BorderSide.none,
+            decoration: BoxDecoration(
+              color: statusColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(ReefRadius.md),
+            ),
+            child: Text(
+              stateLabel,
+              style: ReefTextStyles.caption1.copyWith(
+                color: statusColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
-          const SizedBox(height: AppDimensions.spacingM),
+          const SizedBox(height: ReefSpacing.md),
           if (device.rssi != null)
             Text(
               'RSSI ${device.rssi} dBm',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: AppColors.grey500,
+              style: ReefTextStyles.caption1.copyWith(
+                color: ReefColors.textSecondary,
               ),
             ),
           const Spacer(),
-          actionButton,
+          if (isConnected)
+            OutlinedButton(
+              onPressed: selectionMode ? null : onDisconnect,
+              child: Text(l10n.deviceActionDisconnect),
+            )
+          else
+            FilledButton(
+              onPressed: selectionMode || isConnecting ? null : onConnect,
+              child: Text(
+                isConnecting
+                    ? l10n.deviceStateConnecting
+                    : l10n.deviceActionConnect,
+              ),
+            ),
         ],
       ),
     );
@@ -122,7 +130,6 @@ class DeviceCard extends StatelessWidget {
       case DeviceConnectionState.connecting:
         return l10n.deviceStateConnecting;
       case DeviceConnectionState.disconnected:
-      default:
         return l10n.deviceStateDisconnected;
     }
   }

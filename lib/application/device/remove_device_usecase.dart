@@ -22,17 +22,13 @@ class RemoveDeviceUseCase {
   });
 
   Future<void> execute({required String deviceId}) async {
-    // 1) Ensure disconnected
-    // TODO: await DisconnectDeviceUseCase().execute(deviceId: deviceId)
-
-    // 2) Remove from device repository
-    // TODO: await deviceRepository.remove(deviceId)
+    final String? currentDeviceId = await deviceRepository.getCurrentDevice();
     await deviceRepository.removeDevice(deviceId);
 
-    // 3) Clear any lingering session when the device disappears entirely.
-    currentDeviceSession.clear();
+    if (currentDeviceId == deviceId) {
+      currentDeviceSession.clear();
+    }
 
-    // 4) Notify presentation / update currentDevice if needed
     // TODO: notify UI to refresh device list
   }
 }

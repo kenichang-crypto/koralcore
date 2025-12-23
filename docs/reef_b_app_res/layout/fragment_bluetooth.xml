@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_main">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_user_device"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_12"
+            android:layout_marginBottom="@dimen/dp_12"
+            app:layout_constraintBottom_toTopOf="@id/tv_other_device_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_other_device_title"
+            style="@style/SingleLine"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_16"
+            android:layout_marginTop="@dimen/dp_24"
+            android:text="@string/other_device"
+            android:textAppearance="@style/subheader_accent"
+            app:layout_constraintEnd_toStartOf="@id/btn_refresh"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rv_user_device" />
+
+        <TextView
+            android:id="@+id/btn_refresh"
+            style="@style/TextViewCanClick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dp_16"
+            android:paddingStart="@dimen/dp_5"
+            android:paddingTop="@dimen/dp_3"
+            android:paddingEnd="@dimen/dp_5"
+            android:paddingBottom="@dimen/dp_3"
+            android:text="@string/rearrangement"
+            android:textAppearance="@style/caption1"
+            android:textColor="@color/bg_primary"
+            app:layout_constraintBottom_toBottomOf="@id/tv_other_device_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_other_device_title"
+            app:layout_constraintTop_toTopOf="@id/tv_other_device_title" />
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progress_scan"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:indeterminate="true"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/btn_refresh"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="@id/btn_refresh"
+            app:layout_constraintStart_toStartOf="@id/btn_refresh"
+            app:layout_constraintTop_toTopOf="@id/btn_refresh" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_other_device"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/dp_55"
+            android:background="@color/white"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_other_device_title"
+            tools:listitem="@layout/adapter_ble_scan" />
+
+        <LinearLayout
+            android:id="@+id/layout_no_other_device"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_55"
+            android:layout_marginBottom="@dimen/dp_55"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_other_device_title">
+
+            <TextView
+                style="@style/SingleLine"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/text_no_other_device_title"
+                android:textAppearance="@style/subheader_accent"
+                android:textColor="@color/text_aaaa" />
+
+            <TextView
+                style="@style/SingleLine"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/dp_8"
+                android:text="@string/text_no_other_device_content"
+                android:textAppearance="@style/body"
+                android:textColor="@color/text_aaa" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/btn_hide"
+            android:layout_width="@dimen/dp_50"
+            android:layout_height="@dimen/dp_50"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

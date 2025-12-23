@@ -1,0 +1,540 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ReefB</string>
+
+    <!--    權限相關-->
+    <string name="get_gps_permission">請授權GPS定位權限</string>
+    <string name="get_nerby_permission">請授權鄰近裝置</string>
+    <string name="get_camera_storage_permission">請授予相機與儲存空間權限</string>
+    <string name="get_camera_permission">請授予相機權限</string>
+    <string name="get_storage_permission">請授予儲存空間權限</string>
+
+    <string name="please_open_gps">請開啟GPS定位</string>
+    <string name="please_open_ble">請開啟藍芽</string>
+    <string name="please_open_ble_gps">請開啟藍芽及GPS定位</string>
+
+    <string name="toast_connect_failed">連線失敗，請再試一次</string>
+    <string name="toast_connect_successful">連線成功</string>
+    <string name="toast_disconnect">裝置斷線</string>
+
+    <!--    通用-->
+    <string name="confirm">確定</string>
+    <string name="delete">刪除</string>
+    <string name="cancel">取消</string>
+    <string name="select">選取</string>
+    <string name="skip">略過</string>
+    <string name="complete">完成</string>
+    <string name="save">儲存</string>
+    <string name="edit">編輯</string>
+    <string name="i_konw">我瞭解了</string>
+    <string name="next">下一步</string>
+    <string name="close">關閉</string>
+    <string name="back">返回</string>
+    <string name="no">無</string>
+    <string name="run">執行</string>
+    <string name="no_eng">None</string>
+    <string name="rearrangement">重新整理</string>
+
+    <string name="led">LED</string>
+    <string name="drop">滴液泵</string>
+
+    <string name="home">首頁</string>
+    <string name="bluetooth">藍芽</string>
+    <string name="device">裝置</string>
+    <string name="favorite">喜愛裝置</string>
+    <string name="bluetooth_connect">藍芽連線</string>
+    <string name="reset">重返預設值</string>
+    <string name="warning_list">警示紀錄</string>
+    <string name="group_full">裝置數量已滿</string>
+    <string name="device_is_not_connect">裝置未連線</string>
+    <string name="no_records">無設定排程</string>
+
+    <!--    預設場景-->
+    <string name="preset_scene_off">OFF</string>
+    <string name="preset_scene_30">30%</string>
+    <string name="preset_scene_60">60%</string>
+    <string name="preset_scene_100">100%</string>
+    <string name="preset_scene_moon">月光</string>
+    <string name="preset_scene_thunder">閃電</string>
+
+    <!--    光譜名字-->
+    <string name="uv">UV</string>
+    <string name="purple">紫</string>
+    <string name="blue">藍</string>
+    <string name="royal_blue">皇家藍</string>
+    <string name="green">綠</string>
+    <string name="red">紅</string>
+    <string name="cold_white">冷白</string>
+    <string name="warm_white">暖白</string>
+    <string name="moon">月光</string>
+    <string name="light_uv">UV</string>
+    <string name="light_purple">紫光</string>
+    <string name="light_blue">藍光</string>
+    <string name="light_royal_blue">皇家藍光</string>
+    <string name="light_green">綠光</string>
+    <string name="light_red">紅光</string>
+    <string name="light_cold_white">冷白光</string>
+    <string name="light_warm_white">暖白光</string>
+    <string name="light_moon">月光</string>
+
+    <!--    滴液泵排程種類-->
+    <string name="drop_record_type_custom">自由模式</string>
+    <string name="drop_record_type_single">單次滴液</string>
+    <string name="drop_record_type_24">24 小時均等</string>
+    <string name="drop_record_type_none">無設定排程</string>
+    <string name="drop_record_type">排程種類</string>
+
+    <!--    單位-->
+    <string name="minute">分鐘</string>
+    <string name="init_minute">30 分鐘</string>
+    <string name="times">次</string>
+
+    <string name="group">群組</string>
+    <string name="master_setting">主從設定</string>
+    <string name="setting_master">設定主從</string>
+
+    <string name="led_setting">LED設定</string>
+    <string name="master_pairing">主從配對</string>
+    <string name="max_drop_volume">每日最大滴液量</string>
+    <string name="max_drop_volume_hint">開啟後排程及非排程運行動作將被限制滴液量</string>
+    <string name="drop_setting">滴液泵設定</string>
+    <string name="drop_head_setting">泵頭設定</string>
+    <string name="master_slave">主/從</string>
+    <string name="set_master">設為主燈</string>
+    <string name="move_group">移動群組</string>
+    <string name="choose_group">選擇群組</string>
+
+    <string name="run_cycle">執行週期</string>
+    <string name="run_time">執行時間</string>
+    <string name="low_rotating_speed">低速</string>
+    <string name="middle_rotating_speed">中速</string>
+    <string name="high_rotating_speed">高速</string>
+    <string name="drop_volume_per_day">每日滴液總量</string>
+    <string name="drop_volume">滴液量 (ml)</string>
+    <string name="init_rotating_speed">預設轉速</string>
+    <string name="drop_head_rotating_speed">泵頭轉速</string>
+    <string name="drop_days_a_week">一週滴液天數</string>
+    <string name="run_immediatrly">立即執行</string>
+    <string name="drop_record_time">排程時段</string>
+
+    <string name="delete_drop_record_time">刪除排程時段</string>
+
+    <string name="drop_start_time">滴液開始時間</string>
+    <string name="drop_end_time">滴液結束時間</string>
+    <string name="drop_times">滴液次數</string>
+
+    <!--    led record setting-->
+    <string name="init_strength">起始強度</string>
+    <string name="sunrise">日出</string>
+    <string name="sunset">日落</string>
+    <string name="slow_start">緩啟動</string>
+    <string name="moon_light">@string/moon</string>
+    <string name="time_already_exist">此時間區段已重複設定</string>
+
+    <!--    drop type-->
+    <string name="drop_type">滴液種類</string>
+    <string name="drop_type_delete">刪除滴液種類</string>
+    <string name="drop_type_already_used">其他泵頭正在使用此滴液種類</string>
+
+    <string name="delay_time">延遲時間</string>
+    <string name="today_record_drop_volume">今日排程即時滴液量</string>
+
+    <string name="add_drop_type">新增自訂滴液</string>
+    <string name="edit_drop_type">編輯自訂滴液</string>
+    <string name="drop_type_name">滴液名稱</string>
+
+    <!--    record-->
+    <string name="record_setting">排程設定</string>
+    <string name="record">排程</string>
+    <string name="record_time">排程時間點</string>
+    <string name="time">時間點</string>
+    <string name="time_setting">時段設定</string>
+
+    <!--    scene-->
+    <string name="led_scene">場景</string>
+    <string name="led_scene_add">新增場景</string>
+    <string name="led_scene_edit">場景設定</string>
+    <string name="led_scene_delete">刪除場景</string>
+    <string name="led_dynamic_scene">動態場景</string>
+    <string name="led_static_scene">靜態場景</string>
+    <string name="led_scene_name">場景名稱</string>
+    <string name="led_scene_icon">場景圖示</string>
+
+    <!--    adjust-->
+    <string name="adjust_list">校正紀錄</string>
+    <string name="adjust">校正</string>
+    <string name="complete_adjust">完成校正</string>
+    <string name="recently_adjust_list">最近校正紀錄</string>
+
+    <string name="adjusting">校正中...</string>
+
+    <string name="adjust_description">校正說明</string>
+    <string name="adjust_step">1.準備好隨附量筒及一些管子\n2.以啟動手動運轉讓管子內充滿液體\n3.選定轉速進行校正</string>
+
+    <string name="rotating_speed">轉速</string>
+    <string name="adjust_date">校正日期</string>
+    <string name="measure_drop_volume">測量液量</string>
+
+    <!--    device-->
+    <string name="add_device">新增裝置</string>
+    <string name="other_device">其他裝置</string>
+    <string name="device_name">裝置名稱</string>
+    <string name="favorite_device">喜愛裝置</string>
+    <string name="unassigned_device">未分配設備</string>
+
+    <!--    sink-->
+    <string name="add_sink">新增水槽</string>
+    <string name="sink_name">水槽名稱</string>
+    <string name="sink_setting">水槽設定</string>
+    <string name="sink_position">水槽位置</string>
+    <string name="sink_manager">水槽管理</string>
+    <string name="delete_sink">刪除水槽</string>
+
+    <!--    Menu-->
+    <string name="bottom_navigation_home">@string/home</string>
+    <string name="bottom_navigation_bluetooth">@string/bluetooth</string>
+    <string name="bottom_navigation_device">@string/device</string>
+
+    <!--    Led Menu-->
+    <string name="menu_favorite">@string/favorite</string>
+    <string name="menu_edit">@string/edit</string>
+    <string name="menu_delete">@string/delete</string>
+    <string name="menu_setting_master">@string/setting_master</string>
+    <string name="menu_reset">@string/reset</string>
+
+    <!--    delay time menu-->
+    <string name="_15sec">15 秒</string>
+    <string name="_30sec">30 秒</string>
+    <string name="_1min">1 分</string>
+    <string name="_2min">2 分</string>
+    <string name="_3min">3 分</string>
+    <string name="_4min">4 分</string>
+    <string name="_5min">5 分</string>
+
+    <!--    Master Setting Menu-->
+    <string name="menu_set_master">@string/set_master</string>
+    <string name="menu_move_group">@string/move_group</string>
+
+    <!--    spinner-->
+    <string name="home_spinner_all_sink">所有水槽</string>
+    <string name="home_spinner_favorite">@string/favorite_device</string>
+    <string name="home_spinner_unassigned">@string/unassigned_device</string>
+
+    <!--    toast-->
+    <string name="toast_connect_limit">最多可1個裝置同時連線</string>
+    <string name="toast_name_is_empty">名稱不得為空</string>
+
+    <string name="toast_add_sink_successful">新增水槽成功</string>
+    <string name="toast_sink_name_is_exist">水槽名稱重複</string>
+
+    <string name="toast_edit_sink_successful">修改水槽名稱成功</string>
+
+    <string name="toast_device_name_is_exist">裝置名稱重複</string>
+
+    <string name="toast_delete_sink_successful">刪除水槽成功</string>
+    <string name="toast_delete_sink_failed">刪除水槽失敗</string>
+
+    <string name="toast_add_device_successful">新增裝置成功</string>
+    <string name="toast_sink_is_full">水槽已滿</string>
+
+    <string name="toast_delete_device_successful">刪除設備成功</string>
+    <string name="toast_delete_device_failed">刪除設備失敗</string>
+
+    <string name="toast_reset_device_successful">重返預設值成功</string>
+    <string name="toast_reset_device_failed">重返預設值失敗</string>
+
+    <string name="toast_set_time_error">時間點需間隔大於10分鐘</string>
+    <string name="toast_set_time_is_exist">此時間區段已重複設定</string>
+
+    <string name="toast_setting_successful">設定成功</string>
+    <string name="toast_setting_failed">設定失敗</string>
+
+    <string name="toast_move_group_successful">移動群組成功</string>
+    <string name="toast_move_group_failed">移動群組失敗</string>
+
+    <string name="toast_add_scene_successful">添加場景成功</string>
+    <string name="toast_scene_name_is_exist">場景名稱重複</string>
+
+    <string name="toast_delete_scene_successful">刪除場景成功</string>
+    <string name="toast_delete_scene_failed">刪除場景失敗</string>
+
+    <string name="toast_delete_record_successful">刪除時間點成功</string>
+    <string name="toast_delete_record_failed">刪除時間點失敗</string>
+
+    <string name="toast_preview_start">一分鐘快速預覽開始</string>
+    <string name="toast_preview_end">一分鐘快速預覽結束</string>
+
+    <string name="toast_sun_time_error">日出時間、日落時間設定錯誤</string>
+
+    <string name="toast_time_record_size_more_than_24">最多設定24個時間點</string>
+
+    <string name="toast_custom_scene_size_more_than_5">最多設定5個自訂場景</string>
+
+    <string name="toast_delete_now_scene">不可刪除目前使用的場景</string>
+
+    <string name="toast_drophead_is_droping">此泵頭正在執行滴液動作，請稍後再試</string>
+
+    <string name="toast_add_drop_type_successful">新增滴液種類成功</string>
+    <string name="toast_drop_type_name_is_exist">滴液種類名稱重複</string>
+
+    <string name="toast_edit_drop_type_successful">修改滴液種類名稱成功</string>
+
+    <string name="toast_delete_drop_type_successful">刪除滴液種類成功</string>
+    <string name="toast_delete_drop_type_failed">刪除滴液種類失敗</string>
+
+    <string name="toast_max_drop_per_day_is_empty">請輸入每日最大滴液量</string>
+
+    <string name="toast_drop_volume_is_empty">請輸入滴液量</string>
+    <string name="toast_run_time_is_empty">請選擇執行時間</string>
+    <string name="toast_drop_volume_is_too_little">每次滴液量不可低於1ml</string>
+    <string name="toast_drop_volume_is_too_much">滴液總量不可超過500ml</string>
+    <string name="toast_drop_volume_out_of_bound">滴液量不可超過每日最大滴液量</string>
+    <string name="toast_drop_detail_is_empty">請新增排程時段</string>
+
+    <string name="toast_delete_detail_successful">刪除時段成功</string>
+    <string name="toast_delete_detail_failed">刪除時段失敗</string>
+
+    <string name="drop_times_exceed">每小時最多滴液5次</string>
+
+    <string name="drop_start_adjust_failed">開始校正失敗</string>
+
+    <string name="drop_adjust_successful">校正完成</string>
+    <string name="drop_adjust_failed">校正失敗</string>
+    <string name="toast_drop_volume_is_too_little_old">每次滴液量不可低於 1 ml。</string>
+    <string name="toast_drop_volume_is_too_little_new">每次滴液量不可低於 0.4 ml。</string>
+    <!--    hint-->
+    <string name="hint_select_time">選擇時間</string>
+    <string name="record_pause">排程已暫停</string>
+    <string name="continue_record">繼續執行</string>
+
+    <!--    Bottom Sheet-->
+    <string name="bottom_sheet_add_sink_title">@string/add_sink</string>
+    <string name="bottom_sheet_add_sink_edittext_title">@string/sink_name</string>
+    <string name="bottom_sheet_add_sink_button_text">@string/save</string>
+
+    <string name="bottom_sheet_edit_sink_title">@string/sink_setting</string>
+    <string name="bottom_sheet_edit_sink_edittext_title">@string/sink_name</string>
+    <string name="bottom_sheet_edit_sink_button_text">@string/save</string>
+
+    <string name="bottom_sheet_add_drop_type_title">@string/add_drop_type</string>
+    <string name="bottom_sheet_add_drop_type_edittext_title">@string/drop_type_name</string>
+    <string name="bottom_sheet_add_drop_type_button_text">@string/save</string>
+
+    <string name="bottom_sheet_edit_drop_type_title">@string/edit_drop_type</string>
+    <string name="bottom_sheet_edit_drop_type_edittext_title">@string/drop_type_name</string>
+    <string name="bottom_sheet_edit_drop_type_button_text">@string/save</string>
+    <!--    =====================================================================================-->
+    <!--    MainActivity-->
+
+    <!--    HomeFragment-->
+    <string name="text_no_device_in_sink_title">水槽目前沒有裝置</string>
+    <string name="text_no_device_in_sink_content">下方切換藍芽列表新增裝置</string>
+
+    <!--    DeviceFragment-->
+    <string name="fragment_device_title">@string/device</string>
+    <string name="fragment_device_select">@string/select</string>
+    <string name="text_no_device_title">目前尚無裝置</string>
+    <string name="dialog_device_delete_led_master_title">@string/master_setting</string>
+    <string name="dialog_device_delete_led_master_content">欲刪除主燈，請先修改主從設定，將其他副燈設定為主燈</string>
+    <string name="dialog_device_delete_led_master_positive">@string/i_konw</string>
+
+    <string name="dialog_device_delete">是否刪除所選設備?</string>
+    <string name="dialog_device_delete_led_content">是否刪除LED設備?</string>
+    <string name="dialog_device_delete_led_positive">@string/delete</string>
+    <string name="dialog_device_delete_led_negative">@string/cancel</string>
+
+    <!--    BluetoothFragment-->
+    <string name="fragment_bluetooth_title">@string/bluetooth_connect</string>
+    <string name="fragment_other_device_title">@string/other_device</string>
+    <string name="text_no_other_device_title">未發現裝置</string>
+    <string name="text_no_other_device_content">點擊右上重新掃描附近裝置</string>
+
+    <string name="dialog_disconnect_bluetooth_content">是否中斷藍芽連線?</string>
+    <string name="dialog_disconnect_bluetooth_positive">@string/confirm</string>
+    <string name="dialog_disconnect_bluetooth_negative">@string/cancel</string>
+
+    <!--    WarningActivity-->
+    <string name="activity_warning_title">@string/warning_list</string>
+    <string name="text_no_warning_title">無警示紀錄</string>
+    <string name="text_no_warning_content">「警示紀錄」中沒有任何項目</string>
+
+    <string name="dialog_delete_warning_content">是否要刪除該項警告?</string>
+    <string name="dialog_delete_warning_positive">@string/confirm</string>
+    <string name="dialog_delete_warning_negative">@string/cancel</string>
+
+    <!--    SinkManagerActivity-->
+    <string name="activity_manage_sink_title">@string/sink_manager</string>
+    <string name="text_no_sink_title">目前沒有水槽</string>
+    <string name="text_no_sink_content">點擊右下新增按鈕增加水槽</string>
+    <string name="text_device_amount">%1$d個裝置</string>
+
+    <string name="dialog_delete_sink_title">@string/delete_sink</string>
+    <string name="dialog_delete_sink_content">刪除水槽後，水槽內裝置將成為未分配裝置</string>
+    <string name="dialog_delete_sink_positive">@string/delete</string>
+    <string name="dialog_delete_sink_negative">@string/cancel</string>
+
+    <!--    AddDeviceActivity-->
+    <string name="activity_add_device_title">@string/add_device</string>
+    <string name="activity_add_device_toolbar_left_btn">@string/skip</string>
+    <string name="activity_add_device_toolbar_right_btn">@string/complete</string>
+    <string name="activity_add_device_device_name_title">@string/device_name</string>
+    <string name="activity_add_device_sink_position_title">@string/sink_position</string>
+
+    <!--    SinkPositionActivity-->
+    <string name="activity_sink_position_title">@string/sink_position</string>
+    <string name="activity_sink_position_toolbar_right_btn">@string/confirm</string>
+
+    <!--    LedMainActivity-->
+    <string name="dialog_delete_led_master_title">@string/master_setting</string>
+    <string name="dialog_delete_led_master_content">欲將此裝置刪除請先修改主從設定，將其他副燈設定為主燈</string>
+    <string name="dialog_delete_led_master_positive">@string/confirm</string>
+    <string name="dialog_delete_led_master_negative">@string/cancel</string>
+
+    <string name="dialog_reset_led_title">@string/reset</string>
+    <string name="dialog_reset_led_content">此裝置將成為未分配裝置並清除目前所有設定</string>
+    <string name="dialog_reset_led_positive">@string/confirm</string>
+    <string name="dialog_reset_led_negative">@string/cancel</string>
+
+    <string name="dialog_delete_led_content">是否刪除此LED設備?</string>
+    <string name="dialog_delete_led_positive">@string/delete</string>
+    <string name="dialog_delete_led_negative">@string/cancel</string>
+
+    <string name="dialog_delete_unassigned_led_title">@string/master_setting</string>
+    <string name="dialog_delete_unassigned_led_content">未分配水槽內的裝置無法設定主從</string>
+    <string name="dialog_delete_unassigned_led_positive">@string/i_konw</string>
+
+    <string name="dialog_reset_master_led_title">@string/master_setting</string>
+    <string name="dialog_reset_master_led_content">欲將此裝置重返預設值請先修改主從設定，將其他副燈設定為主燈</string>
+    <string name="dialog_reset_master_led_positive">@string/confirm</string>
+    <string name="dialog_reset_master_led_negative">@string/cancel</string>
+
+    <!--    LedSettingActivity-->
+    <string name="activity_led_setting_title">@string/led_setting</string>
+    <string name="activity_led_setting_toolbar_right_btn">@string/save</string>
+
+    <string name="dialog_led_move_master_title">@string/master_setting</string>
+    <string name="dialog_led_move_master_content">欲將此設備移至其他水槽請先修改主從設定，將其他副燈設定為主燈</string>
+    <string name="dialog_led_move_master_positive">@string/confirm</string>
+    <string name="dialog_led_move_master_negative">@string/cancel</string>
+
+    <!--    LedMasterSettingActivity-->
+    <string name="activity_led_master_setting_title">@string/master_pairing</string>
+    <string name="activity_led_master_setting_toolbar_right_btn">@string/confirm</string>
+
+    <!--    LedRecordSettingActivity-->
+    <string name="activity_led_record_setting_title">@string/record_setting</string>
+    <string name="activity_led_record_setting_toolbar_right_btn">@string/save</string>
+
+    <!--    LedRecordActivity-->
+    <string name="activity_led_record_title">@string/record</string>
+
+    <string name="dialog_led_delete_time_content">是否要刪除此時間點?</string>
+    <string name="dialog_led_delete_time_positive">@string/delete</string>
+    <string name="dialog_led_delete_time_negative">@string/cancel</string>
+
+    <string name="dialog_led_clear_record_content">是否要清空排程?</string>
+    <string name="dialog_led_clear_record_positive">@string/confirm</string>
+    <string name="dialog_led_clear_record_negative">@string/cancel</string>
+
+    <!--    LedRecordTimeSettingActivity-->
+    <string name="activity_led_record_time_setting_title">@string/record_time</string>
+    <string name="activity_led_record_time_setting_toolbar_right_btn">@string/save</string>
+
+    <!--    LedSceneActivity-->
+    <string name="activity_led_scene_title">@string/led_scene</string>
+    <string name="activity_led_scene_toolbar_right_btn">@string/edit</string>
+
+    <!--    LedSceneAddActivity-->
+    <string name="activity_led_scene_add_title">@string/led_scene_add</string>
+    <string name="activity_led_scene_add_toolbar_right_btn">@string/save</string>
+
+    <!--    LedSceneEditActivity-->
+    <string name="activity_led_scene_edit_title">@string/led_scene_edit</string>
+    <string name="activity_led_scene_edit_toolbar_right_btn">@string/save</string>
+
+    <!--    LedSceneDeleteActivity-->
+    <string name="activity_led_scene_delete_title">@string/led_scene_delete</string>
+
+    <string name="dialog_scene_delete_scene_content">是否刪除場景?</string>
+    <string name="dialog_scene_delete_scene_positive">@string/delete</string>
+    <string name="dialog_scene_delete_scene_negative">@string/cancel</string>
+
+    <!--    DropMainActivity-->
+
+    <string name="dialog_today_drop_out_of_range_title">@string/max_drop_volume</string>
+    <string name="dialog_today_drop_out_of_range_content">今日滴液量已達到每日最大滴液量</string>
+    <string name="dialog_today_drop_out_of_range_positive">@string/i_konw</string>
+
+    <string name="dialog_delete_drop_content">是否刪除此滴液泵?</string>
+    <string name="dialog_delete_drop_positive">@string/delete</string>
+    <string name="dialog_delete_drop_negative">@string/cancel</string>
+
+    <string name="dialog_reset_drop_title">@string/reset</string>
+    <string name="dialog_reset_drop_content">此裝置將成為未分配裝置並清除目前所有泵頭設定、校正紀錄</string>
+    <string name="dialog_reset_drop_positive">@string/confirm</string>
+    <string name="dialog_reset_drop_negative">@string/cancel</string>
+
+    <!--    DropSettingActivity-->
+    <string name="activity_drop_setting_title">@string/drop_setting</string>
+    <string name="activity_drop_setting_toolbar_right_btn">@string/save</string>
+
+    <!--    DropHeadSettingActivity-->
+    <string name="activity_drop_head_setting_title">@string/drop_head_setting</string>
+    <string name="activity_drop_head_setting_toolbar_right_btn">@string/save</string>
+
+    <!--    DropTypeActivity-->
+    <string name="activity_drop_type_title">@string/drop_type</string>
+    <string name="activity_drop_type_toolbar_right_btn">@string/confirm</string>
+
+    <string name="dialog_delete_drop_type_title">@string/drop_type_delete</string>
+    <string name="dialog_delete_drop_type_content">是否刪除此滴液種類?</string>
+    <string name="dialog_delete_drop_type_positive">@string/delete</string>
+    <string name="dialog_delete_drop_type_negative">@string/cancel</string>
+
+    <string name="dialog_drop_type_already_used_title">@string/drop_type_already_used</string>
+    <string name="dialog_drop_type_already_used_content">刪除此滴液將導致其他泵頭沒有對應的滴液，是否刪除此滴液種類?</string>
+    <string name="dialog_drop_type_already_used_positive">@string/delete</string>
+    <string name="dialog_drop_type_already_used_negative">@string/cancel</string>
+
+    <!--    DropHeadRecordSettingActivity-->
+    <string name="activity_drop_head_record_setting_title">@string/record</string>
+    <string name="activity_drop_head_record_setting_toolbar_right_btn">@string/run</string>
+
+    <!--    DropHeadRecordTimeSettingActivity-->
+    <string name="activity_drop_head_record_time_setting_title">@string/time_setting</string>
+    <string name="activity_drop_head_record_time_setting_toolbar_right_btn">@string/confirm</string>
+
+    <string name="dialog_setting_drop_out_of_range_title">@string/max_drop_volume</string>
+    <string name="dialog_setting_drop_out_of_range_content">設定滴液量超過每日最大滴液量限制</string>
+    <string name="dialog_setting_drop_out_of_range_positive">@string/i_konw</string>
+
+    <string name="dialog_drop_time_setting_repeat_title">@string/record_setting</string>
+    <string name="dialog_drop_time_setting_repeat_content">此時間區段已重複設定</string>
+    <string name="dialog_drop_time_setting_repeat_positive">@string/confirm</string>
+
+    <string name="dialog_drop_setting_higher_than_max_title">@string/record_setting</string>
+    <string name="dialog_drop_setting_higher_than_max_content">滴液量不可超過500 ml</string>
+    <string name="dialog_drop_setting_higher_than_max_positive">@string/confirm</string>
+
+    <string name="dialog_drop_setting_lower_than_min_title">@string/record_setting</string>
+    <string name="dialog_drop_setting_lower_than_min_content">每次滴液量不可低於24ml</string>
+    <string name="dialog_drop_setting_lower_than_min_positive">@string/confirm</string>
+
+    <string name="dialog_setting_drop_out_of_range_with_today_title">@string/max_drop_volume</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_content">今日滴液量與排程預定滴液量總和超過每日最大滴液量限制</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_positive">@string/i_konw</string>
+
+    <string name="dialog_setting_delete_detail_title">@string/delete_drop_record_time</string>
+    <string name="dialog_setting_delete_detail_content">是否刪除此時段？</string>
+    <string name="dialog_setting_delete_detail_positive">@string/delete</string>
+    <string name="dialog_setting_delete_detail_negative">@string/cancel</string>
+
+    <!--    DropHeadAdjustListActivity-->
+    <string name="activity_drop_head_adjust_list_title">@string/adjust_list</string>
+    <string name="activity_drop_head_adjust_list_toolbar_right_btn">@string/adjust</string>
+
+    <!--    DropHeadAdjustActivity-->
+    <string name="activity_drop_head_adjust_title">@string/adjust</string>
+    <string name="adjust_volume_hint">1 ~ 15;小數點後一位</string>
+
+</resources>

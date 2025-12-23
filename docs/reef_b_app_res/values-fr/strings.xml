@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    法語（Français）-->
+    <string name="app_name">ReefB</string>
+    /** 權限相關 **/
+    <string name="get_gps_permission">Veuillez autoriser l\'autorisation de localisation par GPS</string>
+    <string name="get_nerby_permission">Veuillez autoriser l\'autorisation de périphérique à proximité</string>
+    <string name="get_camera_storage_permission">Veuillez autoriser l\'autorisation d\'appareil photo et d\'espace de stockage.</string>
+    <string name="get_camera_permission">Veuillez autoriser l\'autorisation de l\'appareil photo.</string>
+    <string name="get_storage_permission">Veuillez autoriser l\'autorisation de l\'espace de stockage.</string>
+    <string name="please_open_gps">Veuillez activer la localisation GPS.</string>
+    <string name="please_open_ble">Veuillez activer le Bluetooth.</string>
+    <string name="please_open_ble_gps">Veuillez activer le Bluetooth et la localisation GPS.</string>
+    <string name="toast_connect_failed">La connexion a échoué, veuillez réessayer.</string>
+    <string name="toast_connect_successful">Connexion réussie.</string>
+    <string name="toast_disconnect">Appareil déconnecté</string>
+    /** 通用 **/
+    <string name="confirm">OK</string>
+    <string name="delete">Supprimer</string>
+    <string name="cancel">Annuler</string>
+    <string name="select">Sélectionner</string>
+    <string name="skip">Passer</string>
+    <string name="complete">Terminé</string>
+    <string name="save">Sauvegarder</string>
+    <string name="edit">Modifier</string>
+    <string name="i_konw">J\'ai compris</string>
+    <string name="next">Suivant</string>
+    <string name="close">Fermer</string>
+    <string name="back">Retour</string>
+    <string name="no">Aucun</string>
+    <string name="run">Exécuter</string>
+    <string name="no_eng">Aucun</string>
+    <string name="rearrangement">Réorganisation</string>
+    <string name="led">LED</string>
+    <string name="drop">Pompe de dosage</string>
+    <string name="home">Accueil</string>
+    <string name="bluetooth">Bluetooth</string>
+    <string name="device">Appareil</string>
+    <string name="favorite">Appareils favoris</string>
+    <string name="bluetooth_connect">Connexion Bluetooth</string>
+    <string name="reset">Restaurer les paramètres par défaut</string>
+    <string name="warning_list">Journal d\'alerte</string>
+    <string name="group_full">Limite d\'appareils atteinte</string>
+    <string name="device_is_not_connect">Appareil non connecté</string>
+    <string name="no_records">Aucune tâche programmée</string>
+    /** 預設場景 **/
+    <string name="preset_scene_off">OFF</string>
+    <string name="preset_scene_30">30%</string>
+    <string name="preset_scene_60">60%</string>
+    <string name="preset_scene_100">100%</string>
+    <string name="preset_scene_moon">Éclairage de lune</string>
+    <string name="preset_scene_thunder">Orage</string>
+    /** 光譜名字 **/
+    <string name="uv">UV</string>
+    <string name="purple">Violet</string>
+    <string name="blue">Bleu</string>
+    <string name="royal_blue">Bleu royal</string>
+    <string name="green">Vert</string>
+    <string name="red">Rouge</string>
+    <string name="cold_white">Blanc froid</string>
+    <string name="warm_white">Blanc chaud</string>
+    <string name="moon">Lumière de lune</string>
+    <string name="light_uv">Lumière UV</string>
+    <string name="light_purple">Lumière violette</string>
+    <string name="light_blue">Lumière bleue</string>
+    <string name="light_royal_blue">Lumière bleue royale</string>
+    <string name="light_green">Lumière verte</string>
+    <string name="light_red">Lumière rouge</string>
+    <string name="light_cold_white">Lumière blanche froide</string>
+    <string name="light_warm_white">Lumière blanche chaude</string>
+    <string name="light_moon">Lumière de lune</string>
+    /** 滴液泵排程種類 **/
+    <string name="drop_record_type_custom">Mode libre</string>
+    <string name="drop_record_type_single">Dose unique</string>
+    <string name="drop_record_type_24">Égalité de 24 heures</string>
+    <string name="drop_record_type_none">Aucune tâche programmée</string>
+    <string name="drop_record_type">Type de programme</string>
+    /** 單位 **/
+    <string name="minute">Minute</string>
+    <string name="init_minute">30 minutes</string>
+    <string name="times">Fois</string>
+    <string name="group">Groupe</string>
+    <string name="master_setting">Réglages maître-esclave</string>
+    <string name="setting_master">Définir comme maître</string>
+    <string name="led_setting">Paramètres LED</string>
+    <string name="master_pairing">Appariement maître-esclave</string>
+    <string name="max_drop_volume">Volume quotidien max. de dosage</string>
+    <string name="max_drop_volume_hint">Limite de volume de dosage pour les opérations programmées et non programmées après l\'ouverture</string>
+    <string name="drop_setting">Paramètres de pompe péristaltique</string>
+    <string name="drop_head_setting">Paramètres de la tête de pompe</string>
+    <string name="master_slave">Maître/Esclave</string>
+    <string name="set_master">Définir comme lumière principale</string>
+    <string name="move_group">Déplacer le groupe</string>
+    <string name="choose_group">Sélectionner le groupe</string>
+    <string name="run_cycle">Cycle d\'exécution</string>
+    <string name="run_time">Temps d\'exécution</string>
+    <string name="low_rotating_speed">Faible vitesse</string>
+    <string name="middle_rotating_speed">Vitesse moyenne</string>
+    <string name="high_rotating_speed">Haute vitesse</string>
+    <string name="drop_volume_per_day">Volume total quotidien de dosage</string>
+    <string name="drop_volume">Volume de dosage (ml)</string>
+    <string name="init_rotating_speed">Vitesse par défaut</string>
+    <string name="drop_head_rotating_speed">Vitesse de la tête de pompe</string>
+    <string name="drop_days_a_week">Jours de dosage hebdomadaires</string>
+    <string name="run_immediatrly">Exécuter maintenant</string>
+    <string name="drop_record_time">Période de programmation</string>
+    <string name="delete_drop_record_time">Supprimer la période de programmation</string>
+    <string name="drop_start_time">Heure de début du dosage</string>
+    <string name="drop_end_time">Heure de fin du dosage</string>
+    <string name="drop_times">Fréquence de dosage</string>
+    /** led record setting **/
+    <string name="init_strength">Intensité initiale</string>
+    <string name="sunrise">Lever du soleil</string>
+    <string name="sunset">Coucher du soleil</string>
+    <string name="slow_start">Démarrage en douceur</string>
+    <string name="moon_light">@string/moon</string>
+    <string name="time_already_exist">Cette période a déjà été définie</string>
+
+    <string name="drop_type">Type de dosage</string>
+    <string name="drop_type_delete">Supprimer le type de dosage</string>
+    <string name="drop_type_already_used">Une autre tête de pompe utilise ce type de dosage</string>
+    <string name="delay_time">Temps de retard</string>
+    <string name="today_record_drop_volume">Volume immédiat de dosage programmé d\'aujourd\'hui</string>
+    <string name="add_drop_type">Ajouter un dosage personnalisé</string>
+    <string name="edit_drop_type">Modifier un dosage personnalisé</string>
+    <string name="drop_type_name">Nom du dosage</string>
+    /** record **/
+    <string name="record_setting">Paramètres de programmation</string>
+    <string name="record">Programme</string>
+    <string name="record_time">Point de temps programmé</string>
+    <string name="time">Point de temps</string>
+    <string name="time_setting">Paramètres de période</string>
+    /** scene **/
+    <string name="led_scene">Scène</string>
+    <string name="led_scene_add">Ajouter une scène</string>
+    <string name="led_scene_edit">Paramètres de scène</string>
+    <string name="led_scene_delete">Supprimer la scène</string>
+    <string name="led_dynamic_scene">Scène dynamique</string>
+    <string name="led_static_scene">Scène statique</string>
+    <string name="led_scene_name">Nom de la scène</string>
+    <string name="led_scene_icon">Icône de la scène</string>
+    /** adjust **/
+    <string name="adjust_list">Journal de calibration</string>
+    <string name="adjust">Calibration</string>
+    <string name="complete_adjust">Calibration complète</string>
+    <string name="recently_adjust_list">Derniers enregistrements de calibration</string>
+    <string name="adjusting">Calibration en cours...</string>
+    <string name="adjust_description">Instructions de calibration</string>
+    <string name="adjust_step">1.Préparez le verre doseur fourni et quelques tubes\n2. Commencez l\'opération manuelle pour remplir les tubes de liquide\n3. Sélectionnez la vitesse de calibration</string>
+    <string name="rotating_speed">Vitesse</string>
+    <string name="adjust_date">Date de calibration</string>
+    <string name="measure_drop_volume">Volume mesuré</string>
+    /** device **/
+    <string name="add_device">Ajouter un appareil</string>
+    <string name="other_device">Autres appareils</string>
+    <string name="device_name">Nom de l\'appareil</string>
+    <string name="favorite_device">Appareils favoris</string>
+    <string name="unassigned_device">Appareils non attribués</string>
+    /** sink **/
+    <string name="add_sink">Ajouter un réservoir</string>
+    <string name="sink_name">Nom du réservoir</string>
+    <string name="sink_setting">Paramètres du réservoir</string>
+    <string name="sink_position">Emplacement du réservoir</string>
+    <string name="sink_manager">Gestion du réservoir</string>
+    <string name="delete_sink">Supprimer le réservoir</string>
+    /** Menu **/
+    <string name="bottom_navigation_home">@string/home</string>
+    <string name="bottom_navigation_bluetooth">@string/bluetooth</string>
+    <string name="bottom_navigation_device">@string/device</string>
+    /** Led Menu **/
+    <string name="menu_favorite">@string/favorite</string>
+    <string name="menu_edit">@string/edit</string>
+    <string name="menu_delete">@string/delete</string>
+    <string name="menu_setting_master">@string/setting_master</string>
+    <string name="menu_reset">@string/reset</string>
+    /** delay time menu **/
+    <string name="_15sec">15 secondes</string>
+    <string name="_30sec">30 secondes</string>
+    <string name="_1min">1 minute</string>
+    <string name="_2min">2 minutes</string>
+    <string name="_3min">3 minutes</string>
+    <string name="_4min">4 minutes</string>
+    <string name="_5min">5 minutes</string>
+
+    <string name="menu_set_master">@string/set_master</string>
+    <string name="menu_move_group">@string/move_group</string>
+    /** spinner **/
+    <string name="home_spinner_all_sink">Tous les réservoirs</string>
+    <string name="home_spinner_favorite">@string/favorite_device</string>
+    <string name="home_spinner_unassigned">@string/unassigned_device</string>
+    /** toast **/
+    <string name="toast_connect_limit">Maximum 1 appareil peut être connecté simultanément.</string>
+    <string name="toast_name_is_empty">Le nom ne peut pas être vide.</string>
+    <string name="toast_add_sink_successful">Réservoir ajouté avec succès.</string>
+    <string name="toast_sink_name_is_exist">Le nom du réservoir existe déjà.</string>
+    <string name="toast_edit_sink_successful">Nom du réservoir modifié avec succès.</string>
+    <string name="toast_device_name_is_exist">Le nom de l\'appareil existe déjà.</string>
+    <string name="toast_delete_sink_successful">Réservoir supprimé avec succès.</string>
+    <string name="toast_delete_sink_failed">Échec de la suppression du réservoir.</string>
+    <string name="toast_add_device_successful">Appareil ajouté avec succès.</string>
+    <string name="toast_sink_is_full">Le réservoir est plein.</string>
+    <string name="toast_delete_device_successful">Échec de la suppression de l\'appareil.</string>
+    <string name="toast_delete_device_failed">Suppression de l\'appareil réussie.</string>
+    <string name="toast_reset_device_successful">Échec de la restauration des paramètres par défaut.</string>
+    <string name="toast_reset_device_failed">Impossible de restaurer les paramètres par défaut.</string>
+    <string name="toast_set_time_error">Les points de temps doivent être espacés d\'au moins 10 minutes.</string>
+    <string name="toast_set_time_is_exist">Cette période a déjà été définie.</string>
+    <string name="toast_setting_successful">Paramètres réussis.</string>
+    <string name="toast_setting_failed">Échec des paramètres.</string>
+    <string name="toast_move_group_successful">Déplacement de groupe réussi.</string>
+    <string name="toast_move_group_failed">Échec du déplacement de groupe.</string>
+    <string name="toast_add_scene_successful">Scène ajoutée avec succès.</string>
+    <string name="toast_scene_name_is_exist">Le nom de la scène existe déjà.</string>
+    <string name="toast_delete_scene_successful">Scène supprimée avec succès.</string>
+    <string name="toast_delete_scene_failed">Échec de la suppression de la scène.</string>
+    <string name="toast_delete_record_successful">Point de temps supprimé avec succès.</string>
+    <string name="toast_delete_record_failed">Échec de la suppression du point de temps.</string>
+    <string name="toast_preview_start">Aperçu rapide d\'une minute démarré.</string>
+    <string name="toast_preview_end">Aperçu rapide d\'une minute terminé.</string>
+    <string name="toast_sun_time_error">Les paramètres de l\'heure du lever et du coucher du soleil sont incorrects.</string>
+    <string name="toast_time_record_size_more_than_24">Maximum de 24 points de temps pouvant être définis.</string>
+    <string name="toast_custom_scene_size_more_than_5">Maximum de 5 scènes personnalisées pouvant être définies.</string>
+    <string name="toast_delete_now_scene">Impossible de supprimer la scène actuellement utilisée.</string>
+    <string name="toast_drophead_is_droping">Cette tête de pompe est actuellement en cours de dosage, veuillez réessayer ultérieurement.</string>
+    <string name="toast_add_drop_type_successful">Type de dosage ajouté avec succès.</string>
+    <string name="toast_drop_type_name_is_exist">Le nom du type de dosage existe déjà.</string>
+    <string name="toast_edit_drop_type_successful">Nom du type de dosage modifié avec succès.</string>
+    <string name="toast_delete_drop_type_successful">Type de dosage supprimé avec succès.</string>
+    <string name="toast_delete_drop_type_failed">Échec de la suppression du type de dosage.</string>
+    <string name="toast_max_drop_per_day_is_empty">Veuillez saisir le volume de dosage quotidien maximal.</string>
+    <string name="toast_drop_volume_is_empty">Veuillez saisir le volume de dosage.</string>
+    <string name="toast_run_time_is_empty">Veuillez sélectionner l\'heure d\'exécution.</string>
+    <string name="toast_drop_volume_is_too_little">Chaque volume de dosage ne peut pas être inférieur à 1 ml.</string>
+    <string name="toast_drop_volume_is_too_much">Le volume de dosage total ne peut pas dépasser 500 ml.</string>
+    <string name="toast_drop_volume_out_of_bound">Le volume de dosage ne peut pas dépasser le volume de dosage quotidien maximal.</string>
+    <string name="toast_drop_detail_is_empty">Veuillez ajouter une période de programmation.</string>
+    <string name="toast_delete_detail_successful">Période supprimée avec succès.</string>
+    <string name="toast_delete_detail_failed">Échec de la suppression de la période.</string>
+    <string name="drop_times_exceed">La dose maximale est de 5 gouttes par heure.</string>
+    <string name="drop_start_adjust_failed">Échec du démarrage de la calibration.</string>
+    <string name="drop_adjust_successful">Calibration terminée.</string>
+    <string name="drop_adjust_failed">Échec de la calibration.</string>
+    <string name="toast_drop_volume_is_too_little_old">Le volume de dosage ne peut pas être inférieur à 1 ml.</string>
+    <string name="toast_drop_volume_is_too_little_new">Le volume de dosage ne peut pas être inférieur à 0.4 ml.</string>
+    /** hint **/
+    <string name="hint_select_time">Veuillez sélectionner une heure.</string>
+    <string name="record_pause">Le programme est en pause.</string>
+    <string name="continue_record">Reprendre l\'exécution.</string>
+
+    <string name="bottom_sheet_add_sink_title">@string/add_sink</string>
+    <string name="bottom_sheet_add_sink_edittext_title">@string/sink_name</string>
+    <string name="bottom_sheet_add_sink_button_text">@string/save</string>
+    <string name="bottom_sheet_edit_sink_title">@string/sink_setting</string>
+    <string name="bottom_sheet_edit_sink_edittext_title">@string/sink_name</string>
+    <string name="bottom_sheet_edit_sink_button_text">@string/save</string>
+    <string name="bottom_sheet_add_drop_type_title">@string/add_drop_type</string>
+    <string name="bottom_sheet_add_drop_type_edittext_title">@string/drop_type_name</string>
+    <string name="bottom_sheet_add_drop_type_button_text">@string/save</string>
+    <string name="bottom_sheet_edit_drop_type_title">@string/edit_drop_type</string>
+    <string name="bottom_sheet_edit_drop_type_edittext_title">@string/drop_type_name</string>
+    <string name="bottom_sheet_edit_drop_type_button_text">@string/save</string>
+    /** ===================================================================================== **/
+    /** MainActivity **/
+    /** HomeFragment **/
+    <string name="text_no_device_in_sink_title">Le réservoir actuel n\'a actuellement aucun appareil.</string>
+    <string name="text_no_device_in_sink_content">Ajoutez des appareils à partir de la liste Bluetooth ci-dessous.</string>
+    /** DeviceFragment **/
+    <string name="fragment_device_title">@string/device</string>
+    <string name="fragment_device_select">@string/select</string>
+    <string name="text_no_device_title">Aucun appareil actuellement disponible.</string>
+    <string name="dialog_device_delete_led_master_title">@string/master_setting</string>
+    <string name="dialog_device_delete_led_master_content">Pour supprimer la lumière principale, veuillez modifier les paramètres maître-esclave et définir d\'autres lumières esclaves comme maître.</string>
+    <string name="dialog_device_delete_led_master_positive">@string/i_konw</string>
+    <string name="dialog_device_delete">Supprimer l\'appareil sélectionné ?</string>
+    <string name="dialog_device_delete_led_content">Supprimer l\'appareil LED ?</string>
+    <string name="dialog_device_delete_led_positive">@string/delete</string>
+    <string name="dialog_device_delete_led_negative">@string/cancel</string>
+    /** BluetoothFragment **/
+    <string name="fragment_bluetooth_title">@string/bluetooth_connect</string>
+    <string name="fragment_other_device_title">@string/other_device</string>
+    <string name="text_no_other_device_title">Aucun appareil trouvé.</string>
+    <string name="text_no_other_device_content">Appuyez sur le coin supérieur droit pour rechercher à nouveau les appareils à proximité.</string>
+    <string name="dialog_disconnect_bluetooth_content">Voulez-vous déconnecter le Bluetooth ?</string>
+    <string name="dialog_disconnect_bluetooth_positive">@string/confirm</string>
+    <string name="dialog_disconnect_bluetooth_negative">@string/cancel</string>
+    /** WarningActivity **/
+    <string name="activity_warning_title">@string/warning_list</string>
+    <string name="text_no_warning_title">Aucun enregistrement d\'alerte.</string>
+    <string name="text_no_warning_content">Il n\'y a aucun élément dans "Enregistrements d\'alerte".</string>
+    <string name="dialog_delete_warning_content">Voulez-vous supprimer cet avertissement ?</string>
+    <string name="dialog_delete_warning_positive">@string/confirm</string>
+    <string name="dialog_delete_warning_negative">@string/cancel</string>
+    /** SinkManagerActivity **/
+    <string name="activity_manage_sink_title">@string/sink_manager</string>
+    <string name="text_no_sink_title">Il n\'y a actuellement aucun réservoir.</string>
+    <string name="text_no_sink_content">Appuyez sur le bouton d\'ajout en bas à droite pour ajouter un réservoir.</string>
+    <string name="text_device_amount">%1$d appareils</string>
+    <string name="dialog_delete_sink_title">@string/delete_sink</string>
+    <string name="dialog_delete_sink_content">Après la suppression du réservoir, les appareils à l\'intérieur du réservoir deviendront des appareils non attribués.</string>
+    <string name="dialog_delete_sink_positive">@string/delete</string>
+    <string name="dialog_delete_sink_negative">@string/cancel</string>
+
+    <string name="activity_add_device_title">@string/add_device</string>
+    <string name="activity_add_device_toolbar_left_btn">@string/skip</string>
+    <string name="activity_add_device_toolbar_right_btn">@string/complete</string>
+    <string name="activity_add_device_device_name_title">@string/device_name</string>
+    <string name="activity_add_device_sink_position_title">@string/sink_position</string>
+    /** SinkPositionActivity **/
+    <string name="activity_sink_position_title">@string/sink_position</string>
+    <string name="activity_sink_position_toolbar_right_btn">@string/confirm</string>
+    /** LedMainActivity **/
+    <string name="dialog_delete_led_master_title">@string/master_setting</string>
+    <string name="dialog_delete_led_master_content">Pour supprimer cet appareil, veuillez d\'abord modifier les paramètres maître-esclave et définir d\'autres lumières esclaves comme lumière principale.</string>
+    <string name="dialog_delete_led_master_positive">@string/confirm</string>
+    <string name="dialog_delete_led_master_negative">@string/cancel</string>
+    <string name="dialog_reset_led_title">@string/reset</string>
+    <string name="dialog_reset_led_content">Cet appareil deviendra un appareil non attribué, et tous les paramètres actuels seront effacés.</string>
+    <string name="dialog_reset_led_positive">@string/confirm</string>
+    <string name="dialog_reset_led_negative">@string/cancel</string>
+    <string name="dialog_delete_led_content">Voulez-vous supprimer cet appareil LED ?</string>
+    <string name="dialog_delete_led_positive">@string/delete</string>
+    <string name="dialog_delete_led_negative">@string/cancel</string>
+    <string name="dialog_delete_unassigned_led_title">@string/master_setting</string>
+    <string name="dialog_delete_unassigned_led_content">Les appareils dans les réservoirs non attribués ne peuvent pas être définis comme maître ou esclave.</string>
+    <string name="dialog_delete_unassigned_led_positive">@string/i_konw</string>
+    <string name="dialog_reset_master_led_title">@string/master_setting</string>
+    <string name="dialog_reset_master_led_content">Pour réinitialiser cet appareil aux paramètres par défaut, veuillez d\'abord modifier les paramètres maître-esclave et définir d\'autres lumières esclaves comme lumière principale.</string>
+    <string name="dialog_reset_master_led_positive">@string/confirm</string>
+    <string name="dialog_reset_master_led_negative">@string/cancel</string>
+    /** LedSettingActivity **/
+    <string name="activity_led_setting_title">@string/led_setting</string>
+    <string name="activity_led_setting_toolbar_right_btn">@string/save</string>
+    <string name="dialog_led_move_master_title">@string/master_setting</string>
+    <string name="dialog_led_move_master_content">Pour déplacer cet appareil vers un autre réservoir, veuillez d\'abord modifier les paramètres maître-esclave et définir d\'autres lumières esclaves comme lumière principale.</string>
+    <string name="dialog_led_move_master_positive">@string/confirm</string>
+    <string name="dialog_led_move_master_negative">@string/cancel</string>
+    /** LedMasterSettingActivity **/
+    <string name="activity_led_master_setting_title">@string/master_pairing</string>
+    <string name="activity_led_master_setting_toolbar_right_btn">@string/master_pairing</string>
+    /** LedRecordSettingActivity **/
+    <string name="activity_led_record_setting_title">@string/record_setting</string>
+    <string name="activity_led_record_setting_toolbar_right_btn">@string/save</string>
+    /** LedRecordActivity **/
+    <string name="activity_led_record_title">@string/record</string>
+    <string name="dialog_led_delete_time_content">Voulez-vous supprimer ce point de temps ?</string>
+    <string name="dialog_led_delete_time_positive">@string/delete</string>
+    <string name="dialog_led_delete_time_negative">@string/cancel</string>
+    <string name="dialog_led_clear_record_content">Voulez-vous effacer le calendrier ?</string>
+    <string name="dialog_led_clear_record_positive">@string/confirm</string>
+    <string name="dialog_led_clear_record_negative">@string/cancel</string>
+
+    <string name="activity_led_record_time_setting_title">@string/record_time</string>
+    <string name="activity_led_record_time_setting_toolbar_right_btn">@string/save</string>
+
+    <string name="activity_led_scene_title">@string/led_scene</string>
+    <string name="activity_led_scene_toolbar_right_btn">@string/edit</string>
+    /** LedSceneAddActivity **/
+    <string name="activity_led_scene_add_title">@string/led_scene_add</string>
+    <string name="activity_led_scene_add_toolbar_right_btn">@string/save</string>
+    /** LedSceneEditActivity **/
+    <string name="activity_led_scene_edit_title">@string/led_scene_edit</string>
+    <string name="activity_led_scene_edit_toolbar_right_btn">@string/save</string>
+    /** LedSceneDeleteActivity **/
+    <string name="activity_led_scene_delete_title">@string/led_scene_delete</string>
+    <string name="dialog_scene_delete_scene_content">Voulez-vous supprimer la scène ?</string>
+    <string name="dialog_scene_delete_scene_positive">@string/delete</string>
+    <string name="dialog_scene_delete_scene_negative">@string/cancel</string>
+
+    <string name="dialog_today_drop_out_of_range_title">@string/max_drop_volume</string>
+    <string name="dialog_today_drop_out_of_range_content">Le volume de dosage d\'aujourd\'hui a atteint le volume de dosage quotidien maximum.</string>
+    <string name="dialog_today_drop_out_of_range_positive">@string/i_konw</string>
+    <string name="dialog_delete_drop_content">Voulez-vous supprimer cette pompe de dosage ?</string>
+    <string name="dialog_delete_drop_positive">@string/delete</string>
+    <string name="dialog_delete_drop_negative">@string/cancel</string>
+    <string name="dialog_reset_drop_title">@string/reset</string>
+    <string name="dialog_reset_drop_content">Cet appareil deviendra non assigné et effacera tous les réglages de la pompe et les enregistrements de calibration actuels.</string>
+    <string name="dialog_reset_drop_positive">@string/confirm</string>
+    <string name="dialog_reset_drop_negative">@string/cancel</string>
+    /** DropSettingActivity **/
+    <string name="activity_drop_setting_title">@string/drop_setting</string>
+    <string name="activity_drop_setting_toolbar_right_btn">@string/save</string>
+    /** DropHeadSettingActivity **/
+    <string name="activity_drop_head_setting_title">@string/drop_head_setting</string>
+    <string name="activity_drop_head_setting_toolbar_right_btn">@string/save</string>
+    /** DropTypeActivity **/
+    <string name="activity_drop_type_title">@string/drop_type</string>
+    <string name="activity_drop_type_toolbar_right_btn">@string/confirm</string>
+    <string name="dialog_delete_drop_type_title">@string/drop_type_delete</string>
+    <string name="dialog_delete_drop_type_content">Voulez-vous supprimer ce type de goutte?</string>
+    <string name="dialog_delete_drop_type_positive">@string/delete</string>
+    <string name="dialog_delete_drop_type_negative">@string/cancel</string>
+    <string name="dialog_drop_type_already_used_title">@string/drop_type_already_used</string>
+    <string name="dialog_drop_type_already_used_content">Cet appareil deviendra un appareil non attribué, et tous les paramètres de la tête de pompe actuels et les enregistrements de calibration seront effacés.</string>
+    <string name="dialog_drop_type_already_used_positive">@string/delete</string>
+    <string name="dialog_drop_type_already_used_negative">@string/cancel</string>
+    /** DropHeadRecordSettingActivity **/
+    <string name="activity_drop_head_record_setting_title">@string/record</string>
+    <string name="activity_drop_head_record_setting_toolbar_right_btn">@string/run</string>
+    /** DropHeadRecordTimeSettingActivity **/
+    <string name="activity_drop_head_record_time_setting_title">@string/time_setting</string>
+    <string name="activity_drop_head_record_time_setting_toolbar_right_btn">@string/confirm</string>
+    <string name="dialog_setting_drop_out_of_range_title">@string/max_drop_volume</string>
+    <string name="dialog_setting_drop_out_of_range_content">Le volume de dosage défini dépasse la limite de volume de dosage quotidien maximum.</string>
+    <string name="dialog_setting_drop_out_of_range_positive">@string/i_konw</string>
+    <string name="dialog_drop_time_setting_repeat_title">@string/record_setting</string>
+    <string name="dialog_drop_time_setting_repeat_content">Cette période a déjà été définie.</string>
+    <string name="dialog_drop_time_setting_repeat_positive">@string/confirm</string>
+    <string name="dialog_drop_setting_higher_than_max_title">@string/record_setting</string>
+    <string name="dialog_drop_setting_higher_than_max_content">Le volume de dosage ne peut pas dépasser 500 ml.</string>
+    <string name="dialog_drop_setting_higher_than_max_positive">@string/confirm</string>
+    <string name="dialog_drop_setting_lower_than_min_title">@string/record_setting</string>
+    <string name="dialog_drop_setting_lower_than_min_content">Le volume de dosage ne peut pas être inférieur à %1$s ml à chaque fois.</string>
+    <string name="dialog_drop_setting_lower_than_min_positive">@string/confirm</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_title">@string/max_drop_volume</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_content">Le volume de dosage total pour aujourd\'hui, y compris le dosage planifié, dépasse la limite de volume de dosage quotidien maximum.</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_positive">@string/i_konw</string>
+    <string name="dialog_setting_delete_detail_title">@string/delete_drop_record_time</string>
+    <string name="dialog_setting_delete_detail_content">Voulez-vous supprimer cette plage horaire ?</string>
+    <string name="dialog_setting_delete_detail_positive">@string/delete</string>
+    <string name="dialog_setting_delete_detail_negative">@string/cancel</string>
+    /** DropHeadAdjustListActivity **/
+    <string name="activity_drop_head_adjust_list_title">@string/adjust_list</string>
+    <string name="activity_drop_head_adjust_list_toolbar_right_btn">@string/adjust</string>
+    /** DropHeadAdjustActivity **/
+    <string name="activity_drop_head_adjust_title">@string/adjust</string>
+    <string name="adjust_volume_hint">1 ~ 15; un chiffre après la virgule</string>
+</resources>

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
+import 'package:koralcore/ui/assets/reef_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../application/common/app_error_code.dart';
@@ -36,17 +37,43 @@ class _DevicePageState extends State<DevicePage> {
     _maybeShowError(controller.lastErrorCode);
     final l10n = AppLocalizations.of(context);
 
+    final bool selectionMode = controller.selectionMode;
     return Scaffold(
       backgroundColor: ReefColors.primaryStrong,
       appBar: AppBar(
-        backgroundColor: ReefColors.primary,
-        foregroundColor: ReefColors.onPrimary,
+        backgroundColor: ReefColors.primaryStrong,
         elevation: 0,
-        titleSpacing: ReefSpacing.xl,
-        titleTextStyle: ReefTextStyles.title2.copyWith(
-          color: ReefColors.onPrimary,
+        leading: selectionMode
+            ? IconButton(
+                icon: const Icon(Icons.close, color: ReefColors.surface),
+                onPressed: controller.exitSelectionMode,
+              )
+            : null,
+        titleSpacing: ReefSpacing.lg,
+        title: Text(
+          selectionMode
+              ? l10n.deviceSelectionCount(controller.selectedIds.length)
+              : l10n.deviceHeader,
+          style: ReefTextStyles.title2.copyWith(
+            color: ReefColors.surface,
+            fontWeight: FontWeight.w700,
+          ),
         ),
-        title: Text(l10n.deviceHeader),
+        actions: selectionMode
+            ? [
+                TextButton(
+                  onPressed: controller.selectedIds.isEmpty
+                      ? null
+                      : () => _confirmDelete(context, controller),
+                  child: Text(
+                    l10n.deviceActionDelete,
+                    style: ReefTextStyles.bodyAccent.copyWith(
+                      color: ReefColors.surface,
+                    ),
+                  ),
+                ),
+              ]
+            : null,
       ),
       body: SafeArea(
         child: RefreshIndicator(
@@ -108,9 +135,9 @@ class _DevicePageState extends State<DevicePage> {
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          mainAxisSpacing: ReefSpacing.xl,
-                          crossAxisSpacing: ReefSpacing.xl,
-                          childAspectRatio: .85,
+                          mainAxisSpacing: ReefSpacing.lg,
+                          crossAxisSpacing: ReefSpacing.lg,
+                          childAspectRatio: .95,
                         ),
                     delegate: SliverChildBuilderDelegate((context, index) {
                       final device = controller.savedDevices[index];
@@ -164,10 +191,25 @@ class _DevicePageState extends State<DevicePage> {
                   sliver: SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: ReefSpacing.xxl),
-                      child: Text(
-                        l10n.bluetoothEmptyState,
-                        style: ReefTextStyles.body.copyWith(
-                          color: ReefColors.surface,
+                      child: Container(
+                        padding: const EdgeInsets.all(ReefSpacing.lg),
+                        decoration: BoxDecoration(
+                          color: ReefColors.surface.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(ReefRadius.lg),
+                        ),
+                        child: Row(
+                          children: [
+                            Image.asset(kBluetoothIcon, width: 32, height: 32),
+                            const SizedBox(width: ReefSpacing.md),
+                            Expanded(
+                              child: Text(
+                                l10n.bluetoothEmptyState,
+                                style: ReefTextStyles.body.copyWith(
+                                  color: ReefColors.surface,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -183,83 +225,11 @@ class _DevicePageState extends State<DevicePage> {
     );
   }
 
-  void _maybeShowError(AppErrorCode? code) {
-    if (code == null) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = context.read<DeviceListController>();
-      final l10n = AppLocalizations.of(context);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(describeAppError(l10n, code))));
-      controller.clearError();
-    });
-  }
-}
-
-class _ActionsBar extends StatelessWidget {
-  final DeviceListController controller;
-  final AppLocalizations l10n;
-
-  const _ActionsBar({required this.controller, required this.l10n});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        FilledButton.icon(
-          onPressed: controller.isScanning
-              ? null
-              : () {
-                  controller.refresh();
-                },
-          icon: controller.isScanning
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.sync),
-          label: Text(
-            controller.isScanning
-                ? l10n.bluetoothScanning
-                : l10n.bluetoothScanCta,
-          ),
-        ),
-        const SizedBox(width: ReefSpacing.md),
-        if (!controller.selectionMode) ...[
-          OutlinedButton(
-            onPressed: controller.savedDevices.isEmpty
-                ? null
-                : controller.enterSelectionMode,
-            child: Text(l10n.deviceSelectMode),
-          ),
-        ] else ...[
-          Expanded(
-            child: Text(
-              l10n.deviceSelectionCount(controller.selectedIds.length),
-              style: ReefTextStyles.subheader.copyWith(
-                color: ReefColors.textSecondary,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          TextButton(
-            onPressed: controller.exitSelectionMode,
-            child: Text(l10n.actionCancel),
-          ),
-          const SizedBox(width: ReefSpacing.sm),
-          OutlinedButton(
-            onPressed: controller.selectedIds.isEmpty
-                ? null
-                : () => _confirmDelete(context),
-            child: Text(l10n.deviceActionDelete),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Future<void> _confirmDelete(BuildContext context) async {
+  Future<void> _confirmDelete(
+    BuildContext context,
+    DeviceListController controller,
+  ) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
@@ -288,6 +258,64 @@ class _ActionsBar extends StatelessWidget {
       ).showSnackBar(SnackBar(content: Text(l10n.snackbarDeviceRemoved)));
     }
   }
+
+  void _maybeShowError(AppErrorCode? code) {
+    if (code == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final controller = context.read<DeviceListController>();
+      final l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(describeAppError(l10n, code))));
+      controller.clearError();
+    });
+  }
+}
+
+class _ActionsBar extends StatelessWidget {
+  final DeviceListController controller;
+  final AppLocalizations l10n;
+
+  const _ActionsBar({required this.controller, required this.l10n});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        FilledButton.icon(
+          style: FilledButton.styleFrom(
+            backgroundColor: ReefColors.surface,
+            foregroundColor: ReefColors.primaryStrong,
+          ),
+          onPressed: controller.isScanning
+              ? null
+              : () {
+                  controller.refresh();
+                },
+          icon: controller.isScanning
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.sync),
+          label: Text(
+            controller.isScanning
+                ? l10n.bluetoothScanning
+                : l10n.bluetoothScanCta,
+          ),
+        ),
+        const SizedBox(width: ReefSpacing.md),
+        if (!controller.selectionMode)
+          OutlinedButton(
+            onPressed: controller.savedDevices.isEmpty
+                ? null
+                : controller.enterSelectionMode,
+            child: Text(l10n.deviceSelectMode),
+          ),
+      ],
+    );
+  }
 }
 
 class _EmptyState extends StatelessWidget {
@@ -298,40 +326,35 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Card(
+    return Container(
+      padding: const EdgeInsets.all(ReefSpacing.xl),
+      decoration: BoxDecoration(
         color: ReefColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(ReefRadius.md),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(ReefSpacing.lg),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                l10n.deviceEmptyTitle,
-                style: ReefTextStyles.subheaderAccent.copyWith(
-                  color: ReefColors.textPrimary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: ReefSpacing.sm),
-              Text(
-                l10n.deviceEmptySubtitle,
-                style: ReefTextStyles.body.copyWith(
-                  color: ReefColors.textSecondary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: ReefSpacing.lg),
-              FilledButton(
-                onPressed: onScan,
-                child: Text(l10n.bluetoothScanCta),
-              ),
-            ],
+        borderRadius: BorderRadius.circular(ReefRadius.lg),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(kDeviceEmptyIcon, width: 48, height: 48),
+          const SizedBox(height: ReefSpacing.md),
+          Text(
+            l10n.deviceEmptyTitle,
+            style: ReefTextStyles.subheaderAccent.copyWith(
+              color: ReefColors.textPrimary,
+            ),
+            textAlign: TextAlign.center,
           ),
-        ),
+          const SizedBox(height: ReefSpacing.sm),
+          Text(
+            l10n.deviceEmptySubtitle,
+            style: ReefTextStyles.body.copyWith(
+              color: ReefColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: ReefSpacing.lg),
+          FilledButton(onPressed: onScan, child: Text(l10n.bluetoothScanCta)),
+        ],
       ),
     );
   }

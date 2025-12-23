@@ -113,6 +113,15 @@
   "ledIntensityEntrySubtitle": "Tune output for each lighting channel.",
   "ledEntryPrograms": "Scenes & programs",
   "ledEntryManual": "Manual control",
+  "ledEntryRecords": "Open records",
+  "ledEntryRecordsSubtitle": "Review lighting time points synced from Reef B.",
+  "ledChannelBlue": "Blue",
+  "ledChannelRed": "Red",
+  "ledChannelGreen": "Green",
+  "ledChannelPurple": "Purple",
+  "ledChannelUv": "UV",
+  "ledChannelWarmWhite": "Warm white",
+  "ledChannelMoon": "Moonlight",
   "ledScheduleAddButton": "Add schedule",
   "ledScheduleEditTitleNew": "New lighting schedule",
   "ledScheduleEditTitleEdit": "Edit lighting schedule",
@@ -240,6 +249,31 @@
   "ledScheduleListSubtitle": "Review lighting timelines synced from Reef B.",
   "ledScheduleEmptyTitle": "No schedules available",
   "ledScheduleEmptySubtitle": "Create schedules in the Reef B app to view them here.",
+  "ledRecordsTitle": "LED records",
+  "ledRecordsSubtitle": "Manage every point in the 24-hour lighting timeline.",
+  "ledRecordsEmptyTitle": "No records available",
+  "ledRecordsEmptySubtitle": "Create records in the Reef B app to see them here.",
+  "ledRecordsSelectedTimeLabel": "Selected time",
+  "ledRecordsStatusIdle": "Ready",
+  "ledRecordsStatusApplying": "Syncing...",
+  "ledRecordsStatusPreview": "Previewing",
+  "ledRecordsActionPrev": "Previous",
+  "ledRecordsActionNext": "Next",
+  "ledRecordsActionDelete": "Delete",
+  "ledRecordsActionClear": "Clear all",
+  "ledRecordsActionPreviewStart": "Preview",
+  "ledRecordsActionPreviewStop": "Stop preview",
+  "ledRecordsClearConfirmTitle": "Clear all records?",
+  "ledRecordsClearConfirmMessage": "This removes every recorded time point from the LED schedule.",
+  "ledRecordsDeleteConfirmTitle": "Delete record?",
+  "ledRecordsDeleteConfirmMessage": "Remove the selected time point from the LED schedule?",
+  "ledRecordsSnackDeleted": "Record deleted.",
+  "ledRecordsSnackDeleteFailed": "Couldn't delete record.",
+  "ledRecordsSnackCleared": "Records cleared.",
+  "ledRecordsSnackClearFailed": "Couldn't clear records.",
+  "ledRecordsSnackMissingSelection": "Select a record first.",
+  "ledRecordsSnackPreviewStarted": "Preview started.",
+  "ledRecordsSnackPreviewStopped": "Preview stopped.",
   "ledScheduleTypeDaily": "Daily program",
   "ledScheduleTypeCustom": "Custom window",
   "ledScheduleTypeScene": "Scene-based",
@@ -309,6 +343,8 @@
   "@ledSceneStatusDisabled": {
     "description": "Label shown next to an LED scene when it is disabled."
   },
+  "ledSceneStatusActive": "Active",
+  "ledScenesSnackApplied": "Scene applied.",
   "ledScheduleStatusEnabled": "Enabled",
   "@ledScheduleStatusEnabled": {
     "description": "Label shown when an LED lighting schedule is enabled."
@@ -316,5 +352,7 @@
   "ledScheduleStatusDisabled": "Disabled",
   "@ledScheduleStatusDisabled": {
     "description": "Label shown when an LED lighting schedule is disabled."
-  }
+  },
+  "ledScheduleStatusActive": "Active",
+  "ledScheduleSnackApplied": "Schedule applied."
 }

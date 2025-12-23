@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <!--元件的漸層-->
+            <solid android:color="@color/bg_aaa" />
+            <!--邊框顏色、粗細-->
+            <padding android:right="@dimen/dp_12" />
+            <!--圓角-->
+            <corners android:radius="@dimen/dp_4" />
+        </shape>
+    </item>
+    <item
+        android:drawable="@drawable/ic_down"
+        android:gravity="end|center_vertical" />
+</layer-list>

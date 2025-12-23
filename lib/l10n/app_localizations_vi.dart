@@ -333,6 +333,34 @@ class AppLocalizationsVi extends AppLocalizations {
   String get ledEntryManual => 'Manual control';
 
   @override
+  String get ledEntryRecords => 'Open records';
+
+  @override
+  String get ledEntryRecordsSubtitle =>
+      'Review lighting time points synced from Reef B.';
+
+  @override
+  String get ledChannelBlue => 'Blue';
+
+  @override
+  String get ledChannelRed => 'Red';
+
+  @override
+  String get ledChannelGreen => 'Green';
+
+  @override
+  String get ledChannelPurple => 'Purple';
+
+  @override
+  String get ledChannelUv => 'UV';
+
+  @override
+  String get ledChannelWarmWhite => 'Warm white';
+
+  @override
+  String get ledChannelMoon => 'Moonlight';
+
+  @override
   String get ledScheduleAddButton => 'Add schedule';
 
   @override
@@ -654,6 +682,85 @@ class AppLocalizationsVi extends AppLocalizations {
       'Create schedules in the Reef B app to view them here.';
 
   @override
+  String get ledRecordsTitle => 'LED records';
+
+  @override
+  String get ledRecordsSubtitle =>
+      'Manage every point in the 24-hour lighting timeline.';
+
+  @override
+  String get ledRecordsEmptyTitle => 'No records available';
+
+  @override
+  String get ledRecordsEmptySubtitle =>
+      'Create records in the Reef B app to see them here.';
+
+  @override
+  String get ledRecordsSelectedTimeLabel => 'Selected time';
+
+  @override
+  String get ledRecordsStatusIdle => 'Ready';
+
+  @override
+  String get ledRecordsStatusApplying => 'Syncing...';
+
+  @override
+  String get ledRecordsStatusPreview => 'Previewing';
+
+  @override
+  String get ledRecordsActionPrev => 'Previous';
+
+  @override
+  String get ledRecordsActionNext => 'Next';
+
+  @override
+  String get ledRecordsActionDelete => 'Delete';
+
+  @override
+  String get ledRecordsActionClear => 'Clear all';
+
+  @override
+  String get ledRecordsActionPreviewStart => 'Preview';
+
+  @override
+  String get ledRecordsActionPreviewStop => 'Stop preview';
+
+  @override
+  String get ledRecordsClearConfirmTitle => 'Clear all records?';
+
+  @override
+  String get ledRecordsClearConfirmMessage =>
+      'This removes every recorded time point from the LED schedule.';
+
+  @override
+  String get ledRecordsDeleteConfirmTitle => 'Delete record?';
+
+  @override
+  String get ledRecordsDeleteConfirmMessage =>
+      'Remove the selected time point from the LED schedule?';
+
+  @override
+  String get ledRecordsSnackDeleted => 'Record deleted.';
+
+  @override
+  String get ledRecordsSnackDeleteFailed => 'Couldn\'t delete record.';
+
+  @override
+  String get ledRecordsSnackCleared => 'Records cleared.';
+
+  @override
+  String get ledRecordsSnackClearFailed => 'Couldn\'t clear records.';
+
+  @override
+  String get ledRecordsSnackMissingSelection => 'Select a record first.';
+
+  @override
+  String get ledRecordsSnackPreviewStarted => 'Preview started.';
+
+  @override
+  String get ledRecordsSnackPreviewStopped => 'Preview stopped.';
+
+  @override
   String get ledScheduleTypeDaily => 'Daily program';
 
   @override
@@ -773,8 +880,20 @@ class AppLocalizationsVi extends AppLocalizations {
   String get ledSceneStatusDisabled => 'Disabled';
 
   @override
+  String get ledSceneStatusActive => 'Active';
+
+  @override
+  String get ledScenesSnackApplied => 'Scene applied.';
+
+  @override
   String get ledScheduleStatusEnabled => 'Enabled';
 
   @override
   String get ledScheduleStatusDisabled => 'Disabled';
+
+  @override
+  String get ledScheduleStatusActive => 'Active';
+
+  @override
+  String get ledScheduleSnackApplied => 'Schedule applied.';
 }

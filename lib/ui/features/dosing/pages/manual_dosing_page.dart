@@ -145,7 +145,7 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             DropdownButtonFormField<String>(
-              value: _selectedHead,
+              initialValue: _selectedHead,
               decoration: InputDecoration(
                 labelText: l10n.dosingPumpHeadsHeader,
                 labelStyle: theme.textTheme.titleSmall,

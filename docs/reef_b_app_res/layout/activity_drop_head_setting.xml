@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/toolbar_drop_head_setting"
+        layout="@layout/toolbar_two_action"
+        app:layout_constraintBottom_toTopOf="@id/layout_drop_head_setting"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_drop_head_setting"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_0"
+        android:paddingStart="@dimen/dp_16"
+        android:paddingTop="@dimen/dp_12"
+        android:paddingEnd="@dimen/dp_16"
+        android:paddingBottom="@dimen/dp_12"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_drop_head_setting">
+
+        <TextView
+            android:id="@+id/tv_drop_type_title"
+            style="@style/SingleLine"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:text="@string/drop_type"
+            android:textAppearance="@style/caption1"
+            app:layout_constraintBottom_toTopOf="@id/btn_drop_type"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_drop_type"
+            style="@style/BackgroundMaterialButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_4"
+            android:textAlignment="textStart"
+            app:icon="@drawable/ic_next"
+            app:layout_constraintBottom_toTopOf="@id/tv_max_drop_per_day_edt_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_drop_type_title"
+            tools:text="dasdasdksa;dksald;sakdl;askdl;dkaslkdl;sakdlsa;kdlas;dk;asldka;slkd" />
+
+        <TextView
+            android:id="@+id/tv_max_drop_per_day_edt_title"
+            style="@style/SingleLine"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16"
+            android:text="@string/max_drop_volume"
+            android:textAppearance="@style/caption1"
+            android:textColor="@color/text_color_selector"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/layout_max_drop_per_day"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_drop_type" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_max_drop_per_day"
+            style="@style/TextInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_4"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/tv_max_drop_per_day_switch_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_max_drop_per_day_edt_title">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_max_drop_per_day"
+                style="@style/SingleLine"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="number"
+                android:textAppearance="@style/body" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/tv_max_drop_per_day_switch_title"
+            style="@style/SingleLine"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16"
+            android:layout_marginEnd="@dimen/dp_16"
+            android:text="@string/max_drop_volume"
+            android:textAppearance="@style/caption1"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/tv_max_drop_per_day_switch_hint"
+            app:layout_constraintEnd_toStartOf="@id/sw_max_drop_per_day_switch"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layout_max_drop_per_day" />
+
+        <TextView
+            android:id="@+id/tv_max_drop_per_day_switch_hint"
+            style="@style/SingleLine"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dp_16"
+            android:text="@string/max_drop_volume_hint"
+            android:textAppearance="@style/caption2"
+            android:textColor="@color/text_aaa"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/tv_rotating_speed_title"
+            app:layout_constraintEnd_toStartOf="@id/sw_max_drop_per_day_switch"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_max_drop_per_day_switch_title" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/sw_max_drop_per_day_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/tv_max_drop_per_day_switch_hint"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_max_drop_per_day_switch_title"
+            app:layout_constraintTop_toTopOf="@id/tv_max_drop_per_day_switch_title" />
+
+        <TextView
+            android:id="@+id/tv_rotating_speed_title"
+            style="@style/SingleLine"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16"
+            android:enabled="false"
+            android:text="@string/init_rotating_speed"
+            android:textAppearance="@style/caption1"
+            android:textColor="@color/text_color_selector"
+            app:layout_constraintBottom_toTopOf="@id/btn_rotating_speed"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_max_drop_per_day_switch_hint" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_rotating_speed"
+            style="@style/BackgroundMaterialButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_4"
+            android:enabled="false"
+            android:textAlignment="textStart"
+            app:icon="@drawable/ic_down"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_rotating_speed_title"
+            tools:text="中速" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/progress"
+        layout="@layout/progress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+</androidx.constraintlayout.widget.ConstraintLayout>

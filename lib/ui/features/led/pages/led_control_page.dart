@@ -68,20 +68,18 @@ class _LedControlView extends StatelessWidget {
                     if (controller.channels.isEmpty)
                       _LedControlEmptyState(message: l10n.ledControlEmptyState)
                     else
-                      ...controller.channels
-                          .map(
-                            (channel) => Padding(
-                              padding: const EdgeInsets.only(
-                                bottom: AppDimensions.spacingM,
-                              ),
-                              child: _ChannelSliderCard(
-                                key: ValueKey(channel.id),
-                                channel: channel,
-                                enabled: isConnected && !controller.isApplying,
-                              ),
-                            ),
-                          )
-                          .toList(),
+                      ...controller.channels.map(
+                        (channel) => Padding(
+                          padding: const EdgeInsets.only(
+                            bottom: AppDimensions.spacingM,
+                          ),
+                          child: _ChannelSliderCard(
+                            key: ValueKey(channel.id),
+                            channel: channel,
+                            enabled: isConnected && !controller.isApplying,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
           bottomNavigationBar: SafeArea(

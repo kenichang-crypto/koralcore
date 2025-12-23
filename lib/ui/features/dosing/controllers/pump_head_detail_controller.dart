@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../../../application/common/app_error.dart';
@@ -12,6 +11,7 @@ import '../../../../domain/doser_dosing/pump_speed.dart';
 import '../../../../domain/doser_dosing/today_dose_summary.dart';
 import '../../../../domain/doser_dosing/single_dose_immediate.dart';
 import '../../../../domain/doser_dosing/single_dose_timed.dart';
+import '../../../../domain/doser_dosing/pump_head.dart';
 import '../../../../domain/doser_schedule/dosing_schedule_summary.dart';
 import '../models/pump_head_summary.dart';
 
@@ -178,7 +178,10 @@ class PumpHeadDetailController extends ChangeNotifier
 
     if (!isConnected) {
       _handleNoActiveDevice();
+      return;
     }
+
+    _applySessionPumpHead();
   }
 
   void clearError() {
@@ -290,7 +293,6 @@ class PumpHeadDetailController extends ChangeNotifier
         return null;
       }
       _todayDoseState = TodayDoseReadState.success(summary);
-      _summary = _summary.copyWith(todayDispensedMl: summary.totalMl);
       return null;
     } on AppError catch (error) {
       if (_shouldApplyResult(deviceId)) {
@@ -349,6 +351,41 @@ class PumpHeadDetailController extends ChangeNotifier
       return 1;
     }
     return candidate;
+  }
+
+  void _applySessionPumpHead({bool notify = true}) {
+    final PumpHead? head = _sessionPumpHead();
+    if (head == null) {
+      return;
+    }
+    final PumpHeadSummary next = PumpHeadSummary.fromPumpHead(head);
+    if (_pumpHeadSummariesEqual(_summary, next)) {
+      return;
+    }
+    _summary = next;
+    if (notify) {
+      _notifyListenersIfActive();
+    }
+  }
+
+  PumpHead? _sessionPumpHead() {
+    final String target = headId.toUpperCase();
+    for (final PumpHead head in session.pumpHeads) {
+      if (head.headId.toUpperCase() == target) {
+        return head;
+      }
+    }
+    return null;
+  }
+
+  bool _pumpHeadSummariesEqual(PumpHeadSummary a, PumpHeadSummary b) {
+    return a.headId == b.headId &&
+        a.additiveName == b.additiveName &&
+        a.dailyTargetMl == b.dailyTargetMl &&
+        a.todayDispensedMl == b.todayDispensedMl &&
+        a.flowRateMlPerMin == b.flowRateMlPerMin &&
+        a.lastDoseAt == b.lastDoseAt &&
+        a.statusKey == b.statusKey;
   }
 }
 

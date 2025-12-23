@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white">
+
+            <ImageView
+                android:id="@+id/btn_back"
+                style="@style/ImageviewButton"
+                android:layout_width="@dimen/dp_56"
+                android:layout_height="@dimen/dp_44"
+                android:layout_gravity="start|center_vertical"
+                android:paddingStart="@dimen/dp_16"
+                android:paddingTop="@dimen/dp_8"
+                android:paddingEnd="@dimen/dp_16"
+                android:paddingBottom="@dimen/dp_8"
+                android:src="@drawable/ic_back" />
+
+            <TextView
+                android:id="@+id/toolbar_title"
+                style="@style/SingleLine"
+                android:layout_width="wrap_content"
+                android:maxWidth="@dimen/dp_200"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textAppearance="@style/body"
+                android:textColor="@color/text_aaaa"
+                tools:text="coralDOSE 4H/CH 4" />
+
+            <ImageView
+                android:id="@+id/btn_menu"
+                style="@style/ImageviewButton"
+                android:layout_width="@dimen/dp_56"
+                android:layout_height="@dimen/dp_44"
+                android:layout_gravity="end|center_vertical"
+                android:paddingStart="@dimen/dp_16"
+                android:paddingTop="@dimen/dp_8"
+                android:paddingEnd="@dimen/dp_16"
+                android:paddingBottom="@dimen/dp_8"
+                android:src="@drawable/ic_menu" />
+
+            <ImageView
+                android:id="@+id/btn_favorite"
+                style="@style/ImageviewButton"
+                android:layout_width="@dimen/dp_56"
+                android:layout_height="@dimen/dp_44"
+                android:layout_gravity="end|center_vertical"
+                android:paddingStart="@dimen/dp_16"
+                android:paddingTop="@dimen/dp_8"
+                android:paddingEnd="@dimen/dp_16"
+                android:paddingBottom="@dimen/dp_8"
+                android:src="@drawable/ic_favorite_unselect" />
+        </androidx.appcompat.widget.Toolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_2"
+        app:dividerColor="@color/bg_press"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appbar" />
+</androidx.constraintlayout.widget.ConstraintLayout>

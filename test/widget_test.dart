@@ -14,7 +14,7 @@ void main() {
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const KoralCoreApp());
-    await tester.pump();
+    await tester.pump(const Duration(seconds: 3));
 
     expect(find.byType(KoralCoreApp), findsOneWidget);
   });

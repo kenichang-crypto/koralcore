@@ -14,6 +14,8 @@ import '../controllers/pump_head_schedule_controller.dart';
 import '../models/pump_head_schedule_entry.dart';
 import 'schedule_edit_page.dart';
 
+const _dosingIconAsset = 'assets/icons/dosing/dosing_main.png';
+
 class PumpHeadSchedulePage extends StatelessWidget {
   final String headId;
 
@@ -186,7 +188,7 @@ class _ScheduleEmptyState extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.calendar_today_outlined, size: 32),
+            Image.asset(_dosingIconAsset, width: 32, height: 32),
             const SizedBox(height: AppDimensions.spacingM),
             Text(
               l10n.dosingScheduleEmptyTitle,

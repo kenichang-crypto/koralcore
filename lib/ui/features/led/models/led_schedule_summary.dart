@@ -26,6 +26,7 @@ class LedScheduleSummary {
   final String sceneName;
   final bool isEnabled;
   final List<LedScheduleChannelValue> channels;
+  final bool isActive;
 
   const LedScheduleSummary({
     required this.id,
@@ -37,5 +38,32 @@ class LedScheduleSummary {
     required this.sceneName,
     required this.isEnabled,
     this.channels = const [],
+    this.isActive = false,
   });
+
+  LedScheduleSummary copyWith({
+    String? id,
+    String? title,
+    LedScheduleType? type,
+    LedScheduleRecurrence? recurrence,
+    TimeOfDay? startTime,
+    TimeOfDay? endTime,
+    String? sceneName,
+    bool? isEnabled,
+    List<LedScheduleChannelValue>? channels,
+    bool? isActive,
+  }) {
+    return LedScheduleSummary(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      type: type ?? this.type,
+      recurrence: recurrence ?? this.recurrence,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      sceneName: sceneName ?? this.sceneName,
+      isEnabled: isEnabled ?? this.isEnabled,
+      channels: channels ?? this.channels,
+      isActive: isActive ?? this.isActive,
+    );
+  }
 }

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.Bridge">
+    </style>
+    <style name="AppTheme.FullScreen">
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">
+            shortEdges
+        </item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+    <!--    MaterialAlertDialog-->
+    <style name="MaterialAlertDialog.App" parent="MaterialAlertDialog.MaterialComponents">
+        <item name="shapeAppearance">@style/MaterialAlertDialog.App.MediumComponent</item>
+    </style>
+
+    <style name="MaterialAlertDialog.App.Title.Text" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
+        <item name="android:textColor">@color/text_aaaa</item>
+        <item name="android:textSize">@dimen/dp_20</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="MaterialAlertDialog.App.Body.Text" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:textColor">@color/text_aaa</item>
+        <item name="android:textSize">@dimen/dp_16</item>
+    </style>
+
+    <style name="MaterialAlertDialog.App.PositiveButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/bg_secondary</item>
+        <item name="android:textSize">@dimen/dp_16</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="MaterialAlertDialog.App.NegativeButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">#CC517651</item>
+        <item name="android:textSize">@dimen/dp_16</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="MaterialAlertDialog.App.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerSize">@dimen/dp_10</item>
+    </style>
+
+    <!--    BottomSheet-->
+    <style name="BottomSheetFragment.App" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="backgroundTint">@color/white</item>
+        <item name="shapeAppearance">@style/BottomSheetFragment.App.LargeComponent</item>
+    </style>
+
+    <!--todo bug：BottomSheet會從圓角變方角-->
+    <style name="BottomSheetFragment.App.LargeComponent" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/dp_10</item>
+    </style>
+
+    <!--    Edittext-->
+    <style name="TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="boxBackgroundColor">@color/bg_aaa</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/dp_4</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/dp_4</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/dp_4</item>
+        <item name="boxCornerRadiusTopStart">@dimen/dp_4</item>
+        <item name="hintEnabled">false</item>
+        <item name="boxStrokeColor">@android:color/transparent</item>
+        <item name="boxStrokeWidth">@dimen/dp_0</item>
+    </style>
+
+    <style name="SingleLine">
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <!--    TextView-->
+    <style name="TextViewCanClick">
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+
+    <!--    Switch-->
+    <style name="Widget.App.Switch" parent="Widget.MaterialComponents.CompoundButton.Switch">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Switch</item>
+    </style>
+
+    <style name="ThemeOverlay.App.Switch" parent="">
+        <item name="colorOnSurface">@color/grey</item>
+        <item name="colorSecondary">@color/bg_primary</item>
+    </style>
+
+    <!--    Bottom-->
+    <style name="MaterialButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:insetBottom">@dimen/dp_0</item>
+        <item name="android:insetLeft">@dimen/dp_0</item>
+        <item name="android:insetRight">@dimen/dp_0</item>
+        <item name="android:insetTop">@dimen/dp_0</item>
+        <item name="android:textAppearance">@style/caption1</item>
+    </style>
+
+    <style name="RoundedButton" parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">@dimen/dp_20</item>
+        <item name="android:insetBottom">@dimen/dp_0</item>
+        <item name="android:insetLeft">@dimen/dp_0</item>
+        <item name="android:insetRight">@dimen/dp_0</item>
+        <item name="android:insetTop">@dimen/dp_0</item>
+        <item name="android:textSize">@dimen/dp_12</item>
+    </style>
+
+    <style name="ToolBarTextButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textSize">@dimen/dp_17</item>
+        <item name="android:textColor">@color/bg_secondary</item>
+    </style>
+
+    <style name="BackgroundMaterialButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="materialThemeOverlay">@style/BackgroundMaterialButton.Button</item>
+        <item name="android:textAppearance">@style/body</item>
+        <item name="android:insetBottom">@dimen/dp_0</item>
+        <item name="android:insetLeft">@dimen/dp_0</item>
+        <item name="android:insetRight">@dimen/dp_0</item>
+        <item name="android:insetTop">@dimen/dp_0</item>
+        <item name="iconGravity">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="elevation">0dp</item>
+        <item name="backgroundTint">@color/btn_color_primary_selector</item>
+        <item name="shapeAppearance">@style/BackgroundMaterialButton.SmallComponent</item>
+    </style>
+
+    <style name="BackgroundMaterialButton.Button" parent="">
+        <item name="colorPrimary">@color/bg_aaa</item>
+        <item name="colorOnPrimary">@color/text_aaaa</item>
+    </style>
+
+    <style name="BackgroundMaterialButton.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">4dp</item>
+    </style>
+
+    <!--    Imageview-->
+    <style name="ImageviewButton">
+        <item name="android:background">?attr/actionBarItemBackground</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
+
+    <!--    Text-->
+    <style name="headline">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/dp_30</item>
+    </style>
+
+    <style name="title1">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/dp_22</item>
+    </style>
+
+    <style name="title2">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/dp_20</item>
+    </style>
+
+    <style name="subheader_accent">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/dp_18</item>
+    </style>
+
+    <style name="subheader">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/dp_18</item>
+    </style>
+
+    <style name="body_accent">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/dp_16</item>
+    </style>
+
+    <style name="body">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/dp_16</item>
+    </style>
+
+    <style name="caption1_accent">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/dp_14</item>
+    </style>
+
+    <style name="caption1">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/dp_14</item>
+    </style>
+
+    <style name="caption2_accent">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/dp_12</item>
+    </style>
+
+    <style name="caption2">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/dp_12</item>
+    </style>
+</resources>

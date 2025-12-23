@@ -195,7 +195,7 @@ class _ScheduleEditPageState extends State<ScheduleEditPage> {
         ),
         const SizedBox(height: AppDimensions.spacingS),
         DropdownButtonFormField<PumpHeadScheduleType>(
-          value: _type,
+          initialValue: _type,
           items: [
             DropdownMenuItem(
               value: PumpHeadScheduleType.dailyAverage,
@@ -234,7 +234,7 @@ class _ScheduleEditPageState extends State<ScheduleEditPage> {
         ),
         const SizedBox(height: AppDimensions.spacingS),
         DropdownButtonFormField<PumpHeadScheduleRecurrence>(
-          value: _recurrence,
+          initialValue: _recurrence,
           items: [
             DropdownMenuItem(
               value: PumpHeadScheduleRecurrence.daily,

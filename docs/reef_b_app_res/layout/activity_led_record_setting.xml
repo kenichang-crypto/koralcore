@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/toolbar_led_record_setting"
+        layout="@layout/toolbar_two_action"
+        app:layout_constraintBottom_toTopOf="@id/layout_led_record_setting"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_led_record_setting"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_0"
+        android:background="@color/bg_led_record_setting_background_color"
+        android:paddingStart="@dimen/dp_16"
+        android:paddingTop="@dimen/dp_12"
+        android:paddingEnd="@dimen/dp_16"
+        android:paddingBottom="@dimen/dp_12"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_led_record_setting">
+
+        <ImageView
+            android:id="@+id/img_sun"
+            android:layout_width="@dimen/dp_20"
+            android:layout_height="@dimen/dp_20"
+            android:src="@drawable/ic_sun"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toBottomOf="@id/tv_sun_title"
+            app:layout_constraintEnd_toStartOf="@id/tv_sun_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tv_sun_title" />
+
+        <TextView
+            android:id="@+id/tv_sun_title"
+            android:layout_width="0dp"
+            style="@style/SingleLine"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_4"
+            android:text="@string/init_strength"
+            android:textAppearance="@style/body"
+            android:textColor="@color/text_aaaa"
+            app:layout_constraintBottom_toTopOf="@id/db_strength"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/img_sun"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <tw.com.crownelectronics.reefb.ui.component.custom_dashboard.CustomDashBoard
+            android:id="@+id/db_strength"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_123"
+            app:layout_constraintBottom_toTopOf="@id/sl_strength"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_sun_title" />
+
+        <TextView
+            android:id="@+id/tv_strength"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="50 %"
+            android:textAppearance="@style/headline"
+            style="@style/SingleLine"
+            android:textColor="@color/text_aaa"
+            app:layout_constraintBottom_toBottomOf="@id/db_strength"
+            app:layout_constraintEnd_toEndOf="@id/db_strength"
+            app:layout_constraintStart_toStartOf="@id/db_strength" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/sl_strength"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:value="50"
+            android:valueFrom="0"
+            android:valueTo="100"
+            app:labelBehavior="gone"
+            app:layout_constraintBottom_toTopOf="@id/layout_sunrise_sunset"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/db_strength"
+            app:trackColorActive="@color/dashboard_progress"
+            app:trackColorInactive="@color/text_aa"
+            app:trackHeight="@dimen/dp_2" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_sunrise_sunset"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16"
+            android:background="@drawable/background_white_radius"
+            android:padding="@dimen/dp_12"
+            app:layout_constraintBottom_toTopOf="@id/layout_slow_start_moon_light"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sl_strength">
+
+            <ImageView
+                android:id="@+id/img_sunrise"
+                android:layout_width="@dimen/dp_20"
+                android:layout_height="@dimen/dp_20"
+                android:src="@drawable/ic_sunrise"
+                android:scaleType="fitCenter"
+                app:layout_constraintBottom_toBottomOf="@id/tv_sunrise_title"
+                app:layout_constraintEnd_toStartOf="@id/tv_sunrise_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tv_sunrise_title" />
+
+            <TextView
+                android:id="@+id/tv_sunrise_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_4"
+                style="@style/SingleLine"
+                android:text="@string/sunrise"
+                android:textAppearance="@style/caption1"
+                android:textColor="@color/text_aaaa"
+                app:layout_constraintBottom_toBottomOf="@id/btn_sunrise"
+                app:layout_constraintEnd_toStartOf="@id/btn_sunrise"
+                app:layout_constraintStart_toEndOf="@id/img_sunrise"
+                app:layout_constraintTop_toTopOf="@id/btn_sunrise" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_sunrise"
+                style="@style/BackgroundMaterialButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="06 : 00"
+                app:icon="@drawable/ic_down"
+                android:layout_marginStart="@dimen/dp_4"
+                app:layout_constraintBottom_toTopOf="@id/btn_sunset"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tv_sunrise_title"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/img_sunset"
+                android:layout_width="@dimen/dp_20"
+                android:layout_height="@dimen/dp_20"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_sunset"
+                app:layout_constraintBottom_toBottomOf="@id/tv_sunset_title"
+                app:layout_constraintEnd_toStartOf="@id/tv_sunset_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tv_sunset_title" />
+
+            <TextView
+                android:id="@+id/tv_sunset_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_4"
+                android:text="@string/sunset"
+                android:textAppearance="@style/caption1"
+                android:textColor="@color/text_aaaa"
+                app:layout_constraintBottom_toBottomOf="@id/btn_sunset"
+                style="@style/SingleLine"
+                app:layout_constraintEnd_toStartOf="@id/btn_sunset"
+                app:layout_constraintStart_toEndOf="@id/img_sunset"
+                app:layout_constraintTop_toTopOf="@id/btn_sunset" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_sunset"
+                style="@style/BackgroundMaterialButton"
+                android:layout_width="wrap_content"
+                app:icon="@drawable/ic_down"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_4"
+                android:layout_marginTop="@dimen/dp_8"
+                android:text="18 : 00"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tv_sunset_title"
+                app:layout_constraintTop_toBottomOf="@id/btn_sunrise" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_slow_start_moon_light"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16"
+            android:background="@drawable/background_white_radius"
+            android:padding="@dimen/dp_12"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layout_sunrise_sunset">
+
+            <ImageView
+                android:id="@+id/img_slow_start"
+                android:layout_width="@dimen/dp_20"
+                android:layout_height="@dimen/dp_20"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_slow_start"
+                app:layout_constraintBottom_toBottomOf="@id/tv_slow_start_title"
+                app:layout_constraintEnd_toStartOf="@id/tv_slow_start_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tv_slow_start_title" />
+
+            <TextView
+                android:id="@+id/tv_slow_start_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_4"
+                android:text="@string/slow_start"
+                android:textAppearance="@style/caption1"
+                android:textColor="@color/text_aaaa"
+                style="@style/SingleLine"
+                app:layout_constraintBottom_toTopOf="@id/sl_slow_start"
+                app:layout_constraintEnd_toStartOf="@id/tv_slow_start"
+                app:layout_constraintStart_toEndOf="@id/img_slow_start"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_slow_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_4"
+                android:textAppearance="@style/caption1"
+                android:textColor="@color/text_aaa"
+                app:layout_constraintBottom_toBottomOf="@id/tv_slow_start_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                style="@style/SingleLine"
+                app:layout_constraintStart_toEndOf="@id/tv_slow_start_title"
+                app:layout_constraintTop_toTopOf="@id/tv_slow_start_title"
+                android:text="@string/init_minute" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sl_slow_start"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:stepSize="10"
+                android:value="30"
+                android:valueFrom="10"
+                android:valueTo="60"
+                app:labelBehavior="gone"
+                app:layout_constraintBottom_toTopOf="@id/progress_10"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_slow_start_title"
+                app:trackColorActive="@color/bg_primary"
+                app:trackColorInactive="@color/bg_press"
+                app:trackHeight="@dimen/dp_2" />
+
+            <TextView
+                android:id="@+id/progress_10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_9"
+                android:text="10"
+                android:textAppearance="@style/caption1"
+                android:textColor="@color/text_aa"
+                app:layout_constraintBottom_toTopOf="@id/tv_moon_light_title"
+                app:layout_constraintStart_toStartOf="@id/sl_slow_start"
+                app:layout_constraintTop_toBottomOf="@id/sl_slow_start" />
+
+            <TextView
+                android:id="@+id/progress_20"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="20"
+                android:textAppearance="@style/caption1"
+                android:textColor="@color/text_aa"
+                app:layout_constraintBottom_toBottomOf="@id/progress_10"
+                app:layout_constraintEnd_toStartOf="@id/progress_30"
+                app:layout_constraintStart_toEndOf="@id/progress_10"
+                app:layout_constraintTop_toTopOf="@id/progress_10" />
+
+            <TextView
+                android:id="@+id/progress_30"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="30"
+                android:textAppearance="@style/caption1"
+                android:textColor="@color/text_aa"
+                app:layout_constraintBottom_toBottomOf="@id/progress_20"
+                app:layout_constraintEnd_toStartOf="@id/progress_40"
+                app:layout_constraintStart_toEndOf="@id/progress_20"
+                app:layout_constraintTop_toTopOf="@id/progress_20" />
+
+            <TextView
+                android:id="@+id/progress_40"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="40"
+                android:textAppearance="@style/caption1"
+                android:textColor="@color/text_aa"
+                app:layout_constraintBottom_toBottomOf="@id/progress_30"
+                app:layout_constraintEnd_toStartOf="@id/progress_50"
+                app:layout_constraintStart_toEndOf="@id/progress_30"
+                app:layout_constraintTop_toTopOf="@id/progress_30" />
+
+            <TextView
+                android:id="@+id/progress_50"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="50"
+                android:textAppearance="@style/caption1"
+                android:textColor="@color/text_aa"
+                app:layout_constraintBottom_toBottomOf="@id/progress_40"
+                app:layout_constraintEnd_toStartOf="@id/progress_60"
+                app:layout_constraintStart_toEndOf="@id/progress_40"
+                app:layout_constraintTop_toTopOf="@id/progress_40" />
+
+            <TextView
+                android:id="@+id/progress_60"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/dp_9"
+                android:text="60"
+                android:textAppearance="@style/caption1"
+                android:textColor="@color/text_aa"
+                app:layout_constraintBottom_toBottomOf="@id/progress_50"
+                app:layout_constraintEnd_toEndOf="@id/sl_slow_start"
+                app:layout_constraintTop_toTopOf="@id/progress_50" />
+
+            <ImageView
+                android:id="@+id/img_moon_light"
+                android:layout_width="@dimen/dp_20"
+                android:layout_height="@dimen/dp_20"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_moon_round"
+                app:layout_constraintBottom_toBottomOf="@id/tv_moon_light_title"
+                app:layout_constraintEnd_toStartOf="@id/tv_moon_light_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tv_moon_light_title" />
+
+            <TextView
+                android:id="@+id/tv_moon_light_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_6"
+                android:layout_marginTop="@dimen/dp_16"
+                android:text="@string/moon_light"
+                android:textAppearance="@style/caption1"
+                android:textColor="@color/text_aaaa"
+                app:layout_constraintBottom_toTopOf="@id/sl_moon_light"
+                app:layout_constraintEnd_toStartOf="@id/tv_moon_light"
+                style="@style/SingleLine"
+                app:layout_constraintStart_toEndOf="@id/img_moon_light"
+                app:layout_constraintTop_toBottomOf="@id/progress_10" />
+
+            <TextView
+                android:id="@+id/tv_moon_light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 %"
+                android:layout_marginStart="@dimen/dp_4"
+                style="@style/SingleLine"
+                android:textAppearance="@style/caption1"
+                android:textColor="@color/text_aaa"
+                app:layout_constraintBottom_toBottomOf="@id/tv_moon_light_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tv_moon_light_title"
+                app:layout_constraintTop_toTopOf="@id/tv_moon_light_title" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sl_moon_light"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:value="0"
+                android:valueFrom="0"
+                android:valueTo="100"
+                app:labelBehavior="gone"
+                app:layout_constraintBottom_toTopOf="@id/progress_start"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_moon_light_title"
+                app:trackColorActive="@color/moon_light_color"
+                app:trackColorInactive="@color/bg_press"
+                app:trackHeight="@dimen/dp_2" />
+
+            <TextView
+                android:id="@+id/progress_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_14"
+                android:text="0"
+                android:textAppearance="@style/caption1"
+                android:textColor="@color/text_aa"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@id/sl_moon_light"
+                app:layout_constraintTop_toBottomOf="@id/sl_moon_light" />
+
+            <TextView
+                android:id="@+id/progress_end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/dp_7"
+                android:text="100"
+                android:textAppearance="@style/caption1"
+                android:textColor="@color/text_aa"
+                app:layout_constraintBottom_toBottomOf="@id/progress_start"
+                app:layout_constraintEnd_toEndOf="@id/sl_moon_light"
+                app:layout_constraintTop_toTopOf="@id/progress_start" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/progress"
+        layout="@layout/progress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+</androidx.constraintlayout.widget.ConstraintLayout>

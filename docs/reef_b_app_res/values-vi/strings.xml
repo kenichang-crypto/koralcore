@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    越南語（Tiếng Việt）-->
+    <string name="app_name">ReefB</string>
+    /** 權限相關 **/
+    <string name="get_gps_permission">Vui lòng cấp quyền vị trí GPS</string>
+    <string name="get_nerby_permission">Vui lòng cấp quyền vị trí thiết bị gần đây</string>
+    <string name="get_camera_storage_permission">Vui lòng cấp quyền máy ảnh và bộ nhớ</string>
+    <string name="get_camera_permission">Vui lòng cấp quyền máy ảnh</string>
+    <string name="get_storage_permission">Vui lòng cấp quyền bộ nhớ</string>
+    <string name="please_open_gps">Vui lòng bật vị trí GPS</string>
+    <string name="please_open_ble">Vui lòng bật Bluetooth</string>
+    <string name="please_open_ble_gps">Vui lòng bật Bluetooth và vị trí GPS</string>
+    <string name="toast_connect_failed">Kết nối thất bại, vui lòng thử lại</string>
+    <string name="toast_connect_successful">Kết nối thành công</string>
+    <string name="toast_disconnect">Thiết bị đã ngắt kết nối</string>
+    /** 通用 **/
+    <string name="confirm">OK</string>
+    <string name="delete">Xóa</string>
+    <string name="cancel">Hủy</string>
+    <string name="select">Chọn</string>
+    <string name="skip">Bỏ qua</string>
+    <string name="complete">Hoàn tất</string>
+    <string name="save">Lưu</string>
+    <string name="edit">Chỉnh sửa</string>
+    <string name="i_konw">Tôi đã hiểu</string>
+    <string name="next">Kế tiếp</string>
+    <string name="close">Đóng</string>
+    <string name="back">Trở lại</string>
+    <string name="no">Không có</string>
+    <string name="run">Chạy</string>
+    <string name="no_eng">Không có</string>
+    <string name="rearrangement">Sắp xếp lại</string>
+    <string name="led">LED</string>
+    <string name="drop">bơm lượng</string>
+    <string name="home">Trang chủ</string>
+    <string name="bluetooth">Bluetooth</string>
+    <string name="device">Thiết bị</string>
+    <string name="favorite">Thiết bị yêu thích</string>
+    <string name="bluetooth_connect">Kết nối Bluetooth</string>
+    <string name="reset">Khôi phục cài đặt mặc định</string>
+    <string name="warning_list">Nhật ký cảnh báo</string>
+    <string name="group_full">Đã đạt đến giới hạn thiết bị</string>
+    <string name="device_is_not_connect">Thiết bị không được kết nối</string>
+    <string name="no_records">Không có nhiệm vụ đã lên lịch</string>
+    /** 預設場景 **/
+    <string name="preset_scene_off">TẮT</string>
+    <string name="preset_scene_30">30%</string>
+    <string name="preset_scene_60">60%</string>
+    <string name="preset_scene_100">100%</string>
+    <string name="preset_scene_moon">Ánh trăng</string>
+    <string name="preset_scene_thunder">Sấm sét</string>
+    /** 光譜名字 **/
+    <string name="uv">UV</string>
+    <string name="purple">Tím</string>
+    <string name="blue">Xanh</string>
+    <string name="royal_blue">Xanh dương hoàng gia</string>
+    <string name="green">Xanh lá cây</string>
+    <string name="red">Đỏ</string>
+    <string name="cold_white">Trắng lạnh</string>
+    <string name="warm_white">Trắng ấm</string>
+    <string name="moon">Ánh trăng</string>
+    <string name="light_uv">Ánh UV</string>
+    <string name="light_purple">Ánh tím</string>
+    <string name="light_blue">Ánh xanh</string>
+    <string name="light_royal_blue">Ánh xanh dương hoàng gia</string>
+    <string name="light_green">Ánh xanh lá cây</string>
+    <string name="light_red">Ánh đỏ</string>
+    <string name="light_cold_white">Ánh trắng lạnh</string>
+    <string name="light_warm_white">Ánh trắng ấm</string>
+    <string name="light_moon">Ánh trăng</string>
+    /** 滴液泵排程種類 **/
+    <string name="drop_record_type_custom">Chế độ tự do</string>
+    <string name="drop_record_type_single">Một lần duy nhất</string>
+    <string name="drop_record_type_24">Cân bằng 24 giờ</string>
+    <string name="drop_record_type_none">Không có nhiệm vụ đã lên lịch</string>
+    <string name="drop_record_type">Loại lịch trình</string>
+    /** 單位 **/
+    <string name="minute">Phút</string>
+    <string name="init_minute">30 Phút</string>
+    <string name="times">Lần</string>
+    <string name="group">Nhóm</string>
+    <string name="master_setting">Cài đặt Master-Slave</string>
+    <string name="setting_master">Đặt làm Master</string>
+    <string name="led_setting">Cài đặt LED</string>
+    <string name="master_pairing">Kết hợp Master-Slave</string>
+    <string name="max_drop_volume">Khối lượng dosing tối đa hàng ngày</string>
+    <string name="max_drop_volume_hint">Hạn chế khối lượng dosing cho hoạt động được lên lịch và không được lên lịch sau khi mở</string>
+    <string name="drop_setting">Cài đặt bơm đẩy chất</string>
+    <string name="drop_head_setting">Cài đặt đầu bơm</string>
+    <string name="master_slave">Master/Budak</string>
+    <string name="set_master">Đặt làm Đèn Master</string>
+    <string name="move_group">Di chuyển nhóm</string>
+    <string name="choose_group">Chọn nhóm</string>
+    <string name="run_cycle">Chu kỳ thực hiện</string>
+    <string name="run_time">Thời gian thực hiện</string>
+    <string name="low_rotating_speed">Tốc độ thấp</string>
+    <string name="middle_rotating_speed">Tốc độ trung bình</string>
+    <string name="high_rotating_speed">Tốc độ cao</string>
+    <string name="drop_volume_per_day">Tổng khối lượng dosing hàng ngày</string>
+    <string name="drop_volume">Khối lượng dosing (ml)</string>
+    <string name="init_rotating_speed">Tốc độ mặc định</string>
+    <string name="drop_head_rotating_speed">Tốc độ đầu bơm</string>
+    <string name="drop_days_a_week">Các ngày dosing hàng tuần</string>
+    <string name="run_immediatrly">Thực hiện Ngay bây giờ</string>
+    <string name="drop_record_time">Kỳ dosing lên lịch</string>
+    <string name="delete_drop_record_time">Xóa kỳ dosing lên lịch</string>
+    <string name="drop_start_time">Thời gian bắt đầu dosing</string>
+    <string name="drop_end_time">Thời gian kết thúc dosing</string>
+    <string name="drop_times">Tần suất dosing</string>
+    /** led record setting **/
+    <string name="init_strength">Độ sáng ban đầu</string>
+    <string name="sunrise">Bình minh</string>
+    <string name="sunset">Hoàng hôn</string>
+    <string name="slow_start">Khởi đầu mềm</string>
+    <string name="moon_light">@string/moon</string>
+    <string name="time_already_exist">Phạm vi thời gian này đã được thiết lập</string>
+
+    <string name="drop_type">Loại dosing</string>
+    <string name="drop_type_delete">Xóa loại dosing</string>
+    <string name="drop_type_already_used">Một đầu bơm khác đang sử dụng loại dosing này</string>
+    <string name="delay_time">Thời gian trễ</string>
+    <string name="today_record_drop_volume">Khối lượng dosing ngay lập tức đã lên lịch của hôm nay</string>
+    <string name="add_drop_type">Thêm dosing tùy chỉnh</string>
+    <string name="edit_drop_type">Chỉnh sửa dosing tùy chỉnh</string>
+    <string name="drop_type_name">Tên dosing</string>
+    /** record **/
+    <string name="record_setting">Cài đặt lịch trình</string>
+    <string name="record">Lịch trình</string>
+    <string name="record_time">Điểm thời gian đã lên lịch</string>
+    <string name="time">Điểm thời gian</string>
+    <string name="time_setting">Cài đặt chu kỳ</string>
+    /** scene **/
+    <string name="led_scene">Cảnh</string>
+    <string name="led_scene_add">Thêm Cảnh</string>
+    <string name="led_scene_edit">Cài đặt Cảnh</string>
+    <string name="led_scene_delete">Xóa Cảnh</string>
+    <string name="led_dynamic_scene">Cảnh Động</string>
+    <string name="led_static_scene">Cảnh Tĩnh</string>
+    <string name="led_scene_name">Tên Cảnh</string>
+    <string name="led_scene_icon">Biểu tượng Cảnh</string>
+    /** adjust **/
+    <string name="adjust_list">Nhật ký hiệu chuẩn</string>
+    <string name="adjust">Hiệu chuẩn</string>
+    <string name="complete_adjust">Hoàn thành hiệu chuẩn</string>
+    <string name="recently_adjust_list">Ghi chú hiệu chuẩn gần đây</string>
+    <string name="adjusting">Đang hiệu chuẩn...</string>
+    <string name="adjust_description">Hướng dẫn hiệu chuẩn</string>
+    <string name="adjust_step">1.Chuẩn bị cốc đo đi kèm và một số ống\n2. Bắt đầu hoạt động thủ công để đổ chất lỏng vào các ống\n3. Chọn tốc độ để hiệu chuẩn</string>
+    <string name="rotating_speed">Tốc độ</string>
+    <string name="adjust_date">Ngày hiệu chuẩn</string>
+    <string name="measure_drop_volume">Thể tích đã đo</string>
+    /** device **/
+    <string name="add_device">Thêm Thiết bị</string>
+    <string name="other_device">Thiết bị Khác</string>
+    <string name="device_name">Tên Thiết bị</string>
+    <string name="favorite_device">Thiết bị Yêu Thích</string>
+    <string name="unassigned_device">Thiết bị Không Được Phân Loại</string>
+    /** sink **/
+    <string name="add_sink">Thêm Bể</string>
+    <string name="sink_name">Tên Bể</string>
+    <string name="sink_setting">Cài đặt Bể</string>
+    <string name="sink_position">Vị trí Bể</string>
+    <string name="sink_manager">Quản lý Bể</string>
+    <string name="delete_sink">Xóa Bể</string>
+    /** Menu **/
+    <string name="bottom_navigation_home">@string/home</string>
+    <string name="bottom_navigation_bluetooth">@string/bluetooth</string>
+    <string name="bottom_navigation_device">@string/device</string>
+    /** Led Menu **/
+    <string name="menu_favorite">@string/favorite</string>
+    <string name="menu_edit">@string/edit</string>
+    <string name="menu_delete">@string/delete</string>
+    <string name="menu_setting_master">@string/setting_master</string>
+    <string name="menu_reset">@string/reset</string>
+    /** delay time menu **/
+    <string name="_15sec">15 giây</string>
+    <string name="_30sec">30 giây</string>
+    <string name="_1min">1 phút</string>
+    <string name="_2min">2 phút</string>
+    <string name="_3min">3 phút</string>
+    <string name="_4min">4 phút</string>
+    <string name="_5min">5 phút</string>
+
+    <string name="menu_set_master">@string/set_master</string>
+    <string name="menu_move_group">@string/move_group</string>
+    /** spinner **/
+    <string name="home_spinner_all_sink">Tất cả Bể</string>
+    <string name="home_spinner_favorite">@string/favorite_device</string>
+    <string name="home_spinner_unassigned">@string/unassigned_device</string>
+    /** toast **/
+    <string name="toast_connect_limit">Tối đa 1 thiết bị có thể kết nối đồng thời.</string>
+    <string name="toast_name_is_empty">Tên không thể để trống.</string>
+    <string name="toast_add_sink_successful">Thêm bể thành công.</string>
+    <string name="toast_sink_name_is_exist">Tên bể đã tồn tại.</string>
+    <string name="toast_edit_sink_successful">Đã sửa đổi tên bể thành công.</string>
+    <string name="toast_device_name_is_exist">Tên thiết bị đã tồn tại.</string>
+    <string name="toast_delete_sink_successful">Xóa bể thành công.</string>
+    <string name="toast_delete_sink_failed">Không thể xóa bể.</string>
+    <string name="toast_add_device_successful">Thêm thiết bị thành công.</string>
+    <string name="toast_sink_is_full">Bể đã đầy.</string>
+    <string name="toast_delete_device_successful">Xóa thiết bị thành công.</string>
+    <string name="toast_delete_device_failed">Không thể xóa thiết bị.</string>
+    <string name="toast_reset_device_successful">Khôi phục cài đặt mặc định thành công.</string>
+    <string name="toast_reset_device_failed">Khôi phục cài đặt mặc định thất bại.</string>
+    <string name="toast_set_time_error">Thời điểm phải cách nhau ít nhất 10 phút.</string>
+    <string name="toast_set_time_is_exist">Phạm vi thời gian này đã được thiết lập.</string>
+    <string name="toast_setting_successful">Cài đặt thành công.</string>
+    <string name="toast_setting_failed">Cài đặt thất bại.</string>
+    <string name="toast_move_group_successful">Di chuyển nhóm thành công.</string>
+    <string name="toast_move_group_failed">Di chuyển nhóm thất bại.</string>
+    <string name="toast_add_scene_successful">Thêm cảnh thành công.</string>
+    <string name="toast_scene_name_is_exist">Tên cảnh đã tồn tại.</string>
+    <string name="toast_delete_scene_successful">Xóa cảnh thành công.</string>
+    <string name="toast_delete_scene_failed">Không thể xóa cảnh.</string>
+    <string name="toast_delete_record_successful">Xóa thời điểm thành công.</string>
+    <string name="toast_delete_record_failed">Không thể xóa thời điểm.</string>
+    <string name="toast_preview_start">Xem trước nhanh một phút bắt đầu.</string>
+    <string name="toast_preview_end">Xem trước nhanh một phút kết thúc.</string>
+    <string name="toast_sun_time_error">Cài đặt thời gian mặt trời mọc và hoàng hôn không chính xác.</string>
+    <string name="toast_time_record_size_more_than_24">Tối đa 24 điểm thời gian có thể thiết lập.</string>
+    <string name="toast_custom_scene_size_more_than_5">Tối đa 5 cảnh tùy chỉnh có thể thiết lập.</string>
+    <string name="toast_delete_now_scene">Không thể xóa cảnh hiện đang sử dụng.</string>
+    <string name="toast_drophead_is_droping">Đầu bơm này hiện đang dosing, vui lòng thử lại sau.</string>
+    <string name="toast_add_drop_type_successful">Thêm loại dosing thành công.</string>
+    <string name="toast_drop_type_name_is_exist">Tên loại dosing đã tồn tại.</string>
+    <string name="toast_edit_drop_type_successful">Sửa đổi tên loại dosing thành công.</string>
+    <string name="toast_delete_drop_type_successful">Xóa loại dosing thành công.</string>
+    <string name="toast_delete_drop_type_failed">Không thể xóa loại dosing.</string>
+    <string name="toast_max_drop_per_day_is_empty">Vui lòng nhập khối lượng dosing tối đa hàng ngày.</string>
+    <string name="toast_drop_volume_is_empty">Vui lòng nhập khối lượng dosing.</string>
+    <string name="toast_run_time_is_empty">Vui lòng chọn thời gian thực hiện.</string>
+    <string name="toast_drop_volume_is_too_little">Mỗi lần dosing không thể ít hơn 1ml.</string>
+    <string name="toast_drop_volume_is_too_much">Tổng khối lượng dosing không thể vượt quá 500ml.</string>
+    <string name="toast_drop_volume_out_of_bound">Khối lượng dosing không thể vượt quá khối lượng dosing tối đa hàng ngày.</string>
+    <string name="toast_drop_detail_is_empty">Vui lòng thêm chu kỳ lịch trình.</string>
+    <string name="toast_delete_detail_successful">Xóa chu kỳ lịch trình thành công.</string>
+    <string name="toast_delete_detail_failed">Không thể xóa chu kỳ lịch trình.</string>
+    <string name="drop_times_exceed">Tối đa 5 lần dosing mỗi giờ.</string>
+    <string name="drop_start_adjust_failed">Bắt đầu hiệu chuẩn thất bại.</string>
+    <string name="drop_adjust_successful">Hiệu chuẩn đã hoàn thành.</string>
+    <string name="drop_adjust_failed">Hiệu chuẩn thất bại.</string>
+    <string name="toast_drop_volume_is_too_little_old">Lượng châm mỗi lần không được ít hơn 1 ml.</string>
+    <string name="toast_drop_volume_is_too_little_new">Lượng châm mỗi lần không được ít hơn 0.4 ml.</string>
+    /** hint **/
+    <string name="hint_select_time">Vui lòng chọn một thời gian.</string>
+    <string name="record_pause">Lịch trình đã tạm dừng</string>
+    <string name="continue_record">Tiếp tục thực hiện.</string>
+
+    <string name="bottom_sheet_add_sink_title">@string/add_sink</string>
+    <string name="bottom_sheet_add_sink_edittext_title">@string/sink_name</string>
+    <string name="bottom_sheet_add_sink_button_text">@string/save</string>
+    <string name="bottom_sheet_edit_sink_title">@string/sink_setting</string>
+    <string name="bottom_sheet_edit_sink_edittext_title">@string/sink_name</string>
+    <string name="bottom_sheet_edit_sink_button_text">@string/save</string>
+    <string name="bottom_sheet_add_drop_type_title">@string/add_drop_type</string>
+    <string name="bottom_sheet_add_drop_type_edittext_title">@string/drop_type_name</string>
+    <string name="bottom_sheet_add_drop_type_button_text">@string/save</string>
+    <string name="bottom_sheet_edit_drop_type_title">@string/edit_drop_type</string>
+    <string name="bottom_sheet_edit_drop_type_edittext_title">@string/drop_type_name</string>
+    <string name="bottom_sheet_edit_drop_type_button_text">@string/save</string>
+    /** ===================================================================================== **/
+    /** MainActivity **/
+    /** HomeFragment **/
+    <string name="text_no_device_in_sink_title">Bể hiện tại không có thiết bị.</string>
+    <string name="text_no_device_in_sink_content">Thêm thiết bị từ danh sách Bluetooth dưới đây.</string>
+    /** DeviceFragment **/
+    <string name="fragment_device_title">@string/device</string>
+    <string name="fragment_device_select">@string/select</string>
+    <string name="text_no_device_title">Không có thiết bị hiện có.</string>
+    <string name="dialog_device_delete_led_master_title">@string/master_setting</string>
+    <string name="dialog_device_delete_led_master_content">Để xóa đèn chính, vui lòng sửa đổi cài đặt master-slave và đặt các đèn nô lệ khác làm đèn chính.</string>
+    <string name="dialog_device_delete_led_master_positive">@string/i_konw</string>
+    <string name="dialog_device_delete">Xóa thiết bị đã chọn?</string>
+    <string name="dialog_device_delete_led_content">Xóa thiết bị LED?</string>
+    <string name="dialog_device_delete_led_positive">@string/delete</string>
+    <string name="dialog_device_delete_led_negative">@string/cancel</string>
+    /** BluetoothFragment **/
+    <string name="fragment_bluetooth_title">@string/bluetooth_connect</string>
+    <string name="fragment_other_device_title">@string/other_device</string>
+    <string name="text_no_other_device_title">Không tìm thấy thiết bị.</string>
+    <string name="text_no_other_device_content">Nhấn vào phía trên bên phải để quét lại các thiết bị gần đây.</string>
+    <string name="dialog_disconnect_bluetooth_content">Bạn có muốn ngắt kết nối Bluetooth không?</string>
+    <string name="dialog_disconnect_bluetooth_positive">@string/confirm</string>
+    <string name="dialog_disconnect_bluetooth_negative">@string/cancel</string>
+    /** WarningActivity **/
+    <string name="activity_warning_title">string/warning_list</string>
+    <string name="text_no_warning_title">Không có bản ghi cảnh báo nào.</string>
+    <string name="text_no_warning_content">Không có mục nào trong "Bản ghi cảnh báo".</string>
+    <string name="dialog_delete_warning_content">Bạn có muốn xóa cảnh báo này không?</string>
+    <string name="dialog_delete_warning_positive">@string/confirm</string>
+    <string name="dialog_delete_warning_negative">@string/cancel</string>
+    /** SinkManagerActivity **/
+    <string name="activity_manage_sink_title">@string/sink_manager</string>
+    <string name="text_no_sink_title">Hiện tại không có bể nào.</string>
+    <string name="text_no_sink_content">Nhấn nút thêm ở dưới cùng bên phải để thêm một bể.</string>
+    <string name="text_device_amount">%1$d thiết bị</string>
+    <string name="dialog_delete_sink_title">@string/delete_sink</string>
+    <string name="dialog_delete_sink_content">Sau khi xóa bể, các thiết bị trong bể sẽ trở thành thiết bị không được phân loại.</string>
+    <string name="dialog_delete_sink_positive">@string/delete</string>
+    <string name="dialog_delete_sink_negative">@string/cancel</string>
+
+    <string name="activity_add_device_title">@string/add_device</string>
+    <string name="activity_add_device_toolbar_left_btn">@string/skip</string>
+    <string name="activity_add_device_toolbar_right_btn">@string/complete</string>
+    <string name="activity_add_device_device_name_title">@string/device_name</string>
+    <string name="activity_add_device_sink_position_title">@string/sink_position</string>
+    /** SinkPositionActivity **/
+    <string name="activity_sink_position_title">@string/sink_position</string>
+    <string name="activity_sink_position_toolbar_right_btn">@string/confirm</string>
+    /** LedMainActivity **/
+    <string name="dialog_delete_led_master_title">@string/master_setting</string>
+    <string name="dialog_delete_led_master_content">Để xóa thiết bị này, vui lòng sửa đổi cài đặt master-slave và đặt các đèn nô lệ khác làm đèn chính.</string>
+    <string name="dialog_delete_led_master_positive">@string/confirm</string>
+    <string name="dialog_delete_led_master_negative">@string/cancel</string>
+    <string name="dialog_reset_led_title">@string/reset</string>
+    <string name="dialog_reset_led_content">Thiết bị này sẽ trở thành thiết bị không được phân loại và tất cả cài đặt hiện tại sẽ bị xóa.</string>
+    <string name="dialog_reset_led_positive">@string/confirm</string>
+    <string name="dialog_reset_led_negative">@string/cancel</string>
+    <string name="dialog_delete_led_content">Bạn có muốn xóa thiết bị LED này không?</string>
+    <string name="dialog_delete_led_positive">@string/delete</string>
+    <string name="dialog_delete_led_negative">@string/cancel</string>
+    <string name="dialog_delete_unassigned_led_title">@string/master_setting</string>
+    <string name="dialog_delete_unassigned_led_content">Các thiết bị trong các bể chưa được phân loại không thể được đặt làm master hoặc slave.</string>
+    <string name="dialog_delete_unassigned_led_positive">@string/i_konw</string>
+    <string name="dialog_reset_master_led_title">@string/master_setting</string>
+    <string name="dialog_reset_master_led_content">Để đặt lại thiết bị này về cài đặt mặc định, vui lòng sửa đổi cài đặt master-slave và đặt các đèn nô lệ khác làm đèn chính.</string>
+    <string name="dialog_reset_master_led_positive">@string/confirm</string>
+    <string name="dialog_reset_master_led_negative">@string/cancel</string>
+    /** LedSettingActivity **/
+    <string name="activity_led_setting_title">@string/led_setting</string>
+    <string name="activity_led_setting_toolbar_right_btn">@string/save</string>
+    <string name="dialog_led_move_master_title">@string/master_setting</string>
+    <string name="dialog_led_move_master_content">Để di chuyển thiết bị này vào một bể khác, vui lòng trước tiên sửa đổi cài đặt master-slave và đặt các đèn nô lệ khác làm đèn chính.</string>
+    <string name="dialog_led_move_master_positive">@string/confirm</string>
+    <string name="dialog_led_move_master_negative">@string/cancel</string>
+    /** LedMasterSettingActivity **/
+    <string name="activity_led_master_setting_title">@string/master_pairing</string>
+    <string name="activity_led_master_setting_toolbar_right_btn">@string/master_pairing</string>
+    /** LedRecordSettingActivity **/
+    <string name="activity_led_record_setting_title">@string/record_setting</string>
+    <string name="activity_led_record_setting_toolbar_right_btn">@string/save</string>
+    /** LedRecordActivity **/
+    <string name="activity_led_record_title">@string/record</string>
+    <string name="dialog_led_delete_time_content">Bạn có muốn xóa điểm thời gian này không?</string>
+    <string name="dialog_led_delete_time_positive">@string/delete</string>
+    <string name="dialog_led_delete_time_negative">@string/cancel</string>
+    <string name="dialog_led_clear_record_content">Bạn có muốn xóa lịch trình không?</string>
+    <string name="dialog_led_clear_record_positive">@string/confirm</string>
+    <string name="dialog_led_clear_record_negative">@string/cancel</string>
+
+    <string name="activity_led_record_time_setting_title">@string/record_time</string>
+    <string name="activity_led_record_time_setting_toolbar_right_btn">@string/save</string>
+
+    <string name="activity_led_scene_title">@string/led_scene</string>
+    <string name="activity_led_scene_toolbar_right_btn">@string/edit</string>
+    /** LedSceneAddActivity **/
+    <string name="activity_led_scene_add_title">@string/led_scene_add</string>
+    <string name="activity_led_scene_add_toolbar_right_btn">@string/save</string>
+    /** LedSceneEditActivity **/
+    <string name="activity_led_scene_edit_title">@string/led_scene_edit</string>
+    <string name="activity_led_scene_edit_toolbar_right_btn">@string/save</string>
+    /** LedSceneDeleteActivity **/
+    <string name="activity_led_scene_delete_title">@string/led_scene_delete</string>
+    <string name="dialog_scene_delete_scene_content">Bạn có muốn xóa cảnh này không?</string>
+    <string name="dialog_scene_delete_scene_positive">@string/delete</string>
+    <string name="dialog_scene_delete_scene_negative">@string/cancel</string>
+
+    <string name="dialog_today_drop_out_of_range_title">@string/max_drop_volume</string>
+    <string name="dialog_today_drop_out_of_range_content">Khối lượng dosing của hôm nay đã đạt đến khối lượng dosing tối đa hàng ngày.</string>
+    <string name="dialog_today_drop_out_of_range_positive">@string/i_konw</string>
+    <string name="dialog_delete_drop_content">Bạn có muốn xóa bơm dosing này không?</string>
+    <string name="dialog_delete_drop_positive">@string/delete</string>
+    <string name="dialog_delete_drop_negative">@string/cancel</string>
+    <string name="dialog_reset_drop_title">@string/reset</string>
+    <string name="dialog_reset_drop_content">Thiết bị này sẽ trở thành thiết bị chưa được phân công và xóa tất cả các cài đặt bơm và hồ sơ hiệu chuẩn hiện tại.</string>
+    <string name="dialog_reset_drop_positive">@string/confirm</string>
+    <string name="dialog_reset_drop_negative">@string/cancel</string>
+    /** DropSettingActivity **/
+    <string name="activity_drop_setting_title">@string/drop_setting</string>
+    <string name="activity_drop_setting_toolbar_right_btn">@string/save</string>
+    /** DropHeadSettingActivity **/
+    <string name="activity_drop_head_setting_title">@string/drop_head_setting</string>
+    <string name="activity_drop_head_setting_toolbar_right_btn">@string/save</string>
+    /** DropTypeActivity **/
+    <string name="activity_drop_type_title">@string/drop_type</string>
+    <string name="activity_drop_type_toolbar_right_btn">@string/confirm</string>
+    <string name="dialog_delete_drop_type_title">@string/drop_type_delete</string>
+    <string name="dialog_delete_drop_type_content">Bạn có muốn xóa loại giọt này không?</string>
+    <string name="dialog_delete_drop_type_positive">@string/delete</string>
+    <string name="dialog_delete_drop_type_negative">@string/cancel</string>
+    <string name="dialog_drop_type_already_used_title">@string/drop_type_already_used</string>
+    <string name="dialog_drop_type_already_used_content">Thiết bị này sẽ trở thành thiết bị không được phân loại và tất cả các cài đặt đầu bơm hiện tại và bản ghi hiệu chuẩn sẽ được xóa.</string>
+    <string name="dialog_drop_type_already_used_positive">@string/delete</string>
+    <string name="dialog_drop_type_already_used_negative">@string/cancel</string>
+    /** DropHeadRecordSettingActivity **/
+    <string name="activity_drop_head_record_setting_title">@string/record</string>
+    <string name="activity_drop_head_record_setting_toolbar_right_btn">@string/run</string>
+    /** DropHeadRecordTimeSettingActivity **/
+    <string name="activity_drop_head_record_time_setting_title">@string/time_setting</string>
+    <string name="activity_drop_head_record_time_setting_toolbar_right_btn">@string/confirm</string>
+    <string name="dialog_setting_drop_out_of_range_title">@string/max_drop_volume</string>
+    <string name="dialog_setting_drop_out_of_range_content">Khối lượng dosing đã thiết lập vượt quá giới hạn khối lượng dosing tối đa hàng ngày.</string>
+    <string name="dialog_setting_drop_out_of_range_positive">@string/i_konw</string>
+    <string name="dialog_drop_time_setting_repeat_title">@string/record_setting</string>
+    <string name="dialog_drop_time_setting_repeat_content">Phạm vi thời gian này đã được thiết lập.</string>
+    <string name="dialog_drop_time_setting_repeat_positive">@string/confirm</string>
+    <string name="dialog_drop_setting_higher_than_max_title">@string/record_setting</string>
+    <string name="dialog_drop_setting_higher_than_max_content">Khối lượng dosing không thể vượt quá 500 ml.</string>
+    <string name="dialog_drop_setting_higher_than_max_positive">@string/confirm</string>
+    <string name="dialog_drop_setting_lower_than_min_title">@string/record_setting</string>
+    <string name="dialog_drop_setting_lower_than_min_content">Khối lượng dosing mỗi lần không thể ít hơn %1$s ml.</string>
+    <string name="dialog_drop_setting_lower_than_min_positive">@string/confirm</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_title">@string/max_drop_volume</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_content">Tổng khối lượng dosing cho hôm nay, bao gồm dosing đã lên lịch, vượt quá giới hạn khối lượng dosing tối đa hàng ngày.</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_positive">@string/i_konw</string>
+    <string name="dialog_setting_delete_detail_title">@string/delete_drop_record_time</string>
+    <string name="dialog_setting_delete_detail_content">Bạn có muốn xóa khe thời gian này không?</string>
+    <string name="dialog_setting_delete_detail_positive">@string/delete</string>
+    <string name="dialog_setting_delete_detail_negative">@string/cancel</string>
+    /** DropHeadAdjustListActivity **/
+    <string name="activity_drop_head_adjust_list_title">@string/adjust_list</string>
+    <string name="activity_drop_head_adjust_list_toolbar_right_btn">@string/adjust</string>
+    /** DropHeadAdjustActivity **/
+    <string name="activity_drop_head_adjust_title">@string/adjust</string>
+    <string name="adjust_volume_hint">1 ~ 15; một chữ số thập phân</string>
+
+
+
+</resources>

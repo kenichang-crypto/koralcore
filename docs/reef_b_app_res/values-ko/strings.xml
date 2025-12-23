@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    韓語（한국어）-->
+    <string name="app_name">ReefB</string>
+    /** 權限相關 **/
+    <string name="get_gps_permission">GPS 위치 권한을 승인하십시오.</string>
+    <string name="get_nerby_permission">근처 기기 권한을 승인하십시오.</string>
+    <string name="get_camera_storage_permission">카메라 및 저장 공간 권한을 승인하십시오.</string>
+    <string name="get_camera_permission">카메라 권한을 승인하십시오.</string>
+    <string name="get_storage_permission">저장 공간 권한을 승인하십시오.</string>
+    <string name="please_open_gps">GPS 위치를 활성화하십시오.</string>
+    <string name="please_open_ble">블루투스를 활성화하십시오.</string>
+    <string name="please_open_ble_gps">블루투스 및 GPS 위치를 활성화하십시오.</string>
+    <string name="toast_connect_failed">연결 실패, 다시 시도하십시오.</string>
+    <string name="toast_connect_successful">연결 성공.</string>
+    <string name="toast_disconnect">장치가 연결 해제되었습니다.</string>
+    /** 通用 **/
+    <string name="confirm">확인</string>
+    <string name="delete">삭제</string>
+    <string name="cancel">취소</string>
+    <string name="select">선택</string>
+    <string name="skip">건너뛰기</string>
+    <string name="complete">완료</string>
+    <string name="save">저장</string>
+    <string name="edit">편집</string>
+    <string name="i_konw">이해했습니다</string>
+    <string name="next">다음</string>
+    <string name="close">닫기</string>
+    <string name="back">뒤로</string>
+    <string name="no">없음</string>
+    <string name="run">실행</string>
+    <string name="no_eng">없음</string>
+    <string name="rearrangement">재배열</string>
+    <string name="led">LED</string>
+    <string name="drop">투여 펌프</string>
+    <string name="home">홈</string>
+    <string name="bluetooth">블루투스</string>
+    <string name="device">장치</string>
+    <string name="favorite">즐겨찾기</string>
+    <string name="bluetooth_connect">블루투스 연결</string>
+    <string name="reset">기본 설정으로 복원</string>
+    <string name="warning_list">경고 로그</string>
+    <string name="group_full">장치 제한 도달</string>
+    <string name="device_is_not_connect">장치가 연결되지 않음</string>
+    <string name="no_records">일정된 작업이 없음</string>
+    /** 預設場景 **/
+    <string name="preset_scene_off">OFF</string>
+    <string name="preset_scene_30">30%</string>
+    <string name="preset_scene_60">60%</string>
+    <string name="preset_scene_100">100%</string>
+    <string name="preset_scene_moon">달빛</string>
+    <string name="preset_scene_thunder">천둥</string>
+    /** 光譜名字 **/
+    <string name="uv">자외선</string>
+    <string name="purple">보라색</string>
+    <string name="blue">파랑</string>
+    <string name="royal_blue">로열 블루</string>
+    <string name="green">녹색</string>
+    <string name="red">빨강</string>
+    <string name="cold_white">쿨 화이트</string>
+    <string name="warm_white">웜 화이트</string>
+    <string name="moon">달빛</string>
+    <string name="light_uv">자외선 빛</string>
+    <string name="light_purple">보라색 빛</string>
+    <string name="light_blue">파랑 빛</string>
+    <string name="light_royal_blue">로열 블루 빛</string>
+    <string name="light_green">녹색 빛</string>
+    <string name="light_red">빨강 빛</string>
+    <string name="light_cold_white">쿨 화이트 빛</string>
+    <string name="light_warm_white">웜 화이트 빛</string>
+    <string name="light_moon">달빛</string>
+    /** 滴液泵排程種類 **/
+    <string name="drop_record_type_custom">자유 모드</string>
+    <string name="drop_record_type_single">단일 투여</string>
+    <string name="drop_record_type_24">24시</string>
+    <string name="drop_record_type_none">일정 없음</string>
+    <string name="drop_record_type">일정</string>
+    /** 單位 **/
+    <string name="minute">분</string>
+    <string name="init_minute">30분</string>
+    <string name="times">횟수</string>
+    <string name="group">그룹</string>
+    <string name="master_setting">마스터-슬레이브 설정</string>
+    <string name="setting_master">마스터로 설정</string>
+    <string name="led_setting">LED 설정</string>
+    <string name="master_pairing">마스터-슬레이브 페어링</string>
+    <string name="max_drop_volume">일일 최대 투여 양</string>
+    <string name="max_drop_volume_hint">개시 후 일정 및 비일정 작동의 투여량 제한</string>
+    <string name="drop_setting">투여 펌프 설정"입니다</string>
+    <string name="drop_head_setting">펌프 헤드 설정</string>
+    <string name="master_slave">마스터/슬레이브</string>
+    <string name="set_master">마스터 라이트로 설정</string>
+    <string name="move_group">그룹 이동</string>
+    <string name="choose_group">그룹 선택</string>
+    <string name="run_cycle">실행 주기</string>
+    <string name="run_time">실행 시간</string>
+    <string name="low_rotating_speed">저속</string>
+    <string name="middle_rotating_speed">중속</string>
+    <string name="high_rotating_speed">고속</string>
+    <string name="drop_volume_per_day">일일 총 투여량</string>
+    <string name="drop_volume">투여량 (ml)</string>
+    <string name="init_rotating_speed">기본 속도</string>
+    <string name="drop_head_rotating_speed">펌프 헤드 속도</string>
+    <string name="drop_days_a_week">주간 투여 일수</string>
+    <string name="run_immediatrly">즉시 실행</string>
+    <string name="drop_record_time">일정 기간</string>
+    <string name="delete_drop_record_time">일정 기간 삭제</string>
+    <string name="drop_start_time">투여 시작 시간</string>
+    <string name="drop_end_time">투여 종료 시간</string>
+    <string name="drop_times">투여 빈도</string>
+    /** led record setting **/
+    <string name="init_strength">초기 강도</string>
+    <string name="sunrise">일출</string>
+    <string name="sunset">일몰</string>
+    <string name="slow_start">부드러운 출발</string>
+    <string name="moon_light">@string/moon</string>
+    <string name="time_already_exist">이 시간대는 이미 설정됨</string>
+
+    <string name="drop_type">투여 유형</string>
+    <string name="drop_type_delete">투여 유형 삭제</string>
+    <string name="drop_type_already_used">다른 펌프 헤드가이 투여 유형을 사용하고 있습니다</string>
+    <string name="delay_time">지연 시간</string>
+    <string name="today_record_drop_volume">오늘의 예약된 즉시 투여량</string>
+    <string name="add_drop_type">사용자 정의 투여 추가</string>
+    <string name="edit_drop_type">사용자 정의 투여 편집</string>
+    <string name="drop_type_name">투여 이름</string>
+    /** record **/
+    <string name="record_setting">일정 설정</string>
+    <string name="record">일정</string>
+    <string name="record_time">일정 시간 지점</string>
+    <string name="time">시간 지점</string>
+    <string name="time_setting">기간 설정</string>
+    /** scene **/
+    <string name="led_scene">장면</string>
+    <string name="led_scene_add">장면 추가</string>
+    <string name="led_scene_edit">장면 설정</string>
+    <string name="led_scene_delete">장면 삭제</string>
+    <string name="led_dynamic_scene">동적 장면</string>
+    <string name="led_static_scene">정적 장면</string>
+    <string name="led_scene_name">장면 이름</string>
+    <string name="led_scene_icon">장면 아이콘</string>
+    /** adjust **/
+    <string name="adjust_list">보정 기록</string>
+    <string name="adjust">보정</string>
+    <string name="complete_adjust">보정 완료됨</string>
+    <string name="recently_adjust_list">최근 보정 기록들</string>
+    <string name="adjusting">보정 중입니다...</string>
+    <string name="adjust_description">보정 설명</string>
+    <string name="adjust_step">1.제공된 계량컵 및 몇 가지 튜브를 준비하십시오\n2. 수동 작동을 시작하여 튜브를 액체로 채우십시오\n3. 보정 속도를 선택하십시오</string>
+    <string name="rotating_speed">속도</string>
+    <string name="adjust_date">보정 날짜</string>
+    <string name="measure_drop_volume">측정된 부피</string>
+    /** device **/
+    <string name="add_device">장치 추가</string>
+    <string name="other_device">다른 장치</string>
+    <string name="device_name">장치 이름</string>
+    <string name="favorite_device">즐겨찾는 장치</string>
+    <string name="unassigned_device">할당되지 않은 장치</string>
+    /** sink **/
+    <string name="add_sink">탱크 추가</string>
+    <string name="sink_name">탱크 이름</string>
+    <string name="sink_setting">탱크 설정</string>
+    <string name="sink_position">탱크 위치</string>
+    <string name="sink_manager">탱크 관리</string>
+    <string name="delete_sink">탱크 삭제</string>
+    /** Menu **/
+    <string name="bottom_navigation_home">@string/home</string>
+    <string name="bottom_navigation_bluetooth">@string/bluetooth</string>
+    <string name="bottom_navigation_device">@string/device</string>
+    /** Led Menu **/
+    <string name="menu_favorite">@string/favorite</string>
+    <string name="menu_edit">@string/edit</string>
+    <string name="menu_delete">@string/delete</string>
+    <string name="menu_setting_master">@string/setting_master</string>
+    <string name="menu_reset">@string/reset</string>
+    /** delay time menu **/
+    <string name="_15sec">15 초</string>
+    <string name="_30sec">30 초</string>
+    <string name="_1min">1 분</string>
+    <string name="_2min">2 분</string>
+    <string name="_3min">3 분</string>
+    <string name="_4min">4 분</string>
+    <string name="_5min">5 분</string>
+
+    <string name="menu_set_master">@string/set_master</string>
+    <string name="menu_move_group">@string/move_group</string>
+    /** spinner **/
+    <string name="home_spinner_all_sink">전체 탱크</string>
+    <string name="home_spinner_favorite">@string/favorite_device</string>
+    <string name="home_spinner_unassigned">@string/unassigned_device</string>
+    /** toast **/
+    <string name="toast_connect_limit">동시에 최대 1개의 장치를 연결할 수 있습니다.</string>
+    <string name="toast_name_is_empty">이름은 비워 둘 수 없습니다.</string>
+    <string name="toast_add_sink_successful">탱크가 성공적으로 추가되었습니다.</string>
+    <string name="toast_sink_name_is_exist">탱크 이름이 이미 존재합니다.</string>
+    <string name="toast_edit_sink_successful">탱크 이름이 성공적으로 수정되었습니다.</string>
+    <string name="toast_device_name_is_exist">장치 이름이 이미 존재합니다.</string>
+    <string name="toast_delete_sink_successful">탱크가 성공적으로 삭제되었습니다.</string>
+    <string name="toast_delete_sink_failed">탱크 삭제에 실패했습니다.</string>
+    <string name="toast_add_device_successful">장치가 성공적으로 추가되었습니다.</string>
+    <string name="toast_sink_is_full">탱크가 꽉 찼습니다.</string>
+    <string name="toast_delete_device_successful">장치가 성공적으로 삭제되었습니다.</string>
+    <string name="toast_delete_device_failed">장치 삭제에 실패했습니다.</string>
+    <string name="toast_reset_device_successful">기본 설정이 성공적으로 복원되었습니다.</string>
+    <string name="toast_reset_device_failed">기본 설정 복원에 실패했습니다.</string>
+    <string name="toast_set_time_error">시간 간격은 최소 10분이어야 합니다.</string>
+    <string name="toast_set_time_is_exist">이 시간 대는 이미 설정되어 있습니다.</string>
+    <string name="toast_setting_successful">설정이 성공적으로 되었습니다.</string>
+    <string name="toast_setting_failed">설정에 실패했습니다.</string>
+    <string name="toast_move_group_successful">그룹이 성공적으로 이동되었습니다.</string>
+    <string name="toast_move_group_failed">그룹 이동에 실패했습니다.</string>
+    <string name="toast_add_scene_successful">장면이 성공적으로 추가되었습니다.</string>
+    <string name="toast_scene_name_is_exist">장면 이름이 이미 존재합니다.</string>
+    <string name="toast_delete_scene_successful">장면이 성공적으로 삭제되었습니다.</string>
+    <string name="toast_delete_scene_failed">장면 삭제에 실패했습니다.</string>
+    <string name="toast_delete_record_successful">시간 포인트가 성공적으로 삭제되었습니다.</string>
+    <string name="toast_delete_record_failed">시간 포인트 삭제에 실패했습니다.</string>
+    <string name="toast_preview_start">1분 빠른 미리 보기가 시작되었습니다.</string>
+    <string name="toast_preview_end">1분 빠른 미리 보기가 종료되었습니다.</string>
+    <string name="toast_sun_time_error">일출 및 일몰 시간 설정이 잘못되었습니다.</string>
+    <string name="toast_time_record_size_more_than_24">최대 24개의 시간 포인트를 설정할 수 있습니다.</string>
+    <string name="toast_custom_scene_size_more_than_5">최대 5개의 사용자 정의 장면을 설정할 수 있습니다.</string>
+    <string name="toast_delete_now_scene">현재 사용 중인 장면을 삭제할 수 없습니다.</string>
+    <string name="toast_drophead_is_droping">이 펌프 헤드는 현재 투여 중입니다. 나중에 다시 시도하십시오.</string>
+    <string name="toast_add_drop_type_successful">투여 유형이 성공적으로 추가되었습니다.</string>
+    <string name="toast_drop_type_name_is_exist">투여 유형 이름이 이미 존재합니다.</string>
+    <string name="toast_edit_drop_type_successful">투여 유형 이름이 성공적으로 수정되었습니다.</string>
+    <string name="toast_delete_drop_type_successful">투여 유형이 성공적으로 삭제되었습니다.</string>
+    <string name="toast_delete_drop_type_failed">투여 유형 삭제에 실패했습니다.</string>
+    <string name="toast_max_drop_per_day_is_empty">최대 일일 투여량을 입력하십시오.</string>
+    <string name="toast_drop_volume_is_empty">투여량을 입력하십시오.</string>
+    <string name="toast_run_time_is_empty">실행 시간을 선택하십시오.</string>
+    <string name="toast_drop_volume_is_too_little">각 투여량은 1ml 미만이 될 수 없습니다.</string>
+    <string name="toast_drop_volume_is_too_much">총 투여량은 500ml을 초과할 수 없습니다.</string>
+    <string name="toast_drop_volume_out_of_bound">투여량은 최대 일일 투여량을 초과할 수 없습니다.</string>
+    <string name="toast_drop_detail_is_empty">일정 기간을 추가하십시오.</string>
+    <string name="toast_delete_detail_successful">기간이 성공적으로 삭제되었습니다.</string>
+    <string name="toast_delete_detail_failed">기간 삭제에 실패했습니다.</string>
+    <string name="drop_times_exceed">시간당 최대 5회 투여 시간이 가능합니다.</string>
+    <string name="drop_start_adjust_failed">보정 시작에 실패했습니다.</string>
+    <string name="drop_adjust_successful">보정이 완료되었습니다.</string>
+    <string name="drop_adjust_failed">보정에 실패했습니다.</string>
+    <string name="toast_drop_volume_is_too_little_old">1ml 미만으로 설정할 수 없습니다.</string>
+    <string name="toast_drop_volume_is_too_little_new">0.4ml 미만으로 설정할 수 없습니다.</string>
+    /** hint **/
+    <string name="hint_select_time">시간을 선택하십시오.</string>
+    <string name="record_pause">일정이 일시 중지되었습니다.</string>
+    <string name="continue_record">실행을 다시 시작하십시오.</string>
+
+    <string name="bottom_sheet_add_sink_title">@string/add_sink</string>
+    <string name="bottom_sheet_add_sink_edittext_title">@string/sink_name</string>
+    <string name="bottom_sheet_add_sink_button_text">@string/save</string>
+    <string name="bottom_sheet_edit_sink_title">@string/sink_setting</string>
+    <string name="bottom_sheet_edit_sink_edittext_title">@string/sink_name</string>
+    <string name="bottom_sheet_edit_sink_button_text">@string/save</string>
+    <string name="bottom_sheet_add_drop_type_title">@string/add_drop_type</string>
+    <string name="bottom_sheet_add_drop_type_edittext_title">@string/drop_type_name</string>
+    <string name="bottom_sheet_add_drop_type_button_text">@string/save</string>
+    <string name="bottom_sheet_edit_drop_type_title">@string/edit_drop_type</string>
+    <string name="bottom_sheet_edit_drop_type_edittext_title">@string/drop_type_name</string>
+    <string name="bottom_sheet_edit_drop_type_button_text">@string/save</string>
+    /** ===================================================================================== **/
+    /** MainActivity **/
+    /** HomeFragment **/
+    <string name="text_no_device_in_sink_title">현재 탱크에는 장치가 없습니다.</string>
+    <string name="text_no_device_in_sink_content">아래의 블루투스 목록에서 장치를 추가하십시오.</string>
+    /** DeviceFragment **/
+    <string name="fragment_device_title">@string/device</string>
+    <string name="fragment_device_select">@string/select</string>
+    <string name="text_no_device_title">현재 사용 가능한 장치가 없습니다.</string>
+    <string name="dialog_device_delete_led_master_title">@string/master_setting</string>
+    <string name="dialog_device_delete_led_master_content">마스터 라이트를 삭제하려면 먼저 마스터-슬레이브 설정을 수정하고 다른 슬레이브 라이트를 마스터로 설정하십시오.</string>
+    <string name="dialog_device_delete_led_master_positive">@string/i_konw</string>
+    <string name="dialog_device_delete">선택한 장치를 삭제하시겠습니까?</string>
+    <string name="dialog_device_delete_led_content">LED 장치를 삭제하시겠습니까?</string>
+    <string name="dialog_device_delete_led_positive">@string/delete</string>
+    <string name="dialog_device_delete_led_negative">@string/cancel</string>
+    /** BluetoothFragment **/
+    <string name="fragment_bluetooth_title">@string/bluetooth_connect</string>
+    <string name="fragment_other_device_title">@string/other_device</string>
+    <string name="text_no_other_device_title">장치를 찾을 수 없습니다.</string>
+    <string name="text_no_other_device_content">주변 장치를 다시 스캔하려면 오른쪽 상단을 탭하십시오.</string>
+    <string name="dialog_disconnect_bluetooth_content">블루투스를 연결 해제하시겠습니까?</string>
+    <string name="dialog_disconnect_bluetooth_positive">@string/confirm</string>
+    <string name="dialog_disconnect_bluetooth_negative">@string/cancel</string>
+    /** WarningActivity **/
+    <string name="activity_warning_title">@string/warning_list</string>
+    <string name="text_no_warning_title">경고 기록이 없습니다.</string>
+    <string name="text_no_warning_content">경고 기록에 항목이 없습니다.</string>
+    <string name="dialog_delete_warning_content">이 경고를 삭제하시겠습니까?</string>
+    <string name="dialog_delete_warning_positive">@string/confirm</string>
+    <string name="dialog_delete_warning_negative">@string/cancel</string>
+    /** SinkManagerActivity **/
+    <string name="activity_manage_sink_title">@string/sink_manager</string>
+    <string name="text_no_sink_title">장치를 찾을 수 없습니다.</string>
+    <string name="text_no_sink_content">주변 장치를 다시 스캔하려면 오른쪽 상단을 탭하십시오.</string>
+    <string name="text_device_amount">%1$d 대의 장치</string>
+    <string name="dialog_delete_sink_title">@string/delete_sink</string>
+    <string name="dialog_delete_sink_content">탱크를 삭제한 후에는 탱크 내부의 장치가 미할당 장치가 됩니다.</string>
+    <string name="dialog_delete_sink_positive">@string/delete</string>
+    <string name="dialog_delete_sink_negative">@string/cancel</string>
+
+    <string name="activity_add_device_title">@string/add_device</string>
+    <string name="activity_add_device_toolbar_left_btn">@string/skip</string>
+    <string name="activity_add_device_toolbar_right_btn">@string/complete</string>
+    <string name="activity_add_device_device_name_title">@string/device_name</string>
+    <string name="activity_add_device_sink_position_title">@string/sink_position</string>
+    /** SinkPositionActivity **/
+    <string name="activity_sink_position_title">@string/sink_position</string>
+    <string name="activity_sink_position_toolbar_right_btn">@string/confirm</string>
+    /** LedMainActivity **/
+    <string name="dialog_delete_led_master_title">@string/master_setting</string>
+    <string name="dialog_delete_led_master_content">이 장치를 삭제하려면 먼저 마스터-슬레이브 설정을 수정하여 다른 슬레이브 라이트를 마스터로 설정하십시오.</string>
+    <string name="dialog_delete_led_master_positive">@string/confirm</string>
+    <string name="dialog_delete_led_master_negative">@string/cancel</string>
+    <string name="dialog_reset_led_title">@string/reset</string>
+    <string name="dialog_reset_led_content">이 장치는 미할당 장치가 되며 현재 모든 설정이 지워집니다.</string>
+    <string name="dialog_reset_led_positive">@string/confirm</string>
+    <string name="dialog_reset_led_negative">@string/cancel</string>
+    <string name="dialog_delete_led_content">이 LED 장치를 삭제하시겠습니까?</string>
+    <string name="dialog_delete_led_positive">@string/delete</string>
+    <string name="dialog_delete_led_negative">@string/cancel</string>
+    <string name="dialog_delete_unassigned_led_title">@string/master_setting</string>
+    <string name="dialog_delete_unassigned_led_content">할당되지 않은 탱크 내의 장치는 마스터 또는 슬레이브로 설정할 수 없습니다.</string>
+    <string name="dialog_delete_unassigned_led_positive">@string/i_konw</string>
+    <string name="dialog_reset_master_led_title">@string/master_setting</string>
+    <string name="dialog_reset_master_led_content"> 장치를 기본 설정으로 되돌리려면 먼저 마스터-슬레이브 설정을 수정하여 다른 슬레이브 라이트를 마스터로 설정하십시오.</string>
+    <string name="dialog_reset_master_led_positive">@string/confirm</string>
+    <string name="dialog_reset_master_led_negative">@string/cancel</string>
+    /** LedSettingActivity **/
+    <string name="activity_led_setting_title">@string/led_setting</string>
+    <string name="activity_led_setting_toolbar_right_btn">@string/save</string>
+    <string name="dialog_led_move_master_title">@string/master_setting</string>
+    <string name="dialog_led_move_master_content">이 장치를 다른 탱크로 이동하려면 먼저 마스터-슬레이브 설정을 변경하여 다른 슬레이브 라이트를 마스터로 설정하십시오.</string>
+    <string name="dialog_led_move_master_positive">@string/confirm</string>
+    <string name="dialog_led_move_master_negative">@string/cancel</string>
+    /** LedMasterSettingActivity **/
+    <string name="activity_led_master_setting_title">@string/master_pairing</string>
+    <string name="activity_led_master_setting_toolbar_right_btn">@string/master_pairing</string>
+    /** LedRecordSettingActivity **/
+    <string name="activity_led_record_setting_title">@string/record_setting</string>
+    <string name="activity_led_record_setting_toolbar_right_btn">@string/save</string>
+    /** LedRecordActivity **/
+    <string name="activity_led_record_title">@string/record</string>
+    <string name="dialog_led_delete_time_content">이 시간 포인트를 삭제하시겠습니까?</string>
+    <string name="dialog_led_delete_time_positive">@string/delete</string>
+    <string name="dialog_led_delete_time_negative">@string/cancel</string>
+    <string name="dialog_led_clear_record_content">일정을 지우시겠습니까?</string>
+    <string name="dialog_led_clear_record_positive">@string/confirm</string>
+    <string name="dialog_led_clear_record_negative">@string/cancel</string>
+
+    <string name="activity_led_record_time_setting_title">@string/record_time</string>
+    <string name="activity_led_record_time_setting_toolbar_right_btn">@string/save</string>
+
+    <string name="activity_led_scene_title">@string/led_scene</string>
+    <string name="activity_led_scene_toolbar_right_btn">@string/edit</string>
+    /** LedSceneAddActivity **/
+    <string name="activity_led_scene_add_title">@string/led_scene_add</string>
+    <string name="activity_led_scene_add_toolbar_right_btn">@string/save</string>
+    /** LedSceneEditActivity **/
+    <string name="activity_led_scene_edit_title">@string/led_scene_edit</string>
+    <string name="activity_led_scene_edit_toolbar_right_btn">@string/save</string>
+    /** LedSceneDeleteActivity **/
+    <string name="activity_led_scene_delete_title">@string/led_scene_delete</string>
+    <string name="dialog_scene_delete_scene_content">このシーンを削除しますか？</string>
+    <string name="dialog_scene_delete_scene_positive">@string/delete</string>
+    <string name="dialog_scene_delete_scene_negative">@string/cancel</string>
+
+    <string name="dialog_today_drop_out_of_range_title">@string/max_drop_volume</string>
+    <string name="dialog_today_drop_out_of_range_content">오늘의 투약량이 최대 일일 투약량에 도달했습니다.</string>
+    <string name="dialog_today_drop_out_of_range_positive">@string/i_konw</string>
+    <string name="dialog_delete_drop_content">이 투여 펌프를 삭제하시겠습니까?</string>
+    <string name="dialog_delete_drop_positive">@string/delete</string>
+    <string name="dialog_delete_drop_negative">@string/cancel</string>
+    <string name="dialog_reset_drop_title">@string/reset</string>
+    <string name="dialog_reset_drop_content">이 장치는 할당되지 않은 상태로 설정되고 현재 모든 펌프 설정 및 교정 기록이 지워집니다.</string>
+    <string name="dialog_reset_drop_positive">@string/confirm</string>
+    <string name="dialog_reset_drop_negative">@string/cancel</string>
+    /** DropSettingActivity **/
+    <string name="activity_drop_setting_title">@string/drop_setting</string>
+    <string name="activity_drop_setting_toolbar_right_btn">@string/save</string>
+    /** DropHeadSettingActivity **/
+    <string name="activity_drop_head_setting_title">@string/drop_head_setting</string>
+    <string name="activity_drop_head_setting_toolbar_right_btn">@string/save</string>
+    /** DropTypeActivity **/
+    <string name="activity_drop_type_title">@string/drop_type</string>
+    <string name="activity_drop_type_toolbar_right_btn">@string/confirm</string>
+    <string name="dialog_delete_drop_type_title">@string/drop_type_delete</string>
+    <string name="dialog_delete_drop_type_content">이 액적 유형을 삭제하시겠습니까?</string>
+    <string name="dialog_delete_drop_type_positive">@string/delete</string>
+    <string name="dialog_delete_drop_type_negative">@string/cancel</string>
+    <string name="dialog_drop_type_already_used_title">@string/drop_type_already_used</string>
+    <string name="dialog_drop_type_already_used_content">이 장치는 미할당 장치가 되며 현재 모든 펌프 헤드 설정 및 보정 기록이 지워집니다.</string>
+    <string name="dialog_drop_type_already_used_positive">@string/delete</string>
+    <string name="dialog_drop_type_already_used_negative">@string/cancel</string>
+    /** DropHeadRecordSettingActivity **/
+    <string name="activity_drop_head_record_setting_title">@string/record</string>
+    <string name="activity_drop_head_record_setting_toolbar_right_btn">@string/run</string>
+    /** DropHeadRecordTimeSettingActivity **/
+    <string name="activity_drop_head_record_time_setting_title">@string/time_setting</string>
+    <string name="activity_drop_head_record_time_setting_toolbar_right_btn">@string/confirm</string>
+    <string name="dialog_setting_drop_out_of_range_title">@string/max_drop_volume</string>
+    <string name="dialog_setting_drop_out_of_range_content">설정된 투여량이 최대 일일 투여량 한도를 초과합니다.</string>
+    <string name="dialog_setting_drop_out_of_range_positive">@string/i_konw</string>
+    <string name="dialog_drop_time_setting_repeat_title">@string/record_setting</string>
+    <string name="dialog_drop_time_setting_repeat_content">이 시간대는 이미 설정되어 있습니다.</string>
+    <string name="dialog_drop_time_setting_repeat_positive">@string/confirm</string>
+    <string name="dialog_drop_setting_higher_than_max_title">@string/record_setting</string>
+    <string name="dialog_drop_setting_higher_than_max_content">투여량은 500 ml을 초과할 수 없습니다.</string>
+    <string name="dialog_drop_setting_higher_than_max_positive">@string/confirm</string>
+    <string name="dialog_drop_setting_lower_than_min_title">@string/record_setting</string>
+    <string name="dialog_drop_setting_lower_than_min_content">투여량은 각 %1$s ml 미만이어야 합니다.</string>
+    <string name="dialog_drop_setting_lower_than_min_positive">@string/confirm</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_title">@string/max_drop_volume</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_content">오늘의 총 투여량은 최대 일일 투여량 한도를 초과합니다.</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_positive">@string/i_konw</string>
+    <string name="dialog_setting_delete_detail_title">@string/delete_drop_record_time</string>
+    <string name="dialog_setting_delete_detail_content">이 시간 슬롯을 삭제하시겠습니까?</string>
+    <string name="dialog_setting_delete_detail_positive">@string/delete</string>
+    <string name="dialog_setting_delete_detail_negative">@string/cancel</string>
+    /** DropHeadAdjustListActivity **/
+    <string name="activity_drop_head_adjust_list_title">@string/adjust_list</string>
+    <string name="activity_drop_head_adjust_list_toolbar_right_btn">@string/adjust</string>
+    /** DropHeadAdjustActivity **/
+    <string name="activity_drop_head_adjust_title">@string/adjust</string>
+    <string name="adjust_volume_hint">1 ~ 15; 소수점 첫째 자리</string>
+</resources>

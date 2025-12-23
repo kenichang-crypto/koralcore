@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/tv_front"
+        style="@style/SingleLine"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:textAppearance="@style/caption1"
+        android:textColor="@color/text_aaa"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/tv_middle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="08:00 ~ 10:00" />
+
+    <TextView
+        android:id="@+id/tv_middle"
+        style="@style/SingleLine"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/dp_8"
+        android:textAppearance="@style/caption1"
+        android:textColor="@color/text_aaaa"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/tv_end"
+        app:layout_constraintStart_toEndOf="@id/tv_front"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="100 ml / 2次" />
+
+    <TextView
+        android:id="@+id/tv_end"
+        style="@style/SingleLine"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/dp_8"
+        android:textAppearance="@style/caption1_accent"
+        android:textColor="@color/bg_secondary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tv_middle"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="低速" />
+</androidx.constraintlayout.widget.ConstraintLayout>

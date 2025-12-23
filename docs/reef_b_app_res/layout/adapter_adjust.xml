@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_marginTop="@dimen/dp_4"
+    android:layout_marginBottom="@dimen/dp_4"
+    android:layout_height="wrap_content"
+    android:background="@drawable/background_white_radius"
+    android:padding="@dimen/dp_12">
+
+    <TextView
+        android:id="@+id/tv_speed_title"
+        android:layout_width="wrap_content"
+        style="@style/SingleLine"
+        android:layout_height="wrap_content"
+        android:text="@string/rotating_speed"
+        android:textColor="@color/text_aaa"
+        android:textAppearance="@style/caption1_accent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_speed"
+        android:layout_width="0dp"
+        style="@style/SingleLine"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_4"
+        android:textAppearance="@style/caption1"
+        android:textColor="@color/bg_secondary"
+        app:layout_constraintBottom_toBottomOf="@id/tv_speed_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tv_speed_title"
+        app:layout_constraintTop_toTopOf="@id/tv_speed_title"
+        tools:text="@string/middle_rotating_speed" />
+
+    <TextView
+        android:id="@+id/tv_date_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_4"
+        style="@style/SingleLine"
+        android:text="@string/adjust_date"
+        android:textColor="@color/text_aaa"
+        android:textAppearance="@style/caption1_accent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_speed_title" />
+
+    <TextView
+        android:id="@+id/tv_date"
+        android:layout_width="0dp"
+        style="@style/SingleLine"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_4"
+        android:textAppearance="@style/caption1"
+        app:layout_constraintBottom_toBottomOf="@id/tv_date_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tv_date_title"
+        app:layout_constraintTop_toTopOf="@id/tv_date_title"
+        tools:text="2022-10-25 10:20:30" />
+
+    <TextView
+        android:id="@+id/tv_volume_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_4"
+        style="@style/SingleLine"
+        android:text="@string/measure_drop_volume"
+        android:textColor="@color/text_aaa"
+        android:textAppearance="@style/caption1_accent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_date_title" />
+
+    <TextView
+        android:id="@+id/tv_volume"
+        android:layout_width="0dp"
+        style="@style/SingleLine"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_4"
+        android:textAppearance="@style/caption1"
+        app:layout_constraintBottom_toBottomOf="@id/tv_volume_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tv_volume_title"
+        app:layout_constraintTop_toTopOf="@id/tv_volume_title"
+        tools:text="4.5 ml" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

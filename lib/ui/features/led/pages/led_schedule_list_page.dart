@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../application/common/app_context.dart';
+import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../theme/colors.dart';
 import '../../../../theme/dimensions.dart';
@@ -11,7 +12,11 @@ import '../../../components/ble_guard.dart';
 import '../../../components/app_error_presenter.dart';
 import '../controllers/led_schedule_list_controller.dart';
 import '../models/led_schedule_summary.dart';
+import '../widgets/led_schedule_timeline.dart';
+import '../widgets/led_spectrum_chart.dart';
 import 'led_schedule_edit_page.dart';
+
+const _ledIconAsset = 'assets/icons/led/led_main.png';
 
 class LedScheduleListPage extends StatelessWidget {
   const LedScheduleListPage({super.key});
@@ -24,7 +29,11 @@ class LedScheduleListPage extends StatelessWidget {
       create: (_) => LedScheduleListController(
         session: session,
         readLedScheduleUseCase: appContext.readLedScheduleUseCase,
-      )..refresh(),
+        applyLedScheduleUseCase: appContext.applyLedScheduleUseCase,
+        observeLedStateUseCase: appContext.observeLedStateUseCase,
+        readLedStateUseCase: appContext.readLedStateUseCase,
+        stopLedPreviewUseCase: appContext.stopLedPreviewUseCase,
+      )..initialize(),
       child: const _LedScheduleListView(),
     );
   }
@@ -46,6 +55,7 @@ class _LedScheduleListViewState extends State<_LedScheduleListView> {
         final isConnected = session.isBleConnected;
         final theme = Theme.of(context);
         _maybeShowError(context, controller);
+        _maybeShowEvent(context, controller);
 
         return Scaffold(
           appBar: AppBar(title: Text(l10n.ledScheduleListTitle)),
@@ -65,7 +75,9 @@ class _LedScheduleListViewState extends State<_LedScheduleListView> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: FilledButton.icon(
-                    onPressed: isConnected
+                    onPressed: controller.isBusy
+                        ? null
+                        : isConnected
                         ? () => _openEditor(controller: controller, l10n: l10n)
                         : () => showBleGuardDialog(context),
                     icon: const Icon(Icons.add),
@@ -77,6 +89,11 @@ class _LedScheduleListViewState extends State<_LedScheduleListView> {
                   const BleGuardBanner(),
                   const SizedBox(height: AppDimensions.spacingXL),
                 ],
+                if (controller.isBusy)
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: AppDimensions.spacingM),
+                    child: LinearProgressIndicator(),
+                  ),
                 if (controller.isLoading)
                   const Padding(
                     padding: EdgeInsets.symmetric(
@@ -102,6 +119,13 @@ class _LedScheduleListViewState extends State<_LedScheduleListView> {
                                 schedule: schedule,
                               )
                             : () => showBleGuardDialog(context),
+                        onApply:
+                            isConnected &&
+                                !controller.isBusy &&
+                                schedule.isEnabled &&
+                                !schedule.isActive
+                            ? () => controller.applySchedule(schedule.id)
+                            : null,
                       ),
                     ),
                   ),
@@ -118,6 +142,10 @@ class _LedScheduleListViewState extends State<_LedScheduleListView> {
     required AppLocalizations l10n,
     LedScheduleSummary? schedule,
   }) async {
+    await controller.ensurePreviewStopped();
+    if (!mounted) {
+      return;
+    }
     final result = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => LedScheduleEditPage(initialSchedule: schedule),
@@ -150,7 +178,7 @@ class _ScheduleEmptyState extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.timeline_outlined, size: 32),
+            Image.asset(_ledIconAsset, width: 32, height: 32),
             const SizedBox(height: AppDimensions.spacingM),
             Text(
               l10n.ledScheduleEmptyTitle,
@@ -174,16 +202,26 @@ class _ScheduleCard extends StatelessWidget {
   final LedScheduleSummary schedule;
   final AppLocalizations l10n;
   final VoidCallback? onTap;
+  final VoidCallback? onApply;
 
-  const _ScheduleCard({required this.schedule, required this.l10n, this.onTap});
+  const _ScheduleCard({
+    required this.schedule,
+    required this.l10n,
+    this.onTap,
+    this.onApply,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final statusLabel = schedule.isEnabled
+    final statusLabel = schedule.isActive
+        ? l10n.ledScheduleStatusActive
+        : schedule.isEnabled
         ? l10n.ledScheduleStatusEnabled
         : l10n.ledScheduleStatusDisabled;
-    final statusColor = schedule.isEnabled
+    final statusColor = schedule.isActive
+        ? AppColors.success
+        : schedule.isEnabled
         ? AppColors.success
         : AppColors.warning;
     return Card(
@@ -203,7 +241,7 @@ class _ScheduleCard extends StatelessWidget {
                       vertical: AppDimensions.spacingXS,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.ocean500.withOpacity(0.12),
+                      color: AppColors.ocean500.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(
                         AppDimensions.radiusM,
                       ),
@@ -259,12 +297,41 @@ class _ScheduleCard extends StatelessWidget {
                           label: Text(
                             '${channel.label} ${channel.percentage}%',
                           ),
-                          backgroundColor: AppColors.ocean500.withOpacity(0.08),
+                          backgroundColor: AppColors.ocean500.withValues(
+                            alpha: 0.08,
+                          ),
                         ),
                       )
                       .toList(growable: false),
                 ),
               ],
+              const SizedBox(height: AppDimensions.spacingS),
+              LedSpectrumChart.fromScheduleChannels(
+                schedule.channels,
+                height: 64,
+                emptyLabel: l10n.ledControlEmptyState,
+              ),
+              const SizedBox(height: AppDimensions.spacingS),
+              LedScheduleTimeline(
+                start: schedule.startTime,
+                end: schedule.endTime,
+                isActive: schedule.isActive,
+              ),
+              const SizedBox(height: AppDimensions.spacingS),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  onPressed: onApply,
+                  icon: Icon(
+                    schedule.isActive ? Icons.check : Icons.play_arrow,
+                  ),
+                  label: Text(
+                    schedule.isActive
+                        ? l10n.ledScheduleStatusActive
+                        : l10n.actionApply,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -317,4 +384,28 @@ void _maybeShowError(
   final message = describeAppError(AppLocalizations.of(context), code);
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   controller.clearError();
+}
+
+void _maybeShowEvent(
+  BuildContext context,
+  LedScheduleListController controller,
+) {
+  final event = controller.consumeEvent();
+  if (event == null) {
+    return;
+  }
+
+  final l10n = AppLocalizations.of(context);
+  late final String message;
+  switch (event.type) {
+    case LedScheduleEventType.applySuccess:
+      message = l10n.ledScheduleSnackApplied;
+      break;
+    case LedScheduleEventType.applyFailure:
+      final code = event.errorCode ?? AppErrorCode.unknownError;
+      message = describeAppError(l10n, code);
+      break;
+  }
+
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }

@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    俄語（Pусский）-->
+    <string name="app_name">ReefB</string>
+    /** 權限相關 **/
+    <string name="get_gps_permission">Пожалуйста, разрешите доступ к местоположению GPS</string>
+    <string name="get_nerby_permission">Пожалуйста, разрешите доступ к ближайшему устройству</string>
+    <string name="get_camera_storage_permission">Пожалуйста, разрешите доступ к камере и пространству хранения.</string>
+    <string name="get_camera_permission">Пожалуйста, разрешите доступ к камере.</string>
+    <string name="get_storage_permission">Пожалуйста, разрешите доступ к пространству хранения.</string>
+    <string name="please_open_gps">Пожалуйста, включите местоположение GPS.</string>
+    <string name="please_open_ble">Пожалуйста, включите Bluetooth.</string>
+    <string name="please_open_ble_gps">Пожалуйста, включите Bluetooth и местоположение GPS.</string>
+    <string name="toast_connect_failed">Соединение не удалось, пожалуйста, попробуйте еще раз.</string>
+    <string name="toast_connect_successful">Соединение установлено.</string>
+    <string name="toast_disconnect">Устройство отключено</string>
+    /** 通用 **/
+    <string name="confirm">OK</string>
+    <string name="delete">Удалить</string>
+    <string name="cancel">Отмена</string>
+    <string name="select">Выбрать</string>
+    <string name="skip">Пропустить</string>
+    <string name="complete">Готово</string>
+    <string name="save">Сохранить</string>
+    <string name="edit">Редактировать</string>
+    <string name="i_konw">Понял</string>
+    <string name="next">Далее</string>
+    <string name="close">Закрыть</string>
+    <string name="back">Назад</string>
+    <string name="no">Нет</string>
+    <string name="run">Запустить</string>
+    <string name="no_eng">Нет</string>
+    <string name="rearrangement">Перестановка</string>
+    <string name="led">LED</string>
+    <string name="drop">Дозирующий насос</string>
+    <string name="home">Главная</string>
+    <string name="bluetooth">Bluetooth</string>
+    <string name="device">Устройство</string>
+    <string name="favorite">Избранные устройства</string>
+    <string name="bluetooth_connect">Bluetooth соединение</string>
+    <string name="reset">Восстановить настройки по умолчанию</string>
+    <string name="warning_list">Журнал предупреждений</string>
+    <string name="group_full">Достигнут лимит устройств</string>
+    <string name="device_is_not_connect">Устройство не подключено</string>
+    <string name="no_records">Нет запланированных задач</string>
+    /** 預設場景 **/
+    <string name="preset_scene_off">ВЫКЛ</string>
+    <string name="preset_scene_30">30%</string>
+    <string name="preset_scene_60">60%</string>
+    <string name="preset_scene_100">100%</string>
+    <string name="preset_scene_moon">Лунный свет</string>
+    <string name="preset_scene_thunder">Гром</string>
+    /** 光譜名字 **/
+    <string name="uv">УФ</string>
+    <string name="purple">Фиолетовый</string>
+    <string name="blue">Синий</string>
+    <string name="royal_blue">Королевский синий</string>
+    <string name="green">Зеленый</string>
+    <string name="red">Красный</string>
+    <string name="cold_white">Холодный белый</string>
+    <string name="warm_white">Теплый белый</string>
+    <string name="moon">Лунный свет</string>
+    <string name="light_uv">УФ-свет</string>
+    <string name="light_purple">Фиолетовый свет</string>
+    <string name="light_blue">Синий свет</string>
+    <string name="light_royal_blue">Королевский синий свет</string>
+    <string name="light_green">Зеленый свет</string>
+    <string name="light_red">Красный свет</string>
+    <string name="light_cold_white">Холодный белый свет</string>
+    <string name="light_warm_white">Теплый белый свет</string>
+    <string name="light_moon">Лунный свет</string>
+    /** 滴液泵排程種類 **/
+    <string name="drop_record_type_custom">Свободный режим</string>
+    <string name="drop_record_type_single">Однократная доза</string>
+    <string name="drop_record_type_24">24 часа равно</string>
+    <string name="drop_record_type_none">Нет запланированных задач</string>
+    <string name="drop_record_type">Тип расписания</string>
+    /** 單位 **/
+    <string name="minute">Минута</string>
+    <string name="init_minute">30 минут</string>
+    <string name="times">Раз</string>
+    <string name="group">Группа</string>
+    <string name="master_setting">Настройки Мастер-Слейв</string>
+    <string name="setting_master">Установить как Мастер</string>
+    <string name="led_setting">Настройки LED</string>
+    <string name="master_pairing">Пара Мастер-Слейв</string>
+    <string name="max_drop_volume">Ежедневный максимальный объем дозирования</string>
+    <string name="max_drop_volume_hint">Ограничение объема дозирования для запланированной и незапланированной работы после открытия</string>
+    <string name="drop_setting">Настройки перистальтической помпы</string>
+    <string name="drop_head_setting">Настройки головки насоса</string>
+    <string name="master_slave">Мастер/Слейв</string>
+    <string name="set_master">Установить как Мастер-Свет</string>
+    <string name="move_group">Переместить группу</string>
+    <string name="choose_group">Выбрать группу</string>
+    <string name="run_cycle">Цикл выполнения</string>
+    <string name="run_time">Время выполнения</string>
+    <string name="low_rotating_speed">Низкая скорость</string>
+    <string name="middle_rotating_speed">Средняя скорость</string>
+    <string name="high_rotating_speed">Высокая скорость</string>
+    <string name="drop_volume_per_day">Ежедневный общий объем дозирования</string>
+    <string name="drop_volume">Объем дозирования (мл)</string>
+    <string name="init_rotating_speed">Скорость по умолчанию</string>
+    <string name="drop_head_rotating_speed">Скорость головки насоса</string>
+    <string name="drop_days_a_week">Еженедельные дни дозирования</string>
+    <string name="run_immediatrly">Выполнить сейчас</string>
+    <string name="drop_record_time">Период расписания</string>
+    <string name="delete_drop_record_time">Удалить период расписания</string>
+    <string name="drop_start_time">Время начала дозирования</string>
+    <string name="drop_end_time">Время окончания дозирования</string>
+    <string name="drop_times">Частота дозирования</string>
+    /** led record setting **/
+    <string name="init_strength">Начальная интенсивность</string>
+    <string name="sunrise">Восход</string>
+    <string name="sunset">Закат</string>
+    <string name="slow_start">Мягкий старт</string>
+    <string name="moon_light">@string/moon</string>
+    <string name="time_already_exist">Этот временной период уже установлен</string>
+
+    <string name="drop_type">Тип дозирования</string>
+    <string name="drop_type_delete">Удалить тип дозирования</string>
+    <string name="drop_type_already_used">Другая головка насоса использует этот тип дозирования</string>
+    <string name="delay_time">Время задержки</string>
+    <string name="today_record_drop_volume">Сегодняшний запланированный немедленный объем дозирования</string>
+    <string name="add_drop_type">Добавить пользовательскую дозировку</string>
+    <string name="edit_drop_type">Редактировать пользовательскую дозировку</string>
+    <string name="drop_type_name">Название дозировки</string>
+    /** record **/
+    <string name="record_setting">Настройки расписания</string>
+    <string name="record">Расписание</string>
+    <string name="record_time">Запланированная точка времени</string>
+    <string name="time">Точка времени</string>
+    <string name="time_setting">Настройки периода</string>
+    /** scene **/
+    <string name="led_scene">Сцена</string>
+    <string name="led_scene_add">Добавить сцену</string>
+    <string name="led_scene_edit">Настройки сцены</string>
+    <string name="led_scene_delete">Удалить сцену</string>
+    <string name="led_dynamic_scene">Динамическая сцена</string>
+    <string name="led_static_scene">Статическая сцена</string>
+    <string name="led_scene_name">Название сцены</string>
+    <string name="led_scene_icon">Иконка сцены</string>
+    /** adjust **/
+    <string name="adjust_list">Журнал калибровки</string>
+    <string name="adjust">Калибровка</string>
+    <string name="complete_adjust">Завершить калибровку</string>
+    <string name="recently_adjust_list">Последние записи калибровки</string>
+    <string name="adjusting">Калибровка...</string>
+    <string name="adjust_description">Инструкции по калибровке</string>
+    <string name="adjust_step">1.Подготовьте прилагаемый измерительный стакан и несколько трубок\n2. Начните ручную операцию для наполнения труб жидкостью\n3. Выберите скорость для калибровки</string>
+    <string name="rotating_speed">Скорость</string>
+    <string name="adjust_date">Дата калибровки</string>
+    <string name="measure_drop_volume">Измеренный объем</string>
+    /** device **/
+    <string name="add_device">Добавить устройство</string>
+    <string name="other_device">Другие устройства</string>
+    <string name="device_name">Имя устройства</string>
+    <string name="favorite_device">Избранные устройства</string>
+    <string name="unassigned_device">Не назначенные устройства</string>
+    /** sink **/
+    <string name="add_sink">Добавить бак</string>
+    <string name="sink_name">Название бака</string>
+    <string name="sink_setting">Настройки бака</string>
+    <string name="sink_position">Расположение бака</string>
+    <string name="sink_manager">Управление баком</string>
+    <string name="delete_sink">Удалить бак</string>
+    /** Menu **/
+    <string name="bottom_navigation_home">@string/home</string>
+    <string name="bottom_navigation_bluetooth">@string/bluetooth</string>
+    <string name="bottom_navigation_device">@string/device</string>
+    /** Led Menu **/
+    <string name="menu_favorite">@string/favorite</string>
+    <string name="menu_edit">@string/edit</string>
+    <string name="menu_delete">@string/delete</string>
+    <string name="menu_setting_master">@string/setting_master</string>
+    <string name="menu_reset">@string/reset</string>
+    /** delay time menu **/
+    <string name="_15sec">15 секунд</string>
+    <string name="_30sec">30 секунд</string>
+    <string name="_1min">1 минута</string>
+    <string name="_2min">2 минуты</string>
+    <string name="_3min">3 минуты</string>
+    <string name="_4min">4 минуты</string>
+    <string name="_5min">5 минуты</string>
+
+    <string name="menu_set_master">@string/set_master</string>
+    <string name="menu_move_group">@string/move_group</string>
+    /** spinner **/
+    <string name="home_spinner_all_sink">Все резервуары</string>
+    <string name="home_spinner_favorite">@string/favorite_device</string>
+    <string name="home_spinner_unassigned">@string/unassigned_device</string>
+    /** toast **/
+    <string name="toast_connect_limit">Максимальное количество подключаемых устройств одновременно - 1.</string>
+    <string name="toast_name_is_empty">Имя не может быть пустым.</string>
+    <string name="toast_add_sink_successful">Бак успешно добавлен.</string>
+    <string name="toast_sink_name_is_exist">Имя бака уже существует.</string>
+    <string name="toast_edit_sink_successful">Успешно изменено имя бака.</string>
+    <string name="toast_device_name_is_exist">Имя устройства уже существует.</string>
+    <string name="toast_delete_sink_successful">Бак успешно удален.</string>
+    <string name="toast_delete_sink_failed">Не удалось удалить бак.</string>
+    <string name="toast_add_device_successful">Устройство успешно добавлено.</string>
+    <string name="toast_sink_is_full">Бак заполнен.</string>
+    <string name="toast_delete_device_successful">Устройство успешно удалено.</string>
+    <string name="toast_delete_device_failed">Не удалось удалить устройство.</string>
+    <string name="toast_reset_device_successful">Настройки по умолчанию успешно восстановлены.</string>
+    <string name="toast_reset_device_failed">Не удалось восстановить настройки по умолчанию.</string>
+    <string name="toast_set_time_error">Временные точки должны различаться как минимум на 10 минут.</string>
+    <string name="toast_set_time_is_exist">Этот временной период уже установлен.</string>
+    <string name="toast_setting_successful">Настройки успешно применены.</string>
+    <string name="toast_setting_failed">Ошибка применения настроек.</string>
+    <string name="toast_move_group_successful">Группа успешно перемещена.</string>
+    <string name="toast_move_group_failed">Не удалось переместить группу.</string>
+    <string name="toast_add_scene_successful">Сцена успешно добавлена.</string>
+    <string name="toast_scene_name_is_exist">Название сцены уже существует.</string>
+    <string name="toast_delete_scene_successful">Сцена успешно удалена.</string>
+    <string name="toast_delete_scene_failed">Не удалось удалить сцену.</string>
+    <string name="toast_delete_record_successful">Временная точка успешно удалена.</string>
+    <string name="toast_delete_record_failed">Не удалось удалить временную точку.</string>
+    <string name="toast_preview_start">Запущен быстрый предпросмотр на одну минуту.</string>
+    <string name="toast_preview_end">Быстрый предпросмотр на одну минуту завершен.</string>
+    <string name="toast_sun_time_error">Настройки времени восхода и заката неверны.</string>
+    <string name="toast_time_record_size_more_than_24">Максимальное количество временных точек - 24.</string>
+    <string name="toast_custom_scene_size_more_than_5">Максимальное количество пользовательских сцен - 5.</string>
+    <string name="toast_delete_now_scene">Невозможно удалить текущую используемую сцену.</string>
+    <string name="toast_drophead_is_droping">Этот насос сейчас выполняет дозировку, пожалуйста, попробуйте позже.</string>
+    <string name="toast_add_drop_type_successful">Тип дозирования успешно добавлен.</string>
+    <string name="toast_drop_type_name_is_exist">Тип дозирования уже существует.</string>
+    <string name="toast_edit_drop_type_successful">Название типа дозирования успешно изменено.</string>
+    <string name="toast_delete_drop_type_successful">Тип дозирования успешно удален.</string>
+    <string name="toast_delete_drop_type_failed">Не удалось удалить тип дозирования.</string>
+    <string name="toast_max_drop_per_day_is_empty">Пожалуйста, введите максимальный ежедневный объем дозирования.</string>
+    <string name="toast_drop_volume_is_empty">Пожалуйста, введите объем дозирования.</string>
+    <string name="toast_run_time_is_empty">Пожалуйста, выберите время выполнения.</string>
+    <string name="toast_drop_volume_is_too_little">Каждый объем дозирования не может быть меньше 1 мл.</string>
+    <string name="toast_drop_volume_is_too_much">Общий объем дозирования не может превышать 500 мл.</string>
+    <string name="toast_drop_volume_out_of_bound">Объем дозирования не может превышать максимальный ежедневный объем дозирования.</string>
+    <string name="toast_drop_detail_is_empty">Пожалуйста, добавьте период расписания.</string>
+    <string name="toast_delete_detail_successful">Период успешно удален.</string>
+    <string name="toast_delete_detail_failed">Не удалось удалить период.</string>
+    <string name="drop_times_exceed">Максимальное количество дозировок в час - 5.</string>
+    <string name="drop_start_adjust_failed">Не удалось начать калибровку.</string>
+    <string name="drop_adjust_successful">Калибровка завершена.</string>
+    <string name="drop_adjust_failed">Калибровка не удалась.</string>
+    <string name="toast_drop_volume_is_too_little_old">Объём дозирования не может быть меньше 1 мл.</string>
+    <string name="toast_drop_volume_is_too_little_new">Объём дозирования не может быть меньше 0.4 мл.</string>
+    /** hint **/
+    <string name="hint_select_time">Пожалуйста, выберите время.</string>
+    <string name="record_pause">Расписание приостановлено.</string>
+    <string name="continue_record">Возобновить выполнение.</string>
+
+    <string name="bottom_sheet_add_sink_title">@string/add_sink</string>
+    <string name="bottom_sheet_add_sink_edittext_title">@string/sink_name</string>
+    <string name="bottom_sheet_add_sink_button_text">@string/save</string>
+    <string name="bottom_sheet_edit_sink_title">@string/sink_setting</string>
+    <string name="bottom_sheet_edit_sink_edittext_title">@string/sink_name</string>
+    <string name="bottom_sheet_edit_sink_button_text">@string/save</string>
+    <string name="bottom_sheet_add_drop_type_title">@string/add_drop_type</string>
+    <string name="bottom_sheet_add_drop_type_edittext_title">@string/drop_type_name</string>
+    <string name="bottom_sheet_add_drop_type_button_text">@string/save</string>
+    <string name="bottom_sheet_edit_drop_type_title">@string/edit_drop_type</string>
+    <string name="bottom_sheet_edit_drop_type_edittext_title">@string/drop_type_name</string>
+    <string name="bottom_sheet_edit_drop_type_button_text">@string/save</string>
+    /** ===================================================================================== **/
+    /** MainActivity **/
+    /** HomeFragment **/
+    <string name="text_no_device_in_sink_title">В данный момент в резервуаре нет устройств.</string>
+    <string name="text_no_device_in_sink_content">Добавьте устройства из списка Bluetooth ниже.</string>
+    /** DeviceFragment **/
+    <string name="fragment_device_title">@string/device</string>
+    <string name="fragment_device_select">@string/select</string>
+    <string name="text_no_device_title">Нет доступных устройств.</string>
+    <string name="dialog_device_delete_led_master_title">@string/master_setting</string>
+    <string name="dialog_device_delete_led_master_content">Для удаления мастер-света, измените настройки мастер-слейв и установите другие слейвы как мастер.</string>
+    <string name="dialog_device_delete_led_master_positive">@string/i_konw</string>
+    <string name="dialog_device_delete">Удалить выбранное устройство?</string>
+    <string name="dialog_device_delete_led_content">Удалить устройство LED?</string>
+    <string name="dialog_device_delete_led_positive">@string/delete</string>
+    <string name="dialog_device_delete_led_negative">@string/cancel</string>
+    /** BluetoothFragment **/
+    <string name="fragment_bluetooth_title">@string/bluetooth_connect</string>
+    <string name="fragment_other_device_title">@string/other_device</string>
+    <string name="text_no_other_device_title">Устройства не найдены.</string>
+    <string name="text_no_other_device_content">Нажмите вверху справа, чтобы повторно сканировать окружающие устройства.</string>
+    <string name="dialog_disconnect_bluetooth_content">Хотите отключить Bluetooth?</string>
+    <string name="dialog_disconnect_bluetooth_positive">@string/confirm</string>
+    <string name="dialog_disconnect_bluetooth_negative">@string/cancel</string>
+    /** WarningActivity **/
+    <string name="activity_warning_title">@string/warning_list</string>
+    <string name="text_no_warning_title">Нет записей предупреждений.</string>
+    <string name="text_no_warning_content">В разделе \'Записи оповещений\' нет элементов.</string>
+    <string name="dialog_delete_warning_content">Хотите удалить это предупреждение?</string>
+    <string name="dialog_delete_warning_positive">@string/confirm</string>
+    <string name="dialog_delete_warning_negative">@string/cancel</string>
+    /** SinkManagerActivity **/
+    <string name="activity_manage_sink_title">@string/sink_manager</string>
+    <string name="text_no_sink_title">В настоящее время нет резервуаров.</string>
+    <string name="text_no_sink_content">Нажмите кнопку добавления внизу справа, чтобы добавить резервуар.</string>
+    <string name="text_device_amount">%1$d устройств</string>
+    <string name="dialog_delete_sink_title">@string/delete_sink</string>
+    <string name="dialog_delete_sink_content">После удаления резервуара устройства внутри резервуара станут неназначенными устройствами.</string>
+    <string name="dialog_delete_sink_positive">@string/delete</string>
+    <string name="dialog_delete_sink_negative">@string/cancel</string>
+
+    <string name="activity_add_device_title">@string/add_device</string>
+    <string name="activity_add_device_toolbar_left_btn">@string/skip</string>
+    <string name="activity_add_device_toolbar_right_btn">@string/complete</string>
+    <string name="activity_add_device_device_name_title">@string/device_name</string>
+    <string name="activity_add_device_sink_position_title">@string/sink_position</string>
+    /** SinkPositionActivity **/
+    <string name="activity_sink_position_title">@string/sink_position</string>
+    <string name="activity_sink_position_toolbar_right_btn">@string/confirm</string>
+    /** LedMainActivity **/
+    <string name="dialog_delete_led_master_title">@string/master_setting</string>
+    <string name="dialog_delete_led_master_content">Для удаления этого устройства сначала измените настройки мастер-слейв и установите другие светодиодные светильники как мастерный.</string>
+    <string name="dialog_delete_led_master_positive">@string/confirm</string>
+    <string name="dialog_delete_led_master_negative">@string/cancel</string>
+    <string name="dialog_reset_led_title">@string/reset</string>
+    <string name="dialog_reset_led_content">Это устройство станет неназначенным устройством...</string>
+    <string name="dialog_reset_led_positive">@string/confirm</string>
+    <string name="dialog_reset_led_negative">@string/cancel</string>
+    <string name="dialog_delete_led_content">Хотите удалить это устройство LED?</string>
+    <string name="dialog_delete_led_positive">@string/delete</string>
+    <string name="dialog_delete_led_negative">@string/cancel</string>
+    <string name="dialog_delete_unassigned_led_title">@string/master_setting</string>
+    <string name="dialog_delete_unassigned_led_content">Устройства в не назначенных резервуарах не могут быть установлены как мастер или слейв.</string>
+    <string name="dialog_delete_unassigned_led_positive">@string/i_konw</string>
+    <string name="dialog_reset_master_led_title">@string/master_setting</string>
+    <string name="dialog_reset_master_led_content">Чтобы сбросить это устройство на настройки по умолчанию, сначала измените настройки мастер-слейв и установите другие светодиодные светильники как мастерные.</string>
+    <string name="dialog_reset_master_led_positive">@string/confirm</string>
+    <string name="dialog_reset_master_led_negative">@string/cancel</string>
+    /** LedSettingActivity **/
+    <string name="activity_led_setting_title">@string/led_setting</string>
+    <string name="activity_led_setting_toolbar_right_btn">@string/save</string>
+    <string name="dialog_led_move_master_title">@string/master_setting</string>
+    <string name="dialog_led_move_master_content">Чтобы переместить это устройство в другой резервуар, сначала измените настройки мастер-слейв и установите другие светодиодные светильники как мастерные.</string>
+    <string name="dialog_led_move_master_positive">@string/confirm</string>
+    <string name="dialog_led_move_master_negative">@string/cancel</string>
+    /** LedMasterSettingActivity **/
+    <string name="activity_led_master_setting_title">@string/master_pairing</string>
+    <string name="activity_led_master_setting_toolbar_right_btn">@string/master_pairing</string>
+    /** LedRecordSettingActivity **/
+    <string name="activity_led_record_setting_title">@string/record_setting</string>
+    <string name="activity_led_record_setting_toolbar_right_btn">@string/save</string>
+    /** LedRecordActivity **/
+    <string name="activity_led_record_title">@string/record</string>
+    <string name="dialog_led_delete_time_content">Хотите удалить эту временную точку?</string>
+    <string name="dialog_led_delete_time_positive">@string/delete</string>
+    <string name="dialog_led_delete_time_negative">@string/cancel</string>
+    <string name="dialog_led_clear_record_content">Хотите очистить расписание?</string>
+    <string name="dialog_led_clear_record_positive">@string/confirm</string>
+    <string name="dialog_led_clear_record_negative">@string/cancel</string>
+
+    <string name="activity_led_record_time_setting_title">@string/record_time</string>
+    <string name="activity_led_record_time_setting_toolbar_right_btn">@string/save</string>
+
+    <string name="activity_led_scene_title">@string/led_scene</string>
+    <string name="activity_led_scene_toolbar_right_btn">@string/edit</string>
+    /** LedSceneAddActivity **/
+    <string name="activity_led_scene_add_title">@string/led_scene_add</string>
+    <string name="activity_led_scene_add_toolbar_right_btn">@string/save</string>
+    /** LedSceneEditActivity **/
+    <string name="activity_led_scene_edit_title">@string/led_scene_edit</string>
+    <string name="activity_led_scene_edit_toolbar_right_btn">@string/save</string>
+    /** LedSceneDeleteActivity **/
+    <string name="activity_led_scene_delete_title">@string/led_scene_delete</string>
+    <string name="dialog_scene_delete_scene_content">Хотите удалить сцену?</string>
+    <string name="dialog_scene_delete_scene_positive">@string/delete</string>
+    <string name="dialog_scene_delete_scene_negative">@string/cancel</string>
+
+    <string name="dialog_today_drop_out_of_range_title">@string/max_drop_volume</string>
+    <string name="dialog_today_drop_out_of_range_content">Ежедневный объем дозирования сегодня достиг максимального ежедневного объема дозирования.</string>
+    <string name="dialog_today_drop_out_of_range_positive">@string/i_konw</string>
+    <string name="dialog_delete_drop_content">Хотите удалить этот насос для дозирования?</string>
+    <string name="dialog_delete_drop_positive">@string/delete</string>
+    <string name="dialog_delete_drop_negative">@string/cancel</string>
+    <string name="dialog_reset_drop_title">@string/reset</string>
+    <string name="dialog_reset_drop_content">Это устройство будет снято с назначения и очистит все текущие настройки насоса и записи калибровки.</string>
+    <string name="dialog_reset_drop_positive">@string/confirm</string>
+    <string name="dialog_reset_drop_negative">@string/cancel</string>
+    /** DropSettingActivity **/
+    <string name="activity_drop_setting_title">@string/drop_setting</string>
+    <string name="activity_drop_setting_toolbar_right_btn">@string/save</string>
+    /** DropHeadSettingActivity **/
+    <string name="activity_drop_head_setting_title">@string/drop_head_setting</string>
+    <string name="activity_drop_head_setting_toolbar_right_btn">@string/save</string>
+    /** DropTypeActivity **/
+    <string name="activity_drop_type_title">@string/drop_type</string>
+    <string name="activity_drop_type_toolbar_right_btn">@string/confirm</string>
+    <string name="dialog_delete_drop_type_title">@string/drop_type_delete</string>
+    <string name="dialog_delete_drop_type_content">Вы хотите удалить этот тип капли?</string>
+    <string name="dialog_delete_drop_type_positive">@string/delete</string>
+    <string name="dialog_delete_drop_type_negative">@string/cancel</string>
+    <string name="dialog_drop_type_already_used_title">@string/drop_type_already_used</string>
+    <string name="dialog_drop_type_already_used_content">Это устройство станет неназначенным устройством, и все текущие настройки насоса и записи калибровки будут очищены.</string>
+    <string name="dialog_drop_type_already_used_positive">@string/delete</string>
+    <string name="dialog_drop_type_already_used_negative">@string/cancel</string>
+    /** DropHeadRecordSettingActivity **/
+    <string name="activity_drop_head_record_setting_title">@string/record</string>
+    <string name="activity_drop_head_record_setting_toolbar_right_btn">@string/run</string>
+    /** DropHeadRecordTimeSettingActivity **/
+    <string name="activity_drop_head_record_time_setting_title">@string/time_setting</string>
+    <string name="activity_drop_head_record_time_setting_toolbar_right_btn">@string/confirm</string>
+    <string name="dialog_setting_drop_out_of_range_title">@string/max_drop_volume</string>
+    <string name="dialog_setting_drop_out_of_range_content">Установленный объем дозирования превышает максимальный ежедневный объем дозирования.</string>
+    <string name="dialog_setting_drop_out_of_range_positive">@string/i_konw</string>
+    <string name="dialog_drop_time_setting_repeat_title">@string/record_setting</string>
+    <string name="dialog_drop_time_setting_repeat_content">Этот временной период уже установлен.</string>
+    <string name="dialog_drop_time_setting_repeat_positive">@string/confirm</string>
+    <string name="dialog_drop_setting_higher_than_max_title">@string/record_setting</string>
+    <string name="dialog_drop_setting_higher_than_max_content">Объем дозирования не может превышать 500 мл.</string>
+    <string name="dialog_drop_setting_higher_than_max_positive">@string/confirm</string>
+    <string name="dialog_drop_setting_lower_than_min_title">@string/record_setting</string>
+    <string name="dialog_drop_setting_lower_than_min_content">Объем дозирования не может быть меньше %1$s мл каждый раз.</string>
+    <string name="dialog_drop_setting_lower_than_min_positive">@string/confirm</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_title">@string/max_drop_volume</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_content">Общий объем дозирования на сегодня, включая запланированную дозировку, превышает максимальный ежедневный объем дозирования.</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_positive">@string/i_konw</string>
+    <string name="dialog_setting_delete_detail_title">@string/delete_drop_record_time</string>
+    <string name="dialog_setting_delete_detail_content">Хотите удалить этот временной слот?</string>
+    <string name="dialog_setting_delete_detail_positive">@string/delete</string>
+    <string name="dialog_setting_delete_detail_negative">@string/cancel</string>
+    /** DropHeadAdjustListActivity **/
+    <string name="activity_drop_head_adjust_list_title">@string/adjust_list</string>
+    <string name="activity_drop_head_adjust_list_toolbar_right_btn">@string/adjust</string>
+    /** DropHeadAdjustActivity **/
+    <string name="activity_drop_head_adjust_title">@string/adjust</string>
+    <string name="adjust_volume_hint">1 ~ 15; один знак после запятой</string>
+</resources>

@@ -2,6 +2,7 @@ library;
 
 import '../../domain/device/device_context.dart';
 import '../../platform/contracts/dosing_port.dart';
+import '../../platform/contracts/pump_head_repository.dart';
 import '../common/app_error.dart';
 import '../common/app_error_code.dart';
 import '../session/current_device_session.dart';
@@ -10,10 +11,12 @@ import '../session/current_device_session.dart';
 class ReadTodayTotalUseCase {
   final DosingPort dosingPort;
   final CurrentDeviceSession currentDeviceSession;
+  final PumpHeadRepository pumpHeadRepository;
 
   const ReadTodayTotalUseCase({
     required this.dosingPort,
     required this.currentDeviceSession,
+    required this.pumpHeadRepository,
   });
 
   Future<TodayDoseSummary?> execute({
@@ -44,6 +47,12 @@ class ReadTodayTotalUseCase {
           opcode: opcode,
         );
         if (summary != null) {
+          await pumpHeadRepository.updateTotals(
+            deviceId: deviceId,
+            headId: headId,
+            totalMl: summary.totalMl,
+            lastDoseAt: DateTime.now(),
+          );
           return summary;
         }
       } on AppError catch (error) {

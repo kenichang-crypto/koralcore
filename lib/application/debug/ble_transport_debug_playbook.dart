@@ -67,7 +67,11 @@ class BleTransportDebugPlaybook {
         );
 
     final LedScheduleResult ledScheduleResult = await applyLedScheduleUseCase
-        .execute(schedule: _sampleLedSchedule());
+        .execute(
+          deviceId: deviceId,
+          scheduleId: 'daily_curve',
+          schedule: _sampleLedSchedule(),
+        );
 
     return BleTransportDebugReport(
       immediateDoseSent: true,

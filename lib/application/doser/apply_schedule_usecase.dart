@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import '../../domain/device/device_context.dart';
 import '../../domain/doser_dosing/doser_schedule.dart';
 import '../../domain/doser_dosing/doser_schedule_type.dart';
+import '../../domain/doser_dosing/pump_head.dart';
 import '../../domain/doser_schedule/custom_window_schedule_definition.dart';
 import '../../domain/doser_schedule/daily_average_schedule_definition.dart';
 import '../../infrastructure/ble/encoder/schedule/custom_schedule_chunk_encoder.dart';
@@ -13,6 +14,7 @@ import '../../infrastructure/ble/encoder/schedule/daily_average_schedule_encoder
 import '../../infrastructure/ble/schedule/schedule_sender.dart';
 import '../../infrastructure/ble/transport/ble_transport_models.dart';
 import '../../platform/contracts/device_repository.dart';
+import '../../platform/contracts/pump_head_repository.dart';
 import '../common/app_error.dart';
 import '../common/app_error_code.dart';
 import '../session/current_device_session.dart';
@@ -27,6 +29,7 @@ import 'schedule_result_mapper.dart';
 /// device. Manual / single commands (BLE 15/16) are **not** handled here.
 class ApplyScheduleUseCase {
   final DeviceRepository deviceRepository;
+  final PumpHeadRepository pumpHeadRepository;
   final ScheduleCapabilityGuard scheduleCapabilityGuard;
   final ScheduleResultMapper scheduleResultMapper;
   final CurrentDeviceSession currentDeviceSession;
@@ -37,6 +40,7 @@ class ApplyScheduleUseCase {
 
   ApplyScheduleUseCase({
     required this.deviceRepository,
+    required this.pumpHeadRepository,
     required this.scheduleCapabilityGuard,
     required this.scheduleResultMapper,
     required this.currentDeviceSession,
@@ -77,6 +81,14 @@ class ApplyScheduleUseCase {
       return ScheduleResult.failure(
         errorCode: scheduleResultMapper.guardNotSupported(),
       );
+    }
+
+    final ScheduleResult? busyFailure = await _ensurePumpHeadIdle(
+      deviceId: deviceContext.deviceId,
+      pumpId: schedule.pumpId,
+    );
+    if (busyFailure != null) {
+      return busyFailure;
     }
 
     // 4) TODO: Branch based on schedule.type (manual / BLE 15 / BLE 16 are
@@ -129,6 +141,14 @@ class ApplyScheduleUseCase {
       return contextFailure;
     }
 
+    final ScheduleResult? busyFailure = await _ensurePumpHeadIdle(
+      deviceId: deviceId,
+      pumpId: schedule.pumpId,
+    );
+    if (busyFailure != null) {
+      return busyFailure;
+    }
+
     final Uint8List payload = dailyAverageScheduleEncoder.encode(schedule);
     return _sendSchedulePayloads(
       deviceId: deviceId,
@@ -155,6 +175,14 @@ class ApplyScheduleUseCase {
     );
     if (contextFailure != null) {
       return contextFailure;
+    }
+
+    final ScheduleResult? busyFailure = await _ensurePumpHeadIdle(
+      deviceId: deviceId,
+      pumpId: schedule.pumpId,
+    );
+    if (busyFailure != null) {
+      return busyFailure;
     }
 
     final List<int> chunkIndexes =
@@ -243,5 +271,23 @@ class ApplyScheduleUseCase {
         errorCode: scheduleResultMapper.unknownFailure(),
       );
     }
+  }
+
+  Future<ScheduleResult?> _ensurePumpHeadIdle({
+    required String deviceId,
+    required int pumpId,
+  }) async {
+    try {
+      final PumpHead? head = await pumpHeadRepository.getPumpHead(
+        deviceId,
+        PumpHeadRepository.headIdFromPumpId(pumpId),
+      );
+      if (head != null && head.status == PumpHeadStatus.running) {
+        return ScheduleResult.failure(errorCode: AppErrorCode.deviceBusy);
+      }
+    } catch (_) {
+      // Ignore lookup errors and allow operation to proceed.
+    }
+    return null;
   }
 }

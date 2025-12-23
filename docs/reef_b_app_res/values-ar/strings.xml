@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    阿拉伯語（شكرا جزيلا）-->
+    <string name="app_name">ReefB</string>
+    /** 權限相關 **/
+    <string name="get_gps_permission">يرجى السماح بإذن موقع GPS</string>
+    <string name="get_nerby_permission">يرجى السماح بإذن الجهاز القريب</string>
+    <string name="get_camera_storage_permission">يرجى السماح بإذن الكاميرا ومساحة التخزين.</string>
+    <string name="get_camera_permission">يرجى السماح بإذن الكاميرا.</string>
+    <string name="get_storage_permission">يرجى السماح بإذن مساحة التخزين.</string>
+    <string name="please_open_gps">يرجى تمكين موقع GPS.</string>
+    <string name="please_open_ble">يرجى تمكين البلوتوث.</string>
+    <string name="please_open_ble_gps">يرجى تمكين البلوتوث وموقع GPS.</string>
+    <string name="toast_connect_failed">فشل الاتصال، يرجى المحاولة مرة أخرى.</string>
+    <string name="toast_connect_successful">تم الاتصال بنجاح.</string>
+    <string name="toast_disconnect">تم قطع الاتصال بالجهاز.</string>
+    /** 通用 **/
+    <string name="confirm">حسنًا</string>
+    <string name="delete">حذف</string>
+    <string name="cancel">إلغاء</string>
+    <string name="select">تحديد</string>
+    <string name="skip">تخطي</string>
+    <string name="complete">تم</string>
+    <string name="save">حفظ</string>
+    <string name="edit">تعديل</string>
+    <string name="i_konw">فهمت</string>
+    <string name="next">التالي</string>
+    <string name="close">إغلاق</string>
+    <string name="back">رجوع</string>
+    <string name="no">لا شيء</string>
+    <string name="run">تشغيل</string>
+    <string name="no_eng">لا شيء</string>
+    <string name="rearrangement">إعادة ترتيب</string>
+    <string name="led">LED</string>
+    <string name="drop">مضخة الجرعات</string>
+    <string name="home">الرئيسية</string>
+    <string name="bluetooth">البلوتوث</string>
+    <string name="device">الجهاز</string>
+    <string name="favorite">الأجهزة المفضلة</string>
+    <string name="bluetooth_connect">اتصال البلوتوث</string>
+    <string name="reset">استعادة الإعدادات الافتراضية</string>
+    <string name="warning_list">سجل التنبيهات</string>
+    <string name="group_full">تم الوصول إلى حد الجهاز</string>
+    <string name="device_is_not_connect">الجهاز غير متصل</string>
+    <string name="no_records">لا توجد مهام مجدولة</string>
+    /** 預設場景 **/
+    <string name="preset_scene_off">إيقاف</string>
+    <string name="preset_scene_30">30%</string>
+    <string name="preset_scene_60">60%</string>
+    <string name="preset_scene_100">100%</string>
+    <string name="preset_scene_moon">ضوء القمر</string>
+    <string name="preset_scene_thunder">الرعد</string>
+    /** 光譜名字 **/
+    <string name="uv">UV</string>
+    <string name="purple">أرجواني</string>
+    <string name="blue">أزرق</string>
+    <string name="royal_blue">أزرق ملكي</string>
+    <string name="green">أخضر</string>
+    <string name="red">أحمر</string>
+    <string name="cold_white">أبيض بارد</string>
+    <string name="warm_white">أبيض دافئ</string>
+    <string name="moon">ضوء القمر</string>
+    <string name="light_uv">ضوء UV</string>
+    <string name="light_purple">ضوء أرجواني</string>
+    <string name="light_blue">ضوء أزرق</string>
+    <string name="light_royal_blue">ضوء أزرق ملكي</string>
+    <string name="light_green">ضوء أخضر</string>
+    <string name="light_red">ضوء أحمر</string>
+    <string name="light_cold_white">ضوء أبيض بارد</string>
+    <string name="light_warm_white">ضوء أبيض دافئ</string>
+    <string name="light_moon">ضوء القمر</string>
+    /** 滴液泵排程種類 **/
+    <string name="drop_record_type_custom">وضع حر</string>
+    <string name="drop_record_type_single">جرعة واحدة</string>
+    <string name="drop_record_type_24">تساوي 24 ساعة</string>
+    <string name="drop_record_type_none">لا توجد مهام مجدولة</string>
+    <string name="drop_record_type">نوع الجدول</string>
+    /** 單位 **/
+    <string name="minute">دقيقة</string>
+    <string name="init_minute">30 دقيقة</string>
+    <string name="times">مرات</string>
+    <string name="group">مجموعة</string>
+    <string name="master_setting">إعدادات الماستر والسليف</string>
+    <string name="setting_master">تعيين كـ ماستر</string>
+    <string name="led_setting">إعدادات LED</string>
+    <string name="master_pairing">إقران الماستر والسليف</string>
+    <string name="max_drop_volume">حجم الجرعات اليومية القصوى</string>
+    <string name="max_drop_volume_hint">تحديد حجم الجرعات للتشغيل المجدول وغير المجدول بعد الفتح</string>
+    <string name="drop_setting">إعدادات مضخة الجرعات</string>
+    <string name="drop_head_setting">إعدادات رأس المضخة</string>
+    <string name="master_slave">ماستر/سليف</string>
+    <string name="set_master">تعيين كـ ماستر للضوء</string>
+    <string name="move_group">نقل المجموعة</string>
+    <string name="choose_group">تحديد المجموعة</string>
+    <string name="run_cycle">دورة التنفيذ</string>
+    <string name="run_time">وقت التنفيذ</string>
+    <string name="low_rotating_speed">سرعة منخفضة</string>
+    <string name="middle_rotating_speed">سرعة متوسطة</string>
+    <string name="high_rotating_speed">سرعة عالية</string>
+    <string name="drop_volume_per_day">إجمالي حجم الجرعات اليومية</string>
+    <string name="drop_volume">حجم الجرعات (مل)</string>
+    <string name="init_rotating_speed">السرعة الافتراضية</string>
+    <string name="drop_head_rotating_speed">سرعة رأس المضخة</string>
+    <string name="drop_days_a_week">أيام الجرعات الأسبوعية</string>
+    <string name="run_immediatrly">تنفيذ الآن</string>
+    <string name="drop_record_time">فترة الجدول</string>
+    <string name="delete_drop_record_time">حذف فترة الجدول</string>
+    <string name="drop_start_time">وقت بدء الجرعات</string>
+    <string name="drop_end_time">وقت انتهاء الجرعات</string>
+    <string name="drop_times">تكرار الجرعات</string>
+    /** led record setting **/
+    <string name="init_strength">الكثافة الأولية</string>
+    <string name="sunrise">شروق الشمس</string>
+    <string name="sunset">غروب الشمس</string>
+    <string name="slow_start">بداية ناعمة</string>
+    <string name="moon_light">@string/moon</string>
+    <string name="time_already_exist">تم تعيين هذه الفترة بالفعل</string>
+
+    <string name="drop_type">نوع الجرعات</string>
+    <string name="drop_type_delete">حذف نوع الجرعات</string>
+    <string name="drop_type_already_used">رأس مضخة أخرى يستخدم هذا النوع من الجرعات</string>
+    <string name="delay_time">وقت التأخير</string>
+    <string name="today_record_drop_volume">حجم الجرعات الفورية المجدولة لليوم</string>
+    <string name="add_drop_type">إضافة جرعات مخصصة</string>
+    <string name="edit_drop_type">تعديل الجرعات المخصصة</string>
+    <string name="drop_type_name">اسم الجرعات</string>
+    /** record **/
+    <string name="record_setting">إعدادات الجدول</string>
+    <string name="record">الجدول</string>
+    <string name="record_time">نقطة الوقت المجدولة</string>
+    <string name="time">نقطة الوقت</string>
+    <string name="time_setting">إعدادات الفترة</string>
+    /** scene **/
+    <string name="led_scene">المشهد</string>
+    <string name="led_scene_add">إضافة مشهد</string>
+    <string name="led_scene_edit">إعدادات المشهد</string>
+    <string name="led_scene_delete">حذف المشهد</string>
+    <string name="led_dynamic_scene">مشهد ديناميكي</string>
+    <string name="led_static_scene">مشهد ثابت</string>
+    <string name="led_scene_name">اسم المشهد</string>
+    <string name="led_scene_icon">أيقونة المشهد</string>
+    /** adjust **/
+    <string name="adjust_list">سجل المعايرة</string>
+    <string name="adjust">معايرة</string>
+    <string name="complete_adjust">اكتمال المعايرة</string>
+    <string name="recently_adjust_list">سجلات المعايرة الحديثة</string>
+    <string name="adjusting">جاري المعايرة...</string>
+    <string name="adjust_description">تعليمات المعايرة</string>
+    <string name="adjust_step">جهز كوب القياس المرفق وبعض الأنابيب. 2. ابدأ التشغيل اليدوي لملء الأنابيب بالسائل. 3. اختر سرعة المعايرة.1</string>
+    <string name="rotating_speed">السرعة</string>
+    <string name="adjust_date">تاريخ المعايرة</string>
+    <string name="measure_drop_volume">حجم المقاس</string>
+    /** device **/
+    <string name="add_device">إضافة جهاز</string>
+    <string name="other_device">أجهزة أخرى</string>
+    <string name="device_name">اسم الجهاز</string>
+    <string name="favorite_device">الأجهزة المفضلة</string>
+    <string name="unassigned_device">الأجهزة غير المخصصة</string>
+    /** sink **/
+    <string name="add_sink">إضافة حوض</string>
+    <string name="sink_name">اسم الحوض</string>
+    <string name="sink_setting">إعدادات الحوض</string>
+    <string name="sink_position">موقع الحوض</string>
+    <string name="sink_manager">إدارة الحوض</string>
+    <string name="delete_sink">حذف الحوض</string>
+    /** Menu **/
+    <string name="bottom_navigation_home">@string/home</string>
+    <string name="bottom_navigation_bluetooth">@string/bluetooth</string>
+    <string name="bottom_navigation_device">@string/device</string>
+    /** Led Menu **/
+    <string name="menu_favorite">@string/favorite</string>
+    <string name="menu_edit">@string/edit</string>
+    <string name="menu_delete">@string/delete</string>
+    <string name="menu_setting_master">@string/setting_master</string>
+    <string name="menu_reset">@string/reset</string>
+    /** delay time menu **/
+    <string name="_15sec">15 ثانية</string>
+    <string name="_30sec">30 ثانية</string>
+    <string name="_1min">1 دقيقة</string>
+    <string name="_2min">2 دقيقة</string>
+    <string name="_3min">3 دقيقة</string>
+    <string name="_4min">4 دقائق</string>
+    <string name="_5min">5 دقائق</string>
+
+    <string name="menu_set_master">@string/set_master</string>
+    <string name="menu_move_group">@string/move_group</string>
+    /** spinner **/
+    <string name="home_spinner_all_sink">كل الخزانات</string>
+    <string name="home_spinner_favorite">@string/favorite_device</string>
+    <string name="home_spinner_unassigned">@string/unassigned_device</string>
+    /** toast **/
+    <string name="toast_connect_limit">يمكن توصيل جهاز واحد كحد أقصى في نفس الوقت.</string>
+    <string name="toast_name_is_empty">لا يمكن ترك اسم الخزان فارغًا.</string>
+    <string name="toast_add_sink_successful">تمت إضافة الخزان بنجاح.</string>
+    <string name="toast_sink_name_is_exist">اسم الخزان موجود بالفعل.</string>
+    <string name="toast_edit_sink_successful">تم تعديل اسم الخزان بنجاح.</string>
+    <string name="toast_device_name_is_exist">اسم الجهاز موجود بالفعل.</string>
+    <string name="toast_delete_sink_successful">تم حذف الخزان بنجاح.</string>
+    <string name="toast_delete_sink_failed">فشل في حذف الخزان.</string>
+    <string name="toast_add_device_successful">تمت إضافة الجهاز بنجاح.</string>
+    <string name="toast_sink_is_full">الخزان ممتلئ.</string>
+    <string name="toast_delete_device_successful">تم حذف الجهاز بنجاح.</string>
+    <string name="toast_delete_device_failed">فشل في حذف الجهاز.</string>
+    <string name="toast_reset_device_successful">تمت استعادة الإعدادات الافتراضية بنجاح.</string>
+    <string name="toast_reset_device_failed">فشل في استعادة الإعدادات الافتراضية.</string>
+    <string name="toast_set_time_error">يجب أن تكون نقاط الوقت على بعد 10 دقائق على الأقل.</string>
+    <string name="toast_set_time_is_exist">تم تعيين هذه الفترة بالفعل.</string>
+    <string name="toast_setting_successful">نجاح الإعدادات.</string>
+    <string name="toast_setting_failed">فشل الإعدادات.</string>
+    <string name="toast_move_group_successful">تم نقل المجموعة بنجاح.</string>
+    <string name="toast_move_group_failed">فشل في نقل المجموعة.</string>
+    <string name="toast_add_scene_successful">تمت إضافة المشهد بنجاح.</string>
+    <string name="toast_scene_name_is_exist">اسم المشهد موجود بالفعل.</string>
+    <string name="toast_delete_scene_successful">تم حذف المشهد بنجاح.</string>
+    <string name="toast_delete_scene_failed">فشل في حذف المشهد.</string>
+    <string name="toast_delete_record_successful">تم حذف نقطة الوقت بنجاح.</string>
+    <string name="toast_delete_record_failed">فشل في حذف نقطة الوقت.</string>
+    <string name="toast_preview_start">بدأت معاينة سريعة لمدة دقيقة واحدة.</string>
+    <string name="toast_preview_end">انتهت معاينة سريعة لمدة دقيقة واحدة.</string>
+    <string name="toast_sun_time_error">إعدادات وقت شروق الشمس وغروبها غير صحيحة.</string>
+    <string name="toast_time_record_size_more_than_24">يمكن تعيين ما يصل إلى 24 نقطة زمنية كحد أقصى.</string>
+    <string name="toast_custom_scene_size_more_than_5">يمكن تعيين ما يصل إلى 5 مشاهد مخصصة كحد أقصى.</string>
+    <string name="toast_delete_now_scene">لا يمكن حذف المشهد الحالي المستخدم حاليًا.</string>
+    <string name="toast_drophead_is_droping">هذا الضخ يعمل حاليًا في الجرعة، يرجى المحاولة مرة أخرى لاحقًا.</string>
+    <string name="toast_add_drop_type_successful">تمت إضافة نوع الجرعة بنجاح.</string>
+    <string name="toast_drop_type_name_is_exist">اسم نوع الجرعة موجود بالفعل.</string>
+    <string name="toast_edit_drop_type_successful">تم تعديل اسم نوع الجرعة بنجاح.</string>
+    <string name="toast_delete_drop_type_successful">تم حذف نوع الجرعة بنجاح.</string>
+    <string name="toast_delete_drop_type_failed">فشل في حذف نوع الجرعة.</string>
+    <string name="toast_max_drop_per_day_is_empty">الرجاء إدخال حجم الجرعة اليومي الأقصى.</string>
+    <string name="toast_drop_volume_is_empty">الرجاء إدخال حجم الجرعة.</string>
+    <string name="toast_run_time_is_empty">الرجاء تحديد وقت التنفيذ.</string>
+    <string name="toast_drop_volume_is_too_little">لا يمكن أن يكون حجم كل جرعة أقل من 1 مل.</string>
+    <string name="toast_drop_volume_is_too_much">لا يمكن أن يتجاوز إجمالي حجم الجرعة 500 مل.</string>
+    <string name="toast_drop_volume_out_of_bound">لا يمكن أن يتجاوز حجم الجرعة اليومي الأقصى.</string>
+    <string name="toast_drop_detail_is_empty">الرجاء إضافة فترة جدول.</string>
+    <string name="toast_delete_detail_successful">تم حذف الفترة بنجاح.</string>
+    <string name="toast_delete_detail_failed">فشل في حذف الفترة.</string>
+    <string name="drop_times_exceed">الجرعة القصوى هي 5 قطرات في الساعة.</string>
+    <string name="drop_start_adjust_failed">بدء معايرة فاشل.</string>
+    <string name="drop_adjust_successful">اكتملت عملية المعايرة.</string>
+    <string name="drop_adjust_failed">فشلت عملية المعايرة.</string>
+    <string name="toast_drop_volume_is_too_little_old">لا يمكن أن يكون حجم الجرعة أقل من 1 مل.</string>
+    <string name="toast_drop_volume_is_too_little_new">لا يمكن أن يكون حجم الجرعة أقل من 0.4 مل.</string>
+    /** hint **/
+    <string name="hint_select_time">الرجاء تحديد الوقت.</string>
+    <string name="record_pause">تم إيقاف الجدول الزمني.</string>
+    <string name="continue_record">استئناف التنفيذ.</string>
+
+    <string name="bottom_sheet_add_sink_title">@string/add_sink</string>
+    <string name="bottom_sheet_add_sink_edittext_title">@string/sink_name</string>
+    <string name="bottom_sheet_add_sink_button_text">@string/save</string>
+    <string name="bottom_sheet_edit_sink_title">@string/sink_setting</string>
+    <string name="bottom_sheet_edit_sink_edittext_title">@string/sink_name</string>
+    <string name="bottom_sheet_edit_sink_button_text">@string/save</string>
+    <string name="bottom_sheet_add_drop_type_title">@string/add_drop_type</string>
+    <string name="bottom_sheet_add_drop_type_edittext_title">@string/drop_type_name</string>
+    <string name="bottom_sheet_add_drop_type_button_text">@string/save</string>
+    <string name="bottom_sheet_edit_drop_type_title">@string/edit_drop_type</string>
+    <string name="bottom_sheet_edit_drop_type_edittext_title">@string/drop_type_name</string>
+    <string name="bottom_sheet_edit_drop_type_button_text">@string/save</string>
+    /** ===================================================================================== **/
+    /** MainActivity **/
+    /** HomeFragment **/
+    <string name="text_no_device_in_sink_title">الخزان ليس لديه أي أجهزة حاليًا.</string>
+    <string name="text_no_device_in_sink_content">أضف الأجهزة من قائمة البلوتوث أدناه.</string>
+    /** DeviceFragment **/
+    <string name="fragment_device_title">@string/device</string>
+    <string name="fragment_device_select">@string/select</string>
+    <string name="text_no_device_title">لا تتوفر حاليًا أي أجهزة.</string>
+    <string name="dialog_device_delete_led_master_title">@string/master_setting</string>
+    <string name="dialog_device_delete_led_master_content">لحذف الضوء الرئيسي، يرجى تعديل إعدادات الماستر-الرقيق وتعيين الأضواء الأخرى كأضواء رقيقة.</string>
+    <string name="dialog_device_delete_led_master_positive">@string/i_konw</string>
+    <string name="dialog_device_delete">هل ترغب في حذف الجهاز المحدد؟</string>
+    <string name="dialog_device_delete_led_content">هل ترغب في حذف جهاز LED؟</string>
+    <string name="dialog_device_delete_led_positive">@string/delete</string>
+    <string name="dialog_device_delete_led_negative">@string/cancel</string>
+    /** BluetoothFragment **/
+    <string name="fragment_bluetooth_title">@string/bluetooth_connect</string>
+    <string name="fragment_other_device_title">@string/other_device</string>
+    <string name="text_no_other_device_title">لم يتم العثور على أي أجهزة.</string>
+    <string name="text_no_other_device_content">انقر في الزاوية العلوية اليمنى لإعادة فحص الأجهزة القريبة.</string>
+    <string name="dialog_disconnect_bluetooth_content">هل ترغب في فصل البلوتوث؟</string>
+    <string name="dialog_disconnect_bluetooth_positive">@string/confirm</string>
+    <string name="dialog_disconnect_bluetooth_negative">@string/cancel</string>
+    /** WarningActivity **/
+    <string name="activity_warning_title">@string/warning_list</string>
+    <string name="text_no_warning_title">لا توجد سجلات تنبيه.</string>
+    <string name="text_no_warning_content">لا توجد عناصر في "سجلات التنبيه".</string>
+    <string name="dialog_delete_warning_content">هل ترغب في حذف هذا التحذير؟</string>
+    <string name="dialog_delete_warning_positive">@string/confirm</string>
+    <string name="dialog_delete_warning_negative">@string/cancel</string>
+    /** SinkManagerActivity **/
+    <string name="activity_manage_sink_title">@string/sink_manager</string>
+    <string name="text_no_sink_title">لا توجد حاليًا خزانات.</string>
+    <string name="text_no_sink_content">انقر فوق زر الإضافة في الزاوية السفلية اليمنى لإضافة خزان.</string>
+    <string name="text_device_amount">%1$d أجهزة</string>
+    <string name="dialog_delete_sink_title">@string/delete_sink</string>
+    <string name="dialog_delete_sink_content">بعد حذف الخزان، ستصبح الأجهزة داخل الخزان أجهزة غير معينة.</string>
+    <string name="dialog_delete_sink_positive">@string/delete</string>
+    <string name="dialog_delete_sink_negative">@string/cancel</string>
+
+    <string name="activity_add_device_title">@string/add_device</string>
+    <string name="activity_add_device_toolbar_left_btn">@string/skip</string>
+    <string name="activity_add_device_toolbar_right_btn">@string/complete</string>
+    <string name="activity_add_device_device_name_title">@string/device_name</string>
+    <string name="activity_add_device_sink_position_title">@string/sink_position</string>
+    /** SinkPositionActivity **/
+    <string name="activity_sink_position_title">@string/sink_position</string>
+    <string name="activity_sink_position_toolbar_right_btn">@string/confirm</string>
+    /** LedMainActivity **/
+    <string name="dialog_delete_led_master_title">@string/master_setting</string>
+    <string name="dialog_delete_led_master_content">لحذف هذا الجهاز، يرجى تعديل إعدادات الماستر-الرقيق أولاً وتعيين الأضواء الأخرى كضوء رئيسي.</string>
+    <string name="dialog_delete_led_master_positive">@string/confirm</string>
+    <string name="dialog_delete_led_master_negative">@string/cancel</string>
+    <string name="dialog_reset_led_title">@string/reset</string>
+    <string name="dialog_reset_led_content">سيصبح هذا الجهاز جهازًا غير معين، وسيتم مسح جميع الإعدادات الحالية.</string>
+    <string name="dialog_reset_led_positive">@string/confirm</string>
+    <string name="dialog_reset_led_negative">@string/cancel</string>
+    <string name="dialog_delete_led_content">هل ترغب في حذف هذا الجهاز LED؟</string>
+    <string name="dialog_delete_led_positive">@string/delete</string>
+    <string name="dialog_delete_led_negative">@string/cancel</string>
+    <string name="dialog_delete_unassigned_led_title">@string/master_setting</string>
+    <string name="dialog_delete_unassigned_led_content">الأجهزة ضمن الخزانات غير المخصصة لا يمكن تعيينها كماستر أو رقيق.</string>
+    <string name="dialog_delete_unassigned_led_positive">@string/i_konw</string>
+    <string name="dialog_reset_master_led_title">@string/master_setting</string>
+    <string name="dialog_reset_master_led_content">لإعادة هذا الجهاز إلى الإعدادات الافتراضية، يرجى تعديل إعدادات الماستر-الرقيق أولاً وتعيين الأضواء الأخرى كضوء رئيسي.</string>
+    <string name="dialog_reset_master_led_positive">@string/confirm</string>
+    <string name="dialog_reset_master_led_negative">@string/cancel</string>
+    /** LedSettingActivity **/
+    <string name="activity_led_setting_title">@string/led_setting</string>
+    <string name="activity_led_setting_toolbar_right_btn">@string/save</string>
+    <string name="dialog_led_move_master_title">@string/master_setting</string>
+    <string name="dialog_led_move_master_content">لنقل هذا الجهاز إلى خزان آخر، يرجى تعديل إعدادات الماستر-الرقيق أولاً وتعيين الأضواء الأخرى كضوء رئيسي.</string>
+    <string name="dialog_led_move_master_positive">@string/confirm</string>
+    <string name="dialog_led_move_master_negative">@string/cancel</string>
+    /** LedMasterSettingActivity **/
+    <string name="activity_led_master_setting_title">@string/master_pairing</string>
+    <string name="activity_led_master_setting_toolbar_right_btn">@string/confirm</string>
+    /** LedRecordSettingActivity **/
+    <string name="activity_led_record_setting_title">@string/record_setting</string>
+    <string name="activity_led_record_setting_toolbar_right_btn">@string/save</string>
+    /** LedRecordActivity **/
+    <string name="activity_led_record_title">@string/record</string>
+    <string name="dialog_led_delete_time_content">هل ترغب في حذف نقطة الزمن هذه؟</string>
+    <string name="dialog_led_delete_time_positive">@string/delete</string>
+    <string name="dialog_led_delete_time_negative">@string/cancel</string>
+    <string name="dialog_led_clear_record_content">هل ترغب في مسح الجدول الزمني؟</string>
+    <string name="dialog_led_clear_record_positive">@string/confirm</string>
+    <string name="dialog_led_clear_record_negative">@string/cancel</string>
+
+    <string name="activity_led_record_time_setting_title">@string/record_time</string>
+    <string name="activity_led_record_time_setting_toolbar_right_btn">@string/save</string>
+
+    <string name="activity_led_scene_title">@string/led_scene</string>
+    <string name="activity_led_scene_toolbar_right_btn">@string/edit</string>
+    /** LedSceneAddActivity **/
+    <string name="activity_led_scene_add_title">@string/led_scene_add</string>
+    <string name="activity_led_scene_add_toolbar_right_btn">@string/save</string>
+    /** LedSceneEditActivity **/
+    <string name="activity_led_scene_edit_title">@string/led_scene_edit</string>
+    <string name="activity_led_scene_edit_toolbar_right_btn">@string/save</string>
+    /** LedSceneDeleteActivity **/
+    <string name="activity_led_scene_delete_title">@string/led_scene_delete</string>
+    <string name="dialog_scene_delete_scene_content">هل ترغب في حذف المشهد؟</string>
+    <string name="dialog_scene_delete_scene_positive">@string/delete</string>
+    <string name="dialog_scene_delete_scene_negative">@string/cancel</string>
+
+    <string name="dialog_today_drop_out_of_range_title">@string/max_drop_volume</string>
+    <string name="dialog_today_drop_out_of_range_content">لقد وصل حجم الجرعة اليومي إلى الحد الأقصى للجرعة اليومية.</string>
+    <string name="dialog_today_drop_out_of_range_positive">@string/i_konw</string>
+    <string name="dialog_delete_drop_content">هل ترغب في حذف مضخة الجرعة هذه؟</string>
+    <string name="dialog_delete_drop_positive">@string/delete</string>
+    <string name="dialog_delete_drop_negative">@string/cancel</string>
+    <string name="dialog_reset_drop_title">@string/reset</string>
+    <string name="dialog_reset_drop_content">سيصبح هذا الجهاز غير مخصص وسيتم مسح جميع إعدادات المضخة الحالية وسجلات المعايرة.</string>
+    <string name="dialog_reset_drop_positive">@string/confirm</string>
+    <string name="dialog_reset_drop_negative">@string/cancel</string>
+    /** DropSettingActivity **/
+    <string name="activity_drop_setting_title">@string/drop_setting</string>
+    <string name="activity_drop_setting_toolbar_right_btn">@string/save</string>
+    /** DropHeadSettingActivity **/
+    <string name="activity_drop_head_setting_title">@string/drop_head_setting</string>
+    <string name="activity_drop_head_setting_toolbar_right_btn">@string/save</string>
+    /** DropTypeActivity **/
+    <string name="activity_drop_type_title">@string/drop_type</string>
+    <string name="activity_drop_type_toolbar_right_btn">@string/confirm</string>
+    <string name="dialog_delete_drop_type_title">@string/drop_type_delete</string>
+    <string name="dialog_delete_drop_type_content">هل تريد حذف هذا النوع من القطرات؟</string>
+    <string name="dialog_delete_drop_type_positive">@string/delete</string>
+    <string name="dialog_delete_drop_type_negative">@string/cancel</string>
+    <string name="dialog_drop_type_already_used_title">@string/drop_type_already_used</string>
+    <string name="dialog_drop_type_already_used_content">سيصبح هذا الجهاز جهازًا غير مخصص، وسيتم مسح جميع إعدادات رأس المضخة الحالية وسجلات المعايرة.</string>
+    <string name="dialog_drop_type_already_used_positive">@string/delete</string>
+    <string name="dialog_drop_type_already_used_negative">@string/cancel</string>
+    /** DropHeadRecordSettingActivity **/
+    <string name="activity_drop_head_record_setting_title">@string/record</string>
+    <string name="activity_drop_head_record_setting_toolbar_right_btn">@string/run</string>
+    /** DropHeadRecordTimeSettingActivity **/
+    <string name="activity_drop_head_record_time_setting_title">@string/time_setting</string>
+    <string name="activity_drop_head_record_time_setting_toolbar_right_btn">@string/confirm</string>
+    <string name="dialog_setting_drop_out_of_range_title">@string/max_drop_volume</string>
+    <string name="dialog_setting_drop_out_of_range_content">الحجم المحدد للجرعة يتجاوز الحد الأقصى للجرعة اليومية.</string>
+    <string name="dialog_setting_drop_out_of_range_positive">@string/i_konw</string>
+    <string name="dialog_drop_time_setting_repeat_title">@string/record_setting</string>
+    <string name="dialog_drop_time_setting_repeat_content">تم تعيين هذه الفترة زمنية بالفعل.</string>
+    <string name="dialog_drop_time_setting_repeat_positive">@string/confirm</string>
+    <string name="dialog_drop_setting_higher_than_max_title">@string/record_setting</string>
+    <string name="dialog_drop_setting_higher_than_max_content">لا يمكن أن يتجاوز حجم الجرعة 500 مل.</string>
+    <string name="dialog_drop_setting_higher_than_max_positive">@string/confirm</string>
+    <string name="dialog_drop_setting_lower_than_min_title">@string/record_setting</string>
+    <string name="dialog_drop_setting_lower_than_min_content">حجم الجرعة لا يمكن أن يكون أقل من %1$s مل في كل مرة.</string>
+    <string name="dialog_drop_setting_lower_than_min_positive">@string/confirm</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_title">@string/max_drop_volume</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_content">إجمالي حجم الجرعة لليوم، بما في ذلك الجرعة المجدولة، يتجاوز الحد الأقصى للجرعة اليومية.</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_positive">@string/i_konw</string>
+    <string name="dialog_setting_delete_detail_title">@string/delete_drop_record_time</string>
+    <string name="dialog_setting_delete_detail_content">هل ترغب في حذف هذه الفترة الزمنية؟</string>
+    <string name="dialog_setting_delete_detail_positive">@string/delete</string>
+    <string name="dialog_setting_delete_detail_negative">@string/cancel</string>
+    /** DropHeadAdjustListActivity **/
+    <string name="activity_drop_head_adjust_list_title">@string/adjust_list</string>
+    <string name="activity_drop_head_adjust_list_toolbar_right_btn">@string/adjust</string>
+    /** DropHeadAdjustActivity **/
+    <string name="activity_drop_head_adjust_title">@string/adjust</string>
+    <string name="adjust_volume_hint">١ ~ ١٥; منزلة عشرية واحدة</string>
+
+
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_no"
+        android:title="@string/no_records"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_24hr"
+        android:title="@string/drop_record_type_24"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_custom"
+        android:title="@string/drop_record_type_custom"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_single"
+        android:title="@string/drop_record_type_single"
+        app:showAsAction="never" />
+</menu>

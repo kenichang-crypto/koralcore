@@ -74,7 +74,8 @@ class SingleDoseImmediateUseCase {
       );
     }
 
-    final PumpHead? pumpHead = await _maybeLoadPumpHead(deviceId, dose.pumpId);
+    final String headId = _headIdFromPumpId(dose.pumpId);
+    final PumpHead? pumpHead = await _maybeLoadPumpHead(deviceId, headId);
     _validatePumpHeadState(pumpHead, dose);
 
     final Uint8List payload = Uint8List.fromList(
@@ -85,7 +86,7 @@ class SingleDoseImmediateUseCase {
     if (shouldUpdateStatus) {
       await _setPumpHeadStatus(
         deviceId: deviceId,
-        pumpId: dose.pumpId,
+        headId: headId,
         status: PumpHeadStatus.running,
       );
     }
@@ -96,32 +97,29 @@ class SingleDoseImmediateUseCase {
         data: payload,
         options: writeOptions,
       );
-      await _refreshTodayTotals(deviceId: deviceId, pumpId: dose.pumpId);
+      await _refreshTodayTotals(deviceId: deviceId, headId: headId);
       if (shouldUpdateStatus) {
         await _setPumpHeadStatus(
           deviceId: deviceId,
-          pumpId: dose.pumpId,
+          headId: headId,
           status: PumpHeadStatus.idle,
         );
       }
     } on BleWriteTimeoutException catch (error) {
       if (shouldUpdateStatus) {
-        await _setPumpHeadStatus(
-          deviceId: deviceId,
-          pumpId: dose.pumpId,
-          status: PumpHeadStatus.error,
-        );
+        await _markPumpHeadErrored(deviceId: deviceId, headId: headId);
       }
       throw AppError(code: AppErrorCode.transportError, message: error.message);
     } on BleWriteException catch (error) {
       if (shouldUpdateStatus) {
-        await _setPumpHeadStatus(
-          deviceId: deviceId,
-          pumpId: dose.pumpId,
-          status: PumpHeadStatus.error,
-        );
+        await _markPumpHeadErrored(deviceId: deviceId, headId: headId);
       }
       throw AppError(code: AppErrorCode.transportError, message: error.message);
+    } catch (error) {
+      if (shouldUpdateStatus) {
+        await _markPumpHeadErrored(deviceId: deviceId, headId: headId);
+      }
+      rethrow;
     }
   }
 
@@ -129,9 +127,9 @@ class SingleDoseImmediateUseCase {
     return value != value.truncateToDouble();
   }
 
-  Future<PumpHead?> _maybeLoadPumpHead(String deviceId, int pumpId) async {
+  Future<PumpHead?> _maybeLoadPumpHead(String deviceId, String headId) async {
     try {
-      return await pumpHeadRepository.getHead(deviceId, pumpId);
+      return await pumpHeadRepository.getPumpHead(deviceId, headId);
     } catch (_) {
       return null;
     }
@@ -165,13 +163,13 @@ class SingleDoseImmediateUseCase {
 
   Future<void> _setPumpHeadStatus({
     required String deviceId,
-    required int pumpId,
+    required String headId,
     required PumpHeadStatus status,
   }) async {
     try {
       await pumpHeadRepository.updateStatus(
         deviceId: deviceId,
-        pumpId: pumpId,
+        headId: headId,
         status: status,
       );
     } catch (_) {
@@ -181,14 +179,29 @@ class SingleDoseImmediateUseCase {
 
   Future<void> _refreshTodayTotals({
     required String deviceId,
-    required int pumpId,
+    required String headId,
   }) async {
-    final String headId = _headIdFromPumpId(pumpId);
     try {
       await readTodayTotalUseCase.execute(deviceId: deviceId, headId: headId);
     } catch (_) {
       // Swallow refresh errors; manual dose already succeeded.
     }
+  }
+
+  Future<void> _markPumpHeadErrored({
+    required String deviceId,
+    required String headId,
+  }) async {
+    await _setPumpHeadStatus(
+      deviceId: deviceId,
+      headId: headId,
+      status: PumpHeadStatus.error,
+    );
+    await _setPumpHeadStatus(
+      deviceId: deviceId,
+      headId: headId,
+      status: PumpHeadStatus.idle,
+    );
   }
 
   String _headIdFromPumpId(int pumpId) {

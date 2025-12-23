@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    印尼語（Bahasa Indonesia）-->
+    <string name="app_name">ReefB</string>
+    /** 權限相關 **/
+    <string name="get_gps_permission">Tolong otorisasi izin lokasi GPS</string>
+    <string name="get_nerby_permission">Tolong otorisasi izin perangkat terdekat</string>
+    <string name="get_camera_storage_permission">Tolong otorisasi izin kamera dan penyimpanan</string>
+    <string name="get_camera_permission">Tolong otorisasi izin kamera</string>
+    <string name="get_storage_permission">Tolong otorisasi izin penyimpanan</string>
+    <string name="please_open_gps">Aktifkan lokasi GPS</string>
+    <string name="please_open_ble">Aktifkan Bluetooth</string>
+    <string name="please_open_ble_gps">Aktifkan Bluetooth dan lokasi GPS</string>
+    <string name="toast_connect_failed">Koneksi gagal, silakan coba lagi</string>
+    <string name="toast_connect_successful">Koneksi berhasil</string>
+    <string name="toast_disconnect">Perangkat terputus</string>
+    /** 通用 **/
+    <string name="confirm">OK</string>
+    <string name="delete">Hapus</string>
+    <string name="cancel">Batal</string>
+    <string name="select">Pilih</string>
+    <string name="skip">Lewati</string>
+    <string name="complete">Selesai</string>
+    <string name="save">Simpan</string>
+    <string name="edit">Edit</string>
+    <string name="i_konw">Saya mengerti</string>
+    <string name="next">Berikutnya</string>
+    <string name="close">Tutup</string>
+    <string name="back">Kembali</string>
+    <string name="no">Tidak ada</string>
+    <string name="run">Jalankan</string>
+    <string name="no_eng">Tidak ada</string>
+    <string name="rearrangement">Penataan ulang</string>
+    <string name="led">LED</string>
+    <string name="drop">Pompa Dosis</string>
+    <string name="home">Beranda</string>
+    <string name="bluetooth">Bluetooth</string>
+    <string name="device">Perangkat</string>
+    <string name="favorite">Perangkat Favorit</string>
+    <string name="bluetooth_connect">Koneksi Bluetooth</string>
+    <string name="reset">Pulihkan pengaturan default</string>
+    <string name="warning_list">Log peringatan</string>
+    <string name="group_full">Batas perangkat tercapai</string>
+    <string name="device_is_not_connect">Perangkat tidak terhubung</string>
+    <string name="no_records">Tidak ada tugas terjadwal</string>
+    /** 預設場景 **/
+    <string name="preset_scene_off">MATI</string>
+    <string name="preset_scene_30">30%</string>
+    <string name="preset_scene_60">60%</string>
+    <string name="preset_scene_100">100%</string>
+    <string name="preset_scene_moon">Cahaya bulan</string>
+    <string name="preset_scene_thunder">Guntur</string>
+    /** 光譜名字 **/
+    <string name="uv">UV</string>
+    <string name="purple">Ungu</string>
+    <string name="blue">Biru</string>
+    <string name="royal_blue">Biru Kerajaan</string>
+    <string name="green">Hijau</string>
+    <string name="red">Merah</string>
+    <string name="cold_white">Putih Keren</string>
+    <string name="warm_white">Putih Hangat</string>
+    <string name="moon">Cahaya bulan</string>
+    <string name="light_uv">Cahaya UV</string>
+    <string name="light_purple">Cahaya ungu</string>
+    <string name="light_blue">Cahaya biru</string>
+    <string name="light_royal_blue">Cahaya biru kerajaan</string>
+    <string name="light_green">Cahaya hijau</string>
+    <string name="light_red">Cahaya merah</string>
+    <string name="light_cold_white">Cahaya putih keren</string>
+    <string name="light_warm_white">Cahaya putih hangat</string>
+    <string name="light_moon">Cahaya bulan</string>
+    /** 滴液泵排程種類 **/
+    <string name="drop_record_type_custom">Mode Bebas</string>
+    <string name="drop_record_type_single">Dosis Tunggal</string>
+    <string name="drop_record_type_24">24 Jam Sama</string>
+    <string name="drop_record_type_none">Tidak Ada Tugas Terjadwal</string>
+    <string name="drop_record_type">Jenis Jadwal</string>
+    /** 單位 **/
+    <string name="minute">Menit</string>
+    <string name="init_minute">30 Menit</string>
+    <string name="times">Kali</string>
+    <string name="group">Grup</string>
+    <string name="master_setting">Pengaturan Master-Slave</string>
+    <string name="setting_master">Atur sebagai Master</string>
+    <string name="led_setting">Pengaturan LED</string>
+    <string name="master_pairing">Pemaketan Master-Slave</string>
+    <string name="max_drop_volume">Volume dosis maksimum harian</string>
+    <string name="max_drop_volume_hint">Batas volume dosis untuk operasi terjadwal dan tidak terjadwal setelah dibuka</string>
+    <string name="drop_setting">Pengaturan Pompa Peristaltik</string>
+    <string name="drop_head_setting">Pengaturan Kepala Pompa</string>
+    <string name="master_slave">Master/Slave</string>
+    <string name="set_master">Atur sebagai Lampu Master</string>
+    <string name="move_group">Pindahkan Grup</string>
+    <string name="choose_group">Pilih Grup</string>
+    <string name="run_cycle">Siklus Eksekusi</string>
+    <string name="run_time">Waktu Eksekusi</string>
+    <string name="low_rotating_speed">Kecepatan Rendah</string>
+    <string name="middle_rotating_speed">Kecepatan Sedang</string>
+    <string name="high_rotating_speed">Kecepatan Tinggi</string>
+    <string name="drop_volume_per_day">Total Dosis Harian</string>
+    <string name="drop_volume">Volume Dosis (ml)</string>
+    <string name="init_rotating_speed">Kecepatan Default</string>
+    <string name="drop_head_rotating_speed">Kecepatan Kepala Pompa</string>
+    <string name="drop_days_a_week">Hari Dosis Mingguan</string>
+    <string name="run_immediatrly">Eksekusi Sekarang</string>
+    <string name="drop_record_time">Periode Penjadwalan</string>
+    <string name="delete_drop_record_time">Hapus Periode Penjadwalan</string>
+    <string name="drop_start_time">Waktu Mulai Pemberian Dosis</string>
+    <string name="drop_end_time">Waktu Selesai Pemberian Dosis</string>
+    <string name="drop_times">Frekuensi Pemberian Dosis</string>
+    /** led record setting **/
+    <string name="init_strength">Intensitas Awal</string>
+    <string name="sunrise">Matahari Terbit</string>
+    <string name="sunset">Matahari Terbenam</string>
+    <string name="slow_start">Mulai Lembut</string>
+    <string name="moon_light">@string/moon</string>
+    <string name="time_already_exist">Periode waktu ini sudah diatur</string>
+
+    <string name="drop_type">Tipe Pemberian Dosis</string>
+    <string name="drop_type_delete">Hapus Tipe Pemberian Dosis</string>
+    <string name="drop_type_already_used">Kepala pompa lain menggunakan tipe pemberian dosis ini</string>
+    <string name="delay_time">Waktu Tunda</string>
+    <string name="today_record_drop_volume">Volume Pemberian Dosis Langsung Terjadwal Hari Ini</string>
+    <string name="add_drop_type">Tambah Pemberian Dosis Kustom</string>
+    <string name="edit_drop_type">Edit Pemberian Dosis Kustom</string>
+    <string name="drop_type_name">Nama Pemberian Dosis</string>
+    /** record **/
+    <string name="record_setting">Pengaturan Penjadwalan</string>
+    <string name="record">Penjadwalan</string>
+    <string name="record_time">Titik Waktu Terjadwal</string>
+    <string name="time">Titik Waktu</string>
+    <string name="time_setting">Pengaturan Periode</string>
+    /** scene **/
+    <string name="led_scene">Adegan</string>
+    <string name="led_scene_add">Tambah Adegan</string>
+    <string name="led_scene_edit">Pengaturan Adegan</string>
+    <string name="led_scene_delete">Hapus Adegan</string>
+    <string name="led_dynamic_scene">Adegan Dinamis</string>
+    <string name="led_static_scene">Adegan Statis</string>
+    <string name="led_scene_name">Nama Adegan</string>
+    <string name="led_scene_icon">Ikon Adegan</string>
+    /** adjust **/
+    <string name="adjust_list">Log Kalibrasi</string>
+    <string name="adjust">Kalibrasi</string>
+    <string name="complete_adjust">Kalibrasi Selesai</string>
+    <string name="recently_adjust_list">Catatan Kalibrasi Terbaru</string>
+    <string name="adjusting">Kalibrasi...</string>
+    <string name="adjust_description">Instruksi Kalibrasi</string>
+    <string name="adjust_step">1.Siapkan cangkir ukur yang disertakan dan beberapa tabung\n2. Mulai operasi manual untuk mengisi tabung dengan cairan\n3. Pilih kecepatan untuk kalibrasi</string>
+    <string name="rotating_speed">Kecepatan</string>
+    <string name="adjust_date">Tanggal Kalibrasi</string>
+    <string name="measure_drop_volume">Volume Terukur</string>
+    /** device **/
+    <string name="add_device">Tambah Perangkat</string>
+    <string name="other_device">Perangkat Lain</string>
+    <string name="device_name">Nama Perangkat</string>
+    <string name="favorite_device">Perangkat Favorit</string>
+    <string name="unassigned_device">Perangkat Tidak Terlokasi</string>
+    /** sink **/
+    <string name="add_sink">Tambah Tangki</string>
+    <string name="sink_name">Nama Tangki</string>
+    <string name="sink_setting">Pengaturan Tangki</string>
+    <string name="sink_position">Lokasi Tangki</string>
+    <string name="sink_manager">Manajemen Tangki</string>
+    <string name="delete_sink">Hapus Tangki</string>
+    /** Menu **/
+    <string name="bottom_navigation_home">@string/home</string>
+    <string name="bottom_navigation_bluetooth">@string/bluetooth</string>
+    <string name="bottom_navigation_device">@string/device</string>
+    /** Led Menu **/
+    <string name="menu_favorite">@string/favorite</string>
+    <string name="menu_edit">@string/edit</string>
+    <string name="menu_delete">@string/delete</string>
+    <string name="menu_setting_master">@string/setting_master</string>
+    <string name="menu_reset">@string/reset</string>
+    /** delay time menu **/
+    <string name="_15sec">15 detik</string>
+    <string name="_30sec">30 detik</string>
+    <string name="_1min">1 menit</string>
+    <string name="_2min">2 menit</string>
+    <string name="_3min">3 menit</string>
+    <string name="_4min">4 menit</string>
+    <string name="_5min">5 menit</string>
+
+    <string name="menu_set_master">@string/set_master</string>
+    <string name="menu_move_group">@string/move_group</string>
+    /** spinner **/
+    <string name="home_spinner_all_sink">Semua Tangki</string>
+    <string name="home_spinner_favorite">@string/favorite_device</string>
+    <string name="home_spinner_unassigned">@string/unassigned_device</string>
+    /** toast **/
+    <string name="toast_connect_limit">Maksimal 1 perangkat dapat terhubung secara bersamaan.</string>
+    <string name="toast_name_is_empty">Nama tidak boleh kosong.</string>
+    <string name="toast_add_sink_successful">Berhasil menambahkan tangki.</string>
+    <string name="toast_sink_name_is_exist">Nama tangki sudah ada.</string>
+    <string name="toast_edit_sink_successful">Berhasil memodifikasi nama tangki.</string>
+    <string name="toast_device_name_is_exist">Nama perangkat sudah ada.</string>
+    <string name="toast_delete_sink_successful">Berhasil menghapus tangki.</string>
+    <string name="toast_delete_sink_failed">Gagal menghapus tangki.</string>
+    <string name="toast_add_device_successful">Berhasil menambahkan perangkat.</string>
+    <string name="toast_sink_is_full">Tangki penuh.</string>
+    <string name="toast_delete_device_successful">Berhasil menghapus perangkat.</string>
+    <string name="toast_delete_device_failed">Gagal menghapus perangkat.</string>
+    <string name="toast_reset_device_successful">Berhasil memulihkan pengaturan default.</string>
+    <string name="toast_reset_device_failed">Gagal memulihkan pengaturan default.</string>
+    <string name="toast_set_time_error">Titik waktu harus terpisah setidaknya 10 menit.</string>
+    <string name="toast_set_time_is_exist">Periode waktu ini sudah diatur.</string>
+    <string name="toast_setting_successful">Pengaturan berhasil.</string>
+    <string name="toast_setting_failed">Pengaturan gagal.</string>
+    <string name="toast_move_group_successful">Berhasil memindahkan grup.</string>
+    <string name="toast_move_group_failed">Gagal memindahkan grup.</string>
+    <string name="toast_add_scene_successful">Berhasil menambahkan adegan.</string>
+    <string name="toast_scene_name_is_exist">Nama adegan sudah ada.</string>
+    <string name="toast_delete_scene_successful">Berhasil menghapus adegan.</string>
+    <string name="toast_delete_scene_failed">Gagal menghapus adegan.</string>
+    <string name="toast_delete_record_successful">Berhasil menghapus titik waktu.</string>
+    <string name="toast_delete_record_failed">Gagal menghapus titik waktu.</string>
+    <string name="toast_preview_start">Pratinjau cepat satu menit dimulai.</string>
+    <string name="toast_preview_end">Pratinjau cepat satu menit selesai.</string>
+    <string name="toast_sun_time_error">Pengaturan waktu matahari terbit dan matahari terbenam tidak benar.</string>
+    <string name="toast_time_record_size_more_than_24">Maksimal 24 titik waktu dapat diatur.</string>
+    <string name="toast_custom_scene_size_more_than_5">Maksimal 5 adegan kustom dapat diatur.</string>
+    <string name="toast_delete_now_scene">Tidak dapat menghapus adegan yang sedang digunakan saat ini.</string>
+    <string name="toast_drophead_is_droping">Kepala pompa ini saat ini sedang memberi dosis, silakan coba lagi nanti.</string>
+    <string name="toast_add_drop_type_successful">Berhasil menambahkan tipe pemberian dosis.</string>
+    <string name="toast_drop_type_name_is_exist">Nama tipe pemberian dosis sudah ada.</string>
+    <string name="toast_edit_drop_type_successful">Berhasil memodifikasi nama tipe pemberian dosis.</string>
+    <string name="toast_delete_drop_type_successful">Berhasil menghapus tipe pemberian dosis.</string>
+    <string name="toast_delete_drop_type_failed">Gagal menghapus tipe pemberian dosis.</string>
+    <string name="toast_max_drop_per_day_is_empty">Harap masukkan volume dosis harian maksimum.</string>
+    <string name="toast_drop_volume_is_empty">Harap masukkan volume dosis.</string>
+    <string name="toast_run_time_is_empty">Harap pilih waktu eksekusi.</string>
+    <string name="toast_drop_volume_is_too_little">Setiap volume dosis tidak boleh kurang dari 1ml.</string>
+    <string name="toast_drop_volume_is_too_much">Total volume dosis tidak boleh melebihi 500ml.</string>
+    <string name="toast_drop_volume_out_of_bound">Volume dosis tidak boleh melebihi volume dosis harian maksimum.</string>
+    <string name="toast_drop_detail_is_empty">Harap tambahkan periode penjadwalan.</string>
+    <string name="toast_delete_detail_successful">Berhasil menghapus periode.</string>
+    <string name="toast_delete_detail_failed">Gagal menghapus periode.</string>
+    <string name="drop_times_exceed">Maksimal 5 kali pemberian dosis per jam.</string>
+    <string name="drop_start_adjust_failed">Pengaturan awal kalibrasi gagal.</string>
+    <string name="drop_adjust_successful">Kalibrasi selesai.</string>
+    <string name="drop_adjust_failed">Kalibrasi gagal.</string>
+    <string name="toast_drop_volume_is_too_little_old">Volume dosis tidak boleh kurang dari 1 ml.</string>
+    <string name="toast_drop_volume_is_too_little_new">Volume dosis tidak boleh kurang dari 0.4 ml.</string>
+    /** hint **/
+    <string name="hint_select_time">Harap pilih waktu.</string>
+    <string name="record_pause">Jadwal dijeda.</string>
+    <string name="continue_record">Lanjutkan eksekusi.</string>
+
+    <string name="bottom_sheet_add_sink_title">@string/add_sink</string>
+    <string name="bottom_sheet_add_sink_edittext_title">@string/sink_name</string>
+    <string name="bottom_sheet_add_sink_button_text">@string/save</string>
+    <string name="bottom_sheet_edit_sink_title">@string/sink_setting</string>
+    <string name="bottom_sheet_edit_sink_edittext_title">@string/sink_name</string>
+    <string name="bottom_sheet_edit_sink_button_text">@string/save</string>
+    <string name="bottom_sheet_add_drop_type_title">@string/add_drop_type</string>
+    <string name="bottom_sheet_add_drop_type_edittext_title">@string/drop_type_name</string>
+    <string name="bottom_sheet_add_drop_type_button_text">@string/save</string>
+    <string name="bottom_sheet_edit_drop_type_title">@string/edit_drop_type</string>
+    <string name="bottom_sheet_edit_drop_type_edittext_title">@string/drop_type_name</string>
+    <string name="bottom_sheet_edit_drop_type_button_text">@string/save</string>
+    /** ===================================================================================== **/
+    /** MainActivity **/
+    /** HomeFragment **/
+    <string name="text_no_device_in_sink_title">Tangki saat ini tidak memiliki perangkat.</string>
+    <string name="text_no_device_in_sink_content">Tambahkan perangkat dari daftar Bluetooth di bawah.</string>
+    /** DeviceFragment **/
+    <string name="fragment_device_title">@string/device</string>
+    <string name="fragment_device_select">@string/select</string>
+    <string name="text_no_device_title">Tidak ada perangkat yang tersedia saat ini.</string>
+    <string name="dialog_device_delete_led_master_title">@string/master_setting</string>
+    <string name="dialog_device_delete_led_master_content">Untuk menghapus lampu master, silakan modifikasi pengaturan master-slave dan tetapkan lampu budak lain sebagai lampu master.</string>
+    <string name="dialog_device_delete_led_master_positive">@string/i_konw</string>
+    <string name="dialog_device_delete">Hapus perangkat yang dipilih?</string>
+    <string name="dialog_device_delete_led_content">Hapus perangkat LED?</string>
+    <string name="dialog_device_delete_led_positive">@string/delete</string>
+    <string name="dialog_device_delete_led_negative">@string/cancel</string>
+    /** BluetoothFragment **/
+    <string name="fragment_bluetooth_title">@string/bluetooth_connect</string>
+    <string name="fragment_other_device_title">@string/other_device</string>
+    <string name="text_no_other_device_title">Tidak ada perangkat yang ditemukan.</string>
+    <string name="text_no_other_device_content">Ketuk di kanan atas untuk memindai perangkat terdekat.</string>
+    <string name="dialog_disconnect_bluetooth_content">Apakah Anda ingin memutuskan koneksi Bluetooth?</string>
+    <string name="dialog_disconnect_bluetooth_positive">@string/confirm</string>
+    <string name="dialog_disconnect_bluetooth_negative">@string/cancel</string>
+    /** WarningActivity **/
+    <string name="activity_warning_title">@string/warning_list</string>
+    <string name="text_no_warning_title">Tidak ada catatan peringatan.</string>
+    <string name="text_no_warning_content">Tidak ada item dalam "Catatan Peringatan".</string>
+    <string name="dialog_delete_warning_content">Apakah Anda ingin menghapus peringatan ini?</string>
+    <string name="dialog_delete_warning_positive">@string/confirm</string>
+    <string name="dialog_delete_warning_negative">@string/cancel</string>
+    /** SinkManagerActivity **/
+    <string name="activity_manage_sink_title">@string/sink_manager</string>
+    <string name="text_no_sink_title">Saat ini tidak ada tangki.</string>
+    <string name="text_no_sink_content">Ketuk tombol tambah di kanan bawah untuk menambahkan tangki.</string>
+    <string name="text_device_amount">%1$d perangkat</string>
+    <string name="dialog_delete_sink_title">@string/delete_sink</string>
+    <string name="dialog_delete_sink_content">Setelah menghapus tangki, perangkat di dalam tangki akan menjadi perangkat tidak terlokasi.</string>
+    <string name="dialog_delete_sink_positive">@string/delete</string>
+    <string name="dialog_delete_sink_negative">@string/cancel</string>
+
+    <string name="activity_add_device_title">@string/add_device</string>
+    <string name="activity_add_device_toolbar_left_btn">@string/skip</string>
+    <string name="activity_add_device_toolbar_right_btn">@string/complete</string>
+    <string name="activity_add_device_device_name_title">@string/device_name</string>
+    <string name="activity_add_device_sink_position_title">@string/sink_position</string>
+    /** SinkPositionActivity **/
+    <string name="activity_sink_position_title">@string/sink_position</string>
+    <string name="activity_sink_position_toolbar_right_btn">@string/confirm</string>
+    /** LedMainActivity **/
+    <string name="dialog_delete_led_master_title">@string/master_setting</string>
+    <string name="dialog_delete_led_master_content">Untuk menghapus perangkat ini, silakan modifikasi pengaturan master-slave terlebih dahulu dan tetapkan lampu budak lain sebagai lampu master.</string>
+    <string name="dialog_delete_led_master_positive">@string/confirm</string>
+    <string name="dialog_delete_led_master_negative">@string/cancel</string>
+    <string name="dialog_reset_led_title">@string/reset</string>
+    <string name="dialog_reset_led_content">Perangkat ini akan menjadi perangkat tidak terlokasi, dan semua pengaturan saat ini akan dihapus.</string>
+    <string name="dialog_reset_led_positive">@string/confirm</string>
+    <string name="dialog_reset_led_negative">@string/cancel</string>
+    <string name="dialog_delete_led_content">Apakah Anda ingin menghapus perangkat LED ini?</string>
+    <string name="dialog_delete_led_positive">@string/delete</string>
+    <string name="dialog_delete_led_negative">@string/cancel</string>
+    <string name="dialog_delete_unassigned_led_title">@string/master_setting</string>
+    <string name="dialog_delete_unassigned_led_content">Perangkat dalam tangki yang tidak terlokasi tidak dapat diatur sebagai master atau budak.</string>
+    <string name="dialog_delete_unassigned_led_positive">@string/i_konw</string>
+    <string name="dialog_reset_master_led_title">@string/master_setting</string>
+    <string name="dialog_reset_master_led_content">Untuk mengatur ulang perangkat ini ke pengaturan default, silakan modifikasi pengaturan master-slave terlebih dahulu dan tetapkan lampu budak lain sebagai lampu master.</string>
+    <string name="dialog_reset_master_led_positive">@string/confirm</string>
+    <string name="dialog_reset_master_led_negative">@string/cancel</string>
+    /** LedSettingActivity **/
+    <string name="activity_led_setting_title">@string/led_setting</string>
+    <string name="activity_led_setting_toolbar_right_btn">@string/save</string>
+    <string name="dialog_led_move_master_title">@string/master_setting</string>
+    <string name="dialog_led_move_master_content">Untuk memindahkan perangkat ini ke tangki lain, silakan modifikasi pengaturan master-slave terlebih dahulu dan tetapkan lampu budak lain sebagai lampu master.</string>
+    <string name="dialog_led_move_master_positive">@string/confirm</string>
+    <string name="dialog_led_move_master_negative">@string/cancel</string>
+    /** LedMasterSettingActivity **/
+    <string name="activity_led_master_setting_title">@string/master_pairing</string>
+    <string name="activity_led_master_setting_toolbar_right_btn">@string/master_pairing</string>
+    /** LedRecordSettingActivity **/
+    <string name="activity_led_record_setting_title">@string/record_setting</string>
+    <string name="activity_led_record_setting_toolbar_right_btn">@string/save</string>
+    /** LedRecordActivity **/
+    <string name="activity_led_record_title">@string/record</string>
+    <string name="dialog_led_delete_time_content">Apakah Anda ingin menghapus titik waktu ini?</string>
+    <string name="dialog_led_delete_time_positive">@string/delete</string>
+    <string name="dialog_led_delete_time_negative">@string/cancel</string>
+    <string name="dialog_led_clear_record_content">Apakah Anda ingin menghapus jadwal?</string>
+    <string name="dialog_led_clear_record_positive">@string/confirm</string>
+    <string name="dialog_led_clear_record_negative">@string/cancel</string>
+
+    <string name="activity_led_record_time_setting_title">@string/record_time</string>
+    <string name="activity_led_record_time_setting_toolbar_right_btn">@string/save</string>
+
+    <string name="activity_led_scene_title">@string/led_scene</string>
+    <string name="activity_led_scene_toolbar_right_btn">@string/edit</string>
+    /** LedSceneAddActivity **/
+    <string name="activity_led_scene_add_title">@string/led_scene_add</string>
+    <string name="activity_led_scene_add_toolbar_right_btn">@string/save</string>
+    /** LedSceneEditActivity **/
+    <string name="activity_led_scene_edit_title">@string/led_scene_edit</string>
+    <string name="activity_led_scene_edit_toolbar_right_btn">@string/save</string>
+    /** LedSceneDeleteActivity **/
+    <string name="activity_led_scene_delete_title">@string/led_scene_delete</string>
+    <string name="dialog_scene_delete_scene_content">Apakah Anda ingin menghapus adegan ini?</string>
+    <string name="dialog_scene_delete_scene_positive">@string/delete</string>
+    <string name="dialog_scene_delete_scene_negative">@string/cancel</string>
+
+    <string name="dialog_today_drop_out_of_range_title">@string/max_drop_volume</string>
+    <string name="dialog_today_drop_out_of_range_content">Volume pemberian dosis hari ini telah mencapai volume pemberian dosis harian maksimum.</string>
+    <string name="dialog_today_drop_out_of_range_positive">@string/i_konw</string>
+    <string name="dialog_delete_drop_content">Apakah Anda ingin menghapus pompa pemberian dosis ini?</string>
+    <string name="dialog_delete_drop_positive">@string/delete</string>
+    <string name="dialog_delete_drop_negative">@string/cancel</string>
+    <string name="dialog_reset_drop_title">@string/reset</string>
+    <string name="dialog_reset_drop_content">Perangkat ini akan menjadi tidak ditugaskan dan menghapus semua pengaturan pompa dan catatan kalibrasi saat ini.</string>
+    <string name="dialog_reset_drop_positive">@string/confirm</string>
+    <string name="dialog_reset_drop_negative">@string/cancel</string>
+    /** DropSettingActivity **/
+    <string name="activity_drop_setting_title">@string/drop_setting</string>
+    <string name="activity_drop_setting_toolbar_right_btn">@string/save</string>
+    /** DropHeadSettingActivity **/
+    <string name="activity_drop_head_setting_title">@string/drop_head_setting</string>
+    <string name="activity_drop_head_setting_toolbar_right_btn">@string/save</string>
+    /** DropTypeActivity **/
+    <string name="activity_drop_type_title">@string/drop_type</string>
+    <string name="activity_drop_type_toolbar_right_btn">@string/confirm</string>
+    <string name="dialog_delete_drop_type_title">@string/drop_type_delete</string>
+    <string name="dialog_delete_drop_type_content">Apakah Anda ingin menghapus jenis tetesan ini?</string>
+    <string name="dialog_delete_drop_type_positive">@string/delete</string>
+    <string name="dialog_delete_drop_type_negative">@string/cancel</string>
+    <string name="dialog_drop_type_already_used_title">@string/drop_type_already_used</string>
+    <string name="dialog_drop_type_already_used_content">Perangkat ini akan menjadi perangkat tidak terlokasi, dan semua pengaturan kepala pompa saat ini dan catatan kalibrasi akan dihapus.</string>
+    <string name="dialog_drop_type_already_used_positive">@string/delete</string>
+    <string name="dialog_drop_type_already_used_negative">@string/cancel</string>
+    /** DropHeadRecordSettingActivity **/
+    <string name="activity_drop_head_record_setting_title">@string/record</string>
+    <string name="activity_drop_head_record_setting_toolbar_right_btn">@string/run</string>
+    /** DropHeadRecordTimeSettingActivity **/
+    <string name="activity_drop_head_record_time_setting_title">@string/time_setting</string>
+    <string name="activity_drop_head_record_time_setting_toolbar_right_btn">@string/confirm</string>
+    <string name="dialog_setting_drop_out_of_range_title">@string/max_drop_volume</string>
+    <string name="dialog_setting_drop_out_of_range_content">Volume pemberian dosis yang diatur melebihi batas volume pemberian dosis harian maksimum.</string>
+    <string name="dialog_setting_drop_out_of_range_positive">@string/i_konw</string>
+    <string name="dialog_drop_time_setting_repeat_title">@string/record_setting</string>
+    <string name="dialog_drop_time_setting_repeat_content">Periode waktu ini sudah diatur.</string>
+    <string name="dialog_drop_time_setting_repeat_positive">@string/confirm</string>
+    <string name="dialog_drop_setting_higher_than_max_title">@string/record_setting</string>
+    <string name="dialog_drop_setting_higher_than_max_content">Volume pemberian dosis tidak boleh melebihi 500 ml.</string>
+    <string name="dialog_drop_setting_higher_than_max_positive">@string/confirm</string>
+    <string name="dialog_drop_setting_lower_than_min_title">@string/record_setting</string>
+    <string name="dialog_drop_setting_lower_than_min_content">Volume pemberian dosis tidak boleh kurang dari %1$s ml setiap kali.</string>
+    <string name="dialog_drop_setting_lower_than_min_positive">@string/confirm</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_title">@string/max_drop_volume</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_content">Total volume pemberian dosis untuk hari ini, termasuk pemberian dosis terjadwal, melebihi batas volume pemberian dosis harian maksimum.</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_positive">@string/i_konw</string>
+    <string name="dialog_setting_delete_detail_title">@string/delete_drop_record_time</string>
+    <string name="dialog_setting_delete_detail_content">Apakah Anda ingin menghapus slot waktu ini?</string>
+    <string name="dialog_setting_delete_detail_positive">@string/delete</string>
+    <string name="dialog_setting_delete_detail_negative">@string/cancel</string>
+    /** DropHeadAdjustListActivity **/
+    <string name="activity_drop_head_adjust_list_title">@string/adjust_list</string>
+    <string name="activity_drop_head_adjust_list_toolbar_right_btn">@string/adjust</string>
+    /** DropHeadAdjustActivity **/
+    <string name="activity_drop_head_adjust_title">@string/adjust</string>
+    <string name="adjust_volume_hint">1 ~ 15; satu angka desimal</string>
+</resources>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_aaa">
+
+    <include
+        android:id="@+id/toolbar_led_record"
+        layout="@layout/toolbar_two_action"
+        app:layout_constraintBottom_toTopOf="@id/layout_led_record"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_led_record"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_led_record">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_chart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_16"
+            android:layout_marginTop="@dimen/dp_12"
+            android:layout_marginEnd="@dimen/dp_16"
+            android:background="@drawable/background_white_radius"
+            android:paddingTop="@dimen/dp_16"
+            android:paddingBottom="@dimen/dp_24"
+            app:layout_constraintBottom_toTopOf="@id/tv_time_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tv_clock"
+                style="@style/SingleLine"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/headline"
+                android:textColor="@color/text_aaaa"
+                app:layout_constraintBottom_toTopOf="@id/line_chart"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="07 : 27" />
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/line_chart"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_242"
+                android:layout_margin="@dimen/dp_8"
+                app:layout_constraintBottom_toTopOf="@id/layout_btn"
+                app:layout_constraintEnd_toEndOf="@id/tv_clock"
+                app:layout_constraintStart_toStartOf="@id/tv_clock"
+                app:layout_constraintTop_toBottomOf="@id/tv_clock" />
+
+            <LinearLayout
+                android:id="@+id/layout_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/line_chart"
+                app:layout_constraintStart_toStartOf="@id/line_chart"
+                app:layout_constraintTop_toBottomOf="@id/line_chart">
+
+                <ImageView
+                    android:id="@+id/btn_add"
+                    style="@style/ImageviewButton"
+                    android:layout_width="@dimen/dp_24"
+                    android:layout_height="@dimen/dp_24"
+                    android:layout_marginEnd="@dimen/dp_12"
+                    android:src="@drawable/ic_add_black" />
+
+                <ImageView
+                    android:id="@+id/btn_minus"
+                    style="@style/ImageviewButton"
+                    android:layout_width="@dimen/dp_24"
+                    android:layout_height="@dimen/dp_24"
+                    android:layout_marginStart="@dimen/dp_12"
+                    android:layout_marginEnd="@dimen/dp_12"
+                    android:src="@drawable/ic_minus" />
+
+                <ImageView
+                    android:id="@+id/btn_prev"
+                    style="@style/ImageviewButton"
+                    android:layout_width="@dimen/dp_24"
+                    android:layout_height="@dimen/dp_24"
+                    android:layout_marginStart="@dimen/dp_12"
+                    android:layout_marginEnd="@dimen/dp_12"
+                    android:src="@drawable/ic_back" />
+
+                <ImageView
+                    android:id="@+id/btn_next"
+                    style="@style/ImageviewButton"
+                    android:layout_width="@dimen/dp_24"
+                    android:layout_height="@dimen/dp_24"
+                    android:layout_marginStart="@dimen/dp_12"
+                    android:layout_marginEnd="@dimen/dp_12"
+                    android:src="@drawable/ic_next" />
+
+                <ImageView
+                    android:id="@+id/btn_preview"
+                    style="@style/ImageviewButton"
+                    android:layout_width="@dimen/dp_24"
+                    android:layout_height="@dimen/dp_24"
+                    android:layout_marginStart="@dimen/dp_12"
+                    android:src="@drawable/ic_preview" />
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/tv_time_title"
+            style="@style/SingleLine"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_16"
+            android:layout_marginTop="@dimen/dp_24"
+            android:layout_marginEnd="@dimen/dp_16"
+            android:text="@string/time"
+            android:textAppearance="@style/body_accent"
+            android:textColor="@color/text_aaaa"
+            app:layout_constraintBottom_toTopOf="@id/rv_time"
+            app:layout_constraintEnd_toStartOf="@id/btn_add_time"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layout_chart" />
+
+        <ImageView
+            android:id="@+id/btn_add_time"
+            style="@style/ImageviewButton"
+            android:layout_width="@dimen/dp_24"
+            android:layout_height="@dimen/dp_24"
+            android:layout_marginEnd="@dimen/dp_16"
+            android:src="@drawable/ic_add_btn"
+            app:layout_constraintBottom_toBottomOf="@id/tv_time_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_time_title"
+            app:layout_constraintTop_toTopOf="@id/tv_time_title" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_time"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/dp_8"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_time_title"
+            tools:listitem="@layout/adapter_led_record" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/progress"
+        layout="@layout/progress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/toolbar_drop_head_record_time_setting"
+        layout="@layout/toolbar_two_action"
+        app:layout_constraintBottom_toTopOf="@id/layout_drop_head_record_time_setting"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_drop_head_record_time_setting"
+        android:layout_width="@dimen/dp_0"
+        android:layout_height="@dimen/dp_0"
+        android:layout_marginStart="@dimen/dp_16"
+        android:layout_marginTop="@dimen/dp_12"
+        android:layout_marginEnd="@dimen/dp_16"
+        android:layout_marginBottom="@dimen/dp_12"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_drop_head_record_time_setting">
+
+        <TextView
+            android:id="@+id/tv_start_time_title"
+            style="@style/SingleLine"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:text="@string/drop_start_time"
+            android:textAppearance="@style/caption1"
+            app:layout_constraintBottom_toTopOf="@id/btn_start_time"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_start_time"
+            style="@style/BackgroundMaterialButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_4"
+            android:textAlignment="textStart"
+            app:icon="@drawable/ic_down"
+            app:layout_constraintBottom_toTopOf="@id/tv_end_time_title"
+            app:layout_constraintEnd_toEndOf="@id/tv_start_time_title"
+            app:layout_constraintStart_toStartOf="@id/tv_start_time_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_start_time_title"
+            tools:text="08:00" />
+
+        <TextView
+            android:id="@+id/tv_end_time_title"
+            style="@style/SingleLine"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16"
+            android:text="@string/drop_end_time"
+            android:textAppearance="@style/caption1"
+            app:layout_constraintBottom_toTopOf="@id/btn_end_time"
+            app:layout_constraintEnd_toEndOf="@id/btn_start_time"
+            app:layout_constraintStart_toStartOf="@id/btn_start_time"
+            app:layout_constraintTop_toBottomOf="@id/btn_start_time" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_end_time"
+            style="@style/BackgroundMaterialButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_4"
+            android:textAlignment="textStart"
+            app:icon="@drawable/ic_down"
+            app:layout_constraintBottom_toTopOf="@id/tv_drop_times_title"
+            app:layout_constraintEnd_toEndOf="@id/tv_end_time_title"
+            app:layout_constraintStart_toStartOf="@id/tv_end_time_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_end_time_title"
+            tools:text="10:00" />
+
+        <TextView
+            android:id="@+id/tv_drop_times_title"
+            style="@style/SingleLine"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16"
+            android:text="@string/drop_times"
+            android:textAppearance="@style/caption1"
+            app:layout_constraintBottom_toTopOf="@id/btn_drop_times"
+            app:layout_constraintEnd_toEndOf="@id/btn_end_time"
+            app:layout_constraintStart_toStartOf="@id/btn_end_time"
+            app:layout_constraintTop_toBottomOf="@id/btn_end_time" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_drop_times"
+            style="@style/BackgroundMaterialButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_4"
+            android:textAlignment="textStart"
+            app:icon="@drawable/ic_down"
+            app:layout_constraintBottom_toTopOf="@id/tv_drop_volume_title"
+            app:layout_constraintEnd_toEndOf="@id/tv_drop_times_title"
+            app:layout_constraintStart_toStartOf="@id/tv_drop_times_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_drop_times_title"
+            tools:text="3" />
+
+        <TextView
+            android:id="@+id/tv_drop_volume_title"
+            style="@style/SingleLine"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16"
+            android:text="@string/drop_volume"
+            android:textAppearance="@style/caption1"
+            android:textColor="@color/text_color_selector"
+            app:layout_constraintBottom_toTopOf="@id/layout_drop_volume"
+            app:layout_constraintEnd_toEndOf="@id/btn_drop_times"
+            app:layout_constraintStart_toStartOf="@id/btn_drop_times"
+            app:layout_constraintTop_toBottomOf="@id/btn_drop_times" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_drop_volume"
+            style="@style/TextInputLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_4"
+            app:layout_constraintBottom_toTopOf="@id/tv_rotating_speed_title"
+            app:layout_constraintEnd_toEndOf="@id/tv_drop_volume_title"
+            app:layout_constraintStart_toStartOf="@id/tv_drop_volume_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_drop_volume_title">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_drop_volume"
+                style="@style/SingleLine"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="1 ~ 500"
+                android:inputType="number"
+                android:textAppearance="@style/body" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/tv_rotating_speed_title"
+            style="@style/SingleLine"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16"
+            android:enabled="false"
+            android:text="@string/drop_head_rotating_speed"
+            android:textAppearance="@style/caption1"
+            app:layout_constraintBottom_toTopOf="@id/btn_rotating_speed"
+            app:layout_constraintEnd_toEndOf="@id/layout_drop_volume"
+            app:layout_constraintStart_toStartOf="@id/layout_drop_volume"
+            app:layout_constraintTop_toBottomOf="@id/layout_drop_volume" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_rotating_speed"
+            style="@style/BackgroundMaterialButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_4"
+            android:textAlignment="textStart"
+            app:icon="@drawable/ic_down"
+            app:layout_constraintEnd_toEndOf="@id/tv_rotating_speed_title"
+            app:layout_constraintStart_toStartOf="@id/tv_rotating_speed_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_rotating_speed_title"
+            tools:text="中速" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/progress"
+        layout="@layout/progress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+</androidx.constraintlayout.widget.ConstraintLayout>

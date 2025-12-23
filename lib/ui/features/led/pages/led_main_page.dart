@@ -15,10 +15,14 @@ import '../../../components/app_error_presenter.dart';
 import '../controllers/led_scene_list_controller.dart';
 import '../controllers/led_schedule_summary_controller.dart';
 import '../models/led_scene_summary.dart';
+import '../widgets/led_spectrum_chart.dart';
 import 'led_control_page.dart';
+import 'led_record_page.dart';
 import 'led_schedule_edit_page.dart';
 import 'led_scene_list_page.dart';
 import 'led_schedule_list_page.dart';
+
+const _ledIconAsset = 'assets/icons/led/led_main.png';
 
 class LedMainPage extends StatelessWidget {
   const LedMainPage({super.key});
@@ -34,13 +38,15 @@ class LedMainPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: ReefColors.primaryStrong,
       appBar: AppBar(
-        backgroundColor: ReefColors.primary,
-        foregroundColor: ReefColors.onPrimary,
+        backgroundColor: ReefColors.primaryStrong,
         elevation: 0,
-        titleTextStyle: ReefTextStyles.title2.copyWith(
-          color: ReefColors.onPrimary,
+        title: Text(
+          l10n.ledHeader,
+          style: ReefTextStyles.title2.copyWith(
+            color: ReefColors.onPrimary,
+            fontWeight: FontWeight.w700,
+          ),
         ),
-        title: Text(l10n.ledHeader),
       ),
       body: SafeArea(
         child: ListView(
@@ -50,11 +56,12 @@ class LedMainPage extends StatelessWidget {
               l10n.ledSubHeader,
               style: ReefTextStyles.body.copyWith(color: ReefColors.surface),
             ),
-            const SizedBox(height: ReefSpacing.lg),
+            const SizedBox(height: ReefSpacing.md),
             if (!isConnected) ...[
               const BleGuardBanner(),
-              const SizedBox(height: ReefSpacing.xl),
+              const SizedBox(height: ReefSpacing.md),
             ],
+            const SizedBox(height: ReefSpacing.md),
             _DeviceHeaderCard(
               deviceName: deviceName,
               isConnected: isConnected,
@@ -65,8 +72,12 @@ class LedMainPage extends StatelessWidget {
               create: (_) => LedSceneListController(
                 session: session,
                 readLedScenesUseCase: appContext.readLedScenesUseCase,
-              )..refresh(),
-              child: _SceneCarousel(isConnected: isConnected, l10n: l10n),
+                applySceneUseCase: appContext.applySceneUseCase,
+                observeLedStateUseCase: appContext.observeLedStateUseCase,
+                readLedStateUseCase: appContext.readLedStateUseCase,
+                stopLedPreviewUseCase: appContext.stopLedPreviewUseCase,
+              )..initialize(),
+              child: _SceneListSection(isConnected: isConnected, l10n: l10n),
             ),
             const SizedBox(height: ReefSpacing.xl),
             ChangeNotifierProvider<LedScheduleSummaryController>(
@@ -112,6 +123,16 @@ class LedMainPage extends StatelessWidget {
               },
             ),
             _EntryTile(
+              title: l10n.ledEntryRecords,
+              subtitle: l10n.ledEntryRecordsSubtitle,
+              enabled: isConnected,
+              onTapWhenEnabled: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const LedRecordPage()),
+                );
+              },
+            ),
+            _EntryTile(
               title: l10n.ledEntrySchedule,
               subtitle: l10n.ledScheduleListSubtitle,
               enabled: isConnected,
@@ -148,80 +169,70 @@ class _DeviceHeaderCard extends StatelessWidget {
         : l10n.deviceStateDisconnected;
     final statusColor = isConnected
         ? ReefColors.success
-        : ReefColors.textSecondary.withOpacity(0.6);
+        : ReefColors.textSecondary.withValues(alpha: 0.6);
 
-    return Card(
-      color: ReefColors.surface,
-      shape: RoundedRectangleBorder(
+    return Container(
+      padding: const EdgeInsets.all(ReefSpacing.lg),
+      decoration: BoxDecoration(
+        color: ReefColors.surface.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(ReefRadius.lg),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(ReefSpacing.xl),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      child: Row(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: ReefColors.surface.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(ReefRadius.lg),
+            ),
+            child: Center(
+              child: Image.asset(_ledIconAsset, width: 30, height: 30),
+            ),
+          ),
+          const SizedBox(width: ReefSpacing.lg),
+          Expanded(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        deviceName,
-                        style: ReefTextStyles.title1.copyWith(
-                          color: ReefColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: ReefSpacing.sm),
-                      Row(
-                        children: [
-                          Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: statusColor,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: ReefSpacing.sm),
-                          Text(
-                            statusText,
-                            style: ReefTextStyles.body.copyWith(
-                              color: statusColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                Text(
+                  deviceName,
+                  style: ReefTextStyles.subheaderAccent.copyWith(
+                    color: ReefColors.surface,
                   ),
                 ),
-                IconButton(
-                  onPressed: () => _showComingSoon(context, l10n),
-                  tooltip: l10n.ledDetailFavoriteTooltip,
-                  icon: const Icon(Icons.star_border),
+                const SizedBox(height: ReefSpacing.xs),
+                Text(
+                  statusText,
+                  style: ReefTextStyles.caption1.copyWith(color: statusColor),
+                ),
+                const SizedBox(height: ReefSpacing.xs),
+                Text(
+                  l10n.ledDetailHeaderHint,
+                  style: ReefTextStyles.caption1.copyWith(
+                    color: ReefColors.surface,
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: ReefSpacing.md),
-            Text(
-              l10n.ledDetailHeaderHint,
-              style: ReefTextStyles.caption1.copyWith(
-                color: ReefColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
+          ),
+          IconButton(
+            onPressed: () => _showComingSoon(context, l10n),
+            tooltip: l10n.ledDetailFavoriteTooltip,
+            icon: const Icon(Icons.star_border, color: ReefColors.surface),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _SceneCarousel extends StatelessWidget {
+class _SceneListSection extends StatelessWidget {
   final bool isConnected;
   final AppLocalizations l10n;
 
-  const _SceneCarousel({required this.isConnected, required this.l10n});
+  const _SceneListSection({required this.isConnected, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -233,43 +244,139 @@ class _SceneCarousel extends StatelessWidget {
           subtitle: l10n.ledScenesPlaceholderSubtitle,
         ),
         const SizedBox(height: ReefSpacing.md),
-        SizedBox(
-          height: 190,
-          child: Consumer<LedSceneListController>(
-            builder: (context, controller, _) {
-              _maybeShowSceneError(context, controller);
+        Consumer<LedSceneListController>(
+          builder: (context, controller, _) {
+            _maybeShowSceneError(context, controller);
 
-              if (controller.isLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
+            final List<Widget> content = [];
+            if (controller.currentChannelLevels.isNotEmpty) {
+              content.add(
+                LedSpectrumChart.fromChannelMap(
+                  controller.currentChannelLevels,
+                  height: 80,
+                  emptyLabel: l10n.ledControlEmptyState,
+                ),
+              );
+              content.add(const SizedBox(height: ReefSpacing.md));
+            }
 
-              final scenes = controller.scenes.take(5).toList();
-              if (scenes.isEmpty) {
-                return _SceneCarouselEmptyCard(l10n: l10n);
-              }
+            if (controller.isLoading) {
+              content.add(const Center(child: CircularProgressIndicator()));
+              return Column(children: content);
+            }
 
-              return ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.zero,
-                itemCount: scenes.length,
-                separatorBuilder: (_, __) =>
-                    const SizedBox(width: ReefSpacing.md),
-                itemBuilder: (context, index) {
-                  final scene = scenes[index];
-                  return SizedBox(
-                    width: 220,
-                    child: _ScenePreviewCard(
-                      scene: scene,
+            final scenes = controller.scenes;
+            if (scenes.isEmpty) {
+              content.add(_SceneCarouselEmptyCard(l10n: l10n));
+              return Column(children: content);
+            }
+
+            content.add(
+              Column(
+                children: [
+                  for (int i = 0; i < scenes.length; i++) ...[
+                    _SceneListTile(
+                      scene: scenes[i],
                       l10n: l10n,
                       isConnected: isConnected,
                     ),
-                  );
-                },
-              );
-            },
-          ),
+                    if (i != scenes.length - 1)
+                      const SizedBox(height: ReefSpacing.md),
+                  ],
+                ],
+              ),
+            );
+            return Column(children: content);
+          },
         ),
       ],
+    );
+  }
+}
+
+class _SceneListTile extends StatelessWidget {
+  final LedSceneSummary scene;
+  final AppLocalizations l10n;
+  final bool isConnected;
+
+  const _SceneListTile({
+    required this.scene,
+    required this.l10n,
+    required this.isConnected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final statusLabel = scene.isEnabled
+        ? l10n.ledSceneStatusEnabled
+        : l10n.ledSceneStatusDisabled;
+    return InkWell(
+      onTap: isConnected
+          ? () => _showComingSoon(context, l10n)
+          : () => showBleGuardDialog(context),
+      borderRadius: BorderRadius.circular(ReefRadius.lg),
+      child: Container(
+        padding: const EdgeInsets.all(ReefSpacing.lg),
+        decoration: BoxDecoration(
+          color: ReefColors.surface,
+          borderRadius: BorderRadius.circular(ReefRadius.lg),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: scene.palette,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(ReefRadius.md),
+              ),
+            ),
+            const SizedBox(width: ReefSpacing.lg),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    scene.name,
+                    style: ReefTextStyles.subheaderAccent.copyWith(
+                      color: ReefColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: ReefSpacing.xs),
+                  Text(
+                    scene.description,
+                    style: ReefTextStyles.caption1.copyWith(
+                      color: ReefColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: ReefSpacing.md,
+                vertical: ReefSpacing.xs,
+              ),
+              decoration: BoxDecoration(
+                color: ReefColors.primary.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(ReefRadius.pill),
+              ),
+              child: Text(
+                statusLabel,
+                style: ReefTextStyles.caption1.copyWith(
+                  color: ReefColors.primary,
+                ),
+              ),
+            ),
+            const SizedBox(width: ReefSpacing.md),
+            const Icon(Icons.chevron_right, color: ReefColors.textSecondary),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -306,78 +413,6 @@ class _SceneCarouselEmptyCard extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ScenePreviewCard extends StatelessWidget {
-  final LedSceneSummary scene;
-  final AppLocalizations l10n;
-  final bool isConnected;
-
-  const _ScenePreviewCard({
-    required this.scene,
-    required this.l10n,
-    required this.isConnected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final statusLabel = scene.isEnabled
-        ? l10n.ledSceneStatusEnabled
-        : l10n.ledSceneStatusDisabled;
-    final statusColor = scene.isEnabled ? Colors.white : Colors.white70;
-    return Card(
-      color: ReefColors.surface,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(ReefRadius.md),
-      ),
-      child: InkWell(
-        onTap: isConnected
-            ? () => _showComingSoon(context, l10n)
-            : () => showBleGuardDialog(context),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: scene.palette,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          padding: const EdgeInsets.all(ReefSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      scene.name,
-                      style: ReefTextStyles.subheaderAccent.copyWith(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    statusLabel,
-                    style: ReefTextStyles.caption1.copyWith(
-                      color: statusColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              Text(
-                scene.description,
-                style: ReefTextStyles.caption1.copyWith(color: Colors.white70),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -513,7 +548,7 @@ class _LedScheduleSummaryCard extends StatelessWidget {
                             vertical: ReefSpacing.xs,
                           ),
                           decoration: BoxDecoration(
-                            color: ReefColors.info.withOpacity(0.15),
+                            color: ReefColors.info.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(ReefRadius.md),
                           ),
                           child: Text(
@@ -669,7 +704,7 @@ class _EntryTile extends StatelessWidget {
         : ReefColors.textSecondary;
     final Color subtitleColor = enabled
         ? ReefColors.textSecondary
-        : ReefColors.textSecondary.withOpacity(0.6);
+        : ReefColors.textSecondary.withValues(alpha: 0.6);
 
     return Card(
       color: ReefColors.surface,
@@ -720,7 +755,7 @@ class _SectionHeader extends StatelessWidget {
         Text(
           subtitle,
           style: ReefTextStyles.caption1.copyWith(
-            color: ReefColors.surface.withOpacity(0.8),
+            color: ReefColors.surface.withValues(alpha: 0.8),
           ),
         ),
       ],

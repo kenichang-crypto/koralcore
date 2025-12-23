@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/toolbar_drop_head_adjust"
+        layout="@layout/toolbar_two_action"
+        app:layout_constraintBottom_toTopOf="@id/layout_drop_head_adjust"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_drop_head_adjust"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_0"
+        android:padding="@dimen/dp_16"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_drop_head_adjust">
+
+        <TextView
+            android:id="@+id/tv_adjust_description_title"
+            style="@style/SingleLine"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:text="@string/adjust_description"
+            android:textAppearance="@style/title2"
+            android:textColor="@color/text_aaaa"
+            app:layout_constraintBottom_toTopOf="@id/tv_adjust_step"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_adjust_step"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_4"
+            android:text="@string/adjust_step"
+            android:textAppearance="@style/body"
+            android:textColor="@color/text_aaa"
+            app:layout_constraintBottom_toTopOf="@id/tv_rotating_speed_title"
+            app:layout_constraintEnd_toEndOf="@id/tv_adjust_description_title"
+            app:layout_constraintStart_toStartOf="@id/tv_adjust_description_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_adjust_description_title" />
+
+        <TextView
+            android:id="@+id/tv_rotating_speed_title"
+            style="@style/SingleLine"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_24"
+            android:text="@string/drop_head_rotating_speed"
+            android:textAppearance="@style/caption1"
+            android:textColor="@color/text_aaaa"
+            app:layout_constraintBottom_toTopOf="@id/btn_rotating_speed"
+            app:layout_constraintEnd_toEndOf="@id/tv_adjust_step"
+            app:layout_constraintStart_toStartOf="@id/tv_adjust_step"
+            app:layout_constraintTop_toBottomOf="@id/tv_adjust_step" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_rotating_speed"
+            style="@style/BackgroundMaterialButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_4"
+            android:textAlignment="textStart"
+            app:layout_constraintBottom_toTopOf="@id/tv_adjust_drop_volume_title"
+            app:icon="@drawable/ic_down"
+            app:layout_constraintEnd_toEndOf="@id/tv_rotating_speed_title"
+            app:layout_constraintStart_toStartOf="@id/tv_rotating_speed_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_rotating_speed_title"
+            tools:text="中速" />
+
+        <TextView
+            android:id="@+id/tv_adjust_drop_volume_title"
+            style="@style/SingleLine"
+            android:visibility="gone"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16"
+            android:text="@string/drop_volume"
+            app:layout_constraintBottom_toTopOf="@id/layout_adjust_drop_volume"
+            android:textAppearance="@style/caption1"
+            android:textColor="@color/text_color_selector"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_rotating_speed" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_adjust_drop_volume"
+            style="@style/TextInputLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_4"
+            app:layout_constraintBottom_toTopOf="@id/img_adjust"
+            app:layout_constraintEnd_toEndOf="@id/tv_adjust_drop_volume_title"
+            app:layout_constraintStart_toStartOf="@id/tv_adjust_drop_volume_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_adjust_drop_volume_title">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_adjust_drop_volume"
+                style="@style/SingleLine"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="@string/adjust_volume_hint"
+                android:inputType="numberDecimal"
+                android:textAppearance="@style/body" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageView
+            android:id="@+id/img_adjust"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="fitCenter"
+            android:layout_marginTop="@dimen/dp_24"
+            android:src="@drawable/img_adjust"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layout_adjust_drop_volume" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/dp_43"
+            android:paddingTop="@dimen/dp_12"
+            android:paddingEnd="@dimen/dp_43"
+            android:paddingBottom="@dimen/dp_12"
+            android:text="@string/next"
+            android:textAppearance="@style/caption1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/btn_prev"
+            style="@style/TextViewCanClick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/dp_10"
+            android:paddingTop="@dimen/dp_12"
+            android:paddingEnd="@dimen/dp_10"
+            android:paddingBottom="@dimen/dp_12"
+            android:text="@string/cancel"
+            android:textAppearance="@style/caption1"
+            android:textColor="@color/text_aaaa"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_complete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/dp_43"
+            android:paddingTop="@dimen/dp_12"
+            android:paddingEnd="@dimen/dp_43"
+            android:paddingBottom="@dimen/dp_12"
+            android:text="@string/complete_adjust"
+            android:textAppearance="@style/caption1"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@id/btn_next"
+            app:layout_constraintEnd_toEndOf="@id/btn_next"
+            app:layout_constraintStart_toStartOf="@id/btn_prev"
+            app:layout_constraintTop_toTopOf="@id/btn_next" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/progress"
+        layout="@layout/progress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/loading"
+        layout="@layout/dialog_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+</androidx.constraintlayout.widget.ConstraintLayout>

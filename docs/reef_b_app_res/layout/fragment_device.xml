@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_main">
+
+<!--    <Spinner-->
+<!--        android:id="@+id/sp_sink_type"-->
+<!--        android:layout_width="@dimen/dp_101"-->
+<!--        android:layout_height="@dimen/dp_26"-->
+<!--        android:layout_marginStart="@dimen/dp_16"-->
+<!--        android:layout_marginTop="@dimen/dp_10"-->
+<!--        android:background="@android:color/transparent"-->
+<!--        app:layout_constrainedWidth="true"-->
+<!--        app:layout_constraintEnd_toStartOf="@id/img_down"-->
+<!--        app:layout_constraintHorizontal_bias="0.0"-->
+<!--        app:layout_constraintHorizontal_chainStyle="packed"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
+
+<!--    <ImageView-->
+<!--        android:id="@+id/img_down"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:src="@drawable/ic_down"-->
+<!--        app:layout_constraintBottom_toBottomOf="@id/sp_sink_type"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toEndOf="@id/sp_sink_type"-->
+<!--        app:layout_constraintTop_toTopOf="@id/sp_sink_type" />-->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_user_device"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_8"
+        android:layout_marginEnd="@dimen/dp_10"
+        android:layout_marginBottom="@dimen/dp_8"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/adapter_sink_with_devices" />
+
+    <LinearLayout
+        android:id="@+id/layout_no_device"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="@dimen/dp_172"
+            android:layout_height="@dimen/dp_199"
+            android:layout_gravity="center"
+            android:scaleType="fitCenter"
+            android:src="@drawable/img_device_robot" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/SingleLine"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/dp_39"
+            android:text="@string/text_no_device_title"
+            android:textAppearance="@style/subheader_accent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_add_device"
+            style="@style/RoundedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/dp_8"
+            android:layout_marginBottom="@dimen/dp_8"
+            android:minWidth="@dimen/dp_18"
+            android:minHeight="@dimen/dp_28"
+            android:text="@string/add_device" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

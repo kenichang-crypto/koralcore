@@ -715,6 +715,60 @@ abstract class AppLocalizations {
   /// **'Manual control'**
   String get ledEntryManual;
 
+  /// No description provided for @ledEntryRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Open records'**
+  String get ledEntryRecords;
+
+  /// No description provided for @ledEntryRecordsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review lighting time points synced from Reef B.'**
+  String get ledEntryRecordsSubtitle;
+
+  /// No description provided for @ledChannelBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get ledChannelBlue;
+
+  /// No description provided for @ledChannelRed.
+  ///
+  /// In en, this message translates to:
+  /// **'Red'**
+  String get ledChannelRed;
+
+  /// No description provided for @ledChannelGreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get ledChannelGreen;
+
+  /// No description provided for @ledChannelPurple.
+  ///
+  /// In en, this message translates to:
+  /// **'Purple'**
+  String get ledChannelPurple;
+
+  /// No description provided for @ledChannelUv.
+  ///
+  /// In en, this message translates to:
+  /// **'UV'**
+  String get ledChannelUv;
+
+  /// No description provided for @ledChannelWarmWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm white'**
+  String get ledChannelWarmWhite;
+
+  /// No description provided for @ledChannelMoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Moonlight'**
+  String get ledChannelMoon;
+
   /// No description provided for @ledScheduleAddButton.
   ///
   /// In en, this message translates to:
@@ -1309,6 +1363,156 @@ abstract class AppLocalizations {
   /// **'Create schedules in the Reef B app to view them here.'**
   String get ledScheduleEmptySubtitle;
 
+  /// No description provided for @ledRecordsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'LED records'**
+  String get ledRecordsTitle;
+
+  /// No description provided for @ledRecordsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage every point in the 24-hour lighting timeline.'**
+  String get ledRecordsSubtitle;
+
+  /// No description provided for @ledRecordsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No records available'**
+  String get ledRecordsEmptyTitle;
+
+  /// No description provided for @ledRecordsEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create records in the Reef B app to see them here.'**
+  String get ledRecordsEmptySubtitle;
+
+  /// No description provided for @ledRecordsSelectedTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected time'**
+  String get ledRecordsSelectedTimeLabel;
+
+  /// No description provided for @ledRecordsStatusIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get ledRecordsStatusIdle;
+
+  /// No description provided for @ledRecordsStatusApplying.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing...'**
+  String get ledRecordsStatusApplying;
+
+  /// No description provided for @ledRecordsStatusPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Previewing'**
+  String get ledRecordsStatusPreview;
+
+  /// No description provided for @ledRecordsActionPrev.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get ledRecordsActionPrev;
+
+  /// No description provided for @ledRecordsActionNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get ledRecordsActionNext;
+
+  /// No description provided for @ledRecordsActionDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get ledRecordsActionDelete;
+
+  /// No description provided for @ledRecordsActionClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get ledRecordsActionClear;
+
+  /// No description provided for @ledRecordsActionPreviewStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get ledRecordsActionPreviewStart;
+
+  /// No description provided for @ledRecordsActionPreviewStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop preview'**
+  String get ledRecordsActionPreviewStop;
+
+  /// No description provided for @ledRecordsClearConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all records?'**
+  String get ledRecordsClearConfirmTitle;
+
+  /// No description provided for @ledRecordsClearConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes every recorded time point from the LED schedule.'**
+  String get ledRecordsClearConfirmMessage;
+
+  /// No description provided for @ledRecordsDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete record?'**
+  String get ledRecordsDeleteConfirmTitle;
+
+  /// No description provided for @ledRecordsDeleteConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the selected time point from the LED schedule?'**
+  String get ledRecordsDeleteConfirmMessage;
+
+  /// No description provided for @ledRecordsSnackDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Record deleted.'**
+  String get ledRecordsSnackDeleted;
+
+  /// No description provided for @ledRecordsSnackDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t delete record.'**
+  String get ledRecordsSnackDeleteFailed;
+
+  /// No description provided for @ledRecordsSnackCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Records cleared.'**
+  String get ledRecordsSnackCleared;
+
+  /// No description provided for @ledRecordsSnackClearFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t clear records.'**
+  String get ledRecordsSnackClearFailed;
+
+  /// No description provided for @ledRecordsSnackMissingSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a record first.'**
+  String get ledRecordsSnackMissingSelection;
+
+  /// No description provided for @ledRecordsSnackPreviewStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview started.'**
+  String get ledRecordsSnackPreviewStarted;
+
+  /// No description provided for @ledRecordsSnackPreviewStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview stopped.'**
+  String get ledRecordsSnackPreviewStopped;
+
   /// No description provided for @ledScheduleTypeDaily.
   ///
   /// In en, this message translates to:
@@ -1519,6 +1723,18 @@ abstract class AppLocalizations {
   /// **'Disabled'**
   String get ledSceneStatusDisabled;
 
+  /// No description provided for @ledSceneStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get ledSceneStatusActive;
+
+  /// No description provided for @ledScenesSnackApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Scene applied.'**
+  String get ledScenesSnackApplied;
+
   /// Label shown when an LED lighting schedule is enabled.
   ///
   /// In en, this message translates to:
@@ -1530,6 +1746,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Disabled'**
   String get ledScheduleStatusDisabled;
+
+  /// No description provided for @ledScheduleStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get ledScheduleStatusActive;
+
+  /// No description provided for @ledScheduleSnackApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule applied.'**
+  String get ledScheduleSnackApplied;
 }
 
 class _AppLocalizationsDelegate

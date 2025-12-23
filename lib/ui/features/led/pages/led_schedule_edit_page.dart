@@ -164,7 +164,7 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
         Text(l10n.ledScheduleEditTypeLabel, style: theme.textTheme.titleSmall),
         const SizedBox(height: AppDimensions.spacingS),
         DropdownButtonFormField<LedScheduleType>(
-          value: _type,
+          initialValue: _type,
           items: [
             DropdownMenuItem(
               value: LedScheduleType.dailyProgram,
@@ -230,7 +230,7 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
         ),
         const SizedBox(height: AppDimensions.spacingS),
         DropdownButtonFormField<LedScheduleRecurrence>(
-          value: _recurrence,
+          initialValue: _recurrence,
           items: [
             DropdownMenuItem(
               value: LedScheduleRecurrence.everyday,

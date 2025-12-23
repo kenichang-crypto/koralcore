@@ -70,7 +70,70 @@ flutter:
 
   assets:
     - assets/icons/
+    - assets/icons/home/
+    - assets/icons/device/
+    - assets/icons/dosing/
+    - assets/icons/led/
+    - assets/icons/bluetooth/
     - assets/images/
+    - docs/reef_b_app_res/
+    - docs/reef_b_app_res/color/
+    - docs/reef_b_app_res/drawable/
+    - docs/reef_b_app_res/drawable-hdpi/
+    - docs/reef_b_app_res/drawable-xhdpi/
+    - docs/reef_b_app_res/drawable-xxhdpi/
+    - docs/reef_b_app_res/drawable-xxxhdpi/
+    - docs/reef_b_app_res/layout/
+    - docs/reef_b_app_res/layout-land/
+    - docs/reef_b_app_res/menu/
+    - docs/reef_b_app_res/mipmap-anydpi-v26/
+    - docs/reef_b_app_res/mipmap-hdpi/
+    - docs/reef_b_app_res/mipmap-mdpi/
+    - docs/reef_b_app_res/mipmap-xhdpi/
+    - docs/reef_b_app_res/mipmap-xxhdpi/
+    - docs/reef_b_app_res/mipmap-xxxhdpi/
+    - docs/reef_b_app_res/navigation/
+    - docs/reef_b_app_res/values/
+    - docs/reef_b_app_res/values-ar/
+    - docs/reef_b_app_res/values-de/
+    - docs/reef_b_app_res/values-es/
+    - docs/reef_b_app_res/values-fr/
+    - docs/reef_b_app_res/values-in/
+    - docs/reef_b_app_res/values-ja/
+    - docs/reef_b_app_res/values-ko/
+    - docs/reef_b_app_res/values-night/
+    - docs/reef_b_app_res/values-pt/
+    - docs/reef_b_app_res/values-ru/
+    - docs/reef_b_app_res/values-sw1024dp/
+    - docs/reef_b_app_res/values-sw1280dp/
+    - docs/reef_b_app_res/values-sw1365dp/
+    - docs/reef_b_app_res/values-sw240dp/
+    - docs/reef_b_app_res/values-sw320dp/
+    - docs/reef_b_app_res/values-sw384dp/
+    - docs/reef_b_app_res/values-sw392dp/
+    - docs/reef_b_app_res/values-sw400dp/
+    - docs/reef_b_app_res/values-sw410dp/
+    - docs/reef_b_app_res/values-sw411dp/
+    - docs/reef_b_app_res/values-sw432dp/
+    - docs/reef_b_app_res/values-sw480dp/
+    - docs/reef_b_app_res/values-sw533dp/
+    - docs/reef_b_app_res/values-sw592dp/
+    - docs/reef_b_app_res/values-sw600dp/
+    - docs/reef_b_app_res/values-sw640dp/
+    - docs/reef_b_app_res/values-sw662dp/
+    - docs/reef_b_app_res/values-sw720dp/
+    - docs/reef_b_app_res/values-sw768dp/
+    - docs/reef_b_app_res/values-sw800dp/
+    - docs/reef_b_app_res/values-sw811dp/
+    - docs/reef_b_app_res/values-sw820dp/
+    - docs/reef_b_app_res/values-sw960dp/
+    - docs/reef_b_app_res/values-sw961dp/
+    - docs/reef_b_app_res/values-th/
+    - docs/reef_b_app_res/values-v27/
+    - docs/reef_b_app_res/values-v28/
+    - docs/reef_b_app_res/values-vi/
+    - docs/reef_b_app_res/values-zh-rTW/
+    - docs/reef_b_app_res/xml/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

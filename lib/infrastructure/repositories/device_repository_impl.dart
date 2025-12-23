@@ -5,11 +5,15 @@ import 'dart:math';
 
 import '../../application/common/app_error.dart';
 import '../../application/common/app_error_code.dart';
+import '../../domain/sink/sink.dart';
 import '../../platform/contracts/device_repository.dart';
+import '../../platform/contracts/sink_repository.dart';
 
-/// In-memory repository that simulates the platform device list with saved/discovered sets.
+/// In-memory repository that simulates the platform device list with
+/// saved/discovered sets.
 class DeviceRepositoryImpl extends DeviceRepository {
-  final List<_DeviceRecord> _savedRecords = [
+  final SinkRepository? _sinkRepository;
+  final List<_DeviceRecord> _savedRecords = <_DeviceRecord>[
     const _DeviceRecord(
       id: 'reef-dose-4k',
       name: 'Reef Dose 4',
@@ -36,16 +40,16 @@ class DeviceRepositoryImpl extends DeviceRepository {
     ),
   ];
 
-  final List<_DeviceRecord> _discoveredRecords = [];
-
+  final List<_DeviceRecord> _discoveredRecords = <_DeviceRecord>[];
   final StreamController<List<Map<String, dynamic>>> _savedController;
   final StreamController<List<Map<String, dynamic>>> _discoveredController;
   final Random _random = Random();
 
   String? _currentDeviceId;
 
-  DeviceRepositoryImpl()
-    : _savedController =
+  DeviceRepositoryImpl({SinkRepository? sinkRepository})
+    : _sinkRepository = sinkRepository,
+      _savedController =
           StreamController<List<Map<String, dynamic>>>.broadcast(),
       _discoveredController =
           StreamController<List<Map<String, dynamic>>>.broadcast() {
@@ -58,13 +62,9 @@ class DeviceRepositoryImpl extends DeviceRepository {
   @override
   Future<List<Map<String, dynamic>>> scanDevices({Duration? timeout}) async {
     await Future<void>.delayed(timeout ?? const Duration(seconds: 2));
-    _randomizeRssi(_savedRecords);
-    if (_discoveredRecords.isEmpty) {
-      _discoveredRecords.addAll(_generateDiscovered());
-    } else {
-      _randomizeRssi(_discoveredRecords);
-    }
-    _emitSaved();
+    _discoveredRecords
+      ..clear()
+      ..addAll(_generateDiscovered());
     _emitDiscovered();
     return _discoveredRecords
         .map((record) => record.toMap())
@@ -122,7 +122,6 @@ class DeviceRepositoryImpl extends DeviceRepository {
     }
 
     _savedRecords.removeAt(index);
-    _removeDiscoveredRecord(deviceId);
     if (_currentDeviceId == deviceId) {
       _currentDeviceId = null;
     }
@@ -139,22 +138,13 @@ class DeviceRepositoryImpl extends DeviceRepository {
 
   @override
   Future<void> connect(String deviceId) async {
-    final index = _indexOf(deviceId);
-    final record = _savedRecords[index];
+    final int index = _indexOf(deviceId);
+    final _DeviceRecord record = _savedRecords[index];
     if (record.state == 'connecting') {
       throw const AppError(
         code: AppErrorCode.deviceBusy,
         message: 'Device already connecting',
       );
-    }
-
-    if (_currentDeviceId != null && _currentDeviceId != deviceId) {
-      final previousIndex = _indexOf(_currentDeviceId!, allowMissing: true);
-      if (previousIndex != -1) {
-        _savedRecords[previousIndex] = _savedRecords[previousIndex].copyWith(
-          state: 'disconnected',
-        );
-      }
     }
 
     _savedRecords[index] = record.copyWith(state: 'connected');
@@ -164,7 +154,7 @@ class DeviceRepositoryImpl extends DeviceRepository {
 
   @override
   Future<void> disconnect(String deviceId) async {
-    final index = _indexOf(deviceId);
+    final int index = _indexOf(deviceId);
     _savedRecords[index] = _savedRecords[index].copyWith(state: 'disconnected');
     if (_currentDeviceId == deviceId) {
       _currentDeviceId = null;
@@ -187,18 +177,18 @@ class DeviceRepositoryImpl extends DeviceRepository {
 
   @override
   Future<void> updateDeviceState(String deviceId, String state) async {
-    final index = _indexOf(deviceId);
+    final int index = _indexOf(deviceId);
     _savedRecords[index] = _savedRecords[index].copyWith(state: state);
     _emitSaved();
   }
 
   @override
   Stream<List<Map<String, dynamic>>> observeDevices() =>
-      _savedController.stream;
+      _discoveredController.stream;
 
   @override
   Future<Map<String, dynamic>?> getDevice(String deviceId) async {
-    final index = _indexOf(deviceId, allowMissing: true);
+    final int index = _indexOf(deviceId, allowMissing: true);
     if (index == -1) {
       return null;
     }
@@ -207,7 +197,7 @@ class DeviceRepositoryImpl extends DeviceRepository {
 
   @override
   Future<String?> getDeviceState(String deviceId) async {
-    final index = _indexOf(deviceId, allowMissing: true);
+    final int index = _indexOf(deviceId, allowMissing: true);
     if (index == -1) {
       return null;
     }
@@ -218,24 +208,18 @@ class DeviceRepositoryImpl extends DeviceRepository {
     if (!_savedController.isClosed) {
       _savedController.add(_savedSnapshot());
     }
+    _syncDefaultSink();
   }
 
   void _emitDiscovered() {
-    if (!_discoveredController.isClosed) {
-      _discoveredController.add(
-        _discoveredRecords
-            .map((record) => record.toMap())
-            .toList(growable: false),
-      );
+    if (_discoveredController.isClosed) {
+      return;
     }
-  }
-
-  void _removeDiscoveredRecord(String deviceId) {
-    final int before = _discoveredRecords.length;
-    _discoveredRecords.removeWhere((record) => record.id == deviceId);
-    if (_discoveredRecords.length != before) {
-      _emitDiscovered();
-    }
+    _discoveredController.add(
+      _discoveredRecords
+          .map((record) => record.toMap())
+          .toList(growable: false),
+    );
   }
 
   List<Map<String, dynamic>> _savedSnapshot() {
@@ -245,30 +229,38 @@ class DeviceRepositoryImpl extends DeviceRepository {
   }
 
   List<_DeviceRecord> _generateDiscovered() {
-    final List<_DeviceRecord> generated = List<_DeviceRecord>.from(
-      _savedRecords,
-    );
-    generated.add(
-      _DeviceRecord(
-        id: 'reef-temp-${DateTime.now().millisecondsSinceEpoch}',
-        name: 'Reef Probe',
-        rssi: -68,
-        state: 'disconnected',
-        provisioned: false,
-        isMaster: false,
-      ),
-    );
+    final List<_DeviceRecord> generated = <_DeviceRecord>[];
+    for (int i = 0; i < 3; i++) {
+      generated.add(
+        _DeviceRecord(
+          id: 'reef-discovered-${DateTime.now().millisecondsSinceEpoch + i}',
+          name: 'Nearby Device ${_random.nextInt(90) + 10}',
+          rssi: (-45 - _random.nextInt(35)),
+          state: 'disconnected',
+          provisioned: false,
+          isMaster: false,
+        ).withRandomizedRssi(_random),
+      );
+    }
     return generated;
   }
 
-  void _randomizeRssi(List<_DeviceRecord> records) {
-    for (var i = 0; i < records.length; i++) {
-      records[i] = records[i].withRandomizedRssi(_random);
+  void _syncDefaultSink() {
+    final SinkRepository? repository = _sinkRepository;
+    if (repository == null) {
+      return;
     }
+    repository.upsertSink(
+      Sink.defaultSink(
+        _savedRecords.map((record) => record.id).toList(growable: false),
+      ),
+    );
   }
 
   int _indexOf(String deviceId, {bool allowMissing = false}) {
-    final index = _savedRecords.indexWhere((record) => record.id == deviceId);
+    final int index = _savedRecords.indexWhere(
+      (record) => record.id == deviceId,
+    );
     if (index == -1 && !allowMissing) {
       throw AppError(
         code: AppErrorCode.invalidParam,
@@ -315,7 +307,7 @@ class _DeviceRecord {
   }
 
   _DeviceRecord withRandomizedRssi(Random random) {
-    final delta = random.nextInt(10) - 5;
+    final int delta = random.nextInt(10) - 5;
     final int next = (rssi + delta).clamp(-90, -40).toInt();
     return copyWith(rssi: next);
   }

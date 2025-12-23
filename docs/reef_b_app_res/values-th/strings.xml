@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    泰語（ไทย）-->
+    <string name="app_name">ReefB</string>
+    /** 權限相關 **/
+    <string name="get_gps_permission">กรุณาอนุญาตให้สิทธิ์การเข้าถึงตำแหน่ง GPS</string>
+    <string name="get_nerby_permission">กรุณาอนุญาตให้สิทธิ์การเข้าถึงอุปกรณ์ใกล้เคียง</string>
+    <string name="get_camera_storage_permission">กรุณาอนุญาตให้สิทธิ์การเข้าถึงกล้องและพื้นที่เก็บข้อมูล</string>
+    <string name="get_camera_permission">กรุณาอนุญาตให้สิทธิ์การเข้าถึงกล้อง</string>
+    <string name="get_storage_permission">กรุณาอนุญาตให้สิทธิ์การเข้าถึงพื้นที่เก็บข้อมูล</string>
+    <string name="please_open_gps">กรุณาเปิดใช้งานตำแหน่ง GPS</string>
+    <string name="please_open_ble">กรุณาเปิดใช้งานบลูทูธ</string>
+    <string name="please_open_ble_gps">กรุณาเปิดใช้งานบลูทูธและตำแหน่ง GPS</string>
+    <string name="toast_connect_failed">การเชื่อมต่อล้มเหลว กรุณาลองอีกครั้ง</string>
+    <string name="toast_connect_successful">การเชื่อมต่อสำเร็จ</string>
+    <string name="toast_disconnect">อุปกรณ์ถูกตัดการเชื่อมต่อ</string>
+    /** 通用 **/
+    <string name="confirm">ตกลง</string>
+    <string name="delete">ลบ</string>
+    <string name="cancel">ยกเลิก</string>
+    <string name="select">เลือก</string>
+    <string name="skip">ข้าม</string>
+    <string name="complete">เสร็จ</string>
+    <string name="save">บันทึก</string>
+    <string name="edit">แก้ไข</string>
+    <string name="i_konw">ฉันเข้าใจแล้ว</string>
+    <string name="next">ถัดไป</string>
+    <string name="close">ปิด</string>
+    <string name="back">ย้อนกลับ</string>
+    <string name="no">ไม่มี</string>
+    <string name="run">เริ่มใช้งาน</string>
+    <string name="no_eng">ไม่มี</string>
+    <string name="rearrangement">"การจัดเรียงใหม่ "</string>
+    <string name="led">LED</string>
+    <string name="drop">ปั๊มวัด</string>
+    <string name="home">หน้าแรก</string>
+    <string name="bluetooth">บลูทูธ</string>
+    <string name="device">อุปกรณ์</string>
+    <string name="favorite">อุปกรณ์ที่ชื่นชอบ</string>
+    <string name="bluetooth_connect">การเชื่อมต่อบลูทูธ</string>
+    <string name="reset">คืนค่าเริ่มต้น</string>
+    <string name="warning_list">บันทึกรายละเอียดการแจ้งเตือน</string>
+    <string name="group_full">ถึงขีดจำกัดของอุปกรณ์</string>
+    <string name="device_is_not_connect">อุปกรณ์ไม่ได้เชื่อมต่อ</string>
+    <string name="no_records">ไม่มีงานที่กำหนด</string>
+    /** 預設場景 **/
+    <string name="preset_scene_off">ปิด</string>
+    <string name="preset_scene_30">30%</string>
+    <string name="preset_scene_60">60%</string>
+    <string name="preset_scene_100">100%</string>
+    <string name="preset_scene_moon">แสงจันทร์</string>
+    <string name="preset_scene_thunder">ฟ้าร้อง</string>
+    /** 光譜名字 **/
+    <string name="uv">UV</string>
+    <string name="purple">ม่วง</string>
+    <string name="blue">น้ำเงิน</string>
+    <string name="royal_blue">น้ำเงินเข้ม</string>
+    <string name="green">เขียว</string>
+    <string name="red">แดง</string>
+    <string name="cold_white">ขาวเย็น</string>
+    <string name="warm_white">ขาวอบอุ่น</string>
+    <string name="moon">แสงจันทร์</string>
+    <string name="light_uv">แสง UV</string>
+    <string name="light_purple">แสงม่วง</string>
+    <string name="light_blue">แสงน้ำเงิน</string>
+    <string name="light_royal_blue">แสงน้ำเงินเข้ม</string>
+    <string name="light_green">แสงเขียว</string>
+    <string name="light_red">แสงแดง</string>
+    <string name="light_cold_white">แสงขาวเย็น</string>
+    <string name="light_warm_white">แสงขาวอบอุ่น</string>
+    <string name="light_moon">แสงจันทร์</string>
+    /** 滴液泵排程種類 **/
+    <string name="drop_record_type_custom">โหมดฟรี</string>
+    <string name="drop_record_type_single">การให้ยาเดี่ยว</string>
+    <string name="drop_record_type_24">การให้ยาตามเวลา 24 ชั่วโมง</string>
+    <string name="drop_record_type_none">ไม่มีงานที่กำหนด</string>
+    <string name="drop_record_type">ประเภทการจัดกำหนด</string>
+    /** 單位 **/
+    <string name="minute">นาที</string>
+    <string name="init_minute">30 นาที</string>
+    <string name="times">ครั้ง</string>
+    <string name="group">กลุ่ม</string>
+    <string name="master_setting">การตั้งค่าเป็นท่านายและทาส</string>
+    <string name="setting_master">ตั้งเป็นท่านาย</string>
+    <string name="led_setting">การตั้งค่า LED</string>
+    <string name="master_pairing">การจับคู่ท่านายและทาส</string>
+    <string name="max_drop_volume">ปริมาณการให้ยาสูงสุดรายวัน</string>
+    <string name="max_drop_volume_hint">จำกัดปริมาณการให้ยาสำหรับการทำงานที่กำหนดและไม่ได้กำหนดหลังจากเปิด</string>
+    <string name="drop_setting">การตั้งค่าปั๊มพีระมิติ</string>
+    <string name="drop_head_setting">การตั้งค่าหัวปั๊ม</string>
+    <string name="master_slave">ท่านาย/ทาส</string>
+    <string name="set_master">ตั้งเป็นไฟท่านาย</string>
+    <string name="move_group">ย้ายกลุ่ม</string>
+    <string name="choose_group">เลือกกลุ่ม</string>
+    <string name="run_cycle">รอบการทำงาน</string>
+    <string name="run_time">เวลาการทำงาน</string>
+    <string name="low_rotating_speed">ความเร็วต่ำ</string>
+    <string name="middle_rotating_speed">ความเร็วปานกลาง</string>
+    <string name="high_rotating_speed">ความเร็วสูง</string>
+    <string name="drop_volume_per_day">ปริมาณการให้ยารวมรายวัน</string>
+    <string name="drop_volume">ปริมาณการให้ยา (มล.)</string>
+    <string name="init_rotating_speed">ความเร็วเริ่มต้น</string>
+    <string name="drop_head_rotating_speed">ความเร็วหัวปั๊ม</string>
+    <string name="drop_days_a_week">วันการให้ยารายสัปดาห์</string>
+    <string name="run_immediatrly">ปฏิบัติเดี๋ยวนี้</string>
+    <string name="drop_record_time">ช่วงเวลาการจัดกำหนด</string>
+    <string name="delete_drop_record_time">ลบช่วงเวลาการจัดกำหนด</string>
+    <string name="drop_start_time">เวลาเริ่มต้นการให้ยา</string>
+    <string name="drop_end_time">เวลาสิ้นสุดการให้ยา</string>
+    <string name="drop_times">ความถี่ในการให้ยา</string>
+    /** led record setting **/
+    <string name="init_strength">ความเข้มแรก</string>
+    <string name="sunrise">พระอาทิตย์ขึ้น</string>
+    <string name="sunset">พระอาทิตย์ตก</string>
+    <string name="slow_start">เริ่มต้นอย่างนุ่มๆ</string>
+    <string name="moon_light">@string/moon</string>
+    <string name="time_already_exist">ได้ตั้งช่วงเวลานี้ไว้แล้ว</string>
+
+    <string name="drop_type">ประเภทการให้ยา</string>
+    <string name="drop_type_delete">ลบประเภทการให้ยา</string>
+    <string name="drop_type_already_used">หัวปั๊มอื่นกำลังใช้ประเภทการให้ยานี้</string>
+    <string name="delay_time">เวลาหน่วง</string>
+    <string name="today_record_drop_volume">ปริมาณการให้ยาทันทีที่กำหนดวันนี้</string>
+    <string name="add_drop_type">เพิ่มการให้ยาที่กำหนดเอง</string>
+    <string name="edit_drop_type">แก้ไขการให้ยาที่กำหนดเอง</string>
+    <string name="drop_type_name">ชื่อการให้ยา</string>
+    /** record **/
+    <string name="record_setting">การตั้งค่าการจัดกำหนด</string>
+    <string name="record">การจัดกำหนด</string>
+    <string name="record_time">จุดเวลาที่กำหนด</string>
+    <string name="time">จุดเวลา</string>
+    <string name="time_setting">การตั้งค่าช่วงเวลา</string>
+    /** scene **/
+    <string name="led_scene">ฉาก</string>
+    <string name="led_scene_add">เพิ่มฉาก</string>
+    <string name="led_scene_edit">การตั้งค่าฉาก</string>
+    <string name="led_scene_delete">ลบฉาก</string>
+    <string name="led_dynamic_scene">ฉากไดนามิก</string>
+    <string name="led_static_scene">ฉากคงที่</string>
+    <string name="led_scene_name">ชื่อฉาก</string>
+    <string name="led_scene_icon">ไอคอนฉาก</string>
+    /** adjust **/
+    <string name="adjust_list">บันทึกการสอดสอย</string>
+    <string name="adjust">การสอดสอย</string>
+    <string name="complete_adjust">สอดสอยเสร็จสมบูรณ์</string>
+    <string name="recently_adjust_list">บันทึกการสอดสอยล่าสุด</string>
+    <string name="adjusting">กำลังสอดสอย...</string>
+    <string name="adjust_description">คำแนะนำการสอดสอย</string>
+    <string name="adjust_step">1.เตรียมถ้วยวัดและท่อบางให้พร้อม\n2. เริ่มการทำงานด้วยการถ่ายโอนของมือเพื่อเติมท่อด้วยของเหลว\n3. เลือกความเร็วสำหรับการสอดสอย</string>
+    <string name="rotating_speed">ความเร็ว</string>
+    <string name="adjust_date">วันที่ทำการสอดสอย</string>
+    <string name="measure_drop_volume">ปริมาณที่วัดได้</string>
+    /** device **/
+    <string name="add_device">เพิ่มอุปกรณ์</string>
+    <string name="other_device">อุปกรณ์อื่น ๆ</string>
+    <string name="device_name">ชื่ออุปกรณ์</string>
+    <string name="favorite_device">อุปกรณ์ที่ชื่นชอบ</string>
+    <string name="unassigned_device">อุปกรณ์ที่ไม่ได้จัดสรร</string>
+    /** sink **/
+    <string name="add_sink">เพิ่มถัง</string>
+    <string name="sink_name">ชื่อถัง</string>
+    <string name="sink_setting">การตั้งค่าถัง</string>
+    <string name="sink_position">ที่ตั้งถัง</string>
+    <string name="sink_manager">การจัดการถัง</string>
+    <string name="delete_sink">ลบถัง</string>
+    /** Menu **/
+    <string name="bottom_navigation_home">@string/home</string>
+    <string name="bottom_navigation_bluetooth">@string/bluetooth</string>
+    <string name="bottom_navigation_device">@string/device</string>
+    /** Led Menu **/
+    <string name="menu_favorite">@string/favorite</string>
+    <string name="menu_edit">@string/edit</string>
+    <string name="menu_delete">@string/delete</string>
+    <string name="menu_setting_master">@string/setting_master</string>
+    <string name="menu_reset">@string/reset</string>
+    /** delay time menu **/
+    <string name="_15sec">15 วินาที</string>
+    <string name="_30sec">30 วินาที</string>
+    <string name="_1min">1 นาที</string>
+    <string name="_2min">2 นาที</string>
+    <string name="_3min">3 นาที</string>
+    <string name="_4min">4 นาที</string>
+    <string name="_5min">5 นาที</string>
+
+    <string name="menu_set_master">@string/set_master</string>
+    <string name="menu_move_group">@string/move_group</string>
+    /** spinner **/
+    <string name="home_spinner_all_sink">ถังทั้งหมด</string>
+    <string name="home_spinner_favorite">@string/favorite_device</string>
+    <string name="home_spinner_unassigned">@string/unassigned_device</string>
+    /** toast **/
+    <string name="toast_connect_limit">สามารถเชื่อมต่ออุปกรณ์ได้สูงสุด 1 อุปกรณ์พร้อมกัน</string>
+    <string name="toast_name_is_empty">ชื่อต้องไม่ว่างเปล่า</string>
+    <string name="toast_add_sink_successful">เพิ่มถังเรียบร้อยแล้ว</string>
+    <string name="toast_sink_name_is_exist">ชื่อถังนี้มีอยู่แล้ว</string>
+    <string name="toast_edit_sink_successful">แก้ไขชื่อถังเรียบร้อยแล้ว</string>
+    <string name="toast_device_name_is_exist">ชื่ออุปกรณ์นี้มีอยู่แล้ว</string>
+    <string name="toast_delete_sink_successful">ลบถังเรียบร้อยแล้ว</string>
+    <string name="toast_delete_sink_failed">ไม่สามารถลบถังได้</string>
+    <string name="toast_add_device_successful">เพิ่มอุปกรณ์เรียบร้อยแล้ว</string>
+    <string name="toast_sink_is_full">ถังเต็มแล้ว</string>
+    <string name="toast_delete_device_successful">ลบอุปกรณ์เรียบร้อยแล้ว</string>
+    <string name="toast_delete_device_failed">ไม่สามารถลบอุปกรณ์ได้</string>
+    <string name="toast_reset_device_successful">เรียกคืนการตั้งค่าเริ่มต้นเรียบร้อยแล้ว</string>
+    <string name="toast_reset_device_failed">ไม่สามารถเรียกคืนการตั้งค่าเริ่มต้นได้</string>
+    <string name="toast_set_time_error">จุดเวลาต้องห่างกันอย่างน้อย 10 นาที</string>
+    <string name="toast_set_time_is_exist">ช่วงเวลานี้ถูกตั้งไว้แล้ว</string>
+    <string name="toast_setting_successful">การตั้งค่าสำเร็จ</string>
+    <string name="toast_setting_failed">การตั้งค่าล้มเหลว</string>
+    <string name="toast_move_group_successful">ย้ายกลุ่มเรียบร้อยแล้ว</string>
+    <string name="toast_move_group_failed">ไม่สามารถย้ายกลุ่มได้</string>
+    <string name="toast_add_scene_successful">เพิ่มฉากเรียบร้อยแล้ว</string>
+    <string name="toast_scene_name_is_exist">ชื่อฉากนี้มีอยู่แล้ว</string>
+    <string name="toast_delete_scene_successful">ลบฉากเรียบร้อยแล้ว</string>
+    <string name="toast_delete_scene_failed">ไม่สามารถลบฉากได้</string>
+    <string name="toast_delete_record_successful">ลบจุดเวลาเรียบร้อยแล้ว</string>
+    <string name="toast_delete_record_failed">ไม่สามารถลบจุดเวลาได้</string>
+    <string name="toast_preview_start">เริ่มต้นการแสดงตัวอย่างหนึ่งนาทีแล้ว</string>
+    <string name="toast_preview_end">สิ้นสุดการแสดงตัวอย่างหนึ่งนาทีแล้ว</string>
+    <string name="toast_sun_time_error">การตั้งเวลาขึ้นและตกของแสงอาทิตย์ไม่ถูกต้อง</string>
+    <string name="toast_time_record_size_more_than_24">สามารถตั้งได้สูงสุด 24 จุดเวลา</string>
+    <string name="toast_custom_scene_size_more_than_5">สามารถตั้งฉากที่กำหนดเองได้สูงสุด 5 ฉาก</string>
+    <string name="toast_delete_now_scene">ไม่สามารถลบฉากที่กำลังใช้งานอยู่ได้</string>
+    <string name="toast_drophead_is_droping">หัวปั้มนี้กำลังใช้งานอยู่ โปรดลองอีกครั้งในภายหลัง</string>
+    <string name="toast_add_drop_type_successful">เพิ่มประเภทการให้ยาเรียบร้อยแล้ว</string>
+    <string name="toast_drop_type_name_is_exist">ชื่อประเภทการให้ยานี้มีอยู่แล้ว</string>
+    <string name="toast_edit_drop_type_successful">แก้ไขชื่อประเภทการให้ยาเรียบร้อยแล้ว</string>
+    <string name="toast_delete_drop_type_successful">ลบประเภทการให้ยาเรียบร้อยแล้ว</string>
+    <string name="toast_delete_drop_type_failed">ไม่สามารถลบประเภทการให้ยาได้</string>
+    <string name="toast_max_drop_per_day_is_empty">โปรดป้อนปริมาณการให้ยาสูงสุดต่อวัน</string>
+    <string name="toast_drop_volume_is_empty">โปรดป้อนปริมาณการให้ยา</string>
+    <string name="toast_run_time_is_empty">โปรดเลือกเวลาดำเนินการ</string>
+    <string name="toast_drop_volume_is_too_little">ปริมาณการให้ยาทุกครั้งต้องไม่น้อยกว่า 1 มล.</string>
+    <string name="toast_drop_volume_is_too_much">ปริมาณการให้ยารวมต่อวันต้องไม่เกิน 500 มล.</string>
+    <string name="toast_drop_volume_out_of_bound">ปริมาณการให้ยาต้องไม่เกินปริมาณการให้ยาสูงสุดต่อวัน</string>
+    <string name="toast_drop_detail_is_empty">โปรดเพิ่มช่วงเวลาตามกำหนด</string>
+    <string name="toast_delete_detail_successful">ลบช่วงเวลาที่กำหนดเรียบร้อยแล้ว</string>
+    <string name="toast_delete_detail_failed">ไม่สามารถลบช่วงเวลาได้</string>
+    <string name="drop_times_exceed">สามารถตั้งได้สูงสุด 5 ครั้งต่อชั่วโมงนึง</string>
+    <string name="drop_start_adjust_failed">การเริ่มต้นการจัดเกณฑ์ล้มเหลว</string>
+    <string name="drop_adjust_successful">การจัดเกณฑ์เสร็จสมบูรณ์</string>
+    <string name="drop_adjust_failed">การจัดเกณฑ์ล้มเหลว</string>
+    <string name="toast_drop_volume_is_too_little_old">ปริมาณการหยอดแต่ละครั้งต้องไม่ต่ำกว่า 1 มล.</string>
+    <string name="toast_drop_volume_is_too_little_new">ปริมาณการหยอดแต่ละครั้งต้องไม่ต่ำกว่า 0.4 มล.</string>
+    /** hint **/
+    <string name="hint_select_time">โปรดเลือกเวลา</string>
+    <string name="record_pause">กำลังหยุดตารางเวลา</string>
+    <string name="continue_record">ดำเนินการต่อ</string>
+
+    <string name="bottom_sheet_add_sink_title">@string/add_sink</string>
+    <string name="bottom_sheet_add_sink_edittext_title">@string/sink_name</string>
+    <string name="bottom_sheet_add_sink_button_text">@string/save</string>
+    <string name="bottom_sheet_edit_sink_title">@string/sink_setting</string>
+    <string name="bottom_sheet_edit_sink_edittext_title">@string/sink_name</string>
+    <string name="bottom_sheet_edit_sink_button_text">@string/save</string>
+    <string name="bottom_sheet_add_drop_type_title">@string/add_drop_type</string>
+    <string name="bottom_sheet_add_drop_type_edittext_title">@string/drop_type_name</string>
+    <string name="bottom_sheet_add_drop_type_button_text">@string/save</string>
+    <string name="bottom_sheet_edit_drop_type_title">@string/edit_drop_type</string>
+    <string name="bottom_sheet_edit_drop_type_edittext_title">@string/drop_type_name</string>
+    <string name="bottom_sheet_edit_drop_type_button_text">@string/save</string>
+    /** ===================================================================================== **/
+    /** MainActivity **/
+    /** HomeFragment **/
+    <string name="text_no_device_in_sink_title">ถังนี้ยังไม่มีอุปกรณ์</string>
+    <string name="text_no_device_in_sink_content">เพิ่มอุปกรณ์จากรายการบลูทูธด้านล่างด้านล่าง</string>
+    /** DeviceFragment **/
+    <string name="fragment_device_title">@string/device</string>
+    <string name="fragment_device_select">@string/select</string>
+    <string name="text_no_device_title">ไม่มีอุปกรณ์ในขณะนี้</string>
+    <string name="dialog_device_delete_led_master_title">@string/master_setting</string>
+    <string name="dialog_device_delete_led_master_content">ในการลบแสงหลัก โปรดแก้ไขการตั้งค่าตัวคู่หน้าลำโพงและตั้งแสงที่เคยเป็นที่อื่นเป็นแสงหลัก</string>
+    <string name="dialog_device_delete_led_master_positive">@string/i_konw</string>
+    <string name="dialog_device_delete">ลบอุปกรณ์ที่เลือกหรือไม่?</string>
+    <string name="dialog_device_delete_led_content">ลบอุปกรณ์ LED หรือไม่?</string>
+    <string name="dialog_device_delete_led_positive">@string/delete</string>
+    <string name="dialog_device_delete_led_negative">@string/cancel</string>
+    /** BluetoothFragment **/
+    <string name="fragment_bluetooth_title">@string/bluetooth_connect</string>
+    <string name="fragment_other_device_title">@string/other_device</string>
+    <string name="text_no_other_device_title">ไม่พบอุปกรณ์</string>
+    <string name="text_no_other_device_content">แตะที่มุมขวาบนเพื่อสแกนอุปกรณ์ที่อยู่ใกล้</string>
+    <string name="dialog_disconnect_bluetooth_content">คุณต้องการตัดการเชื่อมต่อบลูทูธหรือไม่?</string>
+    <string name="dialog_disconnect_bluetooth_positive">@string/confirm</string>
+    <string name="dialog_disconnect_bluetooth_negative">@string/cancel</string>
+    /** WarningActivity **/
+    <string name="activity_warning_title">@string/warning_list</string>
+    <string name="text_no_warning_title">ไม่มีบันทึกการแจ้งเตือน</string>
+    <string name="text_no_warning_content">ไม่มีรายการใน "บันทึกการแจ้งเตือน"</string>
+    <string name="dialog_delete_warning_content">คุณต้องการลบการแจ้งเตือนนี้หรือไม่?</string>
+    <string name="dialog_delete_warning_positive">@string/confirm</string>
+    <string name="dialog_delete_warning_negative">@string/cancel</string>
+    /** SinkManagerActivity **/
+    <string name="activity_manage_sink_title">@string/sink_manager</string>
+    <string name="text_no_sink_title">ไม่มีถังในขณะนี้</string>
+    <string name="text_no_sink_content">แตะที่ปุ่มเพิ่มที่มุมล่างขวาเพื่อเพิ่มถัง</string>
+    <string name="text_device_amount">%1$d อุปกรณ์</string>
+    <string name="dialog_delete_sink_title">@string/delete_sink</string>
+    <string name="dialog_delete_sink_content">หลังจากลบถังออก อุปกรณ์ภายในถังจะกลายเป็นอุปกรณ์ที่ไม่ได้กำหนด</string>
+    <string name="dialog_delete_sink_positive">@string/delete</string>
+    <string name="dialog_delete_sink_negative">@string/cancel</string>
+
+    <string name="activity_add_device_title">@string/add_device</string>
+    <string name="activity_add_device_toolbar_left_btn">@string/skip</string>
+    <string name="activity_add_device_toolbar_right_btn">@string/complete</string>
+    <string name="activity_add_device_device_name_title">@string/device_name</string>
+    <string name="activity_add_device_sink_position_title">@string/sink_position</string>
+    /** SinkPositionActivity **/
+    <string name="activity_sink_position_title">@string/sink_position</string>
+    <string name="activity_sink_position_toolbar_right_btn">@string/confirm</string>
+    /** LedMainActivity **/
+    <string name="dialog_delete_led_master_title">@string/master_setting</string>
+    <string name="dialog_delete_led_master_content">เพื่อลบอุปกรณ์นี้ โปรดแก้ไขการตั้งค่าตัวคู่และตั้งแสงที่เป็นตัวหลักเป็นแสงอื่นที่เป็นตัวหลัก</string>
+    <string name="dialog_delete_led_master_positive">@string/confirm</string>
+    <string name="dialog_delete_led_master_negative">@string/cancel</string>
+    <string name="dialog_reset_led_title">@string/reset</string>
+    <string name="dialog_reset_led_content">อุปกรณ์นี้จะกลายเป็นอุปกรณ์ที่ไม่ได้กำหนด และการตั้งค่าปัจจุบันทั้งหมดจะถูกล้าง</string>
+    <string name="dialog_reset_led_positive">@string/confirm</string>
+    <string name="dialog_reset_led_negative">@string/cancel</string>
+    <string name="dialog_delete_led_content">คุณต้องการลบอุปกรณ์ LED หรือไม่?</string>
+    <string name="dialog_delete_led_positive">@string/delete</string>
+    <string name="dialog_delete_led_negative">@string/cancel</string>
+    <string name="dialog_delete_unassigned_led_title">@string/master_setting</string>
+    <string name="dialog_delete_unassigned_led_content">อุปกรณ์ภายในถังที่ไม่ได้กำหนดไม่สามารถตั้งค่าเป็นตัวหลักหรือตัวทายได้</string>
+    <string name="dialog_delete_unassigned_led_positive">@string/i_konw</string>
+    <string name="dialog_reset_master_led_title">@string/master_setting</string>
+    <string name="dialog_reset_master_led_content">เพื่อรีเซ็ตอุปกรณ์นี้เป็นการตั้งค่าเริ่มต้น โปรดแก้ไขการตั้งค่าตัวคู่และตั้งแสงที่เป็นตัวหลักเป็นแสงอื่นที่เป็นตัวหลัก</string>
+    <string name="dialog_reset_master_led_positive">@string/confirm</string>
+    <string name="dialog_reset_master_led_negative">@string/cancel</string>
+    /** LedSettingActivity **/
+    <string name="activity_led_setting_title">@string/led_setting</string>
+    <string name="activity_led_setting_toolbar_right_btn">@string/save</string>
+    <string name="dialog_led_move_master_title">@string/master_setting</string>
+    <string name="dialog_led_move_master_content">เพื่อย้ายอุปกรณ์นี้ไปยังถังอื่น โปรดแก้ไขการตั้งค่าตัวคู่และตั้งแสงที่เป็นตัวหลักเป็นแสงอื่นที่เป็นตัวหลัก</string>
+    <string name="dialog_led_move_master_positive">@string/confirm</string>
+    <string name="dialog_led_move_master_negative">@string/cancel</string>
+    /** LedMasterSettingActivity **/
+    <string name="activity_led_master_setting_title">@string/master_pairing</string>
+    <string name="activity_led_master_setting_toolbar_right_btn">@string/master_pairing</string>
+    /** LedRecordSettingActivity **/
+    <string name="activity_led_record_setting_title">@string/record_setting</string>
+    <string name="activity_led_record_setting_toolbar_right_btn">@string/save</string>
+    /** LedRecordActivity **/
+    <string name="activity_led_record_title">@string/record</string>
+    <string name="dialog_led_delete_time_content">คุณต้องการลบจุดเวลานี้หรือไม่?</string>
+    <string name="dialog_led_delete_time_positive">@string/delete</string>
+    <string name="dialog_led_delete_time_negative">@string/cancel</string>
+    <string name="dialog_led_clear_record_content">คุณต้องการล้างตารางเวลาหรือไม่?</string>
+    <string name="dialog_led_clear_record_positive">@string/confirm</string>
+    <string name="dialog_led_clear_record_negative">@string/cancel</string>
+
+    <string name="activity_led_record_time_setting_title">@string/record_time</string>
+    <string name="activity_led_record_time_setting_toolbar_right_btn">@string/save</string>
+
+    <string name="activity_led_scene_title">@string/led_scene</string>
+    <string name="activity_led_scene_toolbar_right_btn">@string/edit</string>
+    /** LedSceneAddActivity **/
+    <string name="activity_led_scene_add_title">@string/led_scene_add</string>
+    <string name="activity_led_scene_add_toolbar_right_btn">@string/save</string>
+    /** LedSceneEditActivity **/
+    <string name="activity_led_scene_edit_title">@string/led_scene_edit</string>
+    <string name="activity_led_scene_edit_toolbar_right_btn">@string/save</string>
+    /** LedSceneDeleteActivity **/
+    <string name="activity_led_scene_delete_title">@string/led_scene_delete</string>
+    <string name="dialog_scene_delete_scene_content">คุณต้องการลบฉากนี้หรือไม่?</string>
+    <string name="dialog_scene_delete_scene_positive">@string/delete</string>
+    <string name="dialog_scene_delete_scene_negative">@string/cancel</string>
+
+    <string name="dialog_today_drop_out_of_range_title">@string/max_drop_volume</string>
+    <string name="dialog_today_drop_out_of_range_content">ปริมาณการให้ยาวันนี้เกินจากปริมาณการให้ยาสูงสุดต่อวัน</string>
+    <string name="dialog_today_drop_out_of_range_positive">@string/i_konw</string>
+    <string name="dialog_delete_drop_content">คุณต้องการลบปั๊มการให้ยานี้หรือไม่?</string>
+    <string name="dialog_delete_drop_positive">@string/delete</string>
+    <string name="dialog_delete_drop_negative">@string/cancel</string>
+    <string name="dialog_reset_drop_title">@string/reset</string>
+    <string name="dialog_reset_drop_content">อุปกรณ์นี้จะกลายเป็นอุปกรณ์ที่ไม่ได้จัดสรรและลบการตั้งค่าหัวปั๊มและบันทึกการสอบเทียบทั้งหมดในปัจจุบัน</string>
+    <string name="dialog_reset_drop_positive">@string/confirm</string>
+    <string name="dialog_reset_drop_negative">@string/cancel</string>
+    /** DropSettingActivity **/
+    <string name="activity_drop_setting_title">@string/drop_setting</string>
+    <string name="activity_drop_setting_toolbar_right_btn">@string/save</string>
+    /** DropHeadSettingActivity **/
+    <string name="activity_drop_head_setting_title">@string/drop_head_setting</string>
+    <string name="activity_drop_head_setting_toolbar_right_btn">@string/save</string>
+    /** DropTypeActivity **/
+    <string name="activity_drop_type_title">@string/drop_type</string>
+    <string name="activity_drop_type_toolbar_right_btn">@string/confirm</string>
+    <string name="dialog_delete_drop_type_title">@string/drop_type_delete</string>
+    <string name="dialog_delete_drop_type_content">คุณต้องการลบชนิดของหยดนี้หรือไม่?</string>
+    <string name="dialog_delete_drop_type_positive">@string/delete</string>
+    <string name="dialog_delete_drop_type_negative">@string/cancel</string>
+    <string name="dialog_drop_type_already_used_title">@string/drop_type_already_used</string>
+    <string name="dialog_drop_type_already_used_content">อุปกรณ์นี้จะกลายเป็นอุปกรณ์ที่ไม่ได้กำหนด และการตั้งค่าปัจจุบันของหัวปั้มทั้งหมดและบันทึกการปรับเสถียรจะถูกล้าง</string>
+    <string name="dialog_drop_type_already_used_positive">@string/delete</string>
+    <string name="dialog_drop_type_already_used_negative">@string/cancel</string>
+    /** DropHeadRecordSettingActivity **/
+    <string name="activity_drop_head_record_setting_title">@string/record</string>
+    <string name="activity_drop_head_record_setting_toolbar_right_btn">@string/run</string>
+    /** DropHeadRecordTimeSettingActivity **/
+    <string name="activity_drop_head_record_time_setting_title">@string/time_setting</string>
+    <string name="activity_drop_head_record_time_setting_toolbar_right_btn">@string/confirm</string>
+    <string name="dialog_setting_drop_out_of_range_title">@string/max_drop_volume</string>
+    <string name="dialog_setting_drop_out_of_range_content">ปริมาณการให้ยาที่ตั้งเกินกว่าขีดจำกัดปริมาณการให้ยาสูงสุดต่อวัน</string>
+    <string name="dialog_setting_drop_out_of_range_positive">@string/i_konw</string>
+    <string name="dialog_drop_time_setting_repeat_title">@string/record_setting</string>
+    <string name="dialog_drop_time_setting_repeat_content">ช่วงเวลานี้ถูกตั้งไว้แล้ว</string>
+    <string name="dialog_drop_time_setting_repeat_positive">@string/confirm</string>
+    <string name="dialog_drop_setting_higher_than_max_title">@string/record_setting</string>
+    <string name="dialog_drop_setting_higher_than_max_content">ปริมาณการให้ยาต้องไม่เกิน 500 มล.</string>
+    <string name="dialog_drop_setting_higher_than_max_positive">@string/confirm</string>
+    <string name="dialog_drop_setting_lower_than_min_title">@string/record_setting</string>
+    <string name="dialog_drop_setting_lower_than_min_content">ปริมาณการให้ยาต่อครั้งต้องไม่น้อยกว่า %1$s มล.</string>
+    <string name="dialog_drop_setting_lower_than_min_positive">@string/confirm</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_title">@string/max_drop_volume</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_content">ปริมาณการให้ยารวมต่อวันวันนี้ รวมถึงการให้ยาตามกำหนด มากกว่าขีดจำกัดปริมาณการให้ยาสูงสุดต่อวัน</string>
+    <string name="dialog_setting_drop_out_of_range_with_today_positive">@string/i_konw</string>
+    <string name="dialog_setting_delete_detail_title">@string/delete_drop_record_time</string>
+    <string name="dialog_setting_delete_detail_content">คุณต้องการลบช่วงเวลานี้หรือไม่?</string>
+    <string name="dialog_setting_delete_detail_positive">@string/delete</string>
+    <string name="dialog_setting_delete_detail_negative">@string/cancel</string>
+    /** DropHeadAdjustListActivity **/
+    <string name="activity_drop_head_adjust_list_title">@string/adjust_list</string>
+    <string name="activity_drop_head_adjust_list_toolbar_right_btn">@string/adjust</string>
+    /** DropHeadAdjustActivity **/
+    <string name="activity_drop_head_adjust_title">@string/adjust</string>
+    <string name="adjust_volume_hint">1 ~ 15; ทศนิยมหนึ่งตำแหน่ง</string>
+</resources>

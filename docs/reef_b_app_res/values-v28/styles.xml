@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.Bridge">
+    </style>
+    <style name="AppTheme.FullScreen">
+        <item name="android:windowLayoutInDisplayCutoutMode">
+            shortEdges
+        </item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+    <style name="caption2">
+        <item name="android:textFontWeight">400</item>
+        <item name="android:fontStyle">normal</item>
+        <item name="android:textSize">@dimen/dp_12</item>
+    </style>
+
+    <style name="caption2_accent">
+        <item name="android:textFontWeight">600</item>
+        <item name="android:fontStyle">normal</item>
+        <item name="android:textSize">@dimen/dp_12</item>
+    </style>
+
+    <style name="caption1">
+        <item name="android:textFontWeight">400</item>
+        <item name="android:fontStyle">normal</item>
+        <item name="android:textSize">@dimen/dp_14</item>
+    </style>
+
+    <style name="caption1_accent">
+        <item name="android:textFontWeight">600</item>
+        <item name="android:fontStyle">normal</item>
+        <item name="android:textSize">@dimen/dp_14</item>
+    </style>
+
+    <style name="body">
+        <item name="android:textFontWeight">400</item>
+        <item name="android:fontStyle">normal</item>
+        <item name="android:textSize">@dimen/dp_16</item>
+    </style>
+
+    <style name="body_accent">
+        <item name="android:textFontWeight">600</item>
+        <item name="android:fontStyle">normal</item>
+        <item name="android:textSize">@dimen/dp_16</item>
+    </style>
+
+    <style name="subheader">
+        <item name="android:textFontWeight">400</item>
+        <item name="android:fontStyle">normal</item>
+        <item name="android:textSize">@dimen/dp_18</item>
+    </style>
+
+    <style name="subheader_accent">
+        <item name="android:textFontWeight">600</item>
+        <item name="android:fontStyle">normal</item>
+        <item name="android:textSize">@dimen/dp_18</item>
+    </style>
+
+    <style name="title2">
+        <item name="android:textFontWeight">600</item>
+        <item name="android:fontStyle">normal</item>
+        <item name="android:textSize">@dimen/dp_20</item>
+    </style>
+
+    <style name="title1">
+        <item name="android:textFontWeight">600</item>
+        <item name="android:fontStyle">normal</item>
+        <item name="android:textSize">@dimen/dp_22</item>
+    </style>
+
+    <style name="headline">
+        <item name="android:textFontWeight">600</item>
+        <item name="android:fontStyle">normal</item>
+        <item name="android:textSize">@dimen/dp_30</item>
+    </style>
+</resources>

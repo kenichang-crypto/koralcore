@@ -1,7 +1,7 @@
 library;
 
-import 'dart:async';
-
+import '../../domain/led_lighting/led_state.dart' show LedState;
+import '../../platform/contracts/led_repository.dart';
 import '../common/app_error.dart';
 import '../common/app_error_code.dart';
 import 'lighting_state_store.dart';
@@ -11,9 +11,9 @@ export 'lighting_state_store.dart'
 
 /// Updates the simulated LED channel intensities for the active device.
 class SetChannelIntensityUseCase {
-  final LightingStateMemoryStore store;
+  final LedRepository ledRepository;
 
-  const SetChannelIntensityUseCase({required this.store});
+  const SetChannelIntensityUseCase({required this.ledRepository});
 
   Future<LightingStateSnapshot> execute({
     required String deviceId,
@@ -41,20 +41,31 @@ class SetChannelIntensityUseCase {
       );
     }
 
-    await Future<void>.delayed(const Duration(milliseconds: 250));
-    final LightingStateSnapshot current = store.read(deviceId: deviceId);
-    final Map<String, int> updateMap = {
+    final Map<String, int> updates = <String, int>{
       for (final ChannelIntensityChange change in channels)
         change.channelId: change.percentage,
     };
-    final List<LightingChannelSnapshot> updatedChannels = current.channels
-        .map(
-          (channel) => updateMap.containsKey(channel.id)
-              ? channel.copyWith(percentage: updateMap[channel.id])
-              : channel,
-        )
-        .toList(growable: false);
-    return store.write(deviceId: deviceId, channels: updatedChannels);
+
+    try {
+      final LedState state = await ledRepository.setChannelLevels(
+        deviceId: deviceId,
+        channelLevels: updates,
+      );
+      return LightingStateSnapshot(
+        channels: state.channelLevels.entries
+            .map(
+              (entry) => LightingChannelSnapshot(
+                id: entry.key,
+                label: entry.key,
+                percentage: entry.value,
+              ),
+            )
+            .toList(growable: false),
+        updatedAt: DateTime.now(),
+      );
+    } on StateError catch (error) {
+      throw AppError(code: AppErrorCode.invalidParam, message: error.message);
+    }
   }
 }
 

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:selectableItemBackground">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:paddingStart="@dimen/dp_16"
+        android:paddingTop="@dimen/dp_8"
+        android:paddingEnd="@dimen/dp_16"
+        android:paddingBottom="@dimen/dp_8"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tv_ble_type"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/caption2_accent"
+            android:textColor="@color/text_aa"
+            android:layout_marginEnd="@dimen/dp_4"
+            style="@style/SingleLine"
+            app:layout_constraintBottom_toTopOf="@id/tv_name"
+            app:layout_constraintEnd_toStartOf="@id/img_ble"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="LED" />
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/body_accent"
+            android:textColor="@color/text_aa"
+            style="@style/SingleLine"
+            android:layout_marginEnd="@dimen/dp_4"
+            app:layout_constraintBottom_toTopOf="@id/tv_position"
+            app:layout_constraintEnd_toStartOf="@id/img_ble"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_ble_type"
+            tools:text="ReefLED dasdkpaskdpsakdp[sakdp[kdp[akdaps[kdp[sdk90W" />
+
+        <TextView
+            android:id="@+id/tv_position"
+            style="@style/SingleLine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/caption2"
+            android:textColor="@color/text_aa"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tv_group"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="@id/tv_name"
+            app:layout_constraintTop_toBottomOf="@id/tv_name"
+            tools:text="a;smdasmdkasdkasnsad saddkasndksandksalndkalsndklsandkaslndklasndkalsdnkaldmasldas" />
+
+        <TextView
+            android:id="@+id/tv_group"
+            style="@style/SingleLine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_4"
+            android:textAppearance="@style/caption2"
+            android:textColor="@color/text_aa"
+            android:visibility="gone"
+            android:layout_marginEnd="@dimen/dp_4"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toBottomOf="@id/tv_position"
+            app:layout_constraintEnd_toStartOf="@id/img_led_master"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toEndOf="@id/tv_position"
+            app:layout_constraintTop_toTopOf="@id/tv_position"
+            tools:text="群組Ａ" />
+
+        <ImageView
+            android:id="@+id/img_led_master"
+            android:layout_width="@dimen/dp_12"
+            android:layout_height="@dimen/dp_12"
+            android:layout_marginStart="@dimen/dp_4"
+            android:layout_marginEnd="@dimen/dp_4"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_master"
+            app:layout_constraintBottom_toBottomOf="@id/tv_group"
+            app:layout_constraintEnd_toStartOf="@id/img_ble"
+            app:layout_constraintStart_toEndOf="@id/tv_group"
+            app:layout_constraintTop_toTopOf="@id/tv_group" />
+
+        <ImageView
+            android:id="@+id/img_ble"
+            android:layout_width="@dimen/dp_48"
+            android:scaleType="fitCenter"
+            android:layout_height="@dimen/dp_32"
+            android:src="@drawable/ic_disconnect_background"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_name"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_1"
+        app:dividerColor="@color/bg_press"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

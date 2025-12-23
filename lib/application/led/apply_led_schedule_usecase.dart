@@ -2,13 +2,15 @@ import 'dart:typed_data';
 
 import '../../domain/device/device_context.dart';
 import '../../domain/led_lighting/led_schedule.dart';
+import '../../domain/led_lighting/led_state.dart';
 import '../../infrastructure/ble/ble_adapter.dart';
 import '../../infrastructure/ble/schedule/led/led_schedule_command_builder.dart';
 import '../../infrastructure/ble/schedule/led/led_schedule_payload.dart';
 import '../../infrastructure/ble/schedule/led/led_schedule_encoder.dart';
 import '../../infrastructure/ble/transport/ble_transport_models.dart';
-import '../../platform/contracts/device_repository.dart';
+import '../../platform/contracts/led_repository.dart';
 import '../common/app_error.dart';
+import '../common/app_error_code.dart';
 import '../session/current_device_session.dart';
 
 import 'led_schedule_capability_guard.dart';
@@ -19,7 +21,7 @@ import 'led_schedule_result_mapper.dart';
 ///
 /// Mirrors the dosing schedule orchestration but targets LED schedules.
 class ApplyLedScheduleUseCase {
-  final DeviceRepository deviceRepository;
+  final LedRepository ledRepository;
   final LedScheduleCapabilityGuard ledScheduleCapabilityGuard;
   final LedScheduleResultMapper ledScheduleResultMapper;
   final LedScheduleCommandBuilder ledScheduleCommandBuilder;
@@ -28,7 +30,7 @@ class ApplyLedScheduleUseCase {
   final BleWriteOptions writeOptions;
 
   const ApplyLedScheduleUseCase({
-    required this.deviceRepository,
+    required this.ledRepository,
     required this.ledScheduleCapabilityGuard,
     required this.ledScheduleResultMapper,
     required this.ledScheduleCommandBuilder,
@@ -37,12 +39,20 @@ class ApplyLedScheduleUseCase {
     BleWriteOptions? writeOptions,
   }) : writeOptions = writeOptions ?? const BleWriteOptions();
 
-  Future<LedScheduleResult> execute({required LedSchedule schedule}) async {
+  Future<LedScheduleResult> execute({
+    required String deviceId,
+    required String scheduleId,
+    required LedSchedule schedule,
+  }) async {
     final DeviceContext deviceContext;
     try {
       deviceContext = currentDeviceSession.requireContext;
     } on AppError catch (error) {
       return LedScheduleResult.failure(errorCode: error.code);
+    }
+
+    if (deviceContext.deviceId != deviceId) {
+      return LedScheduleResult.failure(errorCode: AppErrorCode.invalidParam);
     }
 
     // 2) NOTE: LED schedule is assumed to be validated upstream via the
@@ -65,18 +75,44 @@ class ApplyLedScheduleUseCase {
       );
     }
 
+    final LedState? ledState = await ledRepository.getLedState(deviceId);
+    if (ledState != null && ledState.status != LedStatus.idle) {
+      return LedScheduleResult.failure(errorCode: AppErrorCode.deviceBusy);
+    }
+
+    await ledRepository.updateStatus(
+      deviceId: deviceId,
+      status: LedStatus.applying,
+    );
+
     // 4) Branch by schedule type to ensure the correct builder path runs.
-    final LedSchedulePayload payload;
     try {
-      payload = ledScheduleCommandBuilder.build(schedule);
+      final LedSchedulePayload payload = ledScheduleCommandBuilder.build(
+        schedule,
+      );
+      final Uint8List bytes = encodeLedSchedulePayload(payload);
+      final LedScheduleResult result = await _sendPayload(
+        deviceId: deviceId,
+        payload: bytes,
+      );
+      if (!result.isSuccess) {
+        await _markError(deviceId);
+        return result;
+      }
+      await ledRepository.applySchedule(
+        deviceId: deviceId,
+        scheduleId: scheduleId,
+      );
+      return result;
     } on StateError {
+      await _markError(deviceId);
+      return LedScheduleResult.failure(errorCode: AppErrorCode.invalidParam);
+    } catch (_) {
+      await _markError(deviceId);
       return LedScheduleResult.failure(
         errorCode: ledScheduleResultMapper.unknownFailure(),
       );
     }
-
-    final Uint8List bytes = encodeLedSchedulePayload(payload);
-    return _sendPayload(deviceId: deviceContext.deviceId, payload: bytes);
   }
 
   Future<LedScheduleResult> _sendPayload({
@@ -103,5 +139,16 @@ class ApplyLedScheduleUseCase {
         errorCode: ledScheduleResultMapper.unknownFailure(),
       );
     }
+  }
+
+  Future<void> _markError(String deviceId) async {
+    await ledRepository.updateStatus(
+      deviceId: deviceId,
+      status: LedStatus.error,
+    );
+    await ledRepository.updateStatus(
+      deviceId: deviceId,
+      status: LedStatus.idle,
+    );
   }
 }

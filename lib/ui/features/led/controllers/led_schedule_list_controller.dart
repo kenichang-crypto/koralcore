@@ -7,14 +7,18 @@ import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../application/led/apply_led_schedule_usecase.dart';
 import '../../../../application/led/observe_led_state_usecase.dart';
+import '../../../../application/led/observe_led_record_state_usecase.dart';
 import '../../../../application/led/read_led_schedules.dart';
+import '../../../../application/led/read_led_record_state_usecase.dart';
 import '../../../../application/led/read_led_state_usecase.dart';
 import '../../../../application/led/stop_led_preview_usecase.dart';
+import '../../../../domain/led_lighting/led_record_state.dart';
 import '../../../../domain/led_lighting/led_channel.dart';
 import '../../../../domain/led_lighting/led_channel_group.dart';
 import '../../../../domain/led_lighting/led_channel_value.dart';
 import '../../../../domain/led_lighting/led_custom_schedule.dart';
 import '../../../../domain/led_lighting/led_daily_schedule.dart';
+import '../../../../domain/led_lighting/led_record.dart';
 import '../../../../domain/led_lighting/led_scene.dart';
 import '../../../../domain/led_lighting/led_scene_schedule.dart';
 import '../../../../domain/led_lighting/led_schedule.dart';
@@ -33,6 +37,8 @@ class LedScheduleListController extends ChangeNotifier {
     required this.applyLedScheduleUseCase,
     required this.observeLedStateUseCase,
     required this.readLedStateUseCase,
+    required this.observeLedRecordStateUseCase,
+    required this.readLedRecordStateUseCase,
     required this.stopLedPreviewUseCase,
   });
 
@@ -41,14 +47,18 @@ class LedScheduleListController extends ChangeNotifier {
   final ApplyLedScheduleUseCase applyLedScheduleUseCase;
   final ObserveLedStateUseCase observeLedStateUseCase;
   final ReadLedStateUseCase readLedStateUseCase;
+  final ObserveLedRecordStateUseCase observeLedRecordStateUseCase;
+  final ReadLedRecordStateUseCase readLedRecordStateUseCase;
   final StopLedPreviewUseCase stopLedPreviewUseCase;
 
   StreamSubscription<LedState>? _stateSubscription;
+  StreamSubscription<LedRecordState>? _recordSubscription;
   List<ui_model.LedScheduleSummary> _schedules = const [];
   Map<String, ReadLedScheduleSnapshot> _snapshotIndex =
       const <String, ReadLedScheduleSnapshot>{};
   LedStatus? _ledStatus;
   String? _activeScheduleId;
+  int? _previewMinutes;
   bool _initialized = false;
   bool _isLoading = true;
   bool _isPerformingAction = false;
@@ -58,7 +68,9 @@ class LedScheduleListController extends ChangeNotifier {
   List<ui_model.LedScheduleSummary> get schedules => _schedules;
   bool get isLoading => _isLoading;
   bool get isBusy => _isPerformingAction || _ledStatus == LedStatus.applying;
+  bool get isWriteLocked => isBusy || _activeScheduleId != null;
   AppErrorCode? get lastErrorCode => _lastErrorCode;
+  int? get previewMinutes => _previewMinutes;
 
   LedScheduleEvent? consumeEvent() {
     final LedScheduleEvent? event = _pendingEvent;
@@ -72,8 +84,10 @@ class LedScheduleListController extends ChangeNotifier {
     }
     _initialized = true;
     await _bootstrapLedState();
+    await _bootstrapRecordState();
     await refresh();
     _subscribeToLedState();
+    _subscribeToRecordState();
   }
 
   Future<void> refresh() async {
@@ -146,8 +160,10 @@ class LedScheduleListController extends ChangeNotifier {
         );
         _setEvent(const LedScheduleEvent.applySuccess());
       } on AppError catch (error) {
+        _setError(error.code);
         _setEvent(LedScheduleEvent.applyFailure(error.code));
       } catch (_) {
+        _setError(AppErrorCode.unknownError);
         _setEvent(
           const LedScheduleEvent.applyFailure(AppErrorCode.unknownError),
         );
@@ -174,6 +190,7 @@ class LedScheduleListController extends ChangeNotifier {
   @override
   void dispose() {
     _stateSubscription?.cancel();
+    _recordSubscription?.cancel();
     super.dispose();
   }
 
@@ -196,6 +213,7 @@ class LedScheduleListController extends ChangeNotifier {
       endTime: _minutesToTime(snapshot.endMinutesFromMidnight),
       sceneName: snapshot.sceneName,
       isEnabled: snapshot.isEnabled,
+      isDerived: snapshot.isDerived,
       channels: snapshot.channels
           .map(
             (channel) => ui_model.LedScheduleChannelValue(
@@ -237,10 +255,43 @@ class LedScheduleListController extends ChangeNotifier {
         .listen(_updateLedState, onError: _handleStateError);
   }
 
+  Future<void> _bootstrapRecordState() async {
+    final String? deviceId = session.activeDeviceId;
+    if (deviceId == null) {
+      return;
+    }
+    try {
+      final LedRecordState state = await readLedRecordStateUseCase.execute(
+        deviceId: deviceId,
+      );
+      _updateRecordState(state);
+    } on AppError {
+      // Ignore record errors during bootstrap; schedule list still functions.
+    } catch (_) {
+      // Swallow unexpected errors to keep UI responsive.
+    }
+  }
+
+  void _subscribeToRecordState() {
+    final String? deviceId = session.activeDeviceId;
+    if (deviceId == null) {
+      return;
+    }
+    _recordSubscription?.cancel();
+    _recordSubscription = observeLedRecordStateUseCase
+        .execute(deviceId: deviceId)
+        .listen(_updateRecordState, onError: _handleRecordStateError);
+  }
+
   void _updateLedState(LedState state) {
     _ledStatus = state.status;
     _activeScheduleId = state.activeScheduleId;
     _applyActiveScheduleFlag();
+    notifyListeners();
+  }
+
+  void _updateRecordState(LedRecordState state) {
+    _previewMinutes = _resolvePreviewMinutes(state);
     notifyListeners();
   }
 
@@ -263,6 +314,28 @@ class LedScheduleListController extends ChangeNotifier {
       _setError(AppErrorCode.unknownError);
     }
     notifyListeners();
+  }
+
+  void _handleRecordStateError(Object error) {
+    if (error is AppError) {
+      _setError(error.code);
+    } else {
+      _setError(AppErrorCode.unknownError);
+    }
+    notifyListeners();
+  }
+
+  int? _resolvePreviewMinutes(LedRecordState state) {
+    final String? previewId = state.previewingRecordId;
+    if (previewId == null) {
+      return null;
+    }
+    for (final LedRecord record in state.records) {
+      if (record.id == previewId) {
+        return record.minutesFromMidnight;
+      }
+    }
+    return null;
   }
 
   ui_model.LedScheduleType _mapType(ReadLedScheduleType type) {

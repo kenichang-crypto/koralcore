@@ -1,9 +1,11 @@
 enum DeviceConnectionState { connected, connecting, disconnected }
 
 /// Lightweight DTO returned by device use cases for presentation layers.
+
 class DeviceSnapshot {
   final String id;
   final String name;
+  final String? type; // parity: 裝置型別
   final int? rssi;
   final DeviceConnectionState state;
   final bool provisioned;
@@ -13,6 +15,7 @@ class DeviceSnapshot {
     required this.id,
     required this.name,
     required this.state,
+    this.type,
     this.rssi,
     this.provisioned = false,
     this.isMaster = false,
@@ -26,6 +29,7 @@ class DeviceSnapshot {
     return DeviceSnapshot(
       id: raw['id']?.toString() ?? '',
       name: raw['name']?.toString() ?? 'Unknown',
+      type: raw['type']?.toString(),
       rssi: raw['rssi'] is num ? (raw['rssi'] as num).round() : null,
       state: _fromState(stateValue),
       provisioned: raw['provisioned'] == true,
@@ -47,6 +51,7 @@ class DeviceSnapshot {
   DeviceSnapshot copyWith({
     String? id,
     String? name,
+    String? type,
     int? rssi,
     DeviceConnectionState? state,
     bool? provisioned,
@@ -55,6 +60,7 @@ class DeviceSnapshot {
     return DeviceSnapshot(
       id: id ?? this.id,
       name: name ?? this.name,
+      type: type ?? this.type,
       rssi: rssi ?? this.rssi,
       state: state ?? this.state,
       provisioned: provisioned ?? this.provisioned,

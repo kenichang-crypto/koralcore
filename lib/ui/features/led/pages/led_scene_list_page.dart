@@ -11,6 +11,8 @@ import '../../../components/ble_guard.dart';
 import '../../../components/app_error_presenter.dart';
 import '../controllers/led_scene_list_controller.dart';
 import '../models/led_scene_summary.dart';
+import '../support/scene_channel_helper.dart';
+import '../support/scene_display_text.dart';
 import '../widgets/led_spectrum_chart.dart';
 
 const _ledIconAsset = 'assets/icons/led/led_main.png';
@@ -99,8 +101,8 @@ class _LedSceneListView extends StatelessWidget {
                       ),
                       child: _SceneCard(
                         scene: scene,
-                        isConnected: isConnected,
                         l10n: l10n,
+                        channelCount: controller.currentChannelLevels.length,
                         onApply:
                             isConnected &&
                                 !controller.isBusy &&
@@ -185,125 +187,266 @@ class _ScenesEmptyState extends StatelessWidget {
 
 class _SceneCard extends StatelessWidget {
   final LedSceneSummary scene;
-  final bool isConnected;
   final AppLocalizations l10n;
+  final int channelCount;
   final VoidCallback? onApply;
 
   const _SceneCard({
     required this.scene,
-    required this.isConnected,
     required this.l10n,
+    required this.channelCount,
     this.onApply,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final String statusLabel = scene.isActive
+    final bool isActive = scene.isActive;
+    final String sceneName = LedSceneDisplayText.name(scene, l10n);
+    final String sceneDescription = LedSceneDisplayText.description(
+      scene,
+      l10n,
+    );
+    final String statusLabel = isActive
         ? l10n.ledSceneStatusActive
         : scene.isEnabled
         ? l10n.ledSceneStatusEnabled
         : l10n.ledSceneStatusDisabled;
-    final Color statusColor = scene.isActive
+    final Color statusColor = isActive
         ? AppColors.success
         : scene.isEnabled
         ? AppColors.success
         : AppColors.warning;
+    final Color badgeBackground = statusColor.withOpacity(
+      isActive ? 0.2 : 0.12,
+    );
+    final String typeLabel = _sceneTypeLabel(scene);
+    final String channelLabel = l10n.ledSceneChannelCount(channelCount);
+    final IconData sceneIcon = _sceneIcon(scene.iconKey, scene.isPreset);
+    final List<SceneChannelStat> channelStats = buildSceneChannelStats(
+      scene,
+      l10n,
+    );
+
     return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusL),
-        onTap: isConnected
-            ? () => _showComingSoon(context)
-            : () => showBleGuardDialog(context),
-        child: Padding(
-          padding: const EdgeInsets.all(AppDimensions.spacingL),
-          child: Row(
-            children: [
-              _SceneSwatch(palette: scene.palette),
-              const SizedBox(width: AppDimensions.spacingL),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            scene.name,
-                            style: theme.textTheme.titleMedium,
+      color: isActive ? AppColors.ocean100 : null,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDimensions.radiusM),
+        side: BorderSide(
+          color: isActive ? AppColors.ocean500 : AppColors.grey200,
+          width: isActive ? 1.5 : 1,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        child: Row(
+          children: [
+            _SceneSwatch(
+              palette: scene.palette,
+              icon: sceneIcon,
+              isDynamic: scene.isDynamic,
+            ),
+            const SizedBox(width: AppDimensions.spacingL),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          sceneName,
+                          style: theme.textTheme.titleMedium,
+                        ),
+                      ),
+                      Chip(
+                        backgroundColor: badgeBackground,
+                        label: Text(
+                          statusLabel,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: statusColor,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        Chip(
-                          backgroundColor: statusColor.withValues(alpha: 0.15),
-                          label: Text(
-                            statusLabel,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: statusColor,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppDimensions.spacingXS),
+                  Text(
+                    sceneDescription,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: AppColors.grey700,
                     ),
+                  ),
+                  const SizedBox(height: AppDimensions.spacingXS),
+                  Wrap(
+                    spacing: AppDimensions.spacingS,
+                    runSpacing: AppDimensions.spacingXS,
+                    children: [
+                      Text(
+                        typeLabel,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: AppColors.grey700,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        channelLabel,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: AppColors.grey700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (channelStats.isNotEmpty) ...[
+                    const SizedBox(height: AppDimensions.spacingXS),
+                    _ChannelBadges(
+                      stats: channelStats,
+                      textColor: AppColors.grey800,
+                      backgroundColor: AppColors.grey100,
+                    ),
+                  ],
+                  if (isActive) ...[
                     const SizedBox(height: AppDimensions.spacingXS),
                     Text(
-                      scene.description,
+                      l10n.ledSceneCurrentlyRunning,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: AppColors.grey700,
-                      ),
-                    ),
-                    const SizedBox(height: AppDimensions.spacingS),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: OutlinedButton.icon(
-                        onPressed: onApply,
-                        icon: Icon(
-                          scene.isActive ? Icons.check : Icons.play_arrow,
-                        ),
-                        label: Text(
-                          scene.isActive
-                              ? l10n.ledSceneStatusActive
-                              : l10n.actionApply,
-                        ),
+                        color: AppColors.success,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
-                ),
+                  const SizedBox(height: AppDimensions.spacingS),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: OutlinedButton.icon(
+                      onPressed: onApply,
+                      icon: Icon(
+                        scene.isActive ? Icons.check : Icons.play_arrow,
+                      ),
+                      label: Text(
+                        scene.isActive
+                            ? l10n.ledSceneStatusActive
+                            : l10n.actionApply,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const Icon(Icons.chevron_right),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  void _showComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l10n.comingSoon)));
+  String _sceneTypeLabel(LedSceneSummary scene) {
+    return scene.isPreset ? l10n.ledScenePreset : l10n.ledSceneCustom;
   }
 }
 
 class _SceneSwatch extends StatelessWidget {
   final List<Color> palette;
+  final IconData icon;
+  final bool isDynamic;
 
-  const _SceneSwatch({required this.palette});
+  const _SceneSwatch({
+    required this.palette,
+    required this.icon,
+    required this.isDynamic,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final List<Color> colors = palette.isNotEmpty
+        ? palette
+        : const <Color>[AppColors.ocean500, AppColors.ocean300];
+    final List<Color> gradientColors = colors.length == 1
+        ? <Color>[colors.first, colors.first.withOpacity(0.7)]
+        : colors;
+
     return Container(
       width: 56,
       height: 80,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppDimensions.radiusM),
         gradient: LinearGradient(
-          colors: palette,
+          colors: gradientColors,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
       ),
+      child: Stack(
+        children: [
+          Center(child: Icon(icon, size: 28, color: Colors.white)),
+          if (isDynamic)
+            Positioned(
+              right: 6,
+              bottom: 6,
+              child: Icon(
+                Icons.auto_awesome,
+                size: 16,
+                color: Colors.white.withOpacity(0.85),
+              ),
+            ),
+        ],
+      ),
     );
   }
+}
+
+class _ChannelBadges extends StatelessWidget {
+  final List<SceneChannelStat> stats;
+  final Color textColor;
+  final Color backgroundColor;
+
+  const _ChannelBadges({
+    required this.stats,
+    required this.textColor,
+    required this.backgroundColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: AppDimensions.spacingS,
+      runSpacing: AppDimensions.spacingXS,
+      children: stats
+          .map(
+            (stat) => Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDimensions.spacingS,
+                vertical: AppDimensions.spacingXS,
+              ),
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(AppDimensions.radiusS),
+              ),
+              child: Text(
+                '${stat.label} ${stat.value}%',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: textColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
+}
+
+IconData _sceneIcon(String? iconKey, bool isPreset) {
+  switch (iconKey) {
+    case 'ic_moon':
+      return Icons.nightlight_round;
+    case 'ic_thunder':
+      return Icons.bolt;
+    case 'ic_none':
+      return Icons.light_mode;
+    case 'ic_custom':
+      return Icons.tune;
+  }
+  return isPreset ? Icons.auto_awesome_motion : Icons.pie_chart_outline;
 }

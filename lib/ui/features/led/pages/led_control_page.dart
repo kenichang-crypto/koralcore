@@ -89,14 +89,27 @@ class _LedControlView extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: controller.isApplying
-                          ? null
-                          : () {
-                              controller.resetEdits();
-                              Navigator.of(context).pop();
-                            },
-                      child: Text(l10n.actionCancel),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        OutlinedButton(
+                          onPressed: controller.isApplying
+                              ? null
+                              : () {
+                                  controller.resetEdits();
+                                  Navigator.of(context).pop();
+                                },
+                          child: const Text('Discard'),
+                        ),
+                        const SizedBox(height: AppDimensions.spacingXS),
+                        Text(
+                          'Discard local changes',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: AppColors.grey700,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: AppDimensions.spacingM),
@@ -159,6 +172,7 @@ class _ChannelSliderCard extends StatelessWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final controller = context.read<LedControlController>();
+    final bool hasChanged = controller.didChannelChange(channel.id);
 
     return Card(
       child: Padding(
@@ -190,6 +204,16 @@ class _ChannelSliderCard extends StatelessWidget {
                   ? (value) => controller.updateChannel(channel.id, value)
                   : null,
             ),
+            if (hasChanged) ...[
+              const SizedBox(height: AppDimensions.spacingXS),
+              Text(
+                'Changes apply after tapping Apply',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: AppColors.warning,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ],
         ),
       ),

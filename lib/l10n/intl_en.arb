@@ -249,6 +249,7 @@
   "ledScheduleListSubtitle": "Review lighting timelines synced from Reef B.",
   "ledScheduleEmptyTitle": "No schedules available",
   "ledScheduleEmptySubtitle": "Create schedules in the Reef B app to view them here.",
+  "ledScheduleDerivedLabel": "From LED record",
   "ledRecordsTitle": "LED records",
   "ledRecordsSubtitle": "Manage every point in the 24-hour lighting timeline.",
   "ledRecordsEmptyTitle": "No records available",
@@ -354,5 +355,23 @@
     "description": "Label shown when an LED lighting schedule is disabled."
   },
   "ledScheduleStatusActive": "Active",
-  "ledScheduleSnackApplied": "Schedule applied."
+  "ledScheduleSnackApplied": "Schedule applied.",
+  "led_runtime_status": "Runtime status",
+  "led_runtime_idle": "Idle",
+  "led_runtime_applying": "Applying",
+  "led_runtime_preview": "Previewing",
+  "led_runtime_schedule_active": "Schedule active",
+  "led_scene_currently_running": "Currently running",
+  "led_scene_preset": "Preset scene",
+  "led_scene_custom": "Custom scene",
+  "led_scene_channel_count": "{count} channels",
+  "@led_scene_channel_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "led_schedule_daily": "Daily schedule",
+  "led_schedule_window": "Time window"
 }

@@ -7,6 +7,11 @@ class LedSceneSummary {
   final List<Color> palette;
   final bool isEnabled;
   final bool isActive;
+  final bool isPreset;
+  final bool isDynamic;
+  final String? iconKey;
+  final int? presetCode;
+  final Map<String, int> channelLevels;
 
   const LedSceneSummary({
     required this.id,
@@ -15,7 +20,12 @@ class LedSceneSummary {
     required this.palette,
     required this.isEnabled,
     this.isActive = false,
-  });
+    this.isPreset = false,
+    this.isDynamic = false,
+    this.iconKey,
+    this.presetCode,
+    required Map<String, int> channelLevels,
+  }) : channelLevels = Map<String, int>.unmodifiable(channelLevels);
 
   LedSceneSummary copyWith({
     String? id,
@@ -24,6 +34,11 @@ class LedSceneSummary {
     List<Color>? palette,
     bool? isEnabled,
     bool? isActive,
+    bool? isPreset,
+    bool? isDynamic,
+    String? iconKey,
+    int? presetCode,
+    Map<String, int>? channelLevels,
   }) {
     return LedSceneSummary(
       id: id ?? this.id,
@@ -32,6 +47,11 @@ class LedSceneSummary {
       palette: palette ?? this.palette,
       isEnabled: isEnabled ?? this.isEnabled,
       isActive: isActive ?? this.isActive,
+      isPreset: isPreset ?? this.isPreset,
+      isDynamic: isDynamic ?? this.isDynamic,
+      iconKey: iconKey ?? this.iconKey,
+      presetCode: presetCode ?? this.presetCode,
+      channelLevels: channelLevels ?? this.channelLevels,
     );
   }
 }

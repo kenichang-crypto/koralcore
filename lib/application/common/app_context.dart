@@ -2,6 +2,7 @@ library;
 
 import '../../infrastructure/ble/ble_adapter.dart';
 import '../../infrastructure/ble/ble_adapter_impl.dart';
+import '../../infrastructure/ble/ble_notify_bus.dart';
 import '../../infrastructure/ble/doser/ble_today_totals_data_source.dart';
 import '../../infrastructure/ble/doser/today_totals_data_source.dart';
 import '../../infrastructure/ble/platform_channels/ble_platform_transport_writer.dart';
@@ -9,10 +10,9 @@ import '../../infrastructure/ble/schedule/led/led_schedule_command_builder.dart'
 import '../../infrastructure/ble/schedule/schedule_sender.dart';
 import '../../infrastructure/ble/transport/ble_read_transport.dart';
 import '../../infrastructure/ble/transport/ble_transport_log_buffer.dart';
+import '../../infrastructure/led/ble_led_repository_impl.dart';
 import '../../infrastructure/repositories/device_repository_impl.dart';
 import '../../infrastructure/repositories/doser_repository_impl.dart';
-import '../../infrastructure/repositories/led_record_repository_impl.dart';
-import '../../infrastructure/repositories/led_repository_impl.dart';
 import '../../infrastructure/repositories/lighting_repository_impl.dart';
 import '../../infrastructure/repositories/pump_head_repository_impl.dart';
 import '../../infrastructure/repositories/sink_repository_impl.dart';
@@ -42,10 +42,8 @@ import '../led/apply_led_schedule_usecase.dart';
 import '../led/apply_scene_usecase.dart';
 import '../led/clear_led_records_usecase.dart';
 import '../led/delete_led_record_usecase.dart';
-import '../led/led_record_store.dart';
 import '../led/led_schedule_capability_guard.dart';
 import '../led/led_schedule_result_mapper.dart';
-import '../led/led_schedule_store.dart';
 import '../led/observe_led_record_state_usecase.dart';
 import '../led/observe_led_state_usecase.dart';
 import '../led/read_led_record_state_usecase.dart';
@@ -145,11 +143,6 @@ class AppContext {
 
   factory AppContext.bootstrap() {
     final SinkRepository sinkRepository = SinkRepositoryImpl();
-    final LedRepository ledRepository = LedRepositoryImpl();
-    final LedRecordMemoryStore ledRecordMemoryStore = LedRecordMemoryStore();
-    final LedRecordRepository ledRecordRepository = LedRecordRepositoryImpl(
-      store: ledRecordMemoryStore,
-    );
     final DeviceRepository deviceRepository = DeviceRepositoryImpl(
       sinkRepository: sinkRepository,
     );
@@ -159,10 +152,16 @@ class AppContext {
     final BleTransportLogBuffer transportLogBuffer = BleTransportLogBuffer();
     final BlePlatformTransportWriter platformTransportWriter =
         BlePlatformTransportWriter();
+    BleNotifyBus.configure(platformTransportWriter);
     final BleAdapter bleAdapter = BleAdapterImpl(
       transportWriter: platformTransportWriter.write,
       observer: transportLogBuffer,
     );
+    final BleLedRepositoryImpl bleLedRepository = BleLedRepositoryImpl(
+      bleAdapter: bleAdapter,
+    );
+    final LedRepository ledRepository = bleLedRepository;
+    final LedRecordRepository ledRecordRepository = bleLedRepository;
     final BleReadTransport bleReadTransport = BleAdapterReadTransport(
       adapter: bleAdapter,
     );
@@ -186,8 +185,6 @@ class AppContext {
     final ScheduleSender scheduleSender = ScheduleSender(
       bleAdapter: bleAdapter,
     );
-    final LedScheduleMemoryStore ledScheduleMemoryStore =
-        LedScheduleMemoryStore();
     final ObserveLedStateUseCase observeLedStateUseCase =
         ObserveLedStateUseCase(ledRepository: ledRepository);
     final ReadLedStateUseCase readLedStateUseCase = ReadLedStateUseCase(
@@ -232,17 +229,15 @@ class AppContext {
         currentDeviceSession: currentDeviceSession,
       ),
       readCalibrationHistoryUseCase: const ReadCalibrationHistoryUseCase(),
-      readLedScenesUseCase: const ReadLedScenesUseCase(),
+      readLedScenesUseCase: ReadLedScenesUseCase(ledRepository: ledRepository),
       readLedScheduleUseCase: ReadLedScheduleUseCase(
-        store: ledScheduleMemoryStore,
+        ledRepository: ledRepository,
       ),
       readLedScheduleSummaryUseCase: ReadLedScheduleSummaryUseCase(
         ledPort: ledPort,
         currentDeviceSession: currentDeviceSession,
       ),
-      saveLedScheduleUseCase: SaveLedScheduleUseCase(
-        store: ledScheduleMemoryStore,
-      ),
+      saveLedScheduleUseCase: const SaveLedScheduleUseCase.unavailable(),
       readLightingStateUseCase: ReadLightingStateUseCase(
         ledRepository: ledRepository,
       ),

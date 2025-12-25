@@ -42,6 +42,26 @@ class LedControlController extends ChangeNotifier {
     return false;
   }
 
+  bool didChannelChange(String channelId) {
+    LedChannelEditState? current;
+    for (final channel in _channels) {
+      if (channel.id == channelId) {
+        current = channel;
+        break;
+      }
+    }
+    if (current == null) {
+      return false;
+    }
+
+    for (final channel in _initialChannels) {
+      if (channel.id == channelId) {
+        return channel.value != current.value;
+      }
+    }
+    return false;
+  }
+
   Future<void> refresh() async {
     _isLoading = true;
     notifyListeners();

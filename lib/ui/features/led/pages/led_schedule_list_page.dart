@@ -14,7 +14,6 @@ import '../controllers/led_schedule_list_controller.dart';
 import '../models/led_schedule_summary.dart';
 import '../widgets/led_schedule_timeline.dart';
 import '../widgets/led_spectrum_chart.dart';
-import 'led_schedule_edit_page.dart';
 
 const _ledIconAsset = 'assets/icons/led/led_main.png';
 
@@ -32,6 +31,8 @@ class LedScheduleListPage extends StatelessWidget {
         applyLedScheduleUseCase: appContext.applyLedScheduleUseCase,
         observeLedStateUseCase: appContext.observeLedStateUseCase,
         readLedStateUseCase: appContext.readLedStateUseCase,
+        observeLedRecordStateUseCase: appContext.observeLedRecordStateUseCase,
+        readLedRecordStateUseCase: appContext.readLedRecordStateUseCase,
         stopLedPreviewUseCase: appContext.stopLedPreviewUseCase,
       )..initialize(),
       child: const _LedScheduleListView(),
@@ -71,19 +72,6 @@ class _LedScheduleListViewState extends State<_LedScheduleListView> {
                     color: AppColors.grey700,
                   ),
                 ),
-                const SizedBox(height: AppDimensions.spacingS),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: FilledButton.icon(
-                    onPressed: controller.isBusy
-                        ? null
-                        : isConnected
-                        ? () => _openEditor(controller: controller, l10n: l10n)
-                        : () => showBleGuardDialog(context),
-                    icon: const Icon(Icons.add),
-                    label: Text(l10n.ledScheduleAddButton),
-                  ),
-                ),
                 const SizedBox(height: AppDimensions.spacingL),
                 if (!isConnected) ...[
                   const BleGuardBanner(),
@@ -112,13 +100,7 @@ class _LedScheduleListViewState extends State<_LedScheduleListView> {
                       child: _ScheduleCard(
                         schedule: schedule,
                         l10n: l10n,
-                        onTap: isConnected
-                            ? () => _openEditor(
-                                controller: controller,
-                                l10n: l10n,
-                                schedule: schedule,
-                              )
-                            : () => showBleGuardDialog(context),
+                        previewMinutes: controller.previewMinutes,
                         onApply:
                             isConnected &&
                                 !controller.isBusy &&
@@ -135,32 +117,6 @@ class _LedScheduleListViewState extends State<_LedScheduleListView> {
         );
       },
     );
-  }
-
-  Future<void> _openEditor({
-    required LedScheduleListController controller,
-    required AppLocalizations l10n,
-    LedScheduleSummary? schedule,
-  }) async {
-    await controller.ensurePreviewStopped();
-    if (!mounted) {
-      return;
-    }
-    final result = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (_) => LedScheduleEditPage(initialSchedule: schedule),
-      ),
-    );
-    if (result != true) {
-      return;
-    }
-    await controller.refresh();
-    if (!mounted) {
-      return;
-    }
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l10n.ledScheduleEditSuccess)));
   }
 }
 
@@ -201,14 +157,14 @@ class _ScheduleEmptyState extends StatelessWidget {
 class _ScheduleCard extends StatelessWidget {
   final LedScheduleSummary schedule;
   final AppLocalizations l10n;
-  final VoidCallback? onTap;
   final VoidCallback? onApply;
+  final int? previewMinutes;
 
   const _ScheduleCard({
     required this.schedule,
     required this.l10n,
-    this.onTap,
     this.onApply,
+    this.previewMinutes,
   });
 
   @override
@@ -225,128 +181,123 @@ class _ScheduleCard extends StatelessWidget {
         ? AppColors.success
         : AppColors.warning;
     return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusL),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(AppDimensions.spacingL),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppDimensions.spacingM,
-                      vertical: AppDimensions.spacingXS,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.ocean500.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(
-                        AppDimensions.radiusM,
-                      ),
-                    ),
-                    child: Text(
-                      _typeLabel(schedule.type, l10n),
-                      style: theme.textTheme.labelLarge?.copyWith(
-                        color: AppColors.ocean500,
-                      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimensions.spacingM,
+                    vertical: AppDimensions.spacingXS,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.ocean500.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusM),
+                  ),
+                  child: Text(
+                    _typeLabel(schedule, l10n),
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: AppColors.ocean500,
                     ),
                   ),
-                  const SizedBox(width: AppDimensions.spacingS),
-                  Text(
-                    statusLabel,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: statusColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    _recurrenceLabel(schedule.recurrence, l10n),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.grey700,
-                    ),
-                  ),
-                  const SizedBox(width: AppDimensions.spacingS),
-                  const Icon(Icons.chevron_right),
-                ],
-              ),
-              const SizedBox(height: AppDimensions.spacingM),
-              Text(schedule.title, style: theme.textTheme.titleMedium),
-              const SizedBox(height: AppDimensions.spacingXS),
-              Text(
-                _windowLabel(schedule.startTime, schedule.endTime),
-                style: theme.textTheme.bodyMedium,
-              ),
-              const SizedBox(height: AppDimensions.spacingXS),
-              Text(
-                l10n.ledScheduleSceneSummary(schedule.sceneName),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: AppColors.grey700,
                 ),
-              ),
-              if (schedule.channels.isNotEmpty) ...[
-                const SizedBox(height: AppDimensions.spacingS),
-                Wrap(
-                  spacing: AppDimensions.spacingS,
-                  runSpacing: AppDimensions.spacingXS,
-                  children: schedule.channels
-                      .map(
-                        (channel) => Chip(
-                          label: Text(
-                            '${channel.label} ${channel.percentage}%',
-                          ),
-                          backgroundColor: AppColors.ocean500.withValues(
-                            alpha: 0.08,
-                          ),
-                        ),
-                      )
-                      .toList(growable: false),
+                const SizedBox(width: AppDimensions.spacingS),
+                Text(
+                  statusLabel,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: statusColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  _recurrenceLabel(schedule.recurrence, l10n),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppColors.grey700,
+                  ),
                 ),
               ],
-              const SizedBox(height: AppDimensions.spacingS),
-              LedSpectrumChart.fromScheduleChannels(
-                schedule.channels,
-                height: 64,
-                emptyLabel: l10n.ledControlEmptyState,
+            ),
+            const SizedBox(height: AppDimensions.spacingM),
+            Text(schedule.title, style: theme.textTheme.titleMedium),
+            const SizedBox(height: AppDimensions.spacingXS),
+            Text(
+              _windowLabel(schedule.startTime, schedule.endTime),
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: AppDimensions.spacingXS),
+            Text(
+              l10n.ledScheduleSceneSummary(schedule.sceneName),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: AppColors.grey700,
               ),
+            ),
+            if (schedule.channels.isNotEmpty) ...[
               const SizedBox(height: AppDimensions.spacingS),
-              LedScheduleTimeline(
-                start: schedule.startTime,
-                end: schedule.endTime,
-                isActive: schedule.isActive,
-              ),
-              const SizedBox(height: AppDimensions.spacingS),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  onPressed: onApply,
-                  icon: Icon(
-                    schedule.isActive ? Icons.check : Icons.play_arrow,
-                  ),
-                  label: Text(
-                    schedule.isActive
-                        ? l10n.ledScheduleStatusActive
-                        : l10n.actionApply,
-                  ),
-                ),
+              Wrap(
+                spacing: AppDimensions.spacingS,
+                runSpacing: AppDimensions.spacingXS,
+                children: schedule.channels
+                    .map(
+                      (channel) => Chip(
+                        label: Text('${channel.label} ${channel.percentage}%'),
+                        backgroundColor: AppColors.ocean500.withValues(
+                          alpha: 0.08,
+                        ),
+                      ),
+                    )
+                    .toList(growable: false),
               ),
             ],
-          ),
+            if (schedule.isDerived) ...[
+              const SizedBox(height: AppDimensions.spacingS),
+              Chip(
+                label: Text(l10n.ledScheduleDerivedLabel),
+                avatar: const Icon(Icons.auto_mode, size: 16),
+              ),
+            ],
+            const SizedBox(height: AppDimensions.spacingS),
+            LedSpectrumChart.fromScheduleChannels(
+              schedule.channels,
+              height: 64,
+              emptyLabel: l10n.ledControlEmptyState,
+            ),
+            const SizedBox(height: AppDimensions.spacingS),
+            LedScheduleTimeline(
+              start: schedule.startTime,
+              end: schedule.endTime,
+              isActive: schedule.isActive,
+              previewMinutes: previewMinutes,
+            ),
+            const SizedBox(height: AppDimensions.spacingS),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: OutlinedButton.icon(
+                onPressed: onApply,
+                icon: Icon(schedule.isActive ? Icons.check : Icons.play_arrow),
+                label: Text(
+                  schedule.isActive
+                      ? l10n.ledScheduleStatusActive
+                      : l10n.actionApply,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  String _typeLabel(LedScheduleType type, AppLocalizations l10n) {
-    switch (type) {
+  String _typeLabel(LedScheduleSummary schedule, AppLocalizations l10n) {
+    switch (schedule.type) {
       case LedScheduleType.dailyProgram:
-        return l10n.ledScheduleTypeDaily;
+        return l10n.ledScheduleDaily;
       case LedScheduleType.customWindow:
-        return l10n.ledScheduleTypeCustom;
       case LedScheduleType.sceneBased:
-        return l10n.ledScheduleTypeScene;
+        return l10n.ledScheduleWindow;
     }
   }
 

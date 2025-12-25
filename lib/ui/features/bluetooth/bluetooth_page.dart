@@ -54,6 +54,38 @@ class _BluetoothPageState extends State<BluetoothPage> {
     final l10n = AppLocalizations.of(context);
     final bool bleReady = readiness.isReady;
 
+    // BLE parity: show error snackbar if needed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final error = controller.lastErrorCode;
+      if (error != null) {
+        final message = _errorMessageForCode(error, l10n);
+        if (message != null) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
+        }
+        controller.clearError();
+      }
+    });
+    String? _errorMessageForCode(AppErrorCode code, AppLocalizations l10n) {
+      switch (code) {
+        case AppErrorCode.deviceBusy:
+          return l10n.errorDeviceBusy;
+        case AppErrorCode.noActiveDevice:
+        case AppErrorCode.noDeviceSelected:
+          return l10n.errorNoDevice;
+        case AppErrorCode.notSupported:
+          return l10n.errorNotSupported;
+        case AppErrorCode.invalidParam:
+          return l10n.errorInvalidParam;
+        case AppErrorCode.transportError:
+          return l10n.errorTransport;
+        case AppErrorCode.unknownError:
+        default:
+          return l10n.errorGeneric;
+      }
+    }
+
     return Scaffold(
       backgroundColor: ReefColors.primaryStrong,
       appBar: AppBar(
@@ -341,7 +373,7 @@ class _BtDeviceTile extends StatelessWidget {
         children: [
           Row(
             children: [
-              _DeviceIcon(name: device.name),
+              _DeviceIcon(device: device),
               const SizedBox(width: ReefSpacing.md),
               Expanded(
                 child: Column(
@@ -388,13 +420,17 @@ class _BtDeviceTile extends StatelessWidget {
 }
 
 class _DeviceIcon extends StatelessWidget {
-  final String name;
+  final DeviceSnapshot device;
 
-  const _DeviceIcon({required this.name});
+  const _DeviceIcon({required this.device});
 
   @override
   Widget build(BuildContext context) {
-    final bool isLed = name.toLowerCase().contains('led');
+    // parity: 優先用 type 判斷
+    final type = device.type?.toLowerCase();
+    final bool isLed =
+        type == 'led' ||
+        (type == null && device.name.toLowerCase().contains('led'));
     return Container(
       width: 52,
       height: 52,

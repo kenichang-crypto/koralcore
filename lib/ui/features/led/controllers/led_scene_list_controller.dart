@@ -34,6 +34,8 @@ class LedSceneListController extends ChangeNotifier {
   List<LedSceneSummary> _scenes = const [];
   LedStatus? _ledStatus;
   String? _activeSceneId;
+  String? _activeScheduleId;
+  List<LedStateSchedule> _schedules = const [];
   Map<String, int> _currentChannelLevels = const <String, int>{};
   bool _initialized = false;
   bool _isLoading = true;
@@ -44,8 +46,26 @@ class LedSceneListController extends ChangeNotifier {
   List<LedSceneSummary> get scenes => _scenes;
   bool get isLoading => _isLoading;
   bool get isBusy => _isPerformingAction || _ledStatus == LedStatus.applying;
+  bool get isPreviewing => _activeSceneId != null;
+  bool get isWriteLocked => isBusy || isPreviewing;
   AppErrorCode? get lastErrorCode => _lastErrorCode;
   Map<String, int> get currentChannelLevels => _currentChannelLevels;
+  LedStatus get ledStatus => _ledStatus ?? LedStatus.idle;
+  String? get activeSceneId => _activeSceneId;
+  String? get activeScheduleId => _activeScheduleId;
+  List<LedStateSchedule> get schedules => _schedules;
+
+  LedStateSchedule? get activeSchedule {
+    if (_activeScheduleId == null) {
+      return null;
+    }
+    for (final schedule in _schedules) {
+      if (schedule.scheduleId == _activeScheduleId) {
+        return schedule;
+      }
+    }
+    return null;
+  }
 
   LedSceneEvent? consumeEvent() {
     final LedSceneEvent? event = _pendingEvent;
@@ -72,6 +92,8 @@ class LedSceneListController extends ChangeNotifier {
       _scenes = const [];
       _setError(AppErrorCode.noActiveDevice);
       _currentChannelLevels = const <String, int>{};
+      _schedules = const [];
+      _activeScheduleId = null;
       _isLoading = false;
       notifyListeners();
       return;
@@ -86,10 +108,14 @@ class LedSceneListController extends ChangeNotifier {
     } on AppError catch (error) {
       _scenes = const [];
       _currentChannelLevels = const <String, int>{};
+      _schedules = const [];
+      _activeScheduleId = null;
       _setError(error.code);
     } catch (_) {
       _scenes = const [];
       _currentChannelLevels = const <String, int>{};
+      _schedules = const [];
+      _activeScheduleId = null;
       _setError(AppErrorCode.unknownError);
     } finally {
       _isLoading = false;
@@ -114,8 +140,10 @@ class LedSceneListController extends ChangeNotifier {
         await applySceneUseCase.execute(deviceId: deviceId, sceneId: sceneId);
         _setEvent(const LedSceneEvent.applySuccess());
       } on AppError catch (error) {
+        _setError(error.code);
         _setEvent(LedSceneEvent.applyFailure(error.code));
       } catch (_) {
+        _setError(AppErrorCode.unknownError);
         _setEvent(const LedSceneEvent.applyFailure(AppErrorCode.unknownError));
       }
     });
@@ -154,6 +182,11 @@ class LedSceneListController extends ChangeNotifier {
           .toList(growable: false),
       isEnabled: snapshot.isEnabled,
       isActive: snapshot.id == _activeSceneId,
+      isPreset: snapshot.isPreset,
+      isDynamic: snapshot.isDynamic,
+      iconKey: snapshot.iconKey,
+      presetCode: snapshot.presetCode,
+      channelLevels: snapshot.channelLevels,
     );
   }
 
@@ -188,6 +221,8 @@ class LedSceneListController extends ChangeNotifier {
   void _updateLedState(LedState state) {
     _ledStatus = state.status;
     _activeSceneId = state.activeSceneId;
+    _activeScheduleId = state.activeScheduleId;
+    _schedules = state.schedules;
     _currentChannelLevels = state.channelLevels;
     _applyActiveSceneFlag();
     notifyListeners();

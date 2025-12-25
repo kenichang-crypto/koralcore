@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../response/ble_error_code.dart';
 import '../transport/ble_transport_models.dart';
+import 'ble_notify_packet.dart';
 
 /// Bridges BLE transport writes to the host platform via a method channel so
 /// Flutter code can rely on the hardened queue while the native layer drives
@@ -20,11 +21,16 @@ class BlePlatformTransportWriter {
       ListQueue<_PendingPayload>();
   final Set<String> _connectedDevices = <String>{};
   final Map<String, Future<void>> _connectingDevices = <String, Future<void>>{};
+  final StreamController<BleNotifyPacket> _notifyController =
+      StreamController<BleNotifyPacket>.broadcast();
 
   BlePlatformTransportWriter({MethodChannel? channel})
     : _channel = channel ?? const MethodChannel(_channelName) {
     _channel.setMethodCallHandler(_handlePlatformCall);
   }
+
+  /// Broadcast stream of every BLE notification envelope emitted by the host.
+  Stream<BleNotifyPacket> get notifyStream => _notifyController.stream;
 
   /// Invokes the platform transport and returns the adapter-level write result.
   Future<BleWriteResult> write({
@@ -156,10 +162,14 @@ class BlePlatformTransportWriter {
     final Map<Object?, Object?>? arguments = rawArguments is Map
         ? rawArguments.cast<Object?, Object?>()
         : null;
-    final Uint8List? payload = _extractPayload(arguments?['payload']);
-    final String? deviceId = arguments?['deviceId'] as String?;
-    if (deviceId != null) {
-      _connectedDevices.add(deviceId);
+    final BleNotifyPacket? packet = BleNotifyPacket.fromEnvelope(arguments);
+    final Uint8List? payload =
+        packet?.payload ?? _extractPayload(arguments?['payload']);
+    if (packet != null) {
+      _connectedDevices.add(packet.deviceId);
+      if (!_notifyController.isClosed) {
+        _notifyController.add(packet);
+      }
     }
 
     while (_pendingPayloads.isNotEmpty) {

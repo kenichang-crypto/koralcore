@@ -195,6 +195,7 @@
   "ledScheduleListSubtitle": "Review lighting timelines synced from Reef B.",
   "ledScheduleEmptyTitle": "No schedules available",
   "ledScheduleEmptySubtitle": "Create schedules in the Reef B app to view them here.",
+  "ledScheduleDerivedLabel": "來源：LED 排程紀錄",
   "ledScheduleTypeDaily": "Daily program",
   "ledScheduleTypeCustom": "Custom window",
   "ledScheduleTypeScene": "Scene-based",

@@ -2,8 +2,8 @@ library;
 
 import 'dart:async';
 
-import '../common/app_error.dart';
-import '../common/app_error_code.dart';
+import '../../domain/led_lighting/led_state.dart';
+import '../../platform/contracts/led_repository.dart';
 
 class ReadLedSceneSnapshot {
   final String id;
@@ -11,6 +11,11 @@ class ReadLedSceneSnapshot {
   final String description;
   final List<int> palette;
   final bool isEnabled;
+  final bool isPreset;
+  final bool isDynamic;
+  final String? iconKey;
+  final int? presetCode;
+  final Map<String, int> channelLevels;
 
   const ReadLedSceneSnapshot({
     required this.id,
@@ -18,78 +23,81 @@ class ReadLedSceneSnapshot {
     required this.description,
     required this.palette,
     required this.isEnabled,
+    required this.isPreset,
+    required this.isDynamic,
+    required this.channelLevels,
+    this.iconKey,
+    this.presetCode,
   });
 }
 
-/// Placeholder use case that returns the currently saved LED scenes for a
-/// device. The list is read-only and the transport wiring will be added once
-/// the BLE protocol for scenes is finalized.
 class ReadLedScenesUseCase {
-  const ReadLedScenesUseCase();
+  const ReadLedScenesUseCase({required this.ledRepository});
+
+  final LedRepository ledRepository;
 
   Future<List<ReadLedSceneSnapshot>> execute({required String deviceId}) async {
-    final List<_LedSceneSeed>? seeds =
-        _deviceScenes[deviceId] ?? _deviceScenes['default'];
-    if (seeds == null) {
-      throw const AppError(
-        code: AppErrorCode.invalidParam,
-        message: 'Unknown device id for LED scenes.',
-      );
+    final LedState? state = await ledRepository.getLedState(deviceId);
+    if (state == null || state.scenes.isEmpty) {
+      return const <ReadLedSceneSnapshot>[];
     }
-
-    await Future<void>.delayed(const Duration(milliseconds: 160));
-    return seeds
+    return state.scenes
         .map(
-          (seed) => ReadLedSceneSnapshot(
-            id: seed.id,
-            name: seed.name,
-            description: seed.description,
-            palette: seed.palette,
-            isEnabled: seed.isEnabled,
+          (scene) => ReadLedSceneSnapshot(
+            id: scene.sceneId,
+            name: scene.name,
+            description: scene.name,
+            palette: _buildPalette(scene),
+            isEnabled: true,
+            isPreset: scene.presetCode != null,
+            isDynamic: scene.isDynamic,
+            iconKey: scene.iconKey,
+            presetCode: scene.presetCode,
+            channelLevels: Map<String, int>.unmodifiable(scene.channelLevels),
           ),
         )
         .toList(growable: false);
   }
 }
 
-class _LedSceneSeed {
-  final String id;
-  final String name;
-  final String description;
-  final List<int> palette;
-  final bool isEnabled;
+const List<int> _defaultPalette = <int>[0xFF1E3C72, 0xFF2A5298];
 
-  const _LedSceneSeed({
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.palette,
-    required this.isEnabled,
-  });
+List<int> _buildPalette(LedStateScene scene) {
+  if (scene.channelLevels.isEmpty) {
+    return _defaultPalette;
+  }
+  return _paletteFromChannels(scene.channelLevels);
 }
 
-const Map<String, List<_LedSceneSeed>> _deviceScenes = {
-  'default': [
-    _LedSceneSeed(
-      id: 'sunrise',
-      name: 'Sunrise Blend',
-      description: 'Warm ramp into daylight. Soft reds then bright whites.',
-      palette: [0xFFFFD180, 0xFFFF8A65],
-      isEnabled: true,
-    ),
-    _LedSceneSeed(
-      id: 'reef_crest',
-      name: 'Reef Crest',
-      description: 'Peaks tuned for SPS growth and crisp midday looks.',
-      palette: [0xFF80D8FF, 0xFF1976D2],
-      isEnabled: true,
-    ),
-    _LedSceneSeed(
-      id: 'lunar',
-      name: 'Moonlight',
-      description: 'Royal blue shimmer for night viewing.',
-      palette: [0xFF4FC3F7, 0xFF0D47A1],
-      isEnabled: false,
-    ),
-  ],
-};
+List<int> _paletteFromChannels(Map<String, int> channels) {
+  final int primary = _argb(
+    _channelByte(channels['red']),
+    _channelByte(channels['green']),
+    _channelByte(channels['blue']),
+  );
+  final int secondary = _argb(
+    _channelByte(channels['royalBlue']),
+    _channelByte(channels['warmWhite']),
+    _channelByte(channels['moonLight'] ?? channels['moon']),
+  );
+  if (primary == secondary) {
+    return <int>[primary, _tint(primary)];
+  }
+  return <int>[primary, secondary];
+}
+
+int _channelByte(int? percent) {
+  final int clamped = (percent ?? 0).clamp(0, 100);
+  return ((clamped / 100) * 255).round();
+}
+
+int _argb(int r, int g, int b) {
+  return 0xFF000000 | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
+}
+
+int _tint(int color) {
+  final int r = (((color >> 16) & 0xFF) + 30).clamp(0, 255) as int;
+  final int g = (((color >> 8) & 0xFF) + 30).clamp(0, 255) as int;
+  final int b = ((color & 0xFF) + 30).clamp(0, 255) as int;
+  return _argb(r, g, b);
+}

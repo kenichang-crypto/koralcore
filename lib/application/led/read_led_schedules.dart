@@ -2,9 +2,8 @@ library;
 
 import 'dart:async';
 
-import '../common/app_error.dart';
-import '../common/app_error_code.dart';
-import 'led_schedule_store.dart';
+import '../../domain/led_lighting/led_state.dart';
+import '../../platform/contracts/led_repository.dart';
 
 enum ReadLedScheduleType { dailyProgram, customWindow, sceneBased }
 
@@ -31,6 +30,7 @@ class ReadLedScheduleSnapshot {
   final int endMinutesFromMidnight;
   final String sceneName;
   final bool isEnabled;
+  final bool isDerived;
   final List<ReadLedScheduleChannelSnapshot> channels;
 
   const ReadLedScheduleSnapshot({
@@ -42,64 +42,72 @@ class ReadLedScheduleSnapshot {
     required this.endMinutesFromMidnight,
     required this.sceneName,
     required this.isEnabled,
+    required this.isDerived,
     required this.channels,
   });
 }
 
-/// Placeholder use case that supplies LED schedule metadata for a device.
-/// The final BLE transport wiring will plug in once the firmware protocol
-/// stabilizes, but this snapshot list keeps the UI unblocked.
 class ReadLedScheduleUseCase {
-  final LedScheduleMemoryStore store;
+  final LedRepository ledRepository;
 
-  const ReadLedScheduleUseCase({required this.store});
+  const ReadLedScheduleUseCase({required this.ledRepository});
 
   Future<List<ReadLedScheduleSnapshot>> execute({
     required String deviceId,
   }) async {
-    if (deviceId.isEmpty) {
-      throw const AppError(
-        code: AppErrorCode.noActiveDevice,
-        message: 'LED schedules require an active device id.',
-      );
+    final LedState? state = await ledRepository.getLedState(deviceId);
+    if (state == null || state.schedules.isEmpty) {
+      return const <ReadLedScheduleSnapshot>[];
     }
-
-    final List<LedScheduleRecord> records = await store.listSchedules(
-      deviceId: deviceId,
-    );
-    return records.map(mapLedScheduleRecordToSnapshot).toList(growable: false);
+    return state.schedules.map(_mapStateSchedule).toList(growable: false);
   }
 }
 
-ReadLedScheduleSnapshot mapLedScheduleRecordToSnapshot(
-  LedScheduleRecord record,
-) {
+ReadLedScheduleSnapshot _mapStateSchedule(LedStateSchedule record) {
+  final bool derived = _isDerivedSchedule(record);
   return ReadLedScheduleSnapshot(
-    id: record.id,
-    title: record.title,
-    type: record.type,
-    recurrence: record.recurrence,
-    startMinutesFromMidnight: record.startMinutesFromMidnight,
-    endMinutesFromMidnight: record.endMinutesFromMidnight,
-    sceneName: record.sceneName ?? _formatChannelSummary(record.channels),
-    isEnabled: record.isEnabled,
-    channels: record.channels
+    id: record.scheduleId,
+    title: _formatWindowTitle(record.window),
+    type: ReadLedScheduleType.customWindow,
+    recurrence: ReadLedScheduleRecurrence.everyDay,
+    startMinutesFromMidnight: record.window.startMinutesFromMidnight,
+    endMinutesFromMidnight: record.window.endMinutesFromMidnight,
+    sceneName: _formatChannelSummary(record.channelLevels),
+    isEnabled: record.enabled,
+    isDerived: derived,
+    channels: record.channelLevels.entries
         .map(
-          (channel) => ReadLedScheduleChannelSnapshot(
-            id: channel.id,
-            label: channel.label,
-            percentage: channel.percentage,
+          (entry) => ReadLedScheduleChannelSnapshot(
+            id: entry.key,
+            label: entry.key,
+            percentage: entry.value,
           ),
         )
         .toList(growable: false),
   );
 }
 
-String _formatChannelSummary(List<LedScheduleChannelState> channels) {
+String _formatChannelSummary(Map<String, int> channels) {
   if (channels.isEmpty) {
     return 'Custom spectrum';
   }
-  return channels
-      .map((channel) => '${channel.label} ${channel.percentage}%')
+  return channels.entries
+      .map((entry) => '${entry.key} ${entry.value}%')
       .join(' / ');
+}
+
+String _formatWindowTitle(LedScheduleWindow window) {
+  final Duration start = Duration(minutes: window.startMinutesFromMidnight);
+  final Duration end = Duration(minutes: window.endMinutesFromMidnight);
+  String format(Duration duration) {
+    final int hours = (duration.inMinutes ~/ 60) % 24;
+    final int minutes = duration.inMinutes % 60;
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
+  }
+
+  return '${format(start)} → ${format(end)}';
+}
+
+bool _isDerivedSchedule(LedStateSchedule schedule) {
+  return schedule.scheduleId.startsWith('record-');
 }

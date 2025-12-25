@@ -9,16 +9,16 @@ import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
-import '../../../../domain/led_lighting/led_schedule_overview.dart';
+import '../../../../domain/led_lighting/led_state.dart';
 import '../../../components/ble_guard.dart';
 import '../../../components/app_error_presenter.dart';
 import '../controllers/led_scene_list_controller.dart';
-import '../controllers/led_schedule_summary_controller.dart';
 import '../models/led_scene_summary.dart';
+import '../support/scene_channel_helper.dart';
+import '../support/scene_display_text.dart';
 import '../widgets/led_spectrum_chart.dart';
 import 'led_control_page.dart';
 import 'led_record_page.dart';
-import 'led_schedule_edit_page.dart';
 import 'led_scene_list_page.dart';
 import 'led_schedule_list_page.dart';
 
@@ -29,124 +29,140 @@ class LedMainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final session = context.watch<AppSession>();
     final appContext = context.read<AppContext>();
+    final session = context.read<AppSession>();
+
+    return ChangeNotifierProvider<LedSceneListController>(
+      create: (_) => LedSceneListController(
+        session: session,
+        readLedScenesUseCase: appContext.readLedScenesUseCase,
+        applySceneUseCase: appContext.applySceneUseCase,
+        observeLedStateUseCase: appContext.observeLedStateUseCase,
+        readLedStateUseCase: appContext.readLedStateUseCase,
+        stopLedPreviewUseCase: appContext.stopLedPreviewUseCase,
+      )..initialize(),
+      child: const _LedMainScaffold(),
+    );
+  }
+}
+
+class _LedMainScaffold extends StatelessWidget {
+  const _LedMainScaffold();
+
+  @override
+  Widget build(BuildContext context) {
+    final session = context.watch<AppSession>();
     final l10n = AppLocalizations.of(context);
     final deviceName = session.activeDeviceName ?? l10n.ledDetailUnknownDevice;
-    final isConnected = session.isBleConnected;
 
-    return Scaffold(
-      backgroundColor: ReefColors.primaryStrong,
-      appBar: AppBar(
-        backgroundColor: ReefColors.primaryStrong,
-        elevation: 0,
-        title: Text(
-          l10n.ledHeader,
-          style: ReefTextStyles.title2.copyWith(
-            color: ReefColors.onPrimary,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(ReefSpacing.xl),
-          children: [
-            Text(
-              l10n.ledSubHeader,
-              style: ReefTextStyles.body.copyWith(color: ReefColors.surface),
-            ),
-            const SizedBox(height: ReefSpacing.md),
-            if (!isConnected) ...[
-              const BleGuardBanner(),
-              const SizedBox(height: ReefSpacing.md),
-            ],
-            const SizedBox(height: ReefSpacing.md),
-            _DeviceHeaderCard(
-              deviceName: deviceName,
-              isConnected: isConnected,
-              l10n: l10n,
-            ),
-            const SizedBox(height: ReefSpacing.xl),
-            ChangeNotifierProvider<LedSceneListController>(
-              create: (_) => LedSceneListController(
-                session: session,
-                readLedScenesUseCase: appContext.readLedScenesUseCase,
-                applySceneUseCase: appContext.applySceneUseCase,
-                observeLedStateUseCase: appContext.observeLedStateUseCase,
-                readLedStateUseCase: appContext.readLedStateUseCase,
-                stopLedPreviewUseCase: appContext.stopLedPreviewUseCase,
-              )..initialize(),
-              child: _SceneListSection(isConnected: isConnected, l10n: l10n),
-            ),
-            const SizedBox(height: ReefSpacing.xl),
-            ChangeNotifierProvider<LedScheduleSummaryController>(
-              create: (_) => LedScheduleSummaryController(
-                session: session,
-                readLedScheduleSummaryUseCase:
-                    appContext.readLedScheduleSummaryUseCase,
-              )..refresh(),
-              child: _LedScheduleSummarySection(
-                l10n: l10n,
-                isConnected: isConnected,
+    return Consumer<LedSceneListController>(
+      builder: (context, controller, _) {
+        final bool isConnected = session.isBleConnected;
+        final bool writeLocked = controller.isWriteLocked;
+        final bool featuresEnabled = isConnected && !writeLocked;
+
+        return Scaffold(
+          backgroundColor: ReefColors.primaryStrong,
+          appBar: AppBar(
+            backgroundColor: ReefColors.primaryStrong,
+            elevation: 0,
+            title: Text(
+              l10n.ledHeader,
+              style: ReefTextStyles.title2.copyWith(
+                color: ReefColors.onPrimary,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: ReefSpacing.xl),
-            _EntryTile(
-              title: l10n.ledEntryIntensity,
-              subtitle: l10n.ledIntensityEntrySubtitle,
-              enabled: isConnected,
-              onTapWhenEnabled: () {
-                final messenger = ScaffoldMessenger.of(context);
-                Navigator.of(context)
-                    .push<bool>(
-                      MaterialPageRoute(builder: (_) => const LedControlPage()),
-                    )
-                    .then((result) {
-                      if (result != true) {
-                        return;
-                      }
-                      messenger.showSnackBar(
-                        SnackBar(content: Text(l10n.ledControlApplySuccess)),
-                      );
-                    });
-              },
-            ),
-            _EntryTile(
-              title: l10n.ledEntryScenes,
-              subtitle: l10n.ledScenesListSubtitle,
-              enabled: isConnected,
-              onTapWhenEnabled: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const LedSceneListPage()),
-                );
-              },
-            ),
-            _EntryTile(
-              title: l10n.ledEntryRecords,
-              subtitle: l10n.ledEntryRecordsSubtitle,
-              enabled: isConnected,
-              onTapWhenEnabled: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const LedRecordPage()),
-                );
-              },
-            ),
-            _EntryTile(
-              title: l10n.ledEntrySchedule,
-              subtitle: l10n.ledScheduleListSubtitle,
-              enabled: isConnected,
-              onTapWhenEnabled: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const LedScheduleListPage(),
+          ),
+          body: SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.all(ReefSpacing.xl),
+              children: [
+                Text(
+                  l10n.ledSubHeader,
+                  style: ReefTextStyles.body.copyWith(
+                    color: ReefColors.surface,
                   ),
-                );
-              },
+                ),
+                const SizedBox(height: ReefSpacing.md),
+                if (!isConnected) ...[
+                  const BleGuardBanner(),
+                  const SizedBox(height: ReefSpacing.md),
+                ],
+                const SizedBox(height: ReefSpacing.md),
+                _DeviceHeaderCard(
+                  deviceName: deviceName,
+                  isConnected: isConnected,
+                  l10n: l10n,
+                ),
+                const SizedBox(height: ReefSpacing.xl),
+                _RuntimeStatusCard(controller: controller),
+                const SizedBox(height: ReefSpacing.xl),
+                _SceneListSection(l10n: l10n, controller: controller),
+                const SizedBox(height: ReefSpacing.xl),
+                _EntryTile(
+                  title: l10n.ledEntryIntensity,
+                  subtitle: l10n.ledIntensityEntrySubtitle,
+                  enabled: featuresEnabled,
+                  onTapWhenEnabled: () {
+                    final messenger = ScaffoldMessenger.of(context);
+                    Navigator.of(context)
+                        .push<bool>(
+                          MaterialPageRoute(
+                            builder: (_) => const LedControlPage(),
+                          ),
+                        )
+                        .then((result) {
+                          if (result != true) {
+                            return;
+                          }
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: Text(l10n.ledControlApplySuccess),
+                            ),
+                          );
+                        });
+                  },
+                ),
+                _EntryTile(
+                  title: l10n.ledEntryScenes,
+                  subtitle: l10n.ledScenesListSubtitle,
+                  enabled: featuresEnabled,
+                  onTapWhenEnabled: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const LedSceneListPage(),
+                      ),
+                    );
+                  },
+                ),
+                _EntryTile(
+                  title: l10n.ledEntryRecords,
+                  subtitle: l10n.ledEntryRecordsSubtitle,
+                  enabled: featuresEnabled,
+                  onTapWhenEnabled: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const LedRecordPage()),
+                    );
+                  },
+                ),
+                _EntryTile(
+                  title: l10n.ledEntrySchedule,
+                  subtitle: l10n.ledScheduleListSubtitle,
+                  enabled: featuresEnabled,
+                  onTapWhenEnabled: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const LedScheduleListPage(),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -217,11 +233,215 @@ class _DeviceHeaderCard extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
-            onPressed: () => _showComingSoon(context, l10n),
-            tooltip: l10n.ledDetailFavoriteTooltip,
-            icon: const Icon(Icons.star_border, color: ReefColors.surface),
+        ],
+      ),
+    );
+  }
+}
+
+class _RuntimeStatusCard extends StatelessWidget {
+  final LedSceneListController controller;
+
+  const _RuntimeStatusCard({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final String statusLabel = _statusLabel(l10n);
+    final Color statusColor = _statusColor();
+    final LedSceneSummary? activeScene = _activeScene();
+    final LedStateSchedule? activeSchedule = controller.activeSchedule;
+    final List<Widget> chips = [];
+
+    if (activeScene != null) {
+      final String activeName = LedSceneDisplayText.name(activeScene, l10n);
+      chips.add(
+        _RuntimeInfoChip(
+          color: ReefColors.success,
+          label: l10n.ledSceneCurrentlyRunning,
+          value: activeName,
+          detail: _sceneTypeLabel(activeScene, l10n),
+        ),
+      );
+    }
+    if (activeSchedule != null) {
+      chips.add(
+        _RuntimeInfoChip(
+          color: ReefColors.info,
+          label: l10n.ledRuntimeScheduleActive,
+          value: _scheduleTypeLabel(activeSchedule, l10n),
+          detail: _scheduleRange(activeSchedule, context),
+        ),
+      );
+    }
+
+    return Card(
+      color: ReefColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.md),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(ReefSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.ledRuntimeStatus,
+              style: ReefTextStyles.subheaderAccent.copyWith(
+                color: ReefColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: ReefSpacing.sm),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: ReefSpacing.md,
+                vertical: ReefSpacing.xs,
+              ),
+              decoration: BoxDecoration(
+                color: statusColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(ReefRadius.md),
+              ),
+              child: Text(
+                statusLabel,
+                style: ReefTextStyles.caption1Accent.copyWith(
+                  color: statusColor,
+                ),
+              ),
+            ),
+            if (chips.isNotEmpty) ...[
+              const SizedBox(height: ReefSpacing.md),
+              Wrap(
+                spacing: ReefSpacing.sm,
+                runSpacing: ReefSpacing.sm,
+                children: chips,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  LedSceneSummary? _activeScene() {
+    for (final scene in controller.scenes) {
+      if (scene.isActive) {
+        return scene;
+      }
+    }
+    return null;
+  }
+
+  String _statusLabel(AppLocalizations l10n) {
+    if (controller.ledStatus == LedStatus.applying) {
+      return l10n.ledRuntimeApplying;
+    }
+    if (controller.activeScheduleId != null) {
+      return l10n.ledRuntimeScheduleActive;
+    }
+    if (controller.activeSceneId != null) {
+      return l10n.ledRuntimePreview;
+    }
+    return l10n.ledRuntimeIdle;
+  }
+
+  Color _statusColor() {
+    if (controller.ledStatus == LedStatus.applying) {
+      return ReefColors.warning;
+    }
+    if (controller.activeScheduleId != null) {
+      return ReefColors.success;
+    }
+    if (controller.activeSceneId != null) {
+      return ReefColors.info;
+    }
+    return ReefColors.textSecondary;
+  }
+
+  String _scheduleRange(LedStateSchedule schedule, BuildContext context) {
+    final TimeOfDay start = _minutesToTime(
+      schedule.window.startMinutesFromMidnight,
+    );
+    final TimeOfDay end = _minutesToTime(
+      schedule.window.endMinutesFromMidnight,
+    );
+    final materialLocalizations = MaterialLocalizations.of(context);
+    return '${materialLocalizations.formatTimeOfDay(start)} – ${materialLocalizations.formatTimeOfDay(end)}';
+  }
+
+  String _scheduleTypeLabel(LedStateSchedule schedule, AppLocalizations l10n) {
+    final String recurrence = schedule.window.recurrenceLabel.toLowerCase();
+    if (recurrence.contains('daily')) {
+      return l10n.ledScheduleDaily;
+    }
+    if (recurrence.contains('window')) {
+      return l10n.ledScheduleWindow;
+    }
+
+    final int duration =
+        schedule.window.endMinutesFromMidnight -
+        schedule.window.startMinutesFromMidnight;
+    if (duration >= 12 * 60) {
+      return l10n.ledScheduleDaily;
+    }
+    return l10n.ledScheduleWindow;
+  }
+
+  String _sceneTypeLabel(LedSceneSummary scene, AppLocalizations l10n) {
+    return scene.isPreset ? l10n.ledScenePreset : l10n.ledSceneCustom;
+  }
+
+  TimeOfDay _minutesToTime(int minutes) {
+    final normalized = minutes.clamp(0, 23 * 60 + 59);
+    return TimeOfDay(hour: normalized ~/ 60, minute: normalized % 60);
+  }
+}
+
+class _RuntimeInfoChip extends StatelessWidget {
+  final Color color;
+  final String label;
+  final String value;
+  final String? detail;
+
+  const _RuntimeInfoChip({
+    required this.color,
+    required this.label,
+    required this.value,
+    this.detail,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(ReefSpacing.sm),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(ReefRadius.md),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: ReefTextStyles.caption1Accent.copyWith(color: color),
           ),
+          const SizedBox(height: ReefSpacing.xs),
+          Text(
+            value,
+            style: ReefTextStyles.caption1.copyWith(
+              color: ReefColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          if (detail != null) ...[
+            const SizedBox(height: ReefSpacing.xs),
+            Text(
+              detail!,
+              style: ReefTextStyles.caption2.copyWith(
+                color: ReefColors.textSecondary,
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -229,13 +449,61 @@ class _DeviceHeaderCard extends StatelessWidget {
 }
 
 class _SceneListSection extends StatelessWidget {
-  final bool isConnected;
   final AppLocalizations l10n;
+  final LedSceneListController controller;
 
-  const _SceneListSection({required this.isConnected, required this.l10n});
+  const _SceneListSection({required this.l10n, required this.controller});
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> content = [];
+    final Widget? error = _buildInlineErrorMessage(
+      context,
+      controller.lastErrorCode,
+    );
+    if (error != null) {
+      content.add(error);
+      content.add(const SizedBox(height: ReefSpacing.sm));
+      controller.clearError();
+    }
+
+    if (controller.currentChannelLevels.isNotEmpty) {
+      content.add(
+        LedSpectrumChart.fromChannelMap(
+          controller.currentChannelLevels,
+          height: 80,
+          emptyLabel: l10n.ledControlEmptyState,
+        ),
+      );
+      content.add(const SizedBox(height: ReefSpacing.md));
+    }
+
+    if (controller.isLoading) {
+      content.add(const Center(child: CircularProgressIndicator()));
+    } else {
+      final scenes = controller.scenes;
+      if (scenes.isEmpty) {
+        content.add(_SceneCarouselEmptyCard(l10n: l10n));
+      } else {
+        final int channelCount = controller.currentChannelLevels.length;
+        content.add(
+          Column(
+            children: [
+              for (int i = 0; i < scenes.length; i++) ...[
+                _SceneListTile(
+                  scene: scenes[i],
+                  l10n: l10n,
+                  channelCount: channelCount,
+                ),
+                if (i != scenes.length - 1)
+                  const SizedBox(height: ReefSpacing.md),
+              ],
+            ],
+          ),
+        );
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -244,51 +512,7 @@ class _SceneListSection extends StatelessWidget {
           subtitle: l10n.ledScenesPlaceholderSubtitle,
         ),
         const SizedBox(height: ReefSpacing.md),
-        Consumer<LedSceneListController>(
-          builder: (context, controller, _) {
-            _maybeShowSceneError(context, controller);
-
-            final List<Widget> content = [];
-            if (controller.currentChannelLevels.isNotEmpty) {
-              content.add(
-                LedSpectrumChart.fromChannelMap(
-                  controller.currentChannelLevels,
-                  height: 80,
-                  emptyLabel: l10n.ledControlEmptyState,
-                ),
-              );
-              content.add(const SizedBox(height: ReefSpacing.md));
-            }
-
-            if (controller.isLoading) {
-              content.add(const Center(child: CircularProgressIndicator()));
-              return Column(children: content);
-            }
-
-            final scenes = controller.scenes;
-            if (scenes.isEmpty) {
-              content.add(_SceneCarouselEmptyCard(l10n: l10n));
-              return Column(children: content);
-            }
-
-            content.add(
-              Column(
-                children: [
-                  for (int i = 0; i < scenes.length; i++) ...[
-                    _SceneListTile(
-                      scene: scenes[i],
-                      l10n: l10n,
-                      isConnected: isConnected,
-                    ),
-                    if (i != scenes.length - 1)
-                      const SizedBox(height: ReefSpacing.md),
-                  ],
-                ],
-              ),
-            );
-            return Column(children: content);
-          },
-        ),
+        ...content,
       ],
     );
   }
@@ -297,86 +521,211 @@ class _SceneListSection extends StatelessWidget {
 class _SceneListTile extends StatelessWidget {
   final LedSceneSummary scene;
   final AppLocalizations l10n;
-  final bool isConnected;
+  final int channelCount;
 
   const _SceneListTile({
     required this.scene,
     required this.l10n,
-    required this.isConnected,
+    required this.channelCount,
   });
 
   @override
   Widget build(BuildContext context) {
-    final statusLabel = scene.isEnabled
-        ? l10n.ledSceneStatusEnabled
-        : l10n.ledSceneStatusDisabled;
-    return InkWell(
-      onTap: isConnected
-          ? () => _showComingSoon(context, l10n)
-          : () => showBleGuardDialog(context),
-      borderRadius: BorderRadius.circular(ReefRadius.lg),
-      child: Container(
-        padding: const EdgeInsets.all(ReefSpacing.lg),
-        decoration: BoxDecoration(
-          color: ReefColors.surface,
-          borderRadius: BorderRadius.circular(ReefRadius.lg),
+    final bool isActive = scene.isActive;
+    final String sceneName = LedSceneDisplayText.name(scene, l10n);
+    final String sceneDescription = LedSceneDisplayText.description(
+      scene,
+      l10n,
+    );
+    final String statusLabel;
+    final Color statusColor;
+    if (isActive) {
+      statusLabel = l10n.ledSceneStatusActive;
+      statusColor = ReefColors.success;
+    } else if (scene.isEnabled) {
+      statusLabel = l10n.ledSceneStatusEnabled;
+      statusColor = ReefColors.primary;
+    } else {
+      statusLabel = l10n.ledSceneStatusDisabled;
+      statusColor = ReefColors.warning;
+    }
+
+    final Color cardColor = isActive
+        ? ReefColors.primary.withValues(alpha: 0.2)
+        : ReefColors.surface;
+    final Color nameColor = isActive
+        ? ReefColors.surface
+        : ReefColors.textPrimary;
+    final Color descriptionColor = isActive
+        ? ReefColors.surface.withValues(alpha: 0.85)
+        : ReefColors.textSecondary;
+    final Color badgeTextColor = isActive ? ReefColors.surface : statusColor;
+    final Color badgeBackground = isActive
+        ? ReefColors.surface.withValues(alpha: 0.25)
+        : statusColor.withValues(alpha: 0.15);
+    final String typeLabel = scene.isPreset
+        ? l10n.ledScenePreset
+        : l10n.ledSceneCustom;
+    final String channelLabel = l10n.ledSceneChannelCount(channelCount);
+    final List<SceneChannelStat> channelStats = buildSceneChannelStats(
+      scene,
+      l10n,
+    );
+    final List<Color> palette = scene.palette.isNotEmpty
+        ? scene.palette
+        : <Color>[
+            ReefColors.primary,
+            ReefColors.primary.withValues(alpha: 0.65),
+          ];
+
+    return Container(
+      padding: const EdgeInsets.all(ReefSpacing.lg),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(ReefRadius.lg),
+        border: Border.all(
+          color: isActive ? ReefColors.primary : ReefColors.surface,
+          width: isActive ? 1.5 : 1,
         ),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: scene.palette,
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(ReefRadius.md),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: palette,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+              borderRadius: BorderRadius.circular(ReefRadius.md),
             ),
-            const SizedBox(width: ReefSpacing.lg),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    scene.name,
-                    style: ReefTextStyles.subheaderAccent.copyWith(
-                      color: ReefColors.textPrimary,
-                    ),
+          ),
+          const SizedBox(width: ReefSpacing.lg),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  sceneName,
+                  style: ReefTextStyles.subheaderAccent.copyWith(
+                    color: nameColor,
                   ),
+                ),
+                const SizedBox(height: ReefSpacing.xs),
+                Text(
+                  sceneDescription,
+                  style: ReefTextStyles.caption1.copyWith(
+                    color: descriptionColor,
+                  ),
+                ),
+                const SizedBox(height: ReefSpacing.sm),
+                Wrap(
+                  spacing: ReefSpacing.sm,
+                  runSpacing: ReefSpacing.xs,
+                  children: [
+                    Text(
+                      typeLabel,
+                      style: ReefTextStyles.caption1.copyWith(
+                        color: descriptionColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      channelLabel,
+                      style: ReefTextStyles.caption1.copyWith(
+                        color: descriptionColor,
+                      ),
+                    ),
+                  ],
+                ),
+                if (channelStats.isNotEmpty) ...[
                   const SizedBox(height: ReefSpacing.xs),
+                  _SceneChannelBadges(
+                    stats: channelStats,
+                    textColor: descriptionColor,
+                    backgroundColor: isActive
+                        ? ReefColors.surface.withValues(alpha: 0.2)
+                        : ReefColors.surface,
+                    borderColor: isActive
+                        ? ReefColors.surface.withValues(alpha: 0.4)
+                        : ReefColors.greyLight,
+                  ),
+                ],
+                if (isActive) ...[
+                  const SizedBox(height: ReefSpacing.sm),
                   Text(
-                    scene.description,
+                    l10n.ledSceneCurrentlyRunning,
                     style: ReefTextStyles.caption1.copyWith(
-                      color: ReefColors.textSecondary,
+                      color: ReefColors.success,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
-              ),
+              ],
             ),
-            Container(
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: ReefSpacing.md,
+              vertical: ReefSpacing.xs,
+            ),
+            decoration: BoxDecoration(
+              color: badgeBackground,
+              borderRadius: BorderRadius.circular(ReefRadius.pill),
+            ),
+            child: Text(
+              statusLabel,
+              style: ReefTextStyles.caption1.copyWith(color: badgeTextColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SceneChannelBadges extends StatelessWidget {
+  final List<SceneChannelStat> stats;
+  final Color textColor;
+  final Color backgroundColor;
+  final Color borderColor;
+
+  const _SceneChannelBadges({
+    required this.stats,
+    required this.textColor,
+    required this.backgroundColor,
+    required this.borderColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: ReefSpacing.sm,
+      runSpacing: ReefSpacing.xs,
+      children: stats
+          .map(
+            (stat) => Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: ReefSpacing.md,
+                horizontal: ReefSpacing.sm,
                 vertical: ReefSpacing.xs,
               ),
               decoration: BoxDecoration(
-                color: ReefColors.primary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(ReefRadius.pill),
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(ReefRadius.sm),
+                border: Border.all(color: borderColor, width: 0.5),
               ),
               child: Text(
-                statusLabel,
-                style: ReefTextStyles.caption1.copyWith(
-                  color: ReefColors.primary,
+                '${stat.label} ${stat.value}%',
+                style: ReefTextStyles.caption2.copyWith(
+                  color: textColor,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-            const SizedBox(width: ReefSpacing.md),
-            const Icon(Icons.chevron_right, color: ReefColors.textSecondary),
-          ],
-        ),
-      ),
+          )
+          .toList(growable: false),
     );
   }
 }
@@ -432,255 +781,9 @@ void _maybeShowSceneError(
   controller.clearError();
 }
 
-void _maybeShowScheduleSummaryError(
-  BuildContext context,
-  LedScheduleSummaryController controller,
-) {
-  final code = controller.lastErrorCode;
-  if (code == null) {
-    return;
-  }
-
-  _showAppError(context, code);
-  controller.clearError();
-}
-
-String _ledSummaryModeLabel(LedScheduleMode mode, AppLocalizations l10n) {
-  switch (mode) {
-    case LedScheduleMode.dailyProgram:
-      return l10n.ledScheduleTypeDaily;
-    case LedScheduleMode.customWindow:
-      return l10n.ledScheduleTypeCustom;
-    case LedScheduleMode.sceneBased:
-      return l10n.ledScheduleTypeScene;
-    case LedScheduleMode.none:
-      return l10n.ledScheduleSummaryEmpty;
-  }
-}
-
 void _showAppError(BuildContext context, AppErrorCode code) {
   final message = describeAppError(AppLocalizations.of(context), code);
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-}
-
-String _formatWindow(
-  MaterialLocalizations localizations,
-  TimeOfDay start,
-  TimeOfDay end,
-  bool use24HourFormat,
-) {
-  final startLabel = localizations.formatTimeOfDay(
-    start,
-    alwaysUse24HourFormat: use24HourFormat,
-  );
-  final endLabel = localizations.formatTimeOfDay(
-    end,
-    alwaysUse24HourFormat: use24HourFormat,
-  );
-  return '$startLabel – $endLabel';
-}
-
-class _LedScheduleSummaryCard extends StatelessWidget {
-  final AppLocalizations l10n;
-
-  const _LedScheduleSummaryCard({required this.l10n});
-
-  @override
-  Widget build(BuildContext context) {
-    final bool use24h =
-        MediaQuery.maybeOf(context)?.alwaysUse24HourFormat ?? false;
-    final materialLocalizations = MaterialLocalizations.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SectionHeader(
-          title: l10n.ledScheduleSummaryTitle,
-          subtitle: l10n.ledScheduleListSubtitle,
-        ),
-        const SizedBox(height: ReefSpacing.md),
-        Card(
-          color: ReefColors.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(ReefRadius.md),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(ReefSpacing.lg),
-            child: Consumer<LedScheduleSummaryController>(
-              builder: (context, controller, _) {
-                _maybeShowScheduleSummaryError(context, controller);
-
-                if (controller.isLoading) {
-                  return const SizedBox(
-                    height: 120,
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                }
-
-                final summary = controller.summary;
-                if (summary == null || !summary.hasSchedule) {
-                  return Text(
-                    l10n.ledScheduleSummaryEmpty,
-                    style: ReefTextStyles.body.copyWith(
-                      color: ReefColors.textSecondary,
-                    ),
-                  );
-                }
-
-                final String modeLabel = _ledSummaryModeLabel(
-                  summary.mode,
-                  l10n,
-                );
-                final String? windowLabel = _resolveWindowLabel(
-                  summary,
-                  materialLocalizations,
-                  use24h,
-                );
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: ReefSpacing.md,
-                            vertical: ReefSpacing.xs,
-                          ),
-                          decoration: BoxDecoration(
-                            color: ReefColors.info.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(ReefRadius.md),
-                          ),
-                          child: Text(
-                            modeLabel,
-                            style: ReefTextStyles.caption1Accent.copyWith(
-                              color: ReefColors.info,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: ReefSpacing.sm),
-                        Text(
-                          summary.isEnabled
-                              ? l10n.ledScheduleStatusEnabled
-                              : l10n.ledScheduleStatusDisabled,
-                          style: ReefTextStyles.caption1.copyWith(
-                            color: summary.isEnabled
-                                ? ReefColors.success
-                                : ReefColors.warning,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: ReefSpacing.lg),
-                    if ((summary.label ?? '').isNotEmpty) ...[
-                      Text(
-                        l10n.ledScheduleSummaryLabel,
-                        style: ReefTextStyles.caption1.copyWith(
-                          color: ReefColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: ReefSpacing.xs),
-                      Text(
-                        summary.label!,
-                        style: ReefTextStyles.subheaderAccent.copyWith(
-                          color: ReefColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: ReefSpacing.lg),
-                    ],
-                    if (windowLabel != null) ...[
-                      Text(
-                        l10n.ledScheduleSummaryWindowLabel,
-                        style: ReefTextStyles.caption1.copyWith(
-                          color: ReefColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: ReefSpacing.xs),
-                      Text(
-                        windowLabel,
-                        style: ReefTextStyles.subheaderAccent.copyWith(
-                          color: ReefColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ],
-                );
-              },
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  String? _resolveWindowLabel(
-    LedScheduleOverview summary,
-    MaterialLocalizations localizations,
-    bool use24HourFormat,
-  ) {
-    if (summary.startMinute == null || summary.endMinute == null) {
-      return null;
-    }
-    final TimeOfDay start = _minutesToTime(summary.startMinute!);
-    final TimeOfDay end = _minutesToTime(summary.endMinute!);
-    return _formatWindow(localizations, start, end, use24HourFormat);
-  }
-
-  TimeOfDay _minutesToTime(int minutes) {
-    final normalized = minutes.clamp(0, 23 * 60 + 59);
-    final hour = normalized ~/ 60;
-    final minute = normalized % 60;
-    return TimeOfDay(hour: hour, minute: minute);
-  }
-}
-
-class _LedScheduleSummarySection extends StatelessWidget {
-  final AppLocalizations l10n;
-  final bool isConnected;
-
-  const _LedScheduleSummarySection({
-    required this.l10n,
-    required this.isConnected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _LedScheduleSummaryCard(l10n: l10n),
-        const SizedBox(height: ReefSpacing.md),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: FilledButton.icon(
-            onPressed: isConnected
-                ? () => _openEditor(context)
-                : () => showBleGuardDialog(context),
-            icon: const Icon(Icons.add),
-            label: Text(l10n.ledScheduleAddButton),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _openEditor(BuildContext context) async {
-    final result = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => const LedScheduleEditPage()),
-    );
-    if (result != true) {
-      return;
-    }
-
-    final LedScheduleSummaryController controller = context
-        .read<LedScheduleSummaryController>();
-    await controller.refresh();
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.showSnackBar(
-      SnackBar(content: Text(l10n.ledScheduleEditSuccess)),
-    );
-  }
 }
 
 class _EntryTile extends StatelessWidget {
@@ -698,7 +801,6 @@ class _EntryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final Color titleColor = enabled
         ? ReefColors.textPrimary
         : ReefColors.textSecondary;
@@ -726,9 +828,7 @@ class _EntryTile extends StatelessWidget {
           style: ReefTextStyles.caption1.copyWith(color: subtitleColor),
         ),
         trailing: Icon(Icons.chevron_right, color: titleColor),
-        onTap: enabled
-            ? (onTapWhenEnabled ?? () => _showComingSoon(context, l10n))
-            : () => showBleGuardDialog(context),
+        onTap: enabled ? onTapWhenEnabled : () => showBleGuardDialog(context),
       ),
     );
   }
@@ -761,10 +861,4 @@ class _SectionHeader extends StatelessWidget {
       ],
     );
   }
-}
-
-void _showComingSoon(BuildContext context, AppLocalizations l10n) {
-  ScaffoldMessenger.of(
-    context,
-  ).showSnackBar(SnackBar(content: Text(l10n.comingSoon)));
 }

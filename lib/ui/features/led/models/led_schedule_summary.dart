@@ -27,6 +27,7 @@ class LedScheduleSummary {
   final bool isEnabled;
   final List<LedScheduleChannelValue> channels;
   final bool isActive;
+  final bool isDerived;
 
   const LedScheduleSummary({
     required this.id,
@@ -39,6 +40,7 @@ class LedScheduleSummary {
     required this.isEnabled,
     this.channels = const [],
     this.isActive = false,
+    this.isDerived = false,
   });
 
   LedScheduleSummary copyWith({
@@ -52,6 +54,7 @@ class LedScheduleSummary {
     bool? isEnabled,
     List<LedScheduleChannelValue>? channels,
     bool? isActive,
+    bool? isDerived,
   }) {
     return LedScheduleSummary(
       id: id ?? this.id,
@@ -64,6 +67,7 @@ class LedScheduleSummary {
       isEnabled: isEnabled ?? this.isEnabled,
       channels: channels ?? this.channels,
       isActive: isActive ?? this.isActive,
+      isDerived: isDerived ?? this.isDerived,
     );
   }
 }

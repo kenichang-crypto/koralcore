@@ -116,11 +116,22 @@ class BleLedRepositoryImpl extends LedRepository
     required String scheduleId,
   }) async {
     final _DeviceSession session = _ensureSession(deviceId);
+    final _ScheduleApplicationContext context =
+        _resolveScheduleApplicationContext(session.cache, scheduleId);
     session.cache.status = LedStatus.applying;
-    _emitLedState(session);
-    // TODO: Encode schedule payload once schedule builder parity is ready.
-    await _sendCommand(deviceId, _commandBuilder.syncInformation());
     session.cache.pendingScheduleId = scheduleId;
+    _emitLedState(session);
+    final Uint8List command = _commandBuilder.applySchedule(
+      scheduleCode: context.scheduleCode,
+      enabled: context.enabled,
+      startHour: context.startHour,
+      startMinute: context.startMinute,
+      endHour: context.endHour,
+      endMinute: context.endMinute,
+      recurrenceMask: context.recurrenceMask,
+      channels: context.orderedChannels,
+    );
+    await _sendCommand(deviceId, command);
     return session.cache.snapshotState();
   }
 
@@ -346,7 +357,7 @@ class BleLedRepositoryImpl extends LedRepository
         _handlePreviewAck(session, data);
         break;
       case _opcodeMutationAck:
-        _handleDeleteRecordAck(session, data);
+        _handleMutationAck(session, data);
         break;
       case _opcodeClearRecordsAck:
         _handleClearRecordsAck(session, data);
@@ -556,6 +567,37 @@ class BleLedRepositoryImpl extends LedRepository
     }
     session.cache.pendingClearRecords = false;
     _emitRecordState(session);
+  }
+
+  void _handleMutationAck(_DeviceSession session, Uint8List data) {
+    if (session.cache.pendingScheduleId != null) {
+      _handleScheduleAck(session, data);
+      return;
+    }
+    _handleDeleteRecordAck(session, data);
+  }
+
+  void _handleScheduleAck(_DeviceSession session, Uint8List data) {
+    if (data.length != 4) {
+      return;
+    }
+    final bool success = (data[2] & 0xFF) == 0x01;
+    if (success) {
+      session.cache.status = LedStatus.idle;
+      final String? pendingId = session.cache.pendingScheduleId;
+      if (pendingId != null) {
+        session.cache.pendingSceneId = null;
+        session.cache.pendingPresetSceneCode = null;
+        session.cache.pendingCustomSceneChannels = null;
+        session.cache.setMode(LedMode.record);
+        session.cache.activeScheduleId = pendingId;
+        session.cache.activeSceneId = null;
+      }
+    } else {
+      session.cache.status = LedStatus.error;
+    }
+    session.cache.pendingScheduleId = null;
+    _emitLedState(session);
   }
 
   void _handleChannelLevels(_DeviceSession session, Uint8List data) {
@@ -941,6 +983,15 @@ class _LedInformationCache {
     return null;
   }
 
+  LedStateSchedule? findSchedule(String scheduleId) {
+    for (final LedStateSchedule schedule in schedules) {
+      if (schedule.scheduleId == scheduleId) {
+        return schedule;
+      }
+    }
+    return null;
+  }
+
   LedStateScene? findSceneByChannels(Map<String, int> channels) {
     for (final LedStateScene scene in scenes) {
       if (_channelsMatch(scene.channelLevels, channels)) {
@@ -1165,6 +1216,28 @@ class _SceneApplicationContext {
   bool get isPreset => presetCode != null;
 }
 
+class _ScheduleApplicationContext {
+  const _ScheduleApplicationContext({
+    required this.scheduleCode,
+    required this.enabled,
+    required this.startHour,
+    required this.startMinute,
+    required this.endHour,
+    required this.endMinute,
+    required this.recurrenceMask,
+    required this.orderedChannels,
+  });
+
+  final int scheduleCode;
+  final bool enabled;
+  final int startHour;
+  final int startMinute;
+  final int endHour;
+  final int endMinute;
+  final int recurrenceMask;
+  final List<int> orderedChannels;
+}
+
 const String _defaultCustomSceneName = 'Custom Scene';
 const String _customSceneIconKey = 'ic_custom';
 
@@ -1191,6 +1264,31 @@ _SceneApplicationContext _resolveSceneContext(
   return _SceneApplicationContext(
     sceneId: scene.sceneId,
     channelLevels: Map<String, int>.from(scene.channelLevels),
+  );
+}
+
+_ScheduleApplicationContext _resolveScheduleApplicationContext(
+  _LedInformationCache cache,
+  String scheduleId,
+) {
+  final LedStateSchedule? schedule = cache.findSchedule(scheduleId);
+  if (schedule == null) {
+    throw StateError(
+      'Schedule "$scheduleId" is not available for ${cache.deviceId}.',
+    );
+  }
+  final _HourMinute start = _minutesToHourMinute(schedule.window.startMinutesFromMidnight);
+  final _HourMinute end = _minutesToHourMinute(schedule.window.endMinutesFromMidnight);
+  final List<int> channels = _scheduleSpectrum(schedule.channelLevels);
+  return _ScheduleApplicationContext(
+    scheduleCode: _scheduleCodeFromId(schedule.scheduleId),
+    enabled: schedule.enabled,
+    startHour: start.hour,
+    startMinute: start.minute,
+    endHour: end.hour,
+    endMinute: end.minute,
+    recurrenceMask: _recurrenceMaskFromLabel(schedule.window.recurrenceLabel),
+    orderedChannels: channels,
   );
 }
 
@@ -1225,6 +1323,55 @@ List<int> _orderedChannelLevels(Map<String, int> channels) {
   return <int>[
     for (final String key in ledChannelOrder) _channelIntensity(channels, key),
   ];
+}
+
+class _HourMinute {
+  const _HourMinute({required this.hour, required this.minute});
+
+  final int hour;
+  final int minute;
+}
+
+_HourMinute _minutesToHourMinute(int minutes) {
+  if (minutes < 0 || minutes >= 24 * 60) {
+    throw StateError('Invalid minutes-from-midnight: $minutes');
+  }
+  final int hour = minutes ~/ 60;
+  final int minute = minutes % 60;
+  return _HourMinute(hour: hour, minute: minute);
+}
+
+int _recurrenceMaskFromLabel(String label) {
+  if (label.toLowerCase() == 'daily') {
+    return 0x7F;
+  }
+  return 0x00;
+}
+
+int _scheduleCodeFromId(String scheduleId) {
+  final RegExp digits = RegExp(r'(\d+)$');
+  final Match? match = digits.firstMatch(scheduleId);
+  if (match != null) {
+    return int.parse(match.group(1)!) & 0xFF;
+  }
+  final RegExp hex = RegExp(r'^[0-9a-fA-F]+$');
+  if (hex.hasMatch(scheduleId) && scheduleId.length >= 2) {
+    return int.parse(scheduleId.substring(0, 2), radix: 16) & 0xFF;
+  }
+  throw StateError('Unable to derive schedule code from "$scheduleId".');
+}
+
+List<int> _scheduleSpectrum(Map<String, int> channels) {
+  final List<int> ordered = <int>[
+    _channelIntensity(channels, 'red'),
+    _channelIntensity(channels, 'green'),
+    _channelIntensity(channels, 'blue'),
+    _channelIntensity(channels, 'coldWhite') == 0
+        ? _channelIntensity(channels, 'warmWhite')
+        : _channelIntensity(channels, 'coldWhite'),
+    _channelIntensity(channels, 'uv'),
+  ];
+  return ordered;
 }
 
 int _channelIntensity(Map<String, int> channels, String key) {

@@ -58,6 +58,34 @@ class LedCommandBuilder {
     ]);
   }
 
+  Uint8List applySchedule({
+    required int scheduleCode,
+    required bool enabled,
+    required int startHour,
+    required int startMinute,
+    required int endHour,
+    required int endMinute,
+    required int recurrenceMask,
+    required List<int> channels,
+  }) {
+    if (channels.length != 5) {
+      throw ArgumentError('Schedule apply requires 5 channel values.');
+    }
+    return _build(<int>[
+      0x82,
+      0x00,
+      0x01, // channel group (full spectrum)
+      scheduleCode & 0xFF,
+      enabled ? 0x01 : 0x00,
+      startHour & 0xFF,
+      startMinute & 0xFF,
+      endHour & 0xFF,
+      endMinute & 0xFF,
+      ...channels.take(5).map((value) => value & 0xFF),
+      recurrenceMask & 0xFF,
+    ]);
+  }
+
   Uint8List dimming(Map<String, int> channels) {
     final List<int> ordered = <int>[
       for (final String key in ledChannelOrder)

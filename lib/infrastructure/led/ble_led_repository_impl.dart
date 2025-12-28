@@ -519,27 +519,15 @@ class BleLedRepositoryImpl extends LedRepository
   }
 
   LedStateSchedule? _parseScheduleReturn(Uint8List data) {
-    // TODO: Map schedule payload fields per reef-b-app (see Android LedSyncInformationCommand schedule parsing).
-    // Expected fields: scheduleId/code, enabled flag, window start/end minutes, recurrence label, channel levels.
-    // Return null until mapping is aligned with reef-b-app.
+    // PARITY: reef-b-app does NOT implement opcode 0x26 (RETURN_SCHEDULE).
+    // Verified: CommandManager.kt has no handler for CMD_LED_RETURN_SCHEDULE.
+    // Return null to match reef-b-app behavior.
     if (data.length < 2) {
       return null;
     }
-    // Capture raw bytes for debugging parity; do not fabricate schedule.
-    final String rawId = data
-        .map((b) => b.toRadixString(16).padLeft(2, '0'))
-        .join();
-    // TODO: Replace with real parsing once reef-b-app mapping is confirmed.
-    return LedStateSchedule(
-      scheduleId: rawId,
-      enabled: false,
-      window: const LedScheduleWindow(
-        startMinutesFromMidnight: 0,
-        endMinutesFromMidnight: 0,
-        recurrenceLabel: 'TODO',
-      ),
-      channelLevels: const <String, int>{},
-    );
+    // PARITY: reef-b-app does NOT implement opcode 0x26, so we return null.
+    // This method should never be called in practice, but we return null for safety.
+    return null;
   }
 
   LedRecord? _parseRecordReturn(Uint8List data) {
@@ -904,7 +892,12 @@ class BleLedRepositoryImpl extends LedRepository
   }
 
   void _finalizeMutation(_DeviceSession session) {
-    // TODO: Align with reef-b-app acks (delete/clear/record changes).
+    // PARITY: Verified against reef-b-app CommandManager.kt.
+    // - 0x2F (DELETE_RECORD): ViewModel calls ledInformation.deleteRecord() on SUCCESS
+    // - 0x30 (CLEAR_RECORD): ViewModel calls ledInformation.clearRecord() on SUCCESS
+    // - 0x27 (SET_RECORD): ViewModel updates state on SUCCESS
+    // koralcore handles these in _handleDeleteRecordAck, _handleClearRecordsAck, _handleSetRecordAck.
+    // This method only finalizes mutation state, which is already aligned.
     session.syncInFlight = false;
     _emitLedState(session);
     _emitRecordState(session);

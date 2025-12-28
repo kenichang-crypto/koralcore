@@ -897,12 +897,11 @@ class BleDosingRepositoryImpl implements DosingRepository {
       return; // Invalid payload
     }
     final int size = data[2] & 0xFF;
-    // PARITY: reef-b-app calls dropInformation.initAdjustHistory(headNo, size)
-    // Note: headNo should come from command context, but we don't have it here
-    // For now, we'll need to track pending headNo in session or command context
-    // This is a limitation - we need to know which head the command was sent for
-    // TODO: Track pending headNo for adjust history commands
-    // For now, using 0 as placeholder (will be fixed when command context is added)
+    // PARITY: Verified against reef-b-app DropHeadAdjustListViewModel.kt:196.
+    // ViewModel calls: dropInformation.initAdjustHistory(nowDropHead.headId, dropGetAdjustHistorySize)
+    // The headId comes from ViewModel's context (nowDropHead.headId), not from the ACK payload.
+    // koralcore needs to track the headId from the command context when sending the request.
+    // For now, using 0 as placeholder until command context tracking is implemented.
     session.initAdjustHistory(0, size);
     // PARITY: reef-b-app ViewModel triggers START/END based on size
     // If size > 0, ViewModel sets loading=true and waits for RETURN opcodes
@@ -917,13 +916,12 @@ class BleDosingRepositoryImpl implements DosingRepository {
     }
     final bool success = (data[2] & 0xFF) == 0x01;
     if (success) {
-      // PARITY: reef-b-app ViewModel calls dropInformation.setMode(headId, DropHeadMode())
-      // Note: headId should come from command context, but we don't have it here
-      // For now, we'll need to track pending headId in session or command context
-      // This is a limitation - we need to know which head the command was sent for
-      // TODO: Track pending headId for clear record commands
-      // For now, we can't clear mode without knowing which head to clear
-      // This will be fixed when command context tracking is added
+      // PARITY: Verified against reef-b-app DropHeadRecordSettingViewModel.kt:705.
+      // ViewModel calls: dropInformation.setMode(nowDropHead.headId, DropHeadMode())
+      // The headId comes from ViewModel's context (nowDropHead.headId), not from the ACK payload.
+      // koralcore needs to track the headId from the command context when sending the request.
+      // For now, we can't clear mode without knowing which head to clear.
+      // This will be fixed when command context tracking is implemented.
     }
     // PARITY: reef-b-app ViewModel only logs success/failure, no other state update
     // ACK is handled, no additional action needed (until we have headId context)

@@ -399,6 +399,7 @@
   "ledSceneDeleteTitle": "Delete Scene",
   "ledMasterSettingTitle": "Master Settings",
   "ledRecordTimeSettingTimeLabel": "Time",
+  "ledRecordTimeSettingSpectrumLabel": "Spectrum",
   "ledRecordTimeSettingChannelsLabel": "Channels",
   "ledRecordTimeSettingErrorTime": "Invalid time",
   "ledRecordTimeSettingErrorTimeExists": "Time already exists",
@@ -427,6 +428,17 @@
     }
   },
   "ledSceneDeleteError": "Failed to delete scene",
+  "ledSceneDeleteLocalScenesTitle": "Local Scenes",
+  "ledSceneDeleteDeviceScenesTitle": "Device Scenes (Read-only)",
+  "ledSceneDeleteCannotDeleteDeviceScenes": "Cannot delete device scenes",
+  "ledSceneIdLabel": "Scene ID: {id}",
+  "@ledSceneIdLabel": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
   "ledSceneLimitReached": "Maximum scenes reached",
   "ledMasterSettingGroup": "Group",
   "ledMasterSettingMaster": "Master",
@@ -452,7 +464,19 @@
   "ledScenesActionAdd": "Add Scene",
   "ledScenesActionUnfavorite": "Remove Favorite",
   "ledScenesActionFavorite": "Add Favorite",
+  "ledScenesActionUnfavorite": "Remove Favorite",
+  "deviceActionFavorite": "Favorite",
+  "deviceActionUnfavorite": "Unfavorite",
+  "deviceFavorited": "Device favorited",
+  "deviceUnfavorited": "Device unfavorited",
+  "ledOrientationPortrait": "Portrait",
+  "ledOrientationLandscape": "Landscape",
+  "ledFavoriteScenesTitle": "Favorite Scenes",
+  "ledFavoriteScenesSubtitle": "Your favorite scenes",
+  "ledContinueRecord": "Resume execution.",
+  "actionPlay": "Run",
   "ledResetDevice": "Reset Device",
+  "sinkTypeDefault": "Default",
   "sinkPosition": "Sink Position",
   "sinkPositionTitle": "Sink Position",
   "sinkPositionNotSet": "Not Set",
@@ -468,6 +492,14 @@
   "sinkEditTitle": "Edit Sink",
   "sinkDeleteTitle": "Delete Sink",
   "sinkDeleteMessage": "Are you sure you want to delete this sink?",
+  "sinkDeviceCount": "{count} devices",
+  "@sinkDeviceCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "cancel": "Cancel",
   "add": "Add",
   "save": "Save",

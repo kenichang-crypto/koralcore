@@ -11,9 +11,12 @@ import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
+import '../../../widgets/reef_backgrounds.dart';
 import '../../../../domain/led_lighting/led_state.dart';
 import '../../../components/ble_guard.dart';
 import '../../../components/app_error_presenter.dart';
+import '../../../components/error_state_widget.dart';
+import '../../../components/loading_state_widget.dart';
 import '../controllers/led_scene_list_controller.dart';
 import '../models/led_scene_summary.dart';
 import '../support/scene_channel_helper.dart';
@@ -104,9 +107,9 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
         final bool featuresEnabled = isConnected && !writeLocked;
 
         return Scaffold(
-          backgroundColor: ReefColors.primaryStrong,
           appBar: AppBar(
-            backgroundColor: ReefColors.primaryStrong,
+            backgroundColor: ReefColors.primary,
+            foregroundColor: ReefColors.onPrimary,
             elevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: ReefColors.onPrimary),
@@ -138,7 +141,7 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
                               ? ReefColors.error
                               : ReefColors.onPrimary.withValues(alpha: 0.7),
                         ),
-                        tooltip: isFavorite ? 'Unfavorite' : 'Favorite',
+                        tooltip: isFavorite ? l10n.deviceActionUnfavorite : l10n.deviceActionFavorite,
                         onPressed: featuresEnabled && !controller.isPreviewing && deviceId != null
                             ? () async {
                                 try {
@@ -146,23 +149,20 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
                                     deviceId: deviceId,
                                   );
                                   if (context.mounted) {
+                                    final l10n = AppLocalizations.of(context);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
                                           isFavorite
-                                              ? 'Device unfavorited'
-                                              : 'Device favorited',
+                                              ? l10n.deviceUnfavorited
+                                              : l10n.deviceFavorited,
                                         ),
                                       ),
                                     );
                                   }
                                 } catch (error) {
                                   if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Failed to toggle favorite: $error'),
-                                      ),
-                                    );
+                                    showErrorSnackBar(context, AppErrorCode.unknownError);
                                   }
                                 }
                               }
@@ -178,7 +178,7 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
                   _isLandscape ? Icons.fullscreen_exit : Icons.fullscreen,
                   color: ReefColors.onPrimary,
                 ),
-                tooltip: _isLandscape ? 'Portrait' : 'Landscape',
+                tooltip: _isLandscape ? l10n.ledOrientationPortrait : l10n.ledOrientationLandscape,
                 onPressed: featuresEnabled && !controller.isPreviewing
                     ? _toggleOrientation
                     : null,
@@ -253,14 +253,15 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
               ),
             ],
           ),
-          body: SafeArea(
-            child: ListView(
+          body: ReefMainBackground(
+            child: SafeArea(
+              child: ListView(
               padding: const EdgeInsets.all(ReefSpacing.xl),
               children: [
                 Text(
                   l10n.ledSubHeader,
                   style: ReefTextStyles.body.copyWith(
-                    color: ReefColors.surface,
+                    color: ReefColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: ReefSpacing.md),
@@ -354,6 +355,7 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
                   },
                 ),
               ],
+            ),
             ),
           ),
         );
@@ -668,8 +670,8 @@ class _FavoriteSceneSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _SectionHeader(
-          title: 'Favorite Scenes',
-          subtitle: 'Your favorite scenes',
+          title: l10n.ledFavoriteScenesTitle,
+          subtitle: l10n.ledFavoriteScenesSubtitle,
         ),
         const SizedBox(height: ReefSpacing.md),
         SingleChildScrollView(
@@ -772,25 +774,9 @@ class _SceneListSection extends StatelessWidget {
     }
     final l10n = AppLocalizations.of(context);
     final message = describeAppError(l10n, errorCode);
-    return Container(
-      padding: const EdgeInsets.all(ReefSpacing.md),
-      decoration: BoxDecoration(
-        color: ReefColors.danger.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(ReefRadius.md),
-        border: Border.all(color: ReefColors.danger, width: 1),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.error_outline, color: ReefColors.danger, size: 20),
-          const SizedBox(width: ReefSpacing.sm),
-          Expanded(
-            child: Text(
-              message,
-              style: ReefTextStyles.body.copyWith(color: ReefColors.danger),
-            ),
-          ),
-        ],
-      ),
+    return InlineErrorMessage(
+      message: message,
+      onDismiss: () => controller.clearError(),
     );
   }
 
@@ -819,7 +805,7 @@ class _SceneListSection extends StatelessWidget {
     }
 
     if (controller.isLoading) {
-      content.add(const Center(child: CircularProgressIndicator()));
+      content.add(const LoadingStateWidget.center());
     } else {
       final scenes = controller.scenes;
       if (scenes.isEmpty) {
@@ -1244,9 +1230,7 @@ void _confirmResetDevice(
     try {
       await appContext.resetLedStateUseCase.execute(deviceId: deviceId);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Device reset successfully')),
-        );
+        showSuccessSnackBar(context, l10n.deviceSettingsSaved);
       }
     } on AppError catch (error) {
       if (context.mounted) {
@@ -1310,7 +1294,7 @@ class _RecordChartSection extends StatelessWidget {
                       ),
                       IconButton(
                         icon: const Icon(Icons.play_circle_outline),
-                        tooltip: 'Continue Record',
+                        tooltip: l10n.ledContinueRecord,
                         onPressed: controller.isBusy || controller.isPreviewing
                             ? null
                             : controller.startRecord,

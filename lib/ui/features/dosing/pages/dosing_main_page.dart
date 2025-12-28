@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../application/common/app_context.dart';
+import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../domain/doser_dosing/pump_head.dart';
 import '../../../components/ble_guard.dart';
+import '../../../components/error_state_widget.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
+import '../../../widgets/reef_backgrounds.dart';
 import '../models/pump_head_summary.dart';
 import 'dosing_main_page_helpers.dart'
     show confirmDeleteDevice, confirmResetDevice, handlePlayDosing, handleConnect, handleDisconnect;
@@ -33,9 +36,9 @@ class DosingMainPage extends StatelessWidget {
     final deviceName = session.activeDeviceName ?? l10n.dosingHeader;
 
     return Scaffold(
-      backgroundColor: ReefColors.primaryStrong,
       appBar: AppBar(
-        backgroundColor: ReefColors.primaryStrong,
+        backgroundColor: ReefColors.primary,
+        foregroundColor: ReefColors.onPrimary,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: ReefColors.onPrimary),
@@ -64,7 +67,7 @@ class DosingMainPage extends StatelessWidget {
                       ? ReefColors.error
                       : ReefColors.onPrimary.withValues(alpha: 0.7),
                 ),
-                tooltip: isFavorite ? 'Unfavorite' : 'Favorite',
+                tooltip: isFavorite ? l10n.deviceActionUnfavorite : l10n.deviceActionFavorite,
                 onPressed: isConnected && deviceId != null
                     ? () async {
                         try {
@@ -72,23 +75,23 @@ class DosingMainPage extends StatelessWidget {
                             deviceId: deviceId,
                           );
                           if (context.mounted) {
+                            final l10n = AppLocalizations.of(context);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
                                   isFavorite
-                                      ? 'Device unfavorited'
-                                      : 'Device favorited',
+                                      ? l10n.deviceUnfavorited
+                                      : l10n.deviceFavorited,
                                 ),
                               ),
                             );
                           }
                         } catch (error) {
                           if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Failed to toggle favorite: $error'),
-                              ),
-                            );
+                                showErrorSnackBar(
+                                  context,
+                                  AppErrorCode.unknownError,
+                                );
                           }
                         }
                       }
@@ -165,20 +168,21 @@ class DosingMainPage extends StatelessWidget {
               isConnected ? Icons.bluetooth_connected : Icons.bluetooth_disabled,
               color: ReefColors.onPrimary,
             ),
-            tooltip: isConnected ? 'Disconnect' : 'Connect',
+            tooltip: isConnected ? l10n.deviceActionDisconnect : l10n.deviceActionConnect,
             onPressed: isConnected
                 ? () => handleDisconnect(context, session, appContext)
                 : () => handleConnect(context, session, appContext),
           ),
         ],
       ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(ReefSpacing.xl),
-          children: [
+      body: ReefMainBackground(
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(ReefSpacing.xl),
+            children: [
             Text(
               l10n.dosingSubHeader,
-              style: ReefTextStyles.body.copyWith(color: ReefColors.surface),
+              style: ReefTextStyles.body.copyWith(color: ReefColors.textPrimary),
             ),
             const SizedBox(height: ReefSpacing.md),
             if (!isConnected) ...[
@@ -188,13 +192,13 @@ class DosingMainPage extends StatelessWidget {
             const SizedBox(height: ReefSpacing.md),
             Text(
               l10n.dosingPumpHeadsHeader,
-              style: ReefTextStyles.title2.copyWith(color: ReefColors.surface),
+              style: ReefTextStyles.title2.copyWith(color: ReefColors.textPrimary),
             ),
             const SizedBox(height: ReefSpacing.sm),
             Text(
               l10n.dosingPumpHeadsSubheader,
               style: ReefTextStyles.caption1.copyWith(
-                color: ReefColors.surface,
+                color: ReefColors.textPrimary,
               ),
             ),
             const SizedBox(height: ReefSpacing.lg),
@@ -284,7 +288,8 @@ class DosingMainPage extends StatelessWidget {
                 }
               },
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -448,7 +453,7 @@ class _DropHeadCard extends StatelessWidget {
                       IconButton(
                         icon: const Icon(Icons.play_arrow),
                         color: ReefColors.primary,
-                        tooltip: 'Play',
+                        tooltip: l10n.actionPlay,
                         onPressed: onPlay,
                       ),
                     const Icon(

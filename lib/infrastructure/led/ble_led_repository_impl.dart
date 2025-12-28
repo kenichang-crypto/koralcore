@@ -601,9 +601,32 @@ class BleLedRepositoryImpl extends LedRepository
   }
 
   void _handleChannelLevels(_DeviceSession session, Uint8List data) {
-    // TODO: Parse channel levels payload per reef-b-app.
-    // Do not emit immediately; buffer and apply on END to mirror Android.
-    session.activeSync?.pendingChannels = const <String, int>{};
+    // Channel levels must only be processed during an active sync session.
+    // If received outside sync, abort sync to prevent partial state application.
+    if (!session.cache.isSyncing || session.activeSync == null) {
+      session.syncInFlight = false;
+      session.activeSync = null;
+      return;
+    }
+
+    // Payload structure: [opcode(0x33), length(0x09), ch0, ch1, ..., ch8, checksum]
+    // Expected length: 12 bytes (opcode + length + 9 channels + checksum)
+    // Channel bytes are at indices 2-10 (9 bytes total)
+    if (data.length != 12) {
+      // Malformed payload: abort sync to prevent partial state
+      session.syncInFlight = false;
+      session.activeSync = null;
+      return;
+    }
+
+    // Extract channel payload bytes (skip opcode and length, take 9 channel values)
+    // Payload bytes start at index 2, we need exactly 9 bytes for 9 channels
+    final List<int> channelBytes = data.sublist(2, 11);
+    final Map<String, int> channels = _decodeChannelPayload(channelBytes);
+
+    // Store parsed channels in sync session for application at sync END
+    // Do NOT emit or apply state here - must wait for sync END boundary
+    session.activeSync!.pendingChannels = channels;
   }
 
   void _handlePresetSceneAck(_DeviceSession session, Uint8List data) {

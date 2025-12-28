@@ -4,6 +4,7 @@ import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../application/common/app_context.dart';
+import '../../../../application/common/app_error.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../theme/reef_colors.dart';
@@ -23,7 +24,7 @@ import 'led_control_page.dart';
 import 'led_record_page.dart';
 import 'led_scene_list_page.dart';
 import 'led_schedule_list_page.dart';
-import '../../../device/pages/device_settings_page.dart';
+import '../../device/pages/device_settings_page.dart';
 
 const _ledIconAsset = 'assets/icons/led/led_main.png';
 
@@ -183,41 +184,44 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
                     : null,
               ),
               // Menu button
-              PopupMenuButton<String>(
-                icon: Icon(Icons.more_vert, color: ReefColors.onPrimary),
-                enabled: featuresEnabled && !controller.isPreviewing,
-                onSelected: (value) {
-                  switch (value) {
-                    case 'edit':
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const DeviceSettingsPage(),
-                        ),
-                      );
-                      break;
-                    case 'delete':
-                      _confirmDeleteDevice(context, session);
-                      break;
-                    case 'reset':
-                      if (isConnected) {
-                        _confirmResetDevice(context, session, appContext);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(l10n.deviceStateDisconnected)),
-                        );
+              Builder(
+                builder: (context) {
+                  final appContext = context.read<AppContext>();
+                  return PopupMenuButton<String>(
+                    icon: Icon(Icons.more_vert, color: ReefColors.onPrimary),
+                    enabled: featuresEnabled && !controller.isPreviewing,
+                    onSelected: (value) {
+                      switch (value) {
+                        case 'edit':
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const DeviceSettingsPage(),
+                            ),
+                          );
+                          break;
+                        case 'delete':
+                          _confirmDeleteDevice(context, session);
+                          break;
+                        case 'reset':
+                          if (isConnected) {
+                            _confirmResetDevice(context, session, appContext);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(l10n.deviceStateDisconnected)),
+                            );
+                          }
+                          break;
                       }
-                      break;
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'edit',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.edit, size: 20),
-                        const SizedBox(width: ReefSpacing.sm),
-                        Text(l10n.deviceActionEdit ?? 'Edit'),
-                      ],
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.edit, size: 20),
+                            const SizedBox(width: ReefSpacing.sm),
+                            Text(l10n.deviceActionEdit),
+                          ],
                     ),
                   ),
                   PopupMenuItem(
@@ -239,11 +243,13 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
                       children: [
                         const Icon(Icons.refresh, size: 20),
                         const SizedBox(width: ReefSpacing.sm),
-                        Text(l10n.ledResetDevice ?? 'Reset Device'),
+                        Text(l10n.ledResetDevice),
                       ],
                     ),
                   ),
                 ],
+                  );
+                },
               ),
             ],
           ),
@@ -637,11 +643,156 @@ class _RuntimeInfoChip extends StatelessWidget {
   }
 }
 
+class _FavoriteSceneSection extends StatelessWidget {
+  final LedSceneListController controller;
+  final bool isConnected;
+  final bool featuresEnabled;
+  final AppLocalizations l10n;
+
+  const _FavoriteSceneSection({
+    required this.controller,
+    required this.isConnected,
+    required this.featuresEnabled,
+    required this.l10n,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final favoriteScenes = controller.scenes.where((scene) => scene.isFavorite).toList();
+    
+    if (favoriteScenes.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionHeader(
+          title: 'Favorite Scenes',
+          subtitle: 'Your favorite scenes',
+        ),
+        const SizedBox(height: ReefSpacing.md),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (int i = 0; i < favoriteScenes.length; i++) ...[
+                _FavoriteSceneCard(
+                  scene: favoriteScenes[i],
+                  l10n: l10n,
+                  isConnected: isConnected,
+                  featuresEnabled: featuresEnabled,
+                  controller: controller,
+                ),
+                if (i < favoriteScenes.length - 1)
+                  const SizedBox(width: ReefSpacing.md),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _FavoriteSceneCard extends StatelessWidget {
+  final LedSceneSummary scene;
+  final AppLocalizations l10n;
+  final bool isConnected;
+  final bool featuresEnabled;
+  final LedSceneListController controller;
+
+  const _FavoriteSceneCard({
+    required this.scene,
+    required this.l10n,
+    required this.isConnected,
+    required this.featuresEnabled,
+    required this.controller,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isActive = scene.isActive;
+    final String sceneName = LedSceneDisplayText.name(scene, l10n);
+
+    return GestureDetector(
+      onTap: featuresEnabled && !scene.isActive
+          ? () => controller.applyScene(scene.id)
+          : null,
+      child: Container(
+        width: 120,
+        padding: const EdgeInsets.all(ReefSpacing.md),
+        decoration: BoxDecoration(
+          color: isActive
+              ? ReefColors.primary
+              : ReefColors.surface,
+          borderRadius: BorderRadius.circular(ReefRadius.md),
+          border: Border.all(
+            color: isActive ? ReefColors.primary : ReefColors.outline,
+            width: isActive ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.favorite,
+              color: isActive ? ReefColors.surface : ReefColors.error,
+              size: 24,
+            ),
+            const SizedBox(height: ReefSpacing.xs),
+            Text(
+              sceneName,
+              style: ReefTextStyles.caption1.copyWith(
+                color: isActive ? ReefColors.surface : ReefColors.textPrimary,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _SceneListSection extends StatelessWidget {
   final AppLocalizations l10n;
   final LedSceneListController controller;
 
   const _SceneListSection({required this.l10n, required this.controller});
+
+  Widget? _buildInlineErrorMessage(
+    BuildContext context,
+    AppErrorCode? errorCode,
+  ) {
+    if (errorCode == null) {
+      return null;
+    }
+    final l10n = AppLocalizations.of(context);
+    final message = describeAppError(l10n, errorCode);
+    return Container(
+      padding: const EdgeInsets.all(ReefSpacing.md),
+      decoration: BoxDecoration(
+        color: ReefColors.danger.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(ReefRadius.md),
+        border: Border.all(color: ReefColors.danger, width: 1),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, color: ReefColors.danger, size: 20),
+          const SizedBox(width: ReefSpacing.sm),
+          Expanded(
+            child: Text(
+              message,
+              style: ReefTextStyles.body.copyWith(color: ReefColors.danger),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -957,24 +1108,6 @@ class _SceneCarouselEmptyCard extends StatelessWidget {
   }
 }
 
-void _maybeShowSceneError(
-  BuildContext context,
-  LedSceneListController controller,
-) {
-  final code = controller.lastErrorCode;
-  if (code == null) {
-    return;
-  }
-
-  _showAppError(context, code);
-  controller.clearError();
-}
-
-void _showAppError(BuildContext context, AppErrorCode code) {
-  final message = describeAppError(AppLocalizations.of(context), code);
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-}
-
 class _EntryTile extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -1087,7 +1220,7 @@ void _confirmResetDevice(
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text(l10n.ledResetDevice ?? 'Reset Device'),
+      title: Text(l10n.ledResetDevice),
       content: Text(
         'Are you sure you want to reset this device to default settings? This action cannot be undone.',
       ),
@@ -1101,7 +1234,7 @@ void _confirmResetDevice(
           style: FilledButton.styleFrom(
             backgroundColor: ReefColors.error,
           ),
-          child: Text(l10n.ledResetDevice ?? 'Reset'),
+          child: Text(l10n.ledResetDevice),
         ),
       ],
     ),

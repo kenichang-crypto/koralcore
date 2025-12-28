@@ -7,7 +7,6 @@ import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../theme/reef_colors.dart';
-import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../components/app_error_presenter.dart';
@@ -22,10 +21,7 @@ import 'pump_head_calibration_page.dart';
 class PumpHeadAdjustListPage extends StatelessWidget {
   final String headId;
 
-  const PumpHeadAdjustListPage({
-    super.key,
-    required this.headId,
-  });
+  const PumpHeadAdjustListPage({super.key, required this.headId});
 
   @override
   Widget build(BuildContext context) {
@@ -70,14 +66,13 @@ class _PumpHeadAdjustListView extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          l10n.dosingAdjustListTitle ??
-              'Adjustment History - Head ${headId.toUpperCase()}',
+          l10n.dosingAdjustListTitle,
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: controller.isLoading ? null : controller.refresh,
-            tooltip: l10n.actionRefresh ?? 'Refresh',
+            tooltip: l10n.actionRefresh,
           ),
           TextButton(
             onPressed: controller.isLoading || !isConnected
@@ -90,7 +85,7 @@ class _PumpHeadAdjustListView extends StatelessWidget {
                     );
                   },
             child: Text(
-              l10n.dosingAdjustListStartAdjust ?? 'Start Adjust',
+              l10n.dosingAdjustListStartAdjust,
               style: TextStyle(color: ReefColors.onPrimary),
             ),
           ),
@@ -100,9 +95,7 @@ class _PumpHeadAdjustListView extends StatelessWidget {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                if (!isConnected) ...[
-                  const BleGuardBanner(),
-                ],
+                if (!isConnected) ...[const BleGuardBanner()],
                 Expanded(
                   child: controller.records.isEmpty
                       ? _EmptyState(l10n: l10n)
@@ -129,13 +122,12 @@ class _PumpHeadAdjustListView extends StatelessWidget {
   void _maybeShowError(BuildContext context, AppErrorCode? code) {
     if (code == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = context.read<PumpHeadCalibrationController>();
       final l10n = AppLocalizations.of(context);
       final message = describeAppError(l10n, code);
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     });
   }
 }
@@ -144,10 +136,22 @@ class _AdjustHistoryCard extends StatelessWidget {
   final PumpHeadCalibrationRecord record;
   final AppLocalizations l10n;
 
-  const _AdjustHistoryCard({
-    required this.record,
-    required this.l10n,
-  });
+  const _AdjustHistoryCard({required this.record, required this.l10n});
+
+  /// Convert speedProfile string to rotatingSpeed int.
+  /// Low -> 1, Medium -> 2, High -> 3, Custom/Other -> 2 (default to medium)
+  int _speedProfileToInt(String speedProfile) {
+    switch (speedProfile.toLowerCase()) {
+      case 'low':
+        return 1;
+      case 'medium':
+        return 2;
+      case 'high':
+        return 3;
+      default:
+        return 2; // Default to medium for Custom or unknown profiles
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +170,7 @@ class _AdjustHistoryCard extends StatelessWidget {
                   style: ReefTextStyles.title3,
                 ),
                 _RotatingSpeedChip(
-                  speed: record.rotatingSpeed,
+                  speed: _speedProfileToInt(record.speedProfile),
                   l10n: l10n,
                 ),
               ],
@@ -174,14 +178,10 @@ class _AdjustHistoryCard extends StatelessWidget {
             const SizedBox(height: ReefSpacing.sm),
             Row(
               children: [
-                Icon(
-                  Icons.water_drop,
-                  size: 16,
-                  color: ReefColors.primary,
-                ),
+                Icon(Icons.water_drop, size: 16, color: ReefColors.primary),
                 const SizedBox(width: ReefSpacing.xs),
                 Text(
-                  '${record.volumeMl.toStringAsFixed(1)} ml',
+                  '${record.flowRateMlPerMin.toStringAsFixed(1)} ml/min',
                   style: ReefTextStyles.body1.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -199,10 +199,7 @@ class _RotatingSpeedChip extends StatelessWidget {
   final int speed;
   final AppLocalizations l10n;
 
-  const _RotatingSpeedChip({
-    required this.speed,
-    required this.l10n,
-  });
+  const _RotatingSpeedChip({required this.speed, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -210,15 +207,15 @@ class _RotatingSpeedChip extends StatelessWidget {
     Color color;
     switch (speed) {
       case 1:
-        label = l10n.dosingRotatingSpeedLow ?? 'Low';
+        label = l10n.dosingRotatingSpeedLow;
         color = ReefColors.success;
         break;
       case 2:
-        label = l10n.dosingRotatingSpeedMedium ?? 'Medium';
+        label = l10n.dosingRotatingSpeedMedium;
         color = ReefColors.warning;
         break;
       case 3:
-        label = l10n.dosingRotatingSpeedHigh ?? 'High';
+        label = l10n.dosingRotatingSpeedHigh;
         color = ReefColors.error;
         break;
       default:
@@ -229,10 +226,7 @@ class _RotatingSpeedChip extends StatelessWidget {
     return Chip(
       label: Text(label),
       backgroundColor: color.withOpacity(0.1),
-      labelStyle: TextStyle(
-        color: color,
-        fontSize: 12,
-      ),
+      labelStyle: TextStyle(color: color, fontSize: 12),
     );
   }
 }
@@ -248,23 +242,16 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.history,
-            size: 64,
-            color: ReefColors.grey,
-          ),
+          Icon(Icons.history, size: 64, color: ReefColors.grey),
           const SizedBox(height: ReefSpacing.md),
           Text(
-            l10n.dosingAdjustListEmptyTitle ?? 'No Adjustment History',
+            l10n.dosingAdjustListEmptyTitle,
             style: ReefTextStyles.title2,
           ),
           const SizedBox(height: ReefSpacing.sm),
           Text(
-            l10n.dosingAdjustListEmptySubtitle ??
-                'Start an adjustment to see history here',
-            style: ReefTextStyles.body1.copyWith(
-              color: ReefColors.grey,
-            ),
+            l10n.dosingAdjustListEmptySubtitle,
+            style: ReefTextStyles.body1.copyWith(color: ReefColors.grey),
             textAlign: TextAlign.center,
           ),
         ],
@@ -272,4 +259,3 @@ class _EmptyState extends StatelessWidget {
     );
   }
 }
-

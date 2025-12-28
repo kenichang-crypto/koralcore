@@ -35,7 +35,7 @@ class _SinkManagerView extends StatelessWidget {
       builder: (context, controller, _) {
         return Scaffold(
           appBar: AppBar(
-            title: Text(l10n.sinkManagerTitle ?? 'Sink Manager'),
+            title: Text(l10n.sinkManagerTitle),
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () => _showAddSinkDialog(context, controller),
@@ -90,7 +90,7 @@ class _SinkManagerView extends StatelessWidget {
             ),
             const SizedBox(height: AppDimensions.spacingM),
             Text(
-              l10n.sinkEmptyStateTitle ?? 'No Sinks',
+              l10n.sinkEmptyStateTitle,
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -99,8 +99,7 @@ class _SinkManagerView extends StatelessWidget {
             ),
             const SizedBox(height: AppDimensions.spacingS),
             Text(
-              l10n.sinkEmptyStateSubtitle ??
-                  'Add a sink to organize your devices',
+              l10n.sinkEmptyStateSubtitle,
               style: const TextStyle(
                 color: AppColors.grey500,
               ),
@@ -138,19 +137,19 @@ class _SinkManagerView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(AppLocalizations.of(context).sinkAddTitle ?? 'Add Sink'),
+        title: Text(AppLocalizations.of(context).sinkAddTitle),
         content: TextField(
           controller: textController,
           decoration: InputDecoration(
-            labelText: AppLocalizations.of(context).sinkNameLabel ?? 'Sink Name',
-            hintText: AppLocalizations.of(context).sinkNameHint ?? 'Enter sink name',
+            labelText: AppLocalizations.of(context).sinkNameLabel,
+            hintText: AppLocalizations.of(context).sinkNameHint,
           ),
           autofocus: true,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(AppLocalizations.of(context).cancel ?? 'Cancel'),
+            child: Text(AppLocalizations.of(context).cancel),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -162,7 +161,7 @@ class _SinkManagerView extends StatelessWidget {
                 }
               }
             },
-            child: Text(AppLocalizations.of(context).add ?? 'Add'),
+            child: Text(AppLocalizations.of(context).add),
           ),
         ],
       ),
@@ -178,19 +177,19 @@ class _SinkManagerView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(AppLocalizations.of(context).sinkEditTitle ?? 'Edit Sink'),
+        title: Text(AppLocalizations.of(context).sinkEditTitle),
         content: TextField(
           controller: textController,
           decoration: InputDecoration(
-            labelText: AppLocalizations.of(context).sinkNameLabel ?? 'Sink Name',
-            hintText: AppLocalizations.of(context).sinkNameHint ?? 'Enter sink name',
+            labelText: AppLocalizations.of(context).sinkNameLabel,
+            hintText: AppLocalizations.of(context).sinkNameHint,
           ),
           autofocus: true,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(AppLocalizations.of(context).cancel ?? 'Cancel'),
+            child: Text(AppLocalizations.of(context).cancel),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -202,7 +201,7 @@ class _SinkManagerView extends StatelessWidget {
                 }
               }
             },
-            child: Text(AppLocalizations.of(context).save ?? 'Save'),
+            child: Text(AppLocalizations.of(context).save),
           ),
         ],
       ),
@@ -218,18 +217,18 @@ class _SinkManagerView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.sinkDeleteTitle ?? 'Delete Sink'),
+        title: Text(l10n.sinkDeleteTitle),
         content: Text(
-          l10n.sinkDeleteMessage?.replaceAll('{name}', sink.name) ??
-              'Are you sure you want to delete "${sink.name}"?',
+          l10n.sinkDeleteMessage.replaceAll('{name}', sink.name),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(l10n.cancel ?? 'Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () async {
+              // ignore: unused_local_variable
               final success = await controller.deleteSink(sink.id);
               if (dialogContext.mounted) {
                 Navigator.of(dialogContext).pop();
@@ -238,7 +237,7 @@ class _SinkManagerView extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: Text(l10n.delete ?? 'Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),

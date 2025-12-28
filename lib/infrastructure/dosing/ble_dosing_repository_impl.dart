@@ -2,11 +2,6 @@ library;
 
 import 'dart:async';
 import 'dart:typed_data';
-
-import 'package:meta/meta.dart';
-
-import '../../application/common/app_error.dart';
-import '../../application/common/app_error_code.dart';
 import '../../domain/doser_dosing/dosing_state.dart';
 import '../../domain/doser_dosing/pump_head_adjust_history.dart';
 import '../../domain/doser_dosing/pump_head_mode.dart';
@@ -20,10 +15,10 @@ import '../../infrastructure/ble/transport/ble_transport_models.dart';
 import '../../platform/contracts/dosing_repository.dart';
 
 /// BLE-backed Dosing repository implementation.
-/// 
+///
 /// PARITY: This implementation mirrors reef-b-app Android's DropInformation
 /// and CommandManager.parseCommand() behavior for all Dosing opcodes (0x60-0x7E).
-/// 
+///
 /// Key behaviors:
 /// - Immediate state updates (no buffering during sync)
 /// - State emission only at sync END (not during sync)
@@ -75,8 +70,9 @@ class BleDosingRepositoryImpl implements DosingRepository {
       _handlePacket,
       onError: _handleNotifyError,
     );
-    _connectionSubscription = (connectionStream ?? bleAdapter.connectionState)
-        .listen(_handleConnectionState);
+    if (connectionStream != null) {
+      _connectionSubscription = connectionStream.listen(_handleConnectionState);
+    }
   }
 
   final BleAdapter _bleAdapter;
@@ -109,7 +105,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
     // On success, ViewModel calls resetDrop() which clears DB and triggers sync
     // koralcore: send reset command, ACK handler will clear info and request sync
     await _sendCommand(deviceId, _commandBuilder.reset());
-    return session.state ?? DosingState.empty(deviceId);
+    return session.state;
   }
 
   // ---------------------------------------------------------------------------
@@ -179,7 +175,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
         data: payload,
         options: _writeOptions,
       );
-    } catch (error, stackTrace) {
+    } catch (error) {
       // PARITY: Handle BLE command errors
       // Update session state and notify UI
       final _DeviceSession? session = _sessions[deviceId];
@@ -201,10 +197,10 @@ class BleDosingRepositoryImpl implements DosingRepository {
     final int opcode = 0x7E;
     final int length = 0x01;
     final int normalizedPumpIndex = pumpIndex.clamp(0, 0xFF);
-    
+
     // PARITY: XOR checksum for bytes [0x7E, 0x01, pumpIndex]
     final int checksum = (opcode ^ length ^ normalizedPumpIndex) & 0xFF;
-    
+
     final Uint8List cmd = Uint8List.fromList(<int>[
       opcode,
       length,
@@ -213,18 +209,23 @@ class BleDosingRepositoryImpl implements DosingRepository {
     ]);
 
     // Send command asynchronously (don't await, just queue it)
-    _bleAdapter.writeBytes(
-      deviceId: session.deviceId,
-      data: cmd,
-      options: _writeOptions,
-    ).catchError((error) {
-      // Ignore errors during detection - capability will remain UNKNOWN
-    });
+    _bleAdapter
+        .writeBytes(
+          deviceId: session.deviceId,
+          data: cmd,
+          options: _writeOptions,
+        )
+        .catchError((error) {
+          // Ignore errors during detection - capability will remain UNKNOWN
+        });
   }
 
   /// Ensures dose capability is confirmed before sending commands.
   /// PARITY: Matches reef-b-app's ensureDoseCapabilityConfirmed() method.
-  void _ensureDoseCapabilityConfirmed(_DeviceSession session, {int pumpIndex = 0}) {
+  void _ensureDoseCapabilityConfirmed(
+    _DeviceSession session, {
+    int pumpIndex = 0,
+  }) {
     // PARITY: Only send 0x7E if capability is UNKNOWN
     if (session.doseCapability != _DoseCapability.unknown) {
       return;
@@ -393,11 +394,11 @@ class BleDosingRepositoryImpl implements DosingRepository {
     final int highBit = data[2] & 0xFF;
     final int lowBit = data[3] & 0xFF;
     final int delayTime = (highBit << 8) | lowBit;
-    
+
     // PARITY: reef-b-app calls dropReturnDelayTime(delayTime)
     // Update state immediately (reef-b-app updates DropInformation immediately)
     session.state = session.state.copyWith(delayTime: delayTime);
-    
+
     // PARITY: reef-b-app doesn't emit state during sync, only at sync END.
     // State will be emitted at sync END via _finalizeSync().
   }
@@ -409,11 +410,11 @@ class BleDosingRepositoryImpl implements DosingRepository {
     }
     final int headNo = data[2] & 0xFF;
     final int rotatingRate = data[3] & 0xFF;
-    
+
     // PARITY: reef-b-app calls dropReturnRotatingRate(headNo, rotatingRate)
     // Update state immediately
     session.setRotatingSpeed(headNo, rotatingRate);
-    
+
     // PARITY: reef-b-app doesn't emit state during sync, only at sync END.
     // State will be emitted at sync END via _finalizeSync().
   }
@@ -433,13 +434,14 @@ class BleDosingRepositoryImpl implements DosingRepository {
     final int totalDropLow = data[9] & 0xFF;
     final int totalDrop = (totalDropHigh << 8) | totalDropLow;
     final int speed = data[10] & 0xFF;
-    
-    final String timeString = '${year.toString().padLeft(4, '0')}-'
+
+    final String timeString =
+        '${year.toString().padLeft(4, '0')}-'
         '${month.toString().padLeft(2, '0')}-'
         '${day.toString().padLeft(2, '0')} '
         '${hour.toString().padLeft(2, '0')}:'
         '${minute.toString().padLeft(2, '0')}';
-    
+
     // PARITY: reef-b-app calls dropInformation.setMode(headNo, DropHeadMode(mode=SINGLE, ...))
     session.setMode(
       headNo,
@@ -450,7 +452,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
         rotatingSpeed: speed,
       ),
     );
-    
+
     // PARITY: reef-b-app doesn't emit state during sync, only at sync END.
     // State will be emitted at sync END via _finalizeSync().
   }
@@ -474,7 +476,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
     final int totalDropLow = data[11] & 0xFF;
     final int totalDrop = (totalDropHigh << 8) | totalDropLow;
     final int speed = data[12] & 0xFF;
-    
+
     // PARITY: reef-b-app calls dropInformation.setMode(headNo, DropHeadMode(mode=_24HR, runDay=..., ...))
     session.setMode(
       headNo,
@@ -485,7 +487,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
         rotatingSpeed: speed,
       ),
     );
-    
+
     // PARITY: reef-b-app doesn't emit state during sync, only at sync END.
     // State will be emitted at sync END via _finalizeSync().
   }
@@ -506,14 +508,15 @@ class BleDosingRepositoryImpl implements DosingRepository {
     final int totalDropLow = data[10] & 0xFF;
     final int totalDrop = (totalDropHigh << 8) | totalDropLow;
     final int speed = data[11] & 0xFF;
-    
-    final String timeString = '${startYear.toString().padLeft(4, '0')}-'
+
+    final String timeString =
+        '${startYear.toString().padLeft(4, '0')}-'
         '${startMonth.toString().padLeft(2, '0')}-'
         '${startDay.toString().padLeft(2, '0')} ~ '
         '${endYear.toString().padLeft(4, '0')}-'
         '${endMonth.toString().padLeft(2, '0')}-'
         '${endDay.toString().padLeft(2, '0')}';
-    
+
     // PARITY: reef-b-app calls dropInformation.setMode(headNo, DropHeadMode(mode=_24HR, timeString=..., ...))
     session.setMode(
       headNo,
@@ -524,7 +527,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
         rotatingSpeed: speed,
       ),
     );
-    
+
     // PARITY: reef-b-app doesn't emit state during sync, only at sync END.
     // State will be emitted at sync END via _finalizeSync().
   }
@@ -544,16 +547,13 @@ class BleDosingRepositoryImpl implements DosingRepository {
       (data[8] & 0xFF) != 0, // Saturday
       (data[9] & 0xFF) != 0, // Sunday
     ];
-    
+
     // PARITY: reef-b-app calls dropInformation.setMode(headNo, DropHeadMode(mode=CUSTOM, runDay=..., ...))
     session.setMode(
       headNo,
-      PumpHeadMode(
-        mode: PumpHeadRecordType.custom,
-        runDay: runDay,
-      ),
+      PumpHeadMode(mode: PumpHeadRecordType.custom, runDay: runDay),
     );
-    
+
     // PARITY: reef-b-app doesn't emit state during sync, only at sync END.
     // State will be emitted at sync END via _finalizeSync().
   }
@@ -570,23 +570,21 @@ class BleDosingRepositoryImpl implements DosingRepository {
     final int endYear = (data[6] & 0xFF) + 2000;
     final int endMonth = data[7] & 0xFF;
     final int endDay = data[8] & 0xFF;
-    
-    final String timeString = '${startYear.toString().padLeft(4, '0')}-'
+
+    final String timeString =
+        '${startYear.toString().padLeft(4, '0')}-'
         '${startMonth.toString().padLeft(2, '0')}-'
         '${startDay.toString().padLeft(2, '0')} ~ '
         '${endYear.toString().padLeft(4, '0')}-'
         '${endMonth.toString().padLeft(2, '0')}-'
         '${endDay.toString().padLeft(2, '0')}';
-    
+
     // PARITY: reef-b-app calls dropInformation.setMode(headNo, DropHeadMode(mode=CUSTOM, timeString=..., ...))
     session.setMode(
       headNo,
-      PumpHeadMode(
-        mode: PumpHeadRecordType.custom,
-        timeString: timeString,
-      ),
+      PumpHeadMode(mode: PumpHeadRecordType.custom, timeString: timeString),
     );
-    
+
     // PARITY: reef-b-app doesn't emit state during sync, only at sync END.
     // State will be emitted at sync END via _finalizeSync().
   }
@@ -606,12 +604,13 @@ class BleDosingRepositoryImpl implements DosingRepository {
     final int totalDropLow = data[9] & 0xFF;
     final int totalDrop = (totalDropHigh << 8) | totalDropLow;
     final int speed = data[10] & 0xFF;
-    
-    final String timeString = '${startHour.toString().padLeft(2, '0')}:'
+
+    final String timeString =
+        '${startHour.toString().padLeft(2, '0')}:'
         '${startMinute.toString().padLeft(2, '0')} ~ '
         '${endHour.toString().padLeft(2, '0')}:'
         '${endMinute.toString().padLeft(2, '0')}';
-    
+
     // PARITY: reef-b-app calls dropInformation.setDetail(headNo, DropHeadRecordDetail(...))
     final detail = PumpHeadRecordDetail(
       timeString: timeString,
@@ -620,7 +619,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
       rotatingSpeed: speed,
     );
     session.setDetail(headNo, detail);
-    
+
     // PARITY: reef-b-app doesn't emit state during sync, only at sync END.
     // State will be emitted at sync END via _finalizeSync().
   }
@@ -637,31 +636,34 @@ class BleDosingRepositoryImpl implements DosingRepository {
     final int recordHigh = data[5] & 0xFF;
     final int recordLow = data[6] & 0xFF;
     final int recordTotalDrop = (recordHigh << 8) | recordLow;
-    
+
     // PARITY: reef-b-app only sets LEGACY_7A if capability is UNKNOWN
     if (session.doseCapability == _DoseCapability.unknown) {
       session.doseCapability = _DoseCapability.legacy7A;
     }
-    
+
     // PARITY: reef-b-app updates todayDoseMl for debugging (0x7A uses integer format)
     // Note: reef-b-app uses the first byte (nonRecord) as todayDoseMl for 0x7A
     // But actually, reef-b-app uses recordTotalDrop as todayDoseMl
     // Let's use recordTotalDrop as it represents the total recorded dose
     session.todayDoseMl = recordTotalDrop.toDouble();
-    
+
     // PARITY: reef-b-app calls dropInformation.setDropVolume(headId, nonRecord, record)
     // Note: reef-b-app uses Float, but old firmware (0x7A) uses integer
     session.setDropVolume(
-      headId: headNo,
+      headNo,
       nonRecord: nonRecordTotalDrop.toDouble(),
       record: recordTotalDrop.toDouble(),
     );
-    
+
     // PARITY: reef-b-app doesn't emit state during sync, only at sync END.
     // State will be emitted at sync END via _finalizeSync().
   }
 
-  void _handleGetTodayTotalVolumeDecimal(_DeviceSession session, Uint8List data) {
+  void _handleGetTodayTotalVolumeDecimal(
+    _DeviceSession session,
+    Uint8List data,
+  ) {
     // PARITY: reef-b-app payload: [0x7E, len, headNo, nonRecord_H, nonRecord_L, record_H, record_L, checksum] = 8 bytes
     if (data.length != 8) {
       return; // Invalid payload
@@ -673,27 +675,30 @@ class BleDosingRepositoryImpl implements DosingRepository {
     final int recordHigh = data[5] & 0xFF;
     final int recordLow = data[6] & 0xFF;
     final int recordTotalDrop = (recordHigh << 8) | recordLow;
-    
+
     // PARITY: reef-b-app sets DECIMAL_7E when receiving 0x7E response
     session.doseCapability = _DoseCapability.decimal7E;
-    
+
     // PARITY: reef-b-app updates todayDoseMl for debugging (0x7E uses decimal format, divide by 10)
     // reef-b-app: todayDoseMl = raw / 10f
     session.todayDoseMl = recordTotalDrop / 10.0;
-    
+
     // PARITY: reef-b-app calls dropInformation.setDropVolume(headId, nonRecord, record)
     // Note: new firmware (0x7E) uses decimal (divide by 10)
     session.setDropVolume(
-      headId: headNo,
+      headNo,
       nonRecord: nonRecordTotalDrop / 10.0,
       record: recordTotalDrop / 10.0,
     );
-    
+
     // PARITY: reef-b-app doesn't emit state during sync, only at sync END.
     // State will be emitted at sync END via _finalizeSync().
   }
 
-  void _handleReturnAdjustHistoryDetail(_DeviceSession session, Uint8List data) {
+  void _handleReturnAdjustHistoryDetail(
+    _DeviceSession session,
+    Uint8List data,
+  ) {
     // PARITY: reef-b-app payload: [0x78, len, headNo, year, month, day, hour, minute, second, volume_H, volume_L, speed, checksum] = 13 bytes
     if (data.length != 13) {
       return; // Invalid payload
@@ -709,14 +714,15 @@ class BleDosingRepositoryImpl implements DosingRepository {
     final int volumeLow = data[10] & 0xFF;
     final int volume = (volumeHigh << 8) | volumeLow;
     final int speed = data[11] & 0xFF;
-    
-    final String timeString = '${year.toString().padLeft(4, '0')}-'
+
+    final String timeString =
+        '${year.toString().padLeft(4, '0')}-'
         '${month.toString().padLeft(2, '0')}-'
         '${day.toString().padLeft(2, '0')} '
         '${hour.toString().padLeft(2, '0')}:'
         '${minute.toString().padLeft(2, '0')}:'
         '${second.toString().padLeft(2, '0')}';
-    
+
     // PARITY: reef-b-app calls dropInformation.setHistory(headNo, DropAdjustHistory(...))
     final history = PumpHeadAdjustHistory(
       timeString: timeString,
@@ -724,10 +730,10 @@ class BleDosingRepositoryImpl implements DosingRepository {
       rotatingSpeed: speed,
     );
     final bool isComplete = session.setHistory(headNo, history);
-    
+
     // PARITY: reef-b-app doesn't emit state during sync, only at sync END.
     // State will be emitted at sync END via _finalizeSync().
-    
+
     // PARITY: reef-b-app calls dropGetAdjustHistoryState(COMMAND_STATUS.END) when complete
     if (isComplete) {
       // TODO: Notify adjust history complete
@@ -755,6 +761,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
     if (data.length != 4) {
       return; // Invalid payload
     }
+    // ignore: unused_local_variable
     final bool success = (data[2] & 0xFF) == 0x01;
     // PARITY: reef-b-app ViewModel only logs success/failure, no state update
     // ACK is handled, no additional action needed
@@ -765,6 +772,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
     if (data.length != 4) {
       return; // Invalid payload
     }
+    // ignore: unused_local_variable
     final bool success = (data[2] & 0xFF) == 0x01;
     // PARITY: reef-b-app ViewModel only logs success/failure, no state update
     // ACK is handled, no additional action needed
@@ -776,6 +784,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
     if (data.length != 4) {
       return; // Invalid payload
     }
+    // ignore: unused_local_variable
     final int result = data[2] & 0xFF;
     // PARITY: reef-b-app ViewModel updates manualDropState on SUCCESS
     // Repository layer doesn't track manual drop state, so no state update needed
@@ -787,6 +796,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
     if (data.length != 4) {
       return; // Invalid payload
     }
+    // ignore: unused_local_variable
     final bool success = (data[2] & 0xFF) == 0x01;
     // PARITY: reef-b-app ViewModel updates manualDropState on SUCCESS
     // Repository layer doesn't track manual drop state, so no state update needed
@@ -798,6 +808,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
     if (data.length != 4) {
       return; // Invalid payload
     }
+    // ignore: unused_local_variable
     final bool success = (data[2] & 0xFF) == 0x01;
     // PARITY: reef-b-app ViewModel only logs success/failure, no state update
     // ACK is handled, no additional action needed
@@ -808,6 +819,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
     if (data.length != 4) {
       return; // Invalid payload
     }
+    // ignore: unused_local_variable
     final bool success = (data[2] & 0xFF) == 0x01;
     // PARITY: reef-b-app ViewModel only logs success/failure, no state update
     // ACK is handled, no additional action needed
@@ -818,6 +830,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
     if (data.length != 4) {
       return; // Invalid payload
     }
+    // ignore: unused_local_variable
     final bool success = (data[2] & 0xFF) == 0x01;
     // PARITY: reef-b-app ViewModel only logs success/failure, no state update
     // Schedule state is updated via RETURN opcodes during sync, not via ACK
@@ -829,6 +842,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
     if (data.length != 4) {
       return; // Invalid payload
     }
+    // ignore: unused_local_variable
     final bool success = (data[2] & 0xFF) == 0x01;
     // PARITY: reef-b-app ViewModel only logs success/failure, no state update
     // Schedule state is updated via RETURN opcodes during sync, not via ACK
@@ -840,6 +854,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
     if (data.length != 4) {
       return; // Invalid payload
     }
+    // ignore: unused_local_variable
     final bool success = (data[2] & 0xFF) == 0x01;
     // PARITY: reef-b-app ViewModel only logs success/failure, no state update
     // Schedule state is updated via RETURN opcodes during sync, not via ACK
@@ -851,6 +866,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
     if (data.length != 4) {
       return; // Invalid payload
     }
+    // ignore: unused_local_variable
     final bool success = (data[2] & 0xFF) == 0x01;
     // PARITY: reef-b-app ViewModel only logs success/failure, no state update
     // Schedule state is updated via RETURN opcodes during sync, not via ACK
@@ -862,6 +878,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
     if (data.length != 4) {
       return; // Invalid payload
     }
+    // ignore: unused_local_variable
     final bool success = (data[2] & 0xFF) == 0x01;
     // PARITY: reef-b-app ViewModel only logs success/failure, no state update
     // Schedule detail is updated via RETURN opcodes during sync, not via ACK
@@ -874,6 +891,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
     if (data.length != 4) {
       return; // Invalid payload
     }
+    // ignore: unused_local_variable
     final int result = data[2] & 0xFF;
     // PARITY: reef-b-app ViewModel only logs START/END/FAILED, no state update
     // Adjust state is managed by ViewModel, not DropInformation
@@ -885,6 +903,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
     if (data.length != 4) {
       return; // Invalid payload
     }
+    // ignore: unused_local_variable
     final bool success = (data[2] & 0xFF) == 0x01;
     // PARITY: reef-b-app ViewModel only logs success/failure, no state update
     // Adjust result state is managed by ViewModel, not DropInformation
@@ -962,19 +981,19 @@ class BleDosingRepositoryImpl implements DosingRepository {
 /// Dose capability detection state.
 /// PARITY: Matches reef-b-app's DoseCapability enum.
 enum _DoseCapability {
-  unknown,    // 尚未確認（不是舊韌體）
-  legacy7A,   // 明確確認為舊韌體
-  decimal7E,  // 明確確認為新韌體
+  unknown, // 尚未確認（不是舊韌體）
+  legacy7A, // 明確確認為舊韌體
+  decimal7E, // 明確確認為新韌體
 }
 
 /// Device session for Dosing state management.
 /// PARITY: Similar to _DeviceSession in BleLedRepositoryImpl.
 class _DeviceSession {
   _DeviceSession({required this.deviceId})
-      : state = DosingState.empty(deviceId),
-        dosingStateController = StreamController<DosingState>.broadcast(),
-        doseCapability = _DoseCapability.unknown,
-        todayDoseMl = 0.0 {
+    : state = DosingState.empty(deviceId),
+      dosingStateController = StreamController<DosingState>.broadcast(),
+      doseCapability = _DoseCapability.unknown,
+      todayDoseMl = 0.0 {
     // Emit initial state when listener subscribes
     dosingStateController.onListen = () {
       dosingStateController.add(state);
@@ -986,9 +1005,9 @@ class _DeviceSession {
   bool syncInFlight = false;
   final StreamController<DosingState> dosingStateController;
   _DoseCapability doseCapability;
-  
+
   /// Today's total dose volume in ml (0.1 ml precision for new firmware).
-  /// 
+  ///
   /// PARITY: Matches reef-b-app's `todayDoseMl: Float` in BLEManager.
   /// Note: This is for BLE debugging purposes only, not displayed in UI,
   /// and not stored in DropInformation.
@@ -1029,7 +1048,11 @@ class _DeviceSession {
     state = state.withAddedRecordDetail(headNo, detail);
   }
 
-  void setDropVolume(int headId, {required double nonRecord, required double record}) {
+  void setDropVolume(
+    int headId, {
+    required double nonRecord,
+    required double record,
+  }) {
     // PARITY: reef-b-app calls dropInformation.setDropVolume(headId, nonRecord, record)
     state = state.withDropVolume(
       headNo: headId,
@@ -1062,4 +1085,3 @@ class _DeviceSession {
     return expectedSize > 0 && newHistory.length >= expectedSize;
   }
 }
-

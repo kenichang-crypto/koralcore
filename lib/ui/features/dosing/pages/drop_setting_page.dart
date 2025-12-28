@@ -4,16 +4,13 @@ import 'package:provider/provider.dart';
 
 import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error.dart';
-import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
-import '../../../../theme/reef_colors.dart';
-import '../../../../theme/reef_radius.dart';
-import '../../../../theme/reef_spacing.dart';
-import '../../../../theme/reef_text.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_radius.dart';
+import '../../../theme/reef_spacing.dart';
+import '../../../theme/reef_text.dart';
 
 /// DropSettingPage
 ///
@@ -32,7 +29,6 @@ class DropSettingPage extends StatefulWidget {
 class _DropSettingPageState extends State<DropSettingPage> {
   late TextEditingController _nameController;
   bool _isLoading = false;
-  AppErrorCode? _lastErrorCode;
   int _selectedDelayTime = 60; // Default: 1 minute
 
   final List<int> _delayTimeOptions = [15, 30, 60, 120, 180, 240, 300]; // seconds
@@ -67,22 +63,19 @@ class _DropSettingPageState extends State<DropSettingPage> {
     final l10n = AppLocalizations.of(context);
 
     if (deviceId == null) {
-      _setError(AppErrorCode.noActiveDevice);
       return;
     }
 
     final newName = _nameController.text.trim();
     if (newName.isEmpty) {
-      _setError(AppErrorCode.invalidParam);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.deviceNameEmpty ?? 'Device name cannot be empty')),
+        SnackBar(content: Text(l10n.deviceNameEmpty)),
       );
       return;
     }
 
     setState(() {
       _isLoading = true;
-      _lastErrorCode = null;
     });
 
     try {
@@ -102,11 +95,10 @@ class _DropSettingPageState extends State<DropSettingPage> {
       if (mounted) {
         Navigator.of(context).pop(true);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.deviceSettingsSaved ?? 'Dosing settings saved')),
+          SnackBar(content: Text(l10n.deviceSettingsSaved)),
         );
       }
     } on AppError catch (error) {
-      _setError(error.code);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -115,7 +107,6 @@ class _DropSettingPageState extends State<DropSettingPage> {
         );
       }
     } catch (error) {
-      _setError(AppErrorCode.unknownError);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to save settings: $error')),
@@ -130,11 +121,6 @@ class _DropSettingPageState extends State<DropSettingPage> {
     }
   }
 
-  void _setError(AppErrorCode code) {
-    setState(() {
-      _lastErrorCode = code;
-    });
-  }
 
   void _showDelayTimePicker() {
     showModalBottomSheet(
@@ -146,7 +132,7 @@ class _DropSettingPageState extends State<DropSettingPage> {
             Padding(
               padding: const EdgeInsets.all(ReefSpacing.md),
               child: Text(
-                AppLocalizations.of(context).delayTime ?? 'Delay Time',
+                AppLocalizations.of(context).delayTime,
                 style: ReefTextStyles.subheader1.copyWith(
                   color: ReefColors.textPrimary,
                 ),
@@ -190,7 +176,7 @@ class _DropSettingPageState extends State<DropSettingPage> {
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
         title: Text(
-          l10n.dropSettingTitle ?? 'Dosing Settings',
+          l10n.dropSettingTitle,
           style: ReefTextStyles.title2.copyWith(
             color: ReefColors.onPrimary,
           ),
@@ -216,7 +202,7 @@ class _DropSettingPageState extends State<DropSettingPage> {
                   ? null
                   : _saveSettings,
               child: Text(
-                l10n.actionSave ?? 'Save',
+                l10n.actionSave,
                 style: ReefTextStyles.subheaderAccent.copyWith(
                   color: ReefColors.onPrimary,
                 ),
@@ -233,7 +219,7 @@ class _DropSettingPageState extends State<DropSettingPage> {
           ],
           // Device Name Section
           Text(
-            l10n.deviceName ?? 'Device Name',
+            l10n.deviceName,
             style: ReefTextStyles.caption1.copyWith(
               color: ReefColors.textSecondary,
             ),
@@ -242,7 +228,7 @@ class _DropSettingPageState extends State<DropSettingPage> {
           TextField(
             controller: _nameController,
             decoration: InputDecoration(
-              hintText: l10n.deviceNameHint ?? 'Enter dosing device name',
+              hintText: l10n.deviceNameHint,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(ReefRadius.md),
               ),
@@ -258,7 +244,7 @@ class _DropSettingPageState extends State<DropSettingPage> {
 
           // Delay Time Section
           Text(
-            l10n.delayTime ?? 'Delay Time',
+            l10n.delayTime,
             style: ReefTextStyles.caption1.copyWith(
               color: ReefColors.textSecondary,
             ),
@@ -270,7 +256,7 @@ class _DropSettingPageState extends State<DropSettingPage> {
               borderRadius: BorderRadius.circular(ReefRadius.md),
             ),
             child: ListTile(
-              title: Text(l10n.delayTime ?? 'Delay Time'),
+              title: Text(l10n.delayTime),
               subtitle: Text(
                 _formatDelayTime(_selectedDelayTime),
                 style: ReefTextStyles.body1.copyWith(
@@ -285,8 +271,7 @@ class _DropSettingPageState extends State<DropSettingPage> {
           if (!isConnected) ...[
             const SizedBox(height: ReefSpacing.sm),
             Text(
-              l10n.delayTimeRequiresConnection ??
-                  'Delay time setting requires BLE connection',
+              l10n.delayTimeRequiresConnection,
               style: ReefTextStyles.caption1.copyWith(
                 color: ReefColors.textSecondary,
               ),
@@ -296,7 +281,7 @@ class _DropSettingPageState extends State<DropSettingPage> {
 
           // Sink Position Section
           Text(
-            l10n.sinkPosition ?? 'Sink Position',
+            l10n.sinkPosition,
             style: ReefTextStyles.caption1.copyWith(
               color: ReefColors.textSecondary,
             ),
@@ -308,9 +293,9 @@ class _DropSettingPageState extends State<DropSettingPage> {
               borderRadius: BorderRadius.circular(ReefRadius.md),
             ),
             child: ListTile(
-              title: Text(l10n.sinkPosition ?? 'Sink Position'),
+              title: Text(l10n.sinkPosition),
               subtitle: Text(
-                l10n.sinkPositionNotSet ?? 'Not set',
+                l10n.sinkPositionNotSet,
                 style: ReefTextStyles.caption1.copyWith(
                   color: ReefColors.textSecondary,
                 ),
@@ -320,8 +305,7 @@ class _DropSettingPageState extends State<DropSettingPage> {
                 // TODO: Navigate to SinkPositionPage
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(l10n.sinkPositionFeatureComingSoon ??
-                        'Sink position selection coming soon'),
+                    content: Text(l10n.sinkPositionFeatureComingSoon),
                   ),
                 );
               },
@@ -331,7 +315,7 @@ class _DropSettingPageState extends State<DropSettingPage> {
 
           // Device Info Section
           Text(
-            l10n.deviceInfo ?? 'Device Information',
+            l10n.deviceInfo,
             style: ReefTextStyles.caption1.copyWith(
               color: ReefColors.textSecondary,
             ),
@@ -348,15 +332,13 @@ class _DropSettingPageState extends State<DropSettingPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _InfoRow(
-                    label: l10n.deviceId ?? 'Device ID',
+                    label: l10n.deviceId,
                     value: session.activeDeviceId ?? '-',
                   ),
                   const SizedBox(height: ReefSpacing.md),
                   _InfoRow(
-                    label: l10n.deviceState ?? 'State',
-                    value: isConnected
-                        ? (l10n.deviceStateConnected ?? 'Connected')
-                        : (l10n.deviceStateDisconnected ?? 'Disconnected'),
+                    label: 'State',
+                    value: isConnected ? 'Connected' : 'Disconnected',
                   ),
                 ],
               ),

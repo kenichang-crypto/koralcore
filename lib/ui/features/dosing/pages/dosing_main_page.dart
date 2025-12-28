@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../application/common/app_context.dart';
-import '../../../../application/common/app_error.dart';
-import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
+import '../../../../domain/doser_dosing/pump_head.dart';
 import '../../../components/ble_guard.dart';
-import '../../../components/app_error_presenter.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
@@ -18,7 +16,7 @@ import 'manual_dosing_page.dart';
 import 'pump_head_detail_page.dart';
 import 'pump_head_schedule_page.dart';
 import 'pump_head_calibration_page.dart';
-import '../../../device/pages/device_settings_page.dart';
+import '../../device/pages/device_settings_page.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 
 const _dosingIconAsset = 'assets/icons/dosing/dosing_main.png';
@@ -132,7 +130,7 @@ class DosingMainPage extends StatelessWidget {
                   children: [
                     const Icon(Icons.edit, size: 20),
                     const SizedBox(width: ReefSpacing.sm),
-                    Text(l10n.deviceActionEdit ?? 'Edit'),
+                    Text(l10n.deviceActionEdit),
                   ],
                 ),
               ),
@@ -155,7 +153,7 @@ class DosingMainPage extends StatelessWidget {
                   children: [
                     const Icon(Icons.refresh, size: 20),
                     const SizedBox(width: ReefSpacing.sm),
-                    Text(l10n.dosingResetDevice ?? 'Reset Device'),
+                    Text(l10n.dosingResetDevice),
                   ],
                 ),
               ),
@@ -231,7 +229,7 @@ class DosingMainPage extends StatelessWidget {
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.dosingNoPumpHeads ?? 'No pump heads available')),
+                    SnackBar(content: Text(l10n.dosingNoPumpHeads)),
                   );
                 }
               },
@@ -261,14 +259,14 @@ class DosingMainPage extends StatelessWidget {
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.dosingNoPumpHeads ?? 'No pump heads available')),
+                    SnackBar(content: Text(l10n.dosingNoPumpHeads)),
                   );
                 }
               },
             ),
             _EntryTile(
               title: l10n.dosingEntryHistory,
-              subtitle: l10n.dosingHistorySubtitle ?? 'View dosing records',
+              subtitle: l10n.dosingHistorySubtitle,
               enabled: isConnected,
               onTapWhenEnabled: () {
                 // Navigate to first pump head's detail page (which shows record history)
@@ -281,7 +279,7 @@ class DosingMainPage extends StatelessWidget {
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.dosingNoPumpHeads ?? 'No pump heads available')),
+                    SnackBar(content: Text(l10n.dosingNoPumpHeads)),
                   );
                 }
               },

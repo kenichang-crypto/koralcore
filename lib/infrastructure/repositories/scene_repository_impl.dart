@@ -1,7 +1,6 @@
 library;
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:sqflite/sqflite.dart';
 
@@ -35,26 +34,23 @@ class SceneRepositoryImpl {
     final int nextSceneId = await _getNextSceneId(deviceId);
 
     // Insert scene
-    final int id = await db.insert(
-      'scenes',
-      {
-        'device_id': deviceId,
-        'scene_id': nextSceneId,
-        'name': name,
-        'icon_id': iconId,
-        'cold_white': channelLevels['coldWhite'] ?? 0,
-        'royal_blue': channelLevels['royalBlue'] ?? 0,
-        'blue': channelLevels['blue'] ?? 0,
-        'red': channelLevels['red'] ?? 0,
-        'green': channelLevels['green'] ?? 0,
-        'purple': channelLevels['purple'] ?? 0,
-        'uv': channelLevels['uv'] ?? 0,
-        'warm_white': channelLevels['warmWhite'] ?? 0,
-        'moon_light': channelLevels['moonLight'] ?? 0,
-        'created_at': DateTime.now().millisecondsSinceEpoch,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    // ignore: unused_local_variable
+    final int id = await db.insert('scenes', {
+      'device_id': deviceId,
+      'scene_id': nextSceneId,
+      'name': name,
+      'icon_id': iconId,
+      'cold_white': channelLevels['coldWhite'] ?? 0,
+      'royal_blue': channelLevels['royalBlue'] ?? 0,
+      'blue': channelLevels['blue'] ?? 0,
+      'red': channelLevels['red'] ?? 0,
+      'green': channelLevels['green'] ?? 0,
+      'purple': channelLevels['purple'] ?? 0,
+      'uv': channelLevels['uv'] ?? 0,
+      'warm_white': channelLevels['warmWhite'] ?? 0,
+      'moon_light': channelLevels['moonLight'] ?? 0,
+      'created_at': DateTime.now().millisecondsSinceEpoch,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
 
     return nextSceneId;
   }

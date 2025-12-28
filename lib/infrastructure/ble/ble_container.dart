@@ -6,10 +6,10 @@ import 'ble_adapter.dart';
 import 'transport/ble_transport_models.dart';
 
 /// Container for managing multiple BLE device connections.
-/// 
+///
 /// PARITY: Similar to reef-b-app's BleContainer, which manages
 /// multiple BLEManager instances (one per device MAC address).
-/// 
+///
 /// In koralcore, we use a single BleAdapter instance that supports
 /// multiple devices via deviceId, but this container provides a unified
 /// interface for device lifecycle management.
@@ -24,7 +24,8 @@ class BleContainer {
     return _instance!;
   }
 
-  final Map<String, _DeviceConnection> _connections = <String, _DeviceConnection>{};
+  final Map<String, _DeviceConnection> _connections =
+      <String, _DeviceConnection>{};
   BleAdapter? _defaultAdapter;
 
   /// Set the default BLE adapter for the container.
@@ -37,14 +38,14 @@ class BleContainer {
   BleAdapter? getDefaultAdapter() => _defaultAdapter;
 
   /// Check if a device connection exists.
-  /// 
+  ///
   /// PARITY: Matches reef-b-app's `isExistBleManager(macAddress: String)`.
   bool exists(String deviceId) {
     return _connections.containsKey(deviceId);
   }
 
   /// Check if a device is connected.
-  /// 
+  ///
   /// PARITY: Matches reef-b-app's `isConnected(macAddress: String)`.
   Future<bool> isConnected(String deviceId) async {
     final connection = _connections[deviceId];
@@ -62,7 +63,7 @@ class BleContainer {
   }
 
   /// Register a new device connection.
-  /// 
+  ///
   /// PARITY: Matches reef-b-app's `new(macAddress: String)`.
   void registerDevice(String deviceId) {
     if (_connections.containsKey(deviceId)) {
@@ -72,7 +73,7 @@ class BleContainer {
   }
 
   /// Unregister a device connection.
-  /// 
+  ///
   /// PARITY: Matches reef-b-app's `delete(macAddress: String)`.
   void unregisterDevice(String deviceId) {
     final connection = _connections.remove(deviceId);
@@ -80,7 +81,7 @@ class BleContainer {
   }
 
   /// Get the BLE adapter for a specific device.
-  /// 
+  ///
   /// PARITY: Matches reef-b-app's `getBleManager(macAddress: String)`.
   /// In koralcore, we return the default adapter since we use a single
   /// adapter instance for all devices.
@@ -92,7 +93,7 @@ class BleContainer {
   }
 
   /// Disconnect all devices.
-  /// 
+  ///
   /// PARITY: Matches reef-b-app's `disconnectAll()`.
   Future<void> disconnectAll() async {
     final adapter = _defaultAdapter;
@@ -139,4 +140,3 @@ class _DeviceConnection {
     _connectionSubscription = null;
   }
 }
-

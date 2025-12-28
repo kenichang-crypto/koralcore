@@ -57,7 +57,7 @@ class AddDeviceController extends ChangeNotifier {
   /// Get sink name by ID.
   Future<String?> getSinkNameById(String sinkId) async {
     try {
-      final sinks = await sinkRepository.getCurrentSinks();
+      final sinks = sinkRepository.getCurrentSinks();
       final sink = sinks.firstWhere(
         (s) => s.id == sinkId,
         orElse: () => throw Exception('Sink not found'),
@@ -82,9 +82,9 @@ class AddDeviceController extends ChangeNotifier {
 
     try {
       // Get device info
-      final List<Map<String, dynamic>> devices =
-          await deviceRepository.listSavedDevices();
-      final Map<String, dynamic>? device = devices.firstWhere(
+      final List<Map<String, dynamic>> devices = await deviceRepository
+          .listSavedDevices();
+      final Map<String, dynamic> device = devices.firstWhere(
         (d) => d['id'] == deviceId,
         orElse: () => <String, dynamic>{},
       );
@@ -140,9 +140,9 @@ class AddDeviceController extends ChangeNotifier {
 
     try {
       // Get device info
-      final List<Map<String, dynamic>> devices =
-          await deviceRepository.listSavedDevices();
-      final Map<String, dynamic>? device = devices.firstWhere(
+      final List<Map<String, dynamic>> devices = await deviceRepository
+          .listSavedDevices();
+      final Map<String, dynamic> device = devices.firstWhere(
         (d) => d['id'] == deviceId,
         orElse: () => <String, dynamic>{},
       );
@@ -155,9 +155,7 @@ class AddDeviceController extends ChangeNotifier {
       final String? deviceType = device['type'] as String?;
 
       // Prepare updates
-      final Map<String, dynamic> updates = {
-        'name': _deviceName.trim(),
-      };
+      final Map<String, dynamic> updates = {'name': _deviceName.trim()};
 
       if (_selectedSinkId != null && _selectedSinkId!.isNotEmpty) {
         updates['sink_id'] = _selectedSinkId;
@@ -209,16 +207,20 @@ class AddDeviceController extends ChangeNotifier {
 
   /// Find available group for LED device in sink.
   Future<String?> _findAvailableGroup(String sinkId) async {
-    final List<Map<String, dynamic>> devices =
-        await deviceRepository.getDevices();
+    final List<Map<String, dynamic>> devices = await deviceRepository
+        .listSavedDevices();
     final List<Map<String, dynamic>> sinkDevices = devices
-        .where((d) =>
-            d['sink_id'] == sinkId &&
-            d['type'] == 'LED')
+        .where((d) => d['sink_id'] == sinkId && d['type'] == 'LED')
         .toList();
 
     // Count devices per group
-    final Map<String, int> groupCounts = {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0};
+    final Map<String, int> groupCounts = {
+      'A': 0,
+      'B': 0,
+      'C': 0,
+      'D': 0,
+      'E': 0,
+    };
     for (final device in sinkDevices) {
       final String? group = device['device_group'] as String?;
       if (group != null && groupCounts.containsKey(group)) {
@@ -238,27 +240,27 @@ class AddDeviceController extends ChangeNotifier {
 
   /// Get count of DROP devices in sink.
   Future<int> _getDropCountInSink(String sinkId) async {
-    final List<Map<String, dynamic>> devices =
-        await deviceRepository.getDevices();
+    final List<Map<String, dynamic>> devices = await deviceRepository
+        .listSavedDevices();
     return devices
-        .where((d) =>
-            d['sink_id'] == sinkId &&
-            d['type'] == 'DROP')
+        .where((d) => d['sink_id'] == sinkId && d['type'] == 'DROP')
         .length;
   }
 
   /// Create pump heads for DROP device.
   Future<void> _createPumpHeads(String deviceId) async {
     // Check if pump heads already exist
-    final List<PumpHead> existingHeads =
-        await pumpHeadRepository.listPumpHeads(deviceId);
+    final List<PumpHead> existingHeads = await pumpHeadRepository.listPumpHeads(
+      deviceId,
+    );
     if (existingHeads.length >= 4) {
       return; // Already created
     }
 
     // Create 4 pump heads (A, B, C, D)
-    final List<String> existingHeadIds =
-        existingHeads.map((h) => h.headId).toList();
+    final List<String> existingHeadIds = existingHeads
+        .map((h) => h.headId)
+        .toList();
     for (int i = 0; i < 4; i++) {
       final String headId = String.fromCharCode(65 + i); // A, B, C, D
       if (!existingHeadIds.contains(headId)) {
@@ -295,4 +297,3 @@ class AddDeviceController extends ChangeNotifier {
     _lastErrorCode = null;
   }
 }
-

@@ -12,6 +12,7 @@ class AppDimensions {
   static const double spacingXL = ReefSpacing.xl;
   static const double spacingXXL = ReefSpacing.xxl;
 
+  static const double radiusS = ReefRadius.sm;
   static const double radiusM = ReefRadius.md;
   static const double radiusL = ReefRadius.lg;
 }

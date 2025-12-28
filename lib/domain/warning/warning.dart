@@ -35,7 +35,7 @@ class Warning {
   /// Handles both String and DateTime formats for time field.
   factory Warning.fromJson(Map<String, dynamic> json) {
     final timeValue = json['time'];
-    DateTime time;
+    DateTime time = DateTime.now(); // Default initialization
     if (timeValue is String) {
       // Try parsing as ISO 8601 or common formats
       try {
@@ -50,6 +50,7 @@ class Warning {
           'yyyy/MM/dd HH:mm',
         ];
         bool parsed = false;
+        // ignore: unused_local_variable
         for (final format in formats) {
           try {
             // Note: Simple date parsing - for production, use intl package

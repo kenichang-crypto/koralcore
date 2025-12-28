@@ -1,9 +1,7 @@
 library;
 
-import 'ble_uuid.dart';
-
 /// Utility for filtering BLE device names during scanning.
-/// 
+///
 /// PARITY: Matches reef-b-app's device name filtering logic:
 /// - Android: BluetoothViewModel.scanResult() checks for "koralDOSE", "coralDOSE", "koralLED", "coralLED"
 /// - iOS: NNScanner uses scanFilter.names with ["koralDOSE", "coralDOSE", "koralLED", "coralLED"]
@@ -11,7 +9,7 @@ class DeviceNameFilter {
   DeviceNameFilter._();
 
   /// All valid device name prefixes (case-insensitive).
-  /// 
+  ///
   /// PARITY: reef-b-app checks for:
   /// - "koralDOSE" / "coralDOSE" (Dosing devices)
   /// - "koralLED" / "coralLED" (LED devices)
@@ -23,11 +21,11 @@ class DeviceNameFilter {
   ];
 
   /// Check if a device name matches the filter criteria.
-  /// 
+  ///
   /// PARITY: Matches reef-b-app's logic:
   /// - Returns false if name is null or empty
   /// - Returns true if name contains any valid prefix (case-insensitive)
-  /// 
+  ///
   /// Example:
   /// - "coralLED EX" -> true
   /// - "coralDOSE 4H" -> true
@@ -50,7 +48,7 @@ class DeviceNameFilter {
   }
 
   /// Check if a device name matches a specific device type.
-  /// 
+  ///
   /// Returns:
   /// - true if name matches LED device pattern
   /// - false otherwise
@@ -64,7 +62,7 @@ class DeviceNameFilter {
   }
 
   /// Check if a device name matches a specific device type.
-  /// 
+  ///
   /// Returns:
   /// - true if name matches Dosing device pattern
   /// - false otherwise
@@ -78,7 +76,7 @@ class DeviceNameFilter {
   }
 
   /// Get the device type from device name.
-  /// 
+  ///
   /// Returns:
   /// - "LED" if name matches LED pattern
   /// - "DROP" if name matches Dosing pattern
@@ -94,7 +92,7 @@ class DeviceNameFilter {
   }
 
   /// Filter a list of device names, returning only those that match.
-  /// 
+  ///
   /// PARITY: This can be used to filter scan results before processing.
   static List<String> filter(List<String?> deviceNames) {
     return deviceNames
@@ -103,4 +101,3 @@ class DeviceNameFilter {
         .toList();
   }
 }
-

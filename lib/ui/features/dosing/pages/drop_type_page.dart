@@ -7,7 +7,6 @@ import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../domain/drop_type/drop_type.dart';
 import '../../../theme/reef_colors.dart';
-import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../components/app_error_presenter.dart';
@@ -20,15 +19,11 @@ import '../controllers/drop_type_controller.dart';
 class DropTypePage extends StatelessWidget {
   final int? initialDropTypeId;
 
-  const DropTypePage({
-    super.key,
-    this.initialDropTypeId,
-  });
+  const DropTypePage({super.key, this.initialDropTypeId});
 
   @override
   Widget build(BuildContext context) {
     final appContext = context.read<AppContext>();
-    final session = context.read<AppSession>();
     return ChangeNotifierProvider<DropTypeController>(
       create: (_) => DropTypeController(
         dropTypeRepository: appContext.dropTypeRepository,
@@ -79,14 +74,14 @@ class _DropTypeViewState extends State<_DropTypeView> {
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(l10n.dropTypeTitle ?? 'Drop Type'),
+        title: Text(l10n.dropTypeTitle),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(_selectedId ?? 0);
             },
             child: Text(
-              l10n.actionDone ?? 'Done',
+              l10n.actionDone,
               style: TextStyle(color: ReefColors.onPrimary),
             ),
           ),
@@ -96,9 +91,7 @@ class _DropTypeViewState extends State<_DropTypeView> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                if (!isConnected) ...[
-                  const BleGuardBanner(),
-                ],
+                if (!isConnected) ...[const BleGuardBanner()],
                 Expanded(
                   child: ListView(
                     padding: const EdgeInsets.all(ReefSpacing.lg),
@@ -108,19 +101,20 @@ class _DropTypeViewState extends State<_DropTypeView> {
                         context,
                         controller,
                         null,
-                        l10n.dropTypeNo ?? 'No',
+                        l10n.dropTypeNo,
                         l10n,
                       ),
                       const Divider(),
                       // Drop types list
-                      ...controller.dropTypes.map((dropType) =>
-                          _buildDropTypeTile(
-                            context,
-                            controller,
-                            dropType,
-                            dropType.name,
-                            l10n,
-                          )),
+                      ...controller.dropTypes.map(
+                        (dropType) => _buildDropTypeTile(
+                          context,
+                          controller,
+                          dropType,
+                          dropType.name,
+                          l10n,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -178,12 +172,7 @@ class _DropTypeViewState extends State<_DropTypeView> {
         });
       },
       onLongPress: dropType != null
-          ? () => _showDeleteDropTypeDialog(
-                context,
-                controller,
-                dropType,
-                l10n,
-              )
+          ? () => _showDeleteDropTypeDialog(context, controller, dropType, l10n)
           : null,
     );
   }
@@ -197,23 +186,23 @@ class _DropTypeViewState extends State<_DropTypeView> {
     final bool? result = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.dropTypeAddTitle ?? 'Add Drop Type'),
+        title: Text(l10n.dropTypeAddTitle),
         content: TextField(
           controller: textController,
           decoration: InputDecoration(
-            labelText: l10n.dropTypeNameLabel ?? 'Name',
-            hintText: l10n.dropTypeNameHint ?? 'Enter drop type name',
+            labelText: l10n.dropTypeNameLabel,
+            hintText: l10n.dropTypeNameHint,
           ),
           autofocus: true,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.actionCancel ?? 'Cancel'),
+            child: const Text('Cancel'),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.actionAdd ?? 'Add'),
+            child: Text(l10n.actionAdd),
           ),
         ],
       ),
@@ -226,7 +215,7 @@ class _DropTypeViewState extends State<_DropTypeView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                l10n.dropTypeAddSuccess ?? 'Drop type added successfully',
+                l10n.dropTypeAddSuccess,
               ),
             ),
           );
@@ -234,7 +223,7 @@ class _DropTypeViewState extends State<_DropTypeView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                l10n.dropTypeNameExists ?? 'Drop type name already exists',
+                l10n.dropTypeNameExists,
               ),
             ),
           );
@@ -253,37 +242,39 @@ class _DropTypeViewState extends State<_DropTypeView> {
     final bool? result = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.dropTypeEditTitle ?? 'Edit Drop Type'),
+        title: Text(l10n.dropTypeEditTitle),
         content: TextField(
           controller: textController,
           decoration: InputDecoration(
-            labelText: l10n.dropTypeNameLabel ?? 'Name',
-            hintText: l10n.dropTypeNameHint ?? 'Enter drop type name',
+            labelText: l10n.dropTypeNameLabel,
+            hintText: l10n.dropTypeNameHint,
           ),
           autofocus: true,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.actionCancel ?? 'Cancel'),
+            child: const Text('Cancel'),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.actionSave ?? 'Save'),
+            child: Text(l10n.actionSave),
           ),
         ],
       ),
     );
 
     if (result == true && textController.text.trim().isNotEmpty) {
-      final bool success =
-          await controller.editDropType(dropType.id, textController.text);
+      final bool success = await controller.editDropType(
+        dropType.id,
+        textController.text,
+      );
       if (context.mounted) {
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                l10n.dropTypeEditSuccess ?? 'Drop type updated successfully',
+                l10n.dropTypeEditSuccess,
               ),
             ),
           );
@@ -291,7 +282,7 @@ class _DropTypeViewState extends State<_DropTypeView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                l10n.dropTypeNameExists ?? 'Drop type name already exists',
+                l10n.dropTypeNameExists,
               ),
             ),
           );
@@ -312,28 +303,23 @@ class _DropTypeViewState extends State<_DropTypeView> {
       builder: (dialogContext) => AlertDialog(
         title: Text(
           isUsed
-              ? (l10n.dropTypeDeleteUsedTitle ??
-                  'Drop Type is in Use')
-              : (l10n.dropTypeDeleteTitle ?? 'Delete Drop Type'),
+              ? (l10n.dropTypeDeleteUsedTitle)
+              : (l10n.dropTypeDeleteTitle),
         ),
         content: Text(
           isUsed
-              ? (l10n.dropTypeDeleteUsedContent ??
-                  'This drop type is currently used by pump heads. Do you want to delete it anyway?')
-              : (l10n.dropTypeDeleteContent ??
-                  'Are you sure you want to delete "${dropType.name}"?'),
+              ? l10n.dropTypeDeleteUsedContent
+              : l10n.dropTypeDeleteContent,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.actionCancel ?? 'Cancel'),
+            child: const Text('Cancel'),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: ReefColors.error,
-            ),
-            child: Text(l10n.actionDelete ?? 'Delete'),
+            style: FilledButton.styleFrom(backgroundColor: ReefColors.error),
+            child: Text(l10n.actionDelete),
           ),
         ],
       ),
@@ -346,7 +332,7 @@ class _DropTypeViewState extends State<_DropTypeView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                l10n.dropTypeDeleteSuccess ?? 'Drop type deleted successfully',
+                l10n.dropTypeDeleteSuccess,
               ),
             ),
           );
@@ -354,7 +340,7 @@ class _DropTypeViewState extends State<_DropTypeView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                l10n.dropTypeDeleteFailed ?? 'Failed to delete drop type',
+                l10n.dropTypeDeleteFailed,
               ),
             ),
           );
@@ -366,14 +352,12 @@ class _DropTypeViewState extends State<_DropTypeView> {
   void _maybeShowError(BuildContext context, AppErrorCode? code) {
     if (code == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = context.read<DropTypeController>();
       final l10n = AppLocalizations.of(context);
       final message = describeAppError(l10n, code);
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     });
   }
 }
-

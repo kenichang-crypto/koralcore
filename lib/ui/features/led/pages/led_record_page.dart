@@ -15,7 +15,6 @@ import '../../../components/ble_guard.dart';
 import '../controllers/led_record_controller.dart';
 import '../widgets/led_record_line_chart.dart';
 import '../widgets/led_spectrum_chart.dart';
-import 'led_record_setting_page.dart';
 import 'led_record_time_setting_page.dart';
 
 class LedRecordPage extends StatelessWidget {
@@ -574,7 +573,7 @@ class _LedRecordTile extends StatelessWidget {
           ? ReefColors.primary.withValues(alpha: 0.08)
           : ReefColors.surface,
       borderRadius: BorderRadius.circular(AppDimensions.radiusL),
-        child: InkWell(
+      child: InkWell(
         borderRadius: BorderRadius.circular(AppDimensions.radiusL),
         onTap: () {
           controller.selectRecord(record.id);
@@ -639,6 +638,38 @@ class _LedRecordTile extends StatelessWidget {
         .map((entry) => '${_channelLabel(entry.key, l10n)} ${entry.value}%');
     final String summary = parts.join(' / ');
     return summary.isEmpty ? l10n.ledControlEmptyState : summary;
+  }
+
+  Future<void> _confirmDeleteRecord(
+    BuildContext context,
+    LedRecordController controller,
+    LedRecord record,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(l10n.ledRecordsDeleteConfirmTitle),
+          content: Text(l10n.ledRecordsDeleteConfirmMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l10n.actionCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(l10n.actionConfirm),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed == true && context.mounted) {
+      // Select the record first, then delete it
+      controller.selectRecord(record.id);
+      await controller.deleteSelectedRecord();
+    }
   }
 
   String _channelLabel(String key, AppLocalizations l10n) {

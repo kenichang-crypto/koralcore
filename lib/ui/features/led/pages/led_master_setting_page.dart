@@ -6,7 +6,6 @@ import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../theme/reef_colors.dart';
-import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../components/app_error_presenter.dart';
@@ -19,10 +18,7 @@ import '../controllers/led_master_setting_controller.dart';
 class LedMasterSettingPage extends StatelessWidget {
   final String sinkId;
 
-  const LedMasterSettingPage({
-    super.key,
-    required this.sinkId,
-  });
+  const LedMasterSettingPage({super.key, required this.sinkId});
 
   @override
   Widget build(BuildContext context) {
@@ -65,12 +61,12 @@ class _LedMasterSettingView extends StatelessWidget {
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(l10n.ledMasterSettingTitle ?? 'Master Pairing'),
+        title: Text(l10n.ledMasterSettingTitle),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              l10n.actionDone ?? 'Done',
+              l10n.actionDone,
               style: TextStyle(color: ReefColors.onPrimary),
             ),
           ),
@@ -85,13 +81,15 @@ class _LedMasterSettingView extends StatelessWidget {
                   const BleGuardBanner(),
                   const SizedBox(height: ReefSpacing.lg),
                 ],
-                ...controller.groups.map((group) => _buildGroupSection(
-                      context,
-                      controller,
-                      group.id,
-                      group.devices,
-                      l10n,
-                    )),
+                ...controller.groups.map(
+                  (group) => _buildGroupSection(
+                    context,
+                    controller,
+                    group.id,
+                    group.devices,
+                    l10n,
+                  ),
+                ),
               ],
             ),
     );
@@ -116,17 +114,14 @@ class _LedMasterSettingView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${l10n.ledMasterSettingGroup ?? 'Group'} $groupId',
+              '${l10n.ledMasterSettingGroup} $groupId',
               style: ReefTextStyles.title2,
             ),
             const SizedBox(height: ReefSpacing.sm),
-            ...devices.map((device) => _buildDeviceTile(
-                  context,
-                  controller,
-                  device,
-                  groupId,
-                  l10n,
-                )),
+            ...devices.map(
+              (device) =>
+                  _buildDeviceTile(context, controller, device, groupId, l10n),
+            ),
           ],
         ),
       ),
@@ -150,8 +145,8 @@ class _LedMasterSettingView extends StatelessWidget {
       title: Text(name),
       subtitle: Text(
         isMaster
-            ? (l10n.ledMasterSettingMaster ?? 'Master')
-            : (l10n.ledMasterSettingSlave ?? 'Slave'),
+            ? l10n.ledMasterSettingMaster
+            : l10n.ledMasterSettingSlave,
       ),
       trailing: PopupMenuButton<String>(
         onSelected: (value) async {
@@ -166,8 +161,7 @@ class _LedMasterSettingView extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      l10n.ledMasterSettingSetMasterSuccess ??
-                          'Master set successfully',
+                      l10n.ledMasterSettingSetMasterSuccess,
                     ),
                   ),
                 );
@@ -182,12 +176,12 @@ class _LedMasterSettingView extends StatelessWidget {
           PopupMenuItem(
             value: 'set_master',
             enabled: !isMaster && isConnected,
-            child: Text(l10n.ledMasterSettingSetMaster ?? 'Set as Master'),
+            child: Text(l10n.ledMasterSettingSetMaster),
           ),
           PopupMenuItem(
             value: 'move_group',
             enabled: isConnected,
-            child: Text(l10n.ledMasterSettingMoveGroup ?? 'Move to Group'),
+            child: Text(l10n.ledMasterSettingMoveGroup),
           ),
         ],
       ),
@@ -203,7 +197,7 @@ class _LedMasterSettingView extends StatelessWidget {
     final String? selectedGroup = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l10n.ledMasterSettingSelectGroup ?? 'Select Group'),
+        title: Text(l10n.ledMasterSettingSelectGroup),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: ['A', 'B', 'C', 'D', 'E'].map((group) {
@@ -211,10 +205,10 @@ class _LedMasterSettingView extends StatelessWidget {
             final int index = ['A', 'B', 'C', 'D', 'E'].indexOf(group);
             final bool isFull = index < sizes.length && sizes[index] >= 4;
             return ListTile(
-              title: Text('${l10n.ledMasterSettingGroup ?? 'Group'} $group'),
+              title: Text('${l10n.ledMasterSettingGroup} $group'),
               subtitle: Text(
                 isFull
-                    ? (l10n.ledMasterSettingGroupFull ?? 'Full (4/4)')
+                    ? l10n.ledMasterSettingGroupFull
                     : '${sizes[index]}/4',
               ),
               enabled: !isFull,
@@ -231,8 +225,7 @@ class _LedMasterSettingView extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n.ledMasterSettingMoveGroupSuccess ??
-                  'Device moved successfully',
+              l10n.ledMasterSettingMoveGroupSuccess,
             ),
           ),
         );
@@ -240,8 +233,7 @@ class _LedMasterSettingView extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n.ledMasterSettingMoveGroupFailed ??
-                  'Failed to move device',
+              l10n.ledMasterSettingMoveGroupFailed,
             ),
           ),
         );
@@ -252,15 +244,12 @@ class _LedMasterSettingView extends StatelessWidget {
   void _maybeShowError(BuildContext context, AppErrorCode? code) {
     if (code == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = context.read<LedMasterSettingController>();
       final l10n = AppLocalizations.of(context);
       final message = describeAppError(l10n, code);
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     });
   }
 }
-
-

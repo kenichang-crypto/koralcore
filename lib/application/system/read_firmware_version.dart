@@ -24,7 +24,7 @@ class ReadFirmwareVersionUseCase {
   Future<void> execute({required String deviceId}) async {
     // 1) Send command
     // TODO: final resp = await bleAdapter.readFirmwareVersion(deviceId)
-    final resp = await systemRepository.readFirmwareVersion(deviceId);
+    await systemRepository.readFirmwareVersion(deviceId);
 
     // 2) Parse firmware version
     // TODO: final fw = parseFirmware(resp)

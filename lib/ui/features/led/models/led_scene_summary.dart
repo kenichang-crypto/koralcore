@@ -14,7 +14,7 @@ class LedSceneSummary {
   final int? presetCode;
   final Map<String, int> channelLevels;
 
-  const LedSceneSummary({
+  LedSceneSummary({
     required this.id,
     required this.name,
     required this.description,

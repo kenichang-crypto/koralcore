@@ -75,7 +75,7 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.ledSceneAddTitle ?? 'Add Scene'),
+        title: Text(l10n.ledSceneAddTitle),
         actions: [
           if (controller.isDimmingMode)
             Padding(
@@ -97,8 +97,8 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
           // Scene name input
           TextField(
             decoration: InputDecoration(
-              labelText: l10n.ledSceneNameLabel ?? 'Scene Name',
-              hintText: l10n.ledSceneNameHint ?? 'Enter scene name',
+              labelText: l10n.ledSceneNameLabel,
+              hintText: l10n.ledSceneNameHint,
               border: const OutlineInputBorder(),
             ),
             controller: TextEditingController(text: controller.name)
@@ -139,7 +139,7 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
 
           // Channel sliders
           Text(
-            l10n.ledControlChannelsSection ?? 'Channel Levels',
+            'Channel Levels',
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: AppDimensions.spacingM),
@@ -161,18 +161,17 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
     LedSceneEditController controller,
     bool enabled,
   ) {
-    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final channels = [
-      ('coldWhite', l10n.ledChannelColdWhite ?? 'Cold White'),
-      ('royalBlue', l10n.ledChannelRoyalBlue ?? 'Royal Blue'),
-      ('blue', l10n.ledChannelBlue ?? 'Blue'),
-      ('red', l10n.ledChannelRed ?? 'Red'),
-      ('green', l10n.ledChannelGreen ?? 'Green'),
-      ('purple', l10n.ledChannelPurple ?? 'Purple'),
-      ('uv', l10n.ledChannelUv ?? 'UV'),
-      ('warmWhite', l10n.ledChannelWarmWhite ?? 'Warm White'),
-      ('moonLight', l10n.ledChannelMoonLight ?? 'Moon Light'),
+      ('coldWhite', 'Cold White'),
+      ('royalBlue', 'Royal Blue'),
+      ('blue', 'Blue'),
+      ('red', 'Red'),
+      ('green', 'Green'),
+      ('purple', 'Purple'),
+      ('uv', 'UV'),
+      ('warmWhite', 'Warm White'),
+      ('moonLight', 'Moon Light'),
     ];
 
     return channels.map((channel) {
@@ -229,7 +228,7 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
         onPressed: null,
         backgroundColor: AppColors.grey400,
         icon: const Icon(Icons.block),
-        label: Text(l10n.ledSceneLimitReached ?? 'Scene limit reached (5/5)'),
+        label: Text(l10n.ledSceneLimitReached),
       );
     }
 
@@ -257,7 +256,7 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
                     if (success) {
                       Navigator.of(context).pop(true);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(l10n.ledSceneAddSuccess ?? 'Scene added successfully')),
+                        SnackBar(content: Text(l10n.ledSceneAddSuccess)),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -272,7 +271,7 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
                 }
               : null,
           icon: const Icon(Icons.save),
-          label: Text(l10n.actionSave ?? 'Save'),
+          label: Text(l10n.actionSave),
         ),
       ],
     );

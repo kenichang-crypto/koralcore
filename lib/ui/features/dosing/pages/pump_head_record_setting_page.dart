@@ -8,9 +8,7 @@ import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../domain/doser_dosing/pump_head_record_detail.dart';
 import '../../../../domain/doser_dosing/pump_head_record_type.dart';
-import '../../../../domain/doser_dosing/pump_speed.dart';
 import '../../../theme/reef_colors.dart';
-import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../components/app_error_presenter.dart';
@@ -24,10 +22,7 @@ import 'pump_head_record_time_setting_page.dart';
 class PumpHeadRecordSettingPage extends StatelessWidget {
   final String headId;
 
-  const PumpHeadRecordSettingPage({
-    super.key,
-    required this.headId,
-  });
+  const PumpHeadRecordSettingPage({super.key, required this.headId});
 
   @override
   Widget build(BuildContext context) {
@@ -87,14 +82,14 @@ class _PumpHeadRecordSettingViewState
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(l10n.dosingScheduleEditTitle ?? 'Schedule Settings'),
+        title: Text(l10n.dosingScheduleEditTitle),
         actions: [
           TextButton(
             onPressed: controller.isLoading || !isConnected
                 ? null
                 : () => _handleSave(context, controller, l10n),
             child: Text(
-              l10n.actionSave ?? 'Save',
+              l10n.actionSave,
               style: TextStyle(color: ReefColors.onPrimary),
             ),
           ),
@@ -114,15 +109,19 @@ class _PumpHeadRecordSettingViewState
                 if (controller.selectedRecordType != PumpHeadRecordType.none)
                   _buildVolumeSection(context, controller, l10n),
                 if (controller.selectedRecordType == PumpHeadRecordType.h24 ||
-                    controller.selectedRecordType ==
-                        PumpHeadRecordType.custom)
+                    controller.selectedRecordType == PumpHeadRecordType.custom)
                   _buildTimeRangeSection(context, controller, l10n),
                 if (controller.selectedRecordType == PumpHeadRecordType.single)
                   _buildTimePointSection(context, controller, l10n),
                 if (controller.selectedRecordType ==
                     PumpHeadRecordType.custom) ...[
                   const SizedBox(height: ReefSpacing.lg),
-                  _buildCustomDetailsSection(context, controller, l10n, isConnected),
+                  _buildCustomDetailsSection(
+                    context,
+                    controller,
+                    l10n,
+                    isConnected,
+                  ),
                 ],
                 const SizedBox(height: ReefSpacing.lg),
                 _buildRotatingSpeedSection(context, controller, l10n),
@@ -143,31 +142,29 @@ class _PumpHeadRecordSettingViewState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.dosingScheduleTypeLabel ?? 'Schedule Type',
+              l10n.dosingScheduleTypeLabel,
               style: ReefTextStyles.title3,
             ),
             const SizedBox(height: ReefSpacing.sm),
             DropdownButtonFormField<PumpHeadRecordType>(
-              value: controller.selectedRecordType,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
+              initialValue: controller.selectedRecordType,
+              decoration: const InputDecoration(border: OutlineInputBorder()),
               items: [
                 DropdownMenuItem(
                   value: PumpHeadRecordType.none,
-                  child: Text(l10n.dosingScheduleTypeNone ?? 'No Schedule'),
+                  child: const Text('No Schedule'),
                 ),
                 DropdownMenuItem(
                   value: PumpHeadRecordType.h24,
-                  child: Text(l10n.dosingScheduleType24h ?? '24-Hour Average'),
+                  child: const Text('24-Hour Average'),
                 ),
                 DropdownMenuItem(
                   value: PumpHeadRecordType.single,
-                  child: Text(l10n.dosingScheduleTypeSingle ?? 'Single Dose'),
+                  child: const Text('Single Dose'),
                 ),
                 DropdownMenuItem(
                   value: PumpHeadRecordType.custom,
-                  child: Text(l10n.dosingScheduleTypeCustom ?? 'Custom'),
+                  child: const Text('Custom'),
                 ),
               ],
               onChanged: (value) {
@@ -194,7 +191,7 @@ class _PumpHeadRecordSettingViewState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.dosingScheduleEditDoseLabel ?? 'Total Volume (ml)',
+              'Total Volume (ml)',
               style: ReefTextStyles.title3,
             ),
             const SizedBox(height: ReefSpacing.sm),
@@ -202,7 +199,7 @@ class _PumpHeadRecordSettingViewState
               controller: _dropVolumeController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                hintText: l10n.dosingScheduleEditDoseHint ?? 'Enter volume',
+                hintText: 'Enter volume',
                 suffixText: 'ml',
                 border: const OutlineInputBorder(),
               ),
@@ -229,7 +226,7 @@ class _PumpHeadRecordSettingViewState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.dosingScheduleEditTimeRangeLabel ?? 'Time Range',
+              l10n.dosingScheduleEditTimeRangeLabel,
               style: ReefTextStyles.title3,
             ),
             const SizedBox(height: ReefSpacing.sm),
@@ -241,8 +238,7 @@ class _PumpHeadRecordSettingViewState
                     child: Text(
                       controller.dateRange != null
                           ? '${DateFormat('yyyy-MM-dd').format(controller.dateRange!.start)} ~ ${DateFormat('yyyy-MM-dd').format(controller.dateRange!.end)}'
-                          : l10n.dosingScheduleEditSelectDateRange ??
-                              'Select Date Range',
+                          : 'Select Date Range',
                     ),
                   ),
                 ),
@@ -268,7 +264,7 @@ class _PumpHeadRecordSettingViewState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.dosingScheduleEditTimePointLabel ?? 'Execution Time',
+              l10n.dosingScheduleEditTimePointLabel,
               style: ReefTextStyles.title3,
             ),
             const SizedBox(height: ReefSpacing.sm),
@@ -278,9 +274,7 @@ class _PumpHeadRecordSettingViewState
                   child: OutlinedButton(
                     onPressed: () => _selectDateTime(context, controller),
                     child: Text(
-                      controller.timeString ??
-                          l10n.dosingScheduleEditSelectDateTime ??
-                          'Select Date & Time',
+                      controller.timeString ?? 'Select Date & Time',
                     ),
                   ),
                 ),
@@ -298,13 +292,13 @@ class _PumpHeadRecordSettingViewState
     AppLocalizations l10n,
   ) {
     final weekDayLabels = [
-      l10n.weekdaySunday ?? 'Sun',
-      l10n.weekdayMonday ?? 'Mon',
-      l10n.weekdayTuesday ?? 'Tue',
-      l10n.weekdayWednesday ?? 'Wed',
-      l10n.weekdayThursday ?? 'Thu',
-      l10n.weekdayFriday ?? 'Fri',
-      l10n.weekdaySaturday ?? 'Sat',
+      l10n.weekdaySunday,
+      l10n.weekdayMonday,
+      l10n.weekdayTuesday,
+      l10n.weekdayWednesday,
+      l10n.weekdayThursday,
+      l10n.weekdayFriday,
+      l10n.weekdaySaturday,
     ];
 
     return Wrap(
@@ -337,8 +331,7 @@ class _PumpHeadRecordSettingViewState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  l10n.dosingScheduleEditCustomDetailsLabel ??
-                      'Time Slots',
+                  l10n.dosingScheduleEditCustomDetailsLabel,
                   style: ReefTextStyles.title3,
                 ),
                 FilledButton.icon(
@@ -346,39 +339,39 @@ class _PumpHeadRecordSettingViewState
                       ? () => _addTimeSlot(context, controller)
                       : () => showBleGuardDialog(context),
                   icon: const Icon(Icons.add),
-                  label: Text(l10n.actionAdd ?? 'Add'),
+                  label: Text(l10n.actionAdd),
                 ),
               ],
             ),
             const SizedBox(height: ReefSpacing.sm),
             if (controller.recordDetails.isEmpty)
               Text(
-                l10n.dosingScheduleEditNoTimeSlots ?? 'No time slots added',
+                l10n.dosingScheduleEditNoTimeSlots,
                 style: ReefTextStyles.body2.copyWith(
                   color: ReefColors.textSecondary,
                 ),
               )
             else
-              ...controller.recordDetails.map((detail) => ListTile(
-                    title: Text(detail.timeString ?? ''),
-                    subtitle: Text(
-                      '${detail.dropTime}x • ${detail.totalDrop}ml',
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: isConnected
-                          ? () {
-                              controller.deleteRecordDetail(detail);
-                            }
-                          : () => showBleGuardDialog(context),
-                    ),
-                    onLongPress: isConnected
+              ...controller.recordDetails.map(
+                (detail) => ListTile(
+                  title: Text(detail.timeString ?? ''),
+                  subtitle: Text('${detail.dropTime}x • ${detail.totalDrop}ml'),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: isConnected
                         ? () {
-                            // Edit detail
-                            _editTimeSlot(context, controller, detail);
+                            controller.deleteRecordDetail(detail);
                           }
                         : () => showBleGuardDialog(context),
-                  )),
+                  ),
+                  onLongPress: isConnected
+                      ? () {
+                          // Edit detail
+                          _editTimeSlot(context, controller, detail);
+                        }
+                      : () => showBleGuardDialog(context),
+                ),
+              ),
           ],
         ),
       ),
@@ -397,7 +390,7 @@ class _PumpHeadRecordSettingViewState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.dosingScheduleEditRotatingSpeedLabel ?? 'Pump Speed',
+              l10n.dosingScheduleEditRotatingSpeedLabel,
               style: ReefTextStyles.title3,
             ),
             const SizedBox(height: ReefSpacing.sm),
@@ -405,15 +398,15 @@ class _PumpHeadRecordSettingViewState
               segments: [
                 ButtonSegment(
                   value: 1,
-                  label: Text(l10n.dosingScheduleEditSpeedLow ?? 'Low'),
+                  label: Text(l10n.dosingScheduleEditSpeedLow),
                 ),
                 ButtonSegment(
                   value: 2,
-                  label: Text(l10n.dosingScheduleEditSpeedMedium ?? 'Medium'),
+                  label: Text(l10n.dosingScheduleEditSpeedMedium),
                 ),
                 ButtonSegment(
                   value: 3,
-                  label: Text(l10n.dosingScheduleEditSpeedHigh ?? 'High'),
+                  label: Text(l10n.dosingScheduleEditSpeedHigh),
                 ),
               ],
               selected: {controller.rotatingSpeed},
@@ -520,8 +513,7 @@ class _PumpHeadRecordSettingViewState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n.dosingScheduleEditErrorVolumeEmpty ??
-                  'Volume cannot be empty',
+              l10n.dosingScheduleEditErrorVolumeEmpty,
             ),
           ),
         );
@@ -530,7 +522,7 @@ class _PumpHeadRecordSettingViewState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n.dosingScheduleEditErrorTimeEmpty ?? 'Time must be selected',
+              l10n.dosingScheduleEditErrorTimeEmpty,
             ),
           ),
         );
@@ -540,10 +532,8 @@ class _PumpHeadRecordSettingViewState
           SnackBar(
             content: Text(
               controller.isDecimalDose
-                  ? (l10n.dosingScheduleEditErrorVolumeTooLittleNew ??
-                      'Volume too little (min: 0.4ml)')
-                  : (l10n.dosingScheduleEditErrorVolumeTooLittleOld ??
-                      'Volume too little (min: 1.0ml)'),
+                  ? l10n.dosingScheduleEditErrorVolumeTooLittleNew
+                  : l10n.dosingScheduleEditErrorVolumeTooLittleOld,
             ),
           ),
         );
@@ -552,8 +542,7 @@ class _PumpHeadRecordSettingViewState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n.dosingScheduleEditErrorVolumeOutOfRange ??
-                  'Volume exceeds maximum limit',
+              l10n.dosingScheduleEditErrorVolumeOutOfRange,
             ),
           ),
         );
@@ -562,8 +551,7 @@ class _PumpHeadRecordSettingViewState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n.dosingScheduleEditErrorVolumeTooMuch ??
-                  'Volume too much (max: 500ml)',
+              l10n.dosingScheduleEditErrorVolumeTooMuch,
             ),
           ),
         );
@@ -572,8 +560,7 @@ class _PumpHeadRecordSettingViewState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n.dosingScheduleEditErrorDetailsEmpty ??
-                  'Please add at least one time slot',
+              l10n.dosingScheduleEditErrorDetailsEmpty,
             ),
           ),
         );
@@ -583,7 +570,7 @@ class _PumpHeadRecordSettingViewState
     if (success && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l10n.dosingScheduleEditSuccess ?? 'Schedule saved'),
+          content: const Text('Schedule saved'),
         ),
       );
       Navigator.of(context).pop(true);
@@ -593,15 +580,13 @@ class _PumpHeadRecordSettingViewState
   void _maybeShowError(BuildContext context, AppErrorCode? code) {
     if (code == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = context.read<PumpHeadRecordSettingController>();
       final l10n = AppLocalizations.of(context);
       final message = describeAppError(l10n, code);
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
       // Clear error after showing
     });
   }
 }
-

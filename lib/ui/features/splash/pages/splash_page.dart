@@ -1,11 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:koralcore/l10n/app_localizations.dart';
 
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_text.dart';
-import '../../app/main_scaffold.dart';
+import '../../../app/main_scaffold.dart';
 
 /// Splash page.
 ///
@@ -43,8 +42,6 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
     return Scaffold(
       backgroundColor: ReefColors.primary,
       body: SafeArea(
@@ -84,9 +81,9 @@ class _SplashPageState extends State<SplashPage> {
                 ),
               ),
               const SizedBox(height: 8),
-              // App Tagline (optional)
+              // App Tagline
               Text(
-                l10n.splashTagline ?? 'Reef Aquarium Control System',
+                'Reef Aquarium Control System',
                 style: ReefTextStyles.body1.copyWith(
                   color: ReefColors.onPrimary.withOpacity(0.8),
                 ),

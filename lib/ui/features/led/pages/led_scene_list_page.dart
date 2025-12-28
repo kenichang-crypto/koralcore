@@ -35,6 +35,10 @@ class LedSceneListPage extends StatelessWidget {
         observeLedStateUseCase: appContext.observeLedStateUseCase,
         readLedStateUseCase: appContext.readLedStateUseCase,
         stopLedPreviewUseCase: appContext.stopLedPreviewUseCase,
+        observeLedRecordStateUseCase: appContext.observeLedRecordStateUseCase,
+        readLedRecordStateUseCase: appContext.readLedRecordStateUseCase,
+        startLedPreviewUseCase: appContext.startLedPreviewUseCase,
+        startLedRecordUseCase: appContext.startLedRecordUseCase,
       )..initialize(),
       child: const _LedSceneListView(),
     );
@@ -61,7 +65,7 @@ class _LedSceneListView extends StatelessWidget {
               // Edit button (進入刪除場景頁面)
               IconButton(
                 icon: const Icon(Icons.edit),
-                tooltip: l10n.ledScenesActionEdit ?? 'Edit',
+                tooltip: l10n.ledScenesActionEdit,
                 onPressed: isConnected && !controller.isBusy
                     ? () {
                         Navigator.of(context).push(
@@ -130,7 +134,7 @@ class _LedSceneListView extends StatelessWidget {
                   // Dynamic Scenes Section
                   if (controller.dynamicScenes.isNotEmpty) ...[
                     Text(
-                      l10n.ledDynamicScene ?? 'Dynamic Scene',
+                      l10n.ledDynamicScene,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: AppColors.grey700,
                         fontWeight: FontWeight.w600,
@@ -175,7 +179,7 @@ class _LedSceneListView extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          l10n.ledStaticScene ?? 'Static Scene',
+                          l10n.ledStaticScene,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: AppColors.grey700,
                             fontWeight: FontWeight.w600,
@@ -184,7 +188,7 @@ class _LedSceneListView extends StatelessWidget {
                         if (isConnected && !controller.isBusy)
                           IconButton(
                             icon: const Icon(Icons.add),
-                            tooltip: l10n.ledScenesActionAdd ?? 'Add Scene',
+                            tooltip: l10n.ledScenesActionAdd,
                             onPressed: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
@@ -468,8 +472,8 @@ class _SceneCard extends StatelessWidget {
                                 : AppColors.grey500,
                           ),
                           tooltip: scene.isFavorite
-                              ? l10n.ledScenesActionUnfavorite ?? 'Unfavorite'
-                              : l10n.ledScenesActionFavorite ?? 'Favorite',
+                              ? l10n.ledScenesActionUnfavorite
+                              : l10n.ledScenesActionFavorite,
                           onPressed: () => controller.toggleFavoriteScene(scene.id),
                         ),
                     ],

@@ -54,7 +54,7 @@ class _PumpHeadCalibrationView extends StatelessWidget {
             actions: [
               IconButton(
                 icon: const Icon(Icons.history),
-                tooltip: l10n.dosingCalibrationAdjustListTitle ?? 'Adjust List',
+                tooltip: l10n.dosingCalibrationAdjustListTitle,
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(

@@ -8,7 +8,6 @@ import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../domain/warning/warning.dart';
 import '../../../theme/reef_colors.dart';
-import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../components/app_error_presenter.dart';
@@ -62,12 +61,12 @@ class _WarningView extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(l10n.warningTitle ?? 'Warnings'),
+        title: Text(l10n.warningTitle),
         actions: [
           if (controller.warnings.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.delete_sweep),
-              tooltip: l10n.warningClearAll ?? 'Clear All',
+              tooltip: l10n.warningClearAll,
               onPressed: controller.isLoading
                   ? null
                   : () => _showClearAllDialog(context, controller, l10n),
@@ -78,9 +77,7 @@ class _WarningView extends StatelessWidget {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                if (!isConnected) ...[
-                  const BleGuardBanner(),
-                ],
+                if (!isConnected) ...[const BleGuardBanner()],
                 Expanded(
                   child: controller.warnings.isEmpty
                       ? _EmptyState(l10n: l10n)
@@ -93,9 +90,8 @@ class _WarningView extends StatelessWidget {
                               final warning = controller.warnings[index];
                               return _WarningCard(
                                 warning: warning,
-                                onDelete: () => controller.deleteWarning(
-                                  warning.id,
-                                ),
+                                onDelete: () =>
+                                    controller.deleteWarning(warning.id),
                                 l10n: l10n,
                               );
                             },
@@ -115,22 +111,19 @@ class _WarningView extends StatelessWidget {
     final bool? result = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.warningClearAllTitle ?? 'Clear All Warnings'),
+        title: Text(l10n.warningClearAllTitle),
         content: Text(
-          l10n.warningClearAllContent ??
-              'Are you sure you want to clear all warnings?',
+          l10n.warningClearAllContent,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.actionCancel ?? 'Cancel'),
+            child: const Text('Cancel'),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: ReefColors.error,
-            ),
-            child: Text(l10n.actionClear ?? 'Clear'),
+            style: FilledButton.styleFrom(backgroundColor: ReefColors.error),
+            child: Text(l10n.actionClear),
           ),
         ],
       ),
@@ -142,7 +135,7 @@ class _WarningView extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n.warningClearAllSuccess ?? 'All warnings cleared',
+              l10n.warningClearAllSuccess,
             ),
           ),
         );
@@ -153,13 +146,12 @@ class _WarningView extends StatelessWidget {
   void _maybeShowError(BuildContext context, AppErrorCode? code) {
     if (code == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = context.read<WarningController>();
       final l10n = AppLocalizations.of(context);
       final message = describeAppError(l10n, code);
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     });
   }
 }
@@ -180,13 +172,9 @@ class _WarningCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: ReefSpacing.md),
       child: ListTile(
-        leading: Icon(
-          Icons.warning,
-          color: ReefColors.error,
-        ),
+        leading: Icon(Icons.warning, color: ReefColors.error),
         title: Text(
-          l10n.warningId(warning.warningId) ??
-              'Warning ${warning.warningId}',
+          l10n.warningId(warning.warningId),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,17 +182,13 @@ class _WarningCard extends StatelessWidget {
             const SizedBox(height: ReefSpacing.xs),
             Text(
               DateFormat('yyyy-MM-dd HH:mm:ss').format(warning.time),
-              style: ReefTextStyles.body2.copyWith(
-                color: ReefColors.grey,
-              ),
+              style: ReefTextStyles.body2.copyWith(color: ReefColors.grey),
             ),
             if (warning.deviceId.isNotEmpty) ...[
               const SizedBox(height: ReefSpacing.xs),
               Text(
                 'Device: ${warning.deviceId}',
-                style: ReefTextStyles.body2.copyWith(
-                  color: ReefColors.grey,
-                ),
+                style: ReefTextStyles.body2.copyWith(color: ReefColors.grey),
               ),
             ],
           ],
@@ -212,7 +196,7 @@ class _WarningCard extends StatelessWidget {
         trailing: IconButton(
           icon: const Icon(Icons.delete_outline),
           onPressed: onDelete,
-          tooltip: l10n.actionDelete ?? 'Delete',
+          tooltip: l10n.actionDelete,
         ),
       ),
     );
@@ -230,23 +214,16 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.check_circle_outline,
-            size: 64,
-            color: ReefColors.success,
-          ),
+          Icon(Icons.check_circle_outline, size: 64, color: ReefColors.success),
           const SizedBox(height: ReefSpacing.md),
           Text(
-            l10n.warningEmptyTitle ?? 'No Warnings',
+            l10n.warningEmptyTitle,
             style: ReefTextStyles.title2,
           ),
           const SizedBox(height: ReefSpacing.sm),
           Text(
-            l10n.warningEmptySubtitle ??
-                'All systems are operating normally',
-            style: ReefTextStyles.body1.copyWith(
-              color: ReefColors.grey,
-            ),
+            l10n.warningEmptySubtitle,
+            style: ReefTextStyles.body1.copyWith(color: ReefColors.grey),
             textAlign: TextAlign.center,
           ),
         ],
@@ -254,4 +231,3 @@ class _EmptyState extends StatelessWidget {
     );
   }
 }
-

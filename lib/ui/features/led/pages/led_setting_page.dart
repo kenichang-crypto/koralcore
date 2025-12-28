@@ -8,13 +8,10 @@ import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../sink/pages/sink_position_page.dart';
-import 'led_master_setting_page.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
-import '../../../../theme/reef_colors.dart';
-import '../../../../theme/reef_radius.dart';
-import '../../../../theme/reef_spacing.dart';
-import '../../../../theme/reef_text.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_radius.dart';
+import '../../../theme/reef_spacing.dart';
+import '../../../theme/reef_text.dart';
 
 /// LedSettingPage
 ///
@@ -33,6 +30,7 @@ class LedSettingPage extends StatefulWidget {
 class _LedSettingPageState extends State<LedSettingPage> {
   late TextEditingController _nameController;
   bool _isLoading = false;
+  // ignore: unused_field
   AppErrorCode? _lastErrorCode;
 
   @override
@@ -64,7 +62,7 @@ class _LedSettingPageState extends State<LedSettingPage> {
     if (newName.isEmpty) {
       _setError(AppErrorCode.invalidParam);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.deviceNameEmpty ?? 'Device name cannot be empty')),
+        SnackBar(content: Text(l10n.deviceNameEmpty)),
       );
       return;
     }
@@ -83,7 +81,7 @@ class _LedSettingPageState extends State<LedSettingPage> {
       if (mounted) {
         Navigator.of(context).pop(true);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.deviceSettingsSaved ?? 'LED settings saved')),
+          SnackBar(content: Text(l10n.deviceSettingsSaved)),
         );
       }
     } on AppError catch (error) {
@@ -128,7 +126,7 @@ class _LedSettingPageState extends State<LedSettingPage> {
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
         title: Text(
-          l10n.ledSettingTitle ?? 'LED Settings',
+          l10n.ledSettingTitle,
           style: ReefTextStyles.title2.copyWith(
             color: ReefColors.onPrimary,
           ),
@@ -154,7 +152,7 @@ class _LedSettingPageState extends State<LedSettingPage> {
                   ? null
                   : _saveSettings,
               child: Text(
-                l10n.actionSave ?? 'Save',
+                l10n.actionSave,
                 style: ReefTextStyles.subheaderAccent.copyWith(
                   color: ReefColors.onPrimary,
                 ),
@@ -167,7 +165,7 @@ class _LedSettingPageState extends State<LedSettingPage> {
         children: [
           // Device Name Section
           Text(
-            l10n.deviceName ?? 'Device Name',
+            l10n.deviceName,
             style: ReefTextStyles.caption1.copyWith(
               color: ReefColors.textSecondary,
             ),
@@ -176,7 +174,7 @@ class _LedSettingPageState extends State<LedSettingPage> {
           TextField(
             controller: _nameController,
             decoration: InputDecoration(
-              hintText: l10n.deviceNameHint ?? 'Enter LED device name',
+              hintText: l10n.deviceNameHint,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(ReefRadius.md),
               ),
@@ -192,7 +190,7 @@ class _LedSettingPageState extends State<LedSettingPage> {
 
           // Sink Position Section
           Text(
-            l10n.sinkPosition ?? 'Sink Position',
+            l10n.sinkPosition,
             style: ReefTextStyles.caption1.copyWith(
               color: ReefColors.textSecondary,
             ),
@@ -204,9 +202,9 @@ class _LedSettingPageState extends State<LedSettingPage> {
               borderRadius: BorderRadius.circular(ReefRadius.md),
             ),
             child: ListTile(
-              title: Text(l10n.sinkPosition ?? 'Sink Position'),
+              title: Text(l10n.sinkPosition),
               subtitle: Text(
-                l10n.sinkPositionNotSet ?? 'Not set',
+                l10n.sinkPositionNotSet,
                 style: ReefTextStyles.caption1.copyWith(
                   color: ReefColors.textSecondary,
                 ),
@@ -214,10 +212,16 @@ class _LedSettingPageState extends State<LedSettingPage> {
               trailing: const Icon(Icons.chevron_right),
               onTap: () async {
                 final appContext = context.read<AppContext>();
+                final String? activeDeviceId = session.activeDeviceId;
+                String? currentSinkId;
+                if (activeDeviceId != null) {
+                  final device = await appContext.deviceRepository.getDevice(activeDeviceId);
+                  currentSinkId = device?['sinkId']?.toString();
+                }
                 final String? selectedSinkId = await Navigator.of(context).push<String>(
                   MaterialPageRoute(
                     builder: (_) => SinkPositionPage(
-                      initialSinkId: session.activeDeviceSinkId,
+                      initialSinkId: currentSinkId,
                     ),
                   ),
                 );
@@ -227,8 +231,8 @@ class _LedSettingPageState extends State<LedSettingPage> {
                     SnackBar(
                       content: Text(
                         selectedSinkId.isEmpty
-                            ? (l10n.sinkPositionNotSet ?? 'Sink position cleared')
-                            : (l10n.sinkPositionSet ?? 'Sink position set'),
+                            ? l10n.sinkPositionNotSet
+                            : l10n.sinkPositionSet,
                       ),
                     ),
                   );
@@ -240,7 +244,7 @@ class _LedSettingPageState extends State<LedSettingPage> {
 
           // Device Info Section
           Text(
-            l10n.deviceInfo ?? 'Device Information',
+            l10n.deviceInfo,
             style: ReefTextStyles.caption1.copyWith(
               color: ReefColors.textSecondary,
             ),
@@ -257,15 +261,13 @@ class _LedSettingPageState extends State<LedSettingPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _InfoRow(
-                    label: l10n.deviceId ?? 'Device ID',
+                    label: l10n.deviceId,
                     value: session.activeDeviceId ?? '-',
                   ),
                   const SizedBox(height: ReefSpacing.md),
                   _InfoRow(
-                    label: l10n.deviceState ?? 'State',
-                    value: session.isBleConnected
-                        ? (l10n.deviceStateConnected ?? 'Connected')
-                        : (l10n.deviceStateDisconnected ?? 'Disconnected'),
+                    label: 'State',
+                    value: session.isBleConnected ? 'Connected' : 'Disconnected',
                   ),
                 ],
               ),

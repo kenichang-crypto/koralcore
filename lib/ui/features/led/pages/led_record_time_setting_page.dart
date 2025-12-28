@@ -7,7 +7,6 @@ import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../domain/led_lighting/led_record.dart';
 import '../../../theme/reef_colors.dart';
-import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../components/app_error_presenter.dart';
@@ -21,10 +20,7 @@ import '../widgets/led_spectrum_chart.dart';
 class LedRecordTimeSettingPage extends StatelessWidget {
   final LedRecord? initialRecord;
 
-  const LedRecordTimeSettingPage({
-    super.key,
-    this.initialRecord,
-  });
+  const LedRecordTimeSettingPage({super.key, this.initialRecord});
 
   @override
   Widget build(BuildContext context) {
@@ -47,8 +43,7 @@ class _LedRecordTimeSettingView extends StatefulWidget {
       _LedRecordTimeSettingViewState();
 }
 
-class _LedRecordTimeSettingViewState
-    extends State<_LedRecordTimeSettingView> {
+class _LedRecordTimeSettingViewState extends State<_LedRecordTimeSettingView> {
   @override
   void dispose() {
     final controller = context.read<LedRecordTimeSettingController>();
@@ -93,16 +88,14 @@ class _LedRecordTimeSettingViewState
               }
             },
           ),
-          title: Text(
-            l10n.ledRecordTimeSettingTitle ?? 'Time Point Settings',
-          ),
+          title: Text(l10n.ledRecordTimeSettingTitle),
           actions: [
             TextButton(
               onPressed: controller.isLoading || !isConnected
                   ? null
                   : () => _handleSave(context, controller, l10n),
               child: Text(
-                l10n.actionSave ?? 'Save',
+                l10n.actionSave,
                 style: TextStyle(color: ReefColors.onPrimary),
               ),
             ),
@@ -140,7 +133,7 @@ class _LedRecordTimeSettingViewState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.ledRecordTimeSettingTimeLabel ?? 'Time',
+              l10n.ledRecordTimeSettingTimeLabel,
               style: ReefTextStyles.title3,
             ),
             const SizedBox(height: ReefSpacing.sm),
@@ -168,10 +161,7 @@ class _LedRecordTimeSettingViewState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Spectrum',
-              style: ReefTextStyles.title3,
-            ),
+            Text('Spectrum', style: ReefTextStyles.title3),
             const SizedBox(height: ReefSpacing.sm),
             LedSpectrumChart.fromChannelMap(
               controller.channelLevels,
@@ -189,15 +179,15 @@ class _LedRecordTimeSettingViewState
     AppLocalizations l10n,
   ) {
     final channels = [
-      _ChannelInfo('uv', l10n.ledChannelUv ?? 'UV'),
-      _ChannelInfo('purple', l10n.ledChannelPurple ?? 'Purple'),
-      _ChannelInfo('blue', l10n.ledChannelBlue ?? 'Blue'),
-      _ChannelInfo('royalBlue', l10n.ledChannelRoyalBlue ?? 'Royal Blue'),
-      _ChannelInfo('green', l10n.ledChannelGreen ?? 'Green'),
-      _ChannelInfo('red', l10n.ledChannelRed ?? 'Red'),
-      _ChannelInfo('coldWhite', l10n.ledChannelColdWhite ?? 'Cold White'),
-      _ChannelInfo('warmWhite', l10n.ledChannelWarmWhite ?? 'Warm White'),
-      _ChannelInfo('moonlight', l10n.ledChannelMoonlight ?? 'Moonlight'),
+      _ChannelInfo('uv', 'UV'),
+      _ChannelInfo('purple', 'Purple'),
+      _ChannelInfo('blue', 'Blue'),
+      _ChannelInfo('royalBlue', 'Royal Blue'),
+      _ChannelInfo('green', 'Green'),
+      _ChannelInfo('red', 'Red'),
+      _ChannelInfo('coldWhite', 'Cold White'),
+      _ChannelInfo('warmWhite', 'Warm White'),
+      _ChannelInfo('moonlight', 'Moonlight'),
     ];
 
     return Card(
@@ -207,19 +197,21 @@ class _LedRecordTimeSettingViewState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.ledRecordTimeSettingChannelsLabel ?? 'Channels',
+              l10n.ledRecordTimeSettingChannelsLabel,
               style: ReefTextStyles.title3,
             ),
             const SizedBox(height: ReefSpacing.md),
-            ...channels.map((channel) => Padding(
-                  padding: const EdgeInsets.only(bottom: ReefSpacing.md),
-                  child: _buildChannelSlider(
-                    context,
-                    controller,
-                    channel.id,
-                    channel.label,
-                  ),
-                )),
+            ...channels.map(
+              (channel) => Padding(
+                padding: const EdgeInsets.only(bottom: ReefSpacing.md),
+                child: _buildChannelSlider(
+                  context,
+                  controller,
+                  channel.id,
+                  channel.label,
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -240,10 +232,7 @@ class _LedRecordTimeSettingViewState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(label, style: ReefTextStyles.body1),
-            Text(
-              '$value',
-              style: ReefTextStyles.title3,
-            ),
+            Text('$value', style: ReefTextStyles.title3),
           ],
         ),
         Slider(
@@ -286,8 +275,7 @@ class _LedRecordTimeSettingViewState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n.ledRecordTimeSettingErrorTime ??
-                  'Invalid time selected',
+              l10n.ledRecordTimeSettingErrorTime,
             ),
           ),
         );
@@ -296,8 +284,7 @@ class _LedRecordTimeSettingViewState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n.ledRecordTimeSettingErrorTimeExists ??
-                  'Time already exists',
+              l10n.ledRecordTimeSettingErrorTimeExists,
             ),
           ),
         );
@@ -307,7 +294,7 @@ class _LedRecordTimeSettingViewState
     if (record != null && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l10n.ledRecordTimeSettingSuccess ?? 'Record saved'),
+          content: Text(l10n.ledRecordTimeSettingSuccess),
         ),
       );
       Navigator.of(context).pop(record);
@@ -317,13 +304,12 @@ class _LedRecordTimeSettingViewState
   void _maybeShowError(BuildContext context, AppErrorCode? code) {
     if (code == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = context.read<LedRecordTimeSettingController>();
       final l10n = AppLocalizations.of(context);
       final message = describeAppError(l10n, code);
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     });
   }
 }
@@ -334,4 +320,3 @@ class _ChannelInfo {
 
   const _ChannelInfo(this.id, this.label);
 }
-

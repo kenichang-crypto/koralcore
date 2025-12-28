@@ -3,10 +3,9 @@ import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../application/common/app_context.dart';
-import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
+import '../../../../application/led/delete_scene_usecase.dart';
 import '../../../components/ble_guard.dart';
-import '../../../components/app_error_presenter.dart';
 import '../../../../theme/colors.dart';
 import '../../../../theme/dimensions.dart';
 import '../../../../infrastructure/repositories/scene_repository_impl.dart';
@@ -22,7 +21,6 @@ class LedSceneDeletePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final session = context.watch<AppSession>();
     final appContext = context.read<AppContext>();
     final isConnected = session.isBleConnected;
@@ -66,13 +64,13 @@ class _LedSceneDeleteView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.ledSceneDeleteTitle ?? 'Delete Scene'),
+        title: Text(l10n.ledSceneDeleteTitle),
       ),
       body: ListView(
         padding: const EdgeInsets.all(AppDimensions.spacingXL),
         children: [
           Text(
-            l10n.ledSceneDeleteDescription ?? 'Select scenes to delete',
+            l10n.ledSceneDeleteDescription,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppColors.grey700,
                 ),
@@ -91,7 +89,7 @@ class _LedSceneDeleteView extends StatelessWidget {
             )
           else ...[
             // Show local scenes (from SceneRepositoryImpl)
-            ..._buildLocalScenes(context, session, controller, currentIsConnected),
+            _buildLocalScenes(context, session, controller, currentIsConnected),
             const SizedBox(height: AppDimensions.spacingL),
             // Show device scenes (read-only, cannot delete)
             if (controller.staticScenes.isNotEmpty) ...[
@@ -110,7 +108,7 @@ class _LedSceneDeleteView extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildLocalScenes(
+  Widget _buildLocalScenes(
     BuildContext context,
     AppSession session,
     LedSceneListController controller,
@@ -118,16 +116,14 @@ class _LedSceneDeleteView extends StatelessWidget {
   ) {
     final deviceId = session.activeDeviceId;
     if (deviceId == null) {
-      return [
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.all(AppDimensions.spacingXXL),
-            child: Text(
-              AppLocalizations.of(context).ledSceneDeleteEmpty ?? 'No scenes to delete',
-            ),
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppDimensions.spacingXXL),
+          child: Text(
+            AppLocalizations.of(context).ledSceneDeleteEmpty,
           ),
         ),
-      ];
+      );
     }
 
     return FutureBuilder<List<_LocalSceneInfo>>(
@@ -143,37 +139,38 @@ class _LedSceneDeleteView extends StatelessWidget {
         }
 
         if (snapshot.hasError || snapshot.data == null || snapshot.data!.isEmpty) {
-          return [
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(AppDimensions.spacingXXL),
-                child: Text(
-                  AppLocalizations.of(context).ledSceneDeleteEmpty ?? 'No local scenes to delete',
-                ),
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(AppDimensions.spacingXXL),
+              child: Text(
+                AppLocalizations.of(context).ledSceneDeleteEmpty,
               ),
             ),
-          ];
+          );
         }
 
-        return [
-          Text(
-            'Local Scenes',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: AppDimensions.spacingM),
-          ...snapshot.data!.map(
-            (scene) => _SceneDeleteCard(
-              scene: scene,
-              deviceId: deviceId,
-              deleteSceneUseCase: deleteSceneUseCase,
-              isConnected: isConnected,
-              onDeleted: () {
-                // Refresh the scene list
-                controller.refresh();
-              },
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Local Scenes',
+              style: Theme.of(context).textTheme.titleMedium,
             ),
-          ),
-        ];
+            const SizedBox(height: AppDimensions.spacingM),
+            ...snapshot.data!.map(
+              (scene) => _SceneDeleteCard(
+                scene: scene,
+                deviceId: deviceId,
+                deleteSceneUseCase: deleteSceneUseCase,
+                isConnected: isConnected,
+                onDeleted: () {
+                  // Refresh the scene list
+                  controller.refresh();
+                },
+              ),
+            ),
+          ],
+        );
       },
     );
   }
@@ -229,7 +226,7 @@ class _SceneDeleteCard extends StatelessWidget {
         title: Text(scene.name),
         subtitle: Text('ID: ${scene.sceneIdString}'),
         trailing: IconButton(
-          icon: const Icon(Icons.delete, color: AppColors.error),
+          icon: Icon(Icons.delete, color: AppColors.error),
           onPressed: isConnected
               ? () => _confirmDelete(context, l10n)
               : () => showBleGuardDialog(context),
@@ -242,20 +239,19 @@ class _SceneDeleteCard extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l10n.ledSceneDeleteConfirmTitle ?? 'Delete Scene?'),
+        title: Text(l10n.ledSceneDeleteConfirmTitle),
         content: Text(
-          l10n.ledSceneDeleteConfirmMessage(scene.name) ??
-              'Are you sure you want to delete "${scene.name}"?',
+          l10n.ledSceneDeleteConfirmMessage(scene.name),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l10n.actionCancel ?? 'Cancel'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: Text(l10n.actionDelete ?? 'Delete'),
+            child: Text(l10n.actionDelete),
           ),
         ],
       ),
@@ -274,8 +270,7 @@ class _SceneDeleteCard extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n.ledSceneDeleteSuccess(scene.name) ??
-                  'Scene "${scene.name}" deleted successfully',
+              l10n.ledSceneDeleteSuccess(scene.name),
             ),
           ),
         );
@@ -286,7 +281,7 @@ class _SceneDeleteCard extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n.ledSceneDeleteError ?? 'Failed to delete scene: $error',
+              l10n.ledSceneDeleteError,
             ),
             backgroundColor: AppColors.error,
           ),
@@ -313,7 +308,7 @@ class _SceneInfoCard extends StatelessWidget {
         subtitle: Text(scene.isPreset ? 'Preset Scene' : 'Device Scene'),
         trailing: canDelete
             ? IconButton(
-                icon: const Icon(Icons.delete, color: AppColors.error),
+                icon: Icon(Icons.delete, color: AppColors.error),
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

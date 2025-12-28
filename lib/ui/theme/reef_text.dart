@@ -23,6 +23,12 @@ class ReefTextStyles {
     height: 26 / 20,
   );
 
+  static const TextStyle title3 = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    height: 24 / 18,
+  );
+
   static const TextStyle subheader = TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w400,
@@ -35,6 +41,12 @@ class ReefTextStyles {
     height: 24 / 18,
   );
 
+  static const TextStyle subheader1 = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    height: 22 / 16,
+  );
+
   static const TextStyle body = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
@@ -45,6 +57,13 @@ class ReefTextStyles {
     fontSize: 16,
     fontWeight: FontWeight.w700,
     height: 22 / 16,
+  );
+
+  static const TextStyle body1 = body;
+  static const TextStyle body2 = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    height: 20 / 14,
   );
 
   static const TextStyle caption1 = TextStyle(

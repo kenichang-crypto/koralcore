@@ -68,4 +68,10 @@ abstract class DeviceRepository {
 
   /// Update device name
   Future<void> updateDeviceName(String deviceId, String name);
+
+  /// Toggle favorite status for a device
+  Future<void> toggleFavoriteDevice(String deviceId);
+
+  /// Check if a device is favorite
+  Future<bool> isDeviceFavorite(String deviceId);
 }

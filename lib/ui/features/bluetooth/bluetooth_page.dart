@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../application/device/device_snapshot.dart';
 import '../../../application/system/ble_readiness_controller.dart';
+import '../../components/app_error_presenter.dart';
 import '../../components/ble_guard.dart';
 import '../../theme/reef_colors.dart';
 import '../../theme/reef_radius.dart';
@@ -58,33 +59,13 @@ class _BluetoothPageState extends State<BluetoothPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final error = controller.lastErrorCode;
       if (error != null) {
-        final message = _errorMessageForCode(error, l10n);
-        if (message != null) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(message)));
-        }
+        final message = describeAppError(l10n, error);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
         controller.clearError();
       }
     });
-    String? _errorMessageForCode(AppErrorCode code, AppLocalizations l10n) {
-      switch (code) {
-        case AppErrorCode.deviceBusy:
-          return l10n.errorDeviceBusy;
-        case AppErrorCode.noActiveDevice:
-        case AppErrorCode.noDeviceSelected:
-          return l10n.errorNoDevice;
-        case AppErrorCode.notSupported:
-          return l10n.errorNotSupported;
-        case AppErrorCode.invalidParam:
-          return l10n.errorInvalidParam;
-        case AppErrorCode.transportError:
-          return l10n.errorTransport;
-        case AppErrorCode.unknownError:
-        default:
-          return l10n.errorGeneric;
-      }
-    }
 
     return Scaffold(
       backgroundColor: ReefColors.primaryStrong,

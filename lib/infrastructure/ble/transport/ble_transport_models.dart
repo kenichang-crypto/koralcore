@@ -124,3 +124,20 @@ class BleCommandRejectedException extends BleWriteException {
   String toString() =>
       'BleCommandRejectedException(code: ${errorCode.name}, message: $message)';
 }
+
+/// BLE connection state for a device.
+///
+/// PARITY: Matches reef-b-app's connection state callback pattern.
+/// reef-b-app uses `connectState(isConnected: Boolean, gatt: BluetoothGatt?)`
+/// callback, which we represent as a stream of BleConnectionState events.
+class BleConnectionState {
+  final String? deviceId;
+  final bool isConnected;
+
+  const BleConnectionState({
+    this.deviceId,
+    required this.isConnected,
+  });
+
+  bool get isDisconnected => !isConnected;
+}

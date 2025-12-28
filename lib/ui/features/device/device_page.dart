@@ -232,7 +232,7 @@ class _DevicePageState extends State<DevicePage> {
           );
         },
         icon: const Icon(Icons.add),
-        label: Text(l10n.deviceActionAdd ?? 'Add Device'),
+        label: Text(l10n.deviceActionAdd),
       ),
     );
   }

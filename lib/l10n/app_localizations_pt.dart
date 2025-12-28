@@ -903,37 +903,528 @@ class AppLocalizationsPt extends AppLocalizations {
   String get ledScheduleSnackApplied => 'Schedule applied.';
 
   @override
-  String get led_runtime_status => 'Runtime status';
+  String get ledRuntimeStatus => 'Runtime status';
 
   @override
-  String get led_runtime_idle => 'Idle';
+  String get ledRuntimeIdle => 'Idle';
 
   @override
-  String get led_runtime_applying => 'Applying';
+  String get ledRuntimeApplying => 'Applying';
 
   @override
-  String get led_runtime_preview => 'Previewing';
+  String get ledRuntimePreview => 'Previewing';
 
   @override
-  String get led_runtime_schedule_active => 'Schedule active';
+  String get ledRuntimeScheduleActive => 'Schedule active';
 
   @override
-  String get led_scene_currently_running => 'Currently running';
+  String get ledSceneCurrentlyRunning => 'Currently running';
 
   @override
-  String get led_scene_preset => 'Preset scene';
+  String get ledScenePreset => 'Preset scene';
 
   @override
-  String get led_scene_custom => 'Custom scene';
+  String get ledSceneCustom => 'Custom scene';
 
   @override
-  String led_scene_channel_count(int count) {
+  String ledSceneChannelCount(int count) {
     return '$count channels';
   }
 
   @override
-  String get led_schedule_daily => 'Daily schedule';
+  String get ledScheduleDaily => 'Daily schedule';
 
   @override
-  String get led_schedule_window => 'Time window';
+  String get ledScheduleWindow => 'Time window';
+
+  @override
+  String get actionSave => 'Save';
+
+  @override
+  String get actionDelete => 'Delete';
+
+  @override
+  String get actionAdd => 'Add';
+
+  @override
+  String get actionDone => 'Done';
+
+  @override
+  String get actionSkip => 'Skip';
+
+  @override
+  String get actionRefresh => 'Refresh';
+
+  @override
+  String get actionClear => 'Clear';
+
+  @override
+  String get deviceName => 'Device Name';
+
+  @override
+  String get deviceNameHint => 'Enter device name';
+
+  @override
+  String get deviceNameEmpty => 'Device name cannot be empty';
+
+  @override
+  String get deviceId => 'Device ID';
+
+  @override
+  String get deviceInfo => 'Device Info';
+
+  @override
+  String get deviceSettingsTitle => 'Device Settings';
+
+  @override
+  String get deviceSettingsSaved => 'Settings saved';
+
+  @override
+  String get deviceActionEdit => 'Edit';
+
+  @override
+  String get deviceActionAdd => 'Add Device';
+
+  @override
+  String get deviceState => 'State';
+
+  @override
+  String get ledSettingTitle => 'LED Settings';
+
+  @override
+  String get ledRecordSettingTitle => 'LED Record Settings';
+
+  @override
+  String get ledRecordTimeSettingTitle => 'LED Record Time Settings';
+
+  @override
+  String get ledSceneAddTitle => 'Add Scene';
+
+  @override
+  String get ledSceneEditTitle => 'Edit Scene';
+
+  @override
+  String get ledSceneDeleteTitle => 'Delete Scene';
+
+  @override
+  String get ledMasterSettingTitle => 'Master Settings';
+
+  @override
+  String get ledRecordTimeSettingTimeLabel => 'Time';
+
+  @override
+  String get ledRecordTimeSettingChannelsLabel => 'Channels';
+
+  @override
+  String get ledRecordTimeSettingErrorTime => 'Invalid time';
+
+  @override
+  String get ledRecordTimeSettingErrorTimeExists => 'Time already exists';
+
+  @override
+  String get ledRecordTimeSettingSuccess => 'Record saved';
+
+  @override
+  String get ledSceneNameLabel => 'Scene Name';
+
+  @override
+  String get ledSceneNameHint => 'Enter scene name';
+
+  @override
+  String get ledSceneEditSuccess => 'Scene updated';
+
+  @override
+  String get ledSceneAddSuccess => 'Scene added';
+
+  @override
+  String get ledSceneDeleteDescription => 'Select scenes to delete';
+
+  @override
+  String get ledSceneDeleteEmpty => 'No scenes to delete';
+
+  @override
+  String get ledSceneDeleteConfirmTitle => 'Delete Scene?';
+
+  @override
+  String ledSceneDeleteConfirmMessage(String name) {
+    return 'Are you sure you want to delete \"$name\"?';
+  }
+
+  @override
+  String ledSceneDeleteSuccess(String name) {
+    return 'Scene \"$name\" deleted';
+  }
+
+  @override
+  String get ledSceneDeleteError => 'Failed to delete scene';
+
+  @override
+  String get ledSceneLimitReached => 'Maximum scenes reached';
+
+  @override
+  String get ledMasterSettingGroup => 'Group';
+
+  @override
+  String get ledMasterSettingMaster => 'Master';
+
+  @override
+  String get ledMasterSettingSlave => 'Slave';
+
+  @override
+  String get ledMasterSettingSetMaster => 'Set as Master';
+
+  @override
+  String get ledMasterSettingMoveGroup => 'Move Group';
+
+  @override
+  String get ledMasterSettingSetMasterSuccess => 'Master set successfully';
+
+  @override
+  String get ledMasterSettingSelectGroup => 'Select Group';
+
+  @override
+  String get ledMasterSettingGroupFull => 'Group is full';
+
+  @override
+  String get ledMasterSettingMoveGroupSuccess => 'Group moved successfully';
+
+  @override
+  String get ledMasterSettingMoveGroupFailed => 'Failed to move group';
+
+  @override
+  String get ledRecordSettingInitStrength => 'Initial Strength';
+
+  @override
+  String get ledRecordSettingSunrise => 'Sunrise';
+
+  @override
+  String get ledRecordSettingSunset => 'Sunset';
+
+  @override
+  String get ledRecordSettingSlowStart => 'Slow Start';
+
+  @override
+  String get ledRecordSettingMoonlight => 'Moonlight';
+
+  @override
+  String get ledRecordSettingErrorSunTime => 'Invalid sunrise/sunset time';
+
+  @override
+  String get ledRecordSettingSuccess => 'Settings saved';
+
+  @override
+  String get minute => 'minute';
+
+  @override
+  String get ledScenesActionEdit => 'Edit';
+
+  @override
+  String get ledDynamicScene => 'Dynamic Scene';
+
+  @override
+  String get ledStaticScene => 'Static Scene';
+
+  @override
+  String get ledScenesActionAdd => 'Add Scene';
+
+  @override
+  String get ledScenesActionUnfavorite => 'Remove Favorite';
+
+  @override
+  String get ledScenesActionFavorite => 'Add Favorite';
+
+  @override
+  String get ledResetDevice => 'Reset Device';
+
+  @override
+  String get sinkPosition => 'Sink Position';
+
+  @override
+  String get sinkPositionTitle => 'Sink Position';
+
+  @override
+  String get sinkPositionNotSet => 'Not Set';
+
+  @override
+  String get sinkPositionSet => 'Set';
+
+  @override
+  String get sinkAddTitle => 'Add Sink';
+
+  @override
+  String get sinkNameLabel => 'Sink Name';
+
+  @override
+  String get sinkNameHint => 'Enter sink name';
+
+  @override
+  String get sinkAddSuccess => 'Sink added';
+
+  @override
+  String get sinkNameExists => 'Sink name already exists';
+
+  @override
+  String get sinkManagerTitle => 'Sink Manager';
+
+  @override
+  String get sinkEmptyStateTitle => 'No Sinks';
+
+  @override
+  String get sinkEmptyStateSubtitle => 'Add a sink to get started';
+
+  @override
+  String get sinkEditTitle => 'Edit Sink';
+
+  @override
+  String get sinkDeleteTitle => 'Delete Sink';
+
+  @override
+  String get sinkDeleteMessage => 'Are you sure you want to delete this sink?';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get warningTitle => 'Warnings';
+
+  @override
+  String get warningClearAll => 'Clear All';
+
+  @override
+  String get warningClearAllTitle => 'Clear All Warnings?';
+
+  @override
+  String get warningClearAllContent => 'This will clear all warnings';
+
+  @override
+  String get warningClearAllSuccess => 'All warnings cleared';
+
+  @override
+  String warningId(int id) {
+    return 'Warning ID: $id';
+  }
+
+  @override
+  String get warningEmptyTitle => 'No Warnings';
+
+  @override
+  String get warningEmptySubtitle => 'All clear!';
+
+  @override
+  String get addDeviceTitle => 'Add Device';
+
+  @override
+  String get addDeviceSuccess => 'Device added';
+
+  @override
+  String get addDeviceFailed => 'Failed to add device';
+
+  @override
+  String get dosingScheduleEditTitle => 'Edit Schedule';
+
+  @override
+  String get dosingScheduleTypeLabel => 'Schedule Type';
+
+  @override
+  String get dosingScheduleTypeNone => 'No Schedule';
+
+  @override
+  String get dosingScheduleType24h => '24-Hour Average';
+
+  @override
+  String get dosingScheduleEditTimeRangeLabel => 'Time Range';
+
+  @override
+  String get dosingScheduleEditTimePointLabel => 'Time Point';
+
+  @override
+  String get dosingScheduleEditSelectDateRange => 'Select Date Range';
+
+  @override
+  String get dosingScheduleEditSelectDateTime => 'Select Date & Time';
+
+  @override
+  String get dosingScheduleEditCustomDetailsLabel => 'Custom Details';
+
+  @override
+  String get dosingScheduleEditNoTimeSlots => 'No time slots';
+
+  @override
+  String get dosingScheduleEditRotatingSpeedLabel => 'Rotating Speed';
+
+  @override
+  String get dosingScheduleEditSpeedLow => 'Low';
+
+  @override
+  String get dosingScheduleEditSpeedMedium => 'Medium';
+
+  @override
+  String get dosingScheduleEditSpeedHigh => 'High';
+
+  @override
+  String get dosingScheduleEditErrorVolumeEmpty => 'Volume cannot be empty';
+
+  @override
+  String get dosingScheduleEditErrorTimeEmpty => 'Time cannot be empty';
+
+  @override
+  String get dosingScheduleEditErrorVolumeTooLittleNew => 'Volume too little';
+
+  @override
+  String get dosingScheduleEditErrorVolumeTooLittleOld =>
+      'Volume too little (old)';
+
+  @override
+  String get dosingScheduleEditErrorVolumeTooMuch => 'Volume too much';
+
+  @override
+  String get dosingScheduleEditErrorVolumeOutOfRange =>
+      'Volume exceeds maximum limit';
+
+  @override
+  String get dosingScheduleEditErrorDetailsEmpty => 'Time slots are required';
+
+  @override
+  String get dosingScheduleEditErrorTimeExists => 'Time already exists';
+
+  @override
+  String get dosingScheduleEditTimeSlotTitle => 'Edit Time Slot';
+
+  @override
+  String get dosingScheduleEditSelectStartTime => 'Select Start Time';
+
+  @override
+  String get dosingScheduleEditSelectEndTime => 'Select End Time';
+
+  @override
+  String get dosingScheduleEditDropTimesLabel => 'Drop Times';
+
+  @override
+  String get dosingCalibrationAdjustListTitle => 'Adjustment List';
+
+  @override
+  String get dosingResetDevice => 'Reset Device';
+
+  @override
+  String get dosingResetDeviceSuccess => 'Device reset successfully';
+
+  @override
+  String get dosingNoPumpHeads => 'No pump heads';
+
+  @override
+  String get dosingHistorySubtitle => 'History';
+
+  @override
+  String get dosingAdjustListTitle => 'Adjustment List';
+
+  @override
+  String get dosingAdjustListStartAdjust => 'Start Adjustment';
+
+  @override
+  String get dosingRotatingSpeedLow => 'Low';
+
+  @override
+  String get dosingRotatingSpeedMedium => 'Medium';
+
+  @override
+  String get dosingRotatingSpeedHigh => 'High';
+
+  @override
+  String get dosingAdjustListEmptyTitle => 'No Adjustments';
+
+  @override
+  String get dosingAdjustListEmptySubtitle => 'No adjustment records yet';
+
+  @override
+  String get dropSettingTitle => 'Drop Settings';
+
+  @override
+  String get delayTime => 'Delay Time';
+
+  @override
+  String get delayTimeRequiresConnection =>
+      'Connection required for delay time';
+
+  @override
+  String get sinkPositionFeatureComingSoon => 'Coming soon';
+
+  @override
+  String get dropTypeTitle => 'Drop Types';
+
+  @override
+  String get dropTypeSubtitle => 'Manage drop types';
+
+  @override
+  String get dropTypeNo => 'No';
+
+  @override
+  String get dropTypeAddTitle => 'Add Drop Type';
+
+  @override
+  String get dropTypeNameLabel => 'Drop Type Name';
+
+  @override
+  String get dropTypeNameHint => 'Enter drop type name';
+
+  @override
+  String get dropTypeAddSuccess => 'Drop type added';
+
+  @override
+  String get dropTypeNameExists => 'Drop type name already exists';
+
+  @override
+  String get dropTypeEditTitle => 'Edit Drop Type';
+
+  @override
+  String get dropTypeEditSuccess => 'Drop type updated';
+
+  @override
+  String get dropTypeDeleteUsedTitle => 'Drop Type in Use';
+
+  @override
+  String get dropTypeDeleteTitle => 'Delete Drop Type';
+
+  @override
+  String get dropTypeDeleteUsedContent =>
+      'This drop type is in use and cannot be deleted';
+
+  @override
+  String get dropTypeDeleteContent =>
+      'Are you sure you want to delete this drop type?';
+
+  @override
+  String get dropTypeDeleteSuccess => 'Drop type deleted';
+
+  @override
+  String get dropTypeDeleteFailed => 'Failed to delete drop type';
+
+  @override
+  String get weekdaySunday => 'Sunday';
+
+  @override
+  String get weekdayMonday => 'Monday';
+
+  @override
+  String get weekdayTuesday => 'Tuesday';
+
+  @override
+  String get weekdayWednesday => 'Wednesday';
+
+  @override
+  String get weekdayThursday => 'Thursday';
+
+  @override
+  String get weekdayFriday => 'Friday';
+
+  @override
+  String get weekdaySaturday => 'Saturday';
 }

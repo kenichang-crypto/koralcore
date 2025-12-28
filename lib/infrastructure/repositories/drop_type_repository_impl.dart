@@ -2,6 +2,8 @@ library;
 
 import 'dart:async';
 
+import 'package:sqflite/sqflite.dart';
+
 import '../../domain/drop_type/drop_type.dart';
 import '../../infrastructure/database/database_helper.dart';
 import '../../platform/contracts/drop_type_repository.dart';

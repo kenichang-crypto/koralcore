@@ -58,15 +58,18 @@ class BleLedRepositoryImpl extends LedRepository
       _handlePacket,
       onError: _handleNotifyError,
     );
-    _connectionSubscription = (connectionStream ?? bleAdapter.connectionState)
-        .listen(_handleConnectionState);
+    if (connectionStream != null) {
+      _connectionSubscription = connectionStream.listen(_handleConnectionState);
+    }
   }
 
   final BleAdapter _bleAdapter;
   final LedCommandBuilder _commandBuilder;
   final BleWriteOptions _writeOptions;
   final Map<String, _DeviceSession> _sessions = <String, _DeviceSession>{};
+  // ignore: unused_field
   StreamSubscription<BleNotifyPacket>? _notifySubscription;
+  // ignore: unused_field
   StreamSubscription<BleConnectionState>? _connectionSubscription;
 
   // ---------------------------------------------------------------------------
@@ -92,7 +95,7 @@ class BleLedRepositoryImpl extends LedRepository
   }) async {
     final _DeviceSession session = _ensureSession(deviceId);
     session.cache.status = status;
-    _emitLedState(session);
+    emitLedState(session);
     return session.cache.snapshotState();
   }
 
@@ -113,7 +116,7 @@ class BleLedRepositoryImpl extends LedRepository
     final Uint8List command = context.isPreset
         ? _commandBuilder.usePresetScene(context.presetCode!)
         : _commandBuilder.useCustomScene(context.channelLevels!);
-    await _sendCommand(deviceId, command);
+    await sendCommand(deviceId, command);
     return session.cache.snapshotState();
   }
 
@@ -127,7 +130,7 @@ class BleLedRepositoryImpl extends LedRepository
         _resolveScheduleApplicationContext(session.cache, scheduleId);
     session.cache.status = LedStatus.applying;
     session.cache.pendingScheduleId = scheduleId;
-    _emitLedState(session);
+    emitLedState(session);
     final Uint8List command = _commandBuilder.applySchedule(
       scheduleCode: context.scheduleCode,
       enabled: context.enabled,
@@ -138,16 +141,16 @@ class BleLedRepositoryImpl extends LedRepository
       recurrenceMask: context.recurrenceMask,
       channels: context.orderedChannels,
     );
-    await _sendCommand(deviceId, command);
+    await sendCommand(deviceId, command);
     return session.cache.snapshotState();
   }
 
   @override
   Future<LedState> resetToDefault(String deviceId) async {
     final _DeviceSession session = _ensureSession(deviceId);
-    session.cache.status = LedStatus.syncing;
-    _emitLedState(session);
-    await _sendCommand(deviceId, _commandBuilder.resetLed());
+    session.cache.status = LedStatus.applying;
+    emitLedState(session);
+    await sendCommand(deviceId, _commandBuilder.resetLed());
     session.cache.invalidate();
     _requestSync(session);
     return session.cache.snapshotState();
@@ -161,8 +164,8 @@ class BleLedRepositoryImpl extends LedRepository
     final _DeviceSession session = _ensureSession(deviceId);
     session.cache.channelLevels = Map<String, int>.from(channelLevels);
     session.cache.status = LedStatus.applying;
-    _emitLedState(session);
-    await _sendCommand(deviceId, _commandBuilder.dimming(channelLevels));
+    emitLedState(session);
+    await sendCommand(deviceId, _commandBuilder.dimming(channelLevels));
     return session.cache.snapshotState();
   }
 
@@ -170,8 +173,8 @@ class BleLedRepositoryImpl extends LedRepository
   Future<LedState> startRecord(String deviceId) async {
     final _DeviceSession session = _ensureSession(deviceId);
     session.cache.status = LedStatus.applying;
-    _emitLedState(session);
-    await _sendCommand(deviceId, _commandBuilder.startRecordPlayback());
+    emitLedState(session);
+    await sendCommand(deviceId, _commandBuilder.startRecordPlayback());
     return session.cache.snapshotState();
   }
 
@@ -205,7 +208,7 @@ class BleLedRepositoryImpl extends LedRepository
   }) async {
     final _DeviceSession session = _ensureSession(deviceId);
     session.cache.recordStatus = LedRecordStatus.applying;
-    _emitRecordState(session);
+    emitRecordState(session);
     final LedRecord? target = session.cache.findRecord(recordId);
     if (target == null) {
       throw StateError('Record "$recordId" not found for $deviceId.');
@@ -214,7 +217,7 @@ class BleLedRepositoryImpl extends LedRepository
     final Future<void> mutationFuture =
         session.beginRecordMutation(_deleteRecordErrorMessage);
     try {
-      await _sendCommand(
+      await sendCommand(
         deviceId,
         _commandBuilder.deleteRecord(
           hour: target.hour,
@@ -234,11 +237,11 @@ class BleLedRepositoryImpl extends LedRepository
     final _DeviceSession session = _ensureSession(deviceId);
     session.cache.recordStatus = LedRecordStatus.applying;
     session.cache.pendingClearRecords = true;
-    _emitRecordState(session);
+    emitRecordState(session);
     final Future<void> mutationFuture =
         session.beginRecordMutation(_clearRecordsErrorMessage);
     try {
-      await _sendCommand(deviceId, _commandBuilder.clearRecords());
+      await sendCommand(deviceId, _commandBuilder.clearRecords());
     } catch (error) {
       session.failRecordMutation();
       rethrow;
@@ -255,8 +258,8 @@ class BleLedRepositoryImpl extends LedRepository
     final _DeviceSession session = _ensureSession(deviceId);
     session.cache.previewingRecordId = recordId;
     session.cache.recordStatus = LedRecordStatus.previewing;
-    _emitRecordState(session);
-    await _sendCommand(deviceId, _commandBuilder.preview(start: true));
+    emitRecordState(session);
+    await sendCommand(deviceId, _commandBuilder.preview(start: true));
     return session.cache.snapshotRecords();
   }
 
@@ -265,8 +268,8 @@ class BleLedRepositoryImpl extends LedRepository
     final _DeviceSession session = _ensureSession(deviceId);
     session.cache.recordStatus = LedRecordStatus.idle;
     session.cache.previewingRecordId = null;
-    _emitRecordState(session);
-    await _sendCommand(deviceId, _commandBuilder.preview(start: false));
+    emitRecordState(session);
+    await sendCommand(deviceId, _commandBuilder.preview(start: false));
     return session.cache.snapshotRecords();
   }
 
@@ -293,8 +296,8 @@ class BleLedRepositoryImpl extends LedRepository
     for (final _DeviceSession session in _sessions.values) {
       session.cache.status = LedStatus.error;
       session.cache.recordStatus = LedRecordStatus.error;
-      _emitLedState(session);
-      _emitRecordState(session);
+      emitLedState(session);
+      emitRecordState(session);
     }
   }
 
@@ -307,8 +310,8 @@ class BleLedRepositoryImpl extends LedRepository
     if (state.isDisconnected) {
       session.cache.invalidate();
       session.syncInFlight = false;
-      _emitLedState(session);
-      _emitRecordState(session);
+      emitLedState(session);
+      emitRecordState(session);
       return;
     }
     if (state.isConnected) {
@@ -326,7 +329,7 @@ class BleLedRepositoryImpl extends LedRepository
       return;
     }
     session.syncInFlight = true;
-    _sendCommand(session.deviceId, _commandBuilder.syncInformation());
+    sendCommand(session.deviceId, _commandBuilder.syncInformation());
   }
 
   Future<void> _processQueue(_DeviceSession session) async {
@@ -358,13 +361,13 @@ class BleLedRepositoryImpl extends LedRepository
         switch (status) {
           case 0x01: // Sync START
             // PARITY: reef-b-app clears information on START, no sync session needed.
-            session.cache.status = LedStatus.syncing;
+            session.cache.status = LedStatus.applying;
             session.cache.recordStatus = LedRecordStatus.idle;
             session.cache.handleSyncStart();
             break;
           case 0x02: // Sync END
             // PARITY: reef-b-app only notifies END, no state merging.
-            _finalizeSync(session);
+            finalizeSync(session);
             break;
           case 0x00: // Sync FAILED
             session.cache.finishSync();
@@ -376,63 +379,63 @@ class BleLedRepositoryImpl extends LedRepository
         }
         break;
       case _opcodeReturnPresetScene:
-        _handleSceneReturn(session, data, isCustom: false);
+        handleSceneReturn(session, data, isCustom: false);
         break;
       case _opcodeReturnCustomScene:
-        _handleSceneReturn(session, data, isCustom: true);
+        handleSceneReturn(session, data, isCustom: true);
         break;
       case _opcodeReturnRecord:
-        _handleRecordReturn(session, data);
+        handleRecordReturn(session, data);
         break;
       case _opcodeReturnSchedule:
-        _handleScheduleReturn(session, data);
+        handleScheduleReturn(session, data);
         break;
       case _opcodeUsePresetScene:
-        _handlePresetSceneAck(session, data);
+        handlePresetSceneAck(session, data);
         break;
       case _opcodeUseCustomScene:
-        _handleCustomSceneAck(session, data);
+        handleCustomSceneAck(session, data);
         break;
       case _opcodePreviewAck:
-        _handlePreviewAck(session, data);
+        handlePreviewAck(session, data);
         break;
       case _opcodeMutationAck:
-        _handleMutationAck(session, data);
+        handleMutationAck(session, data);
         break;
       case _opcodeClearRecordsAck:
-        _handleClearRecordsAck(session, data);
+        handleClearRecordsAck(session, data);
         break;
       case _opcodeChannelLevels:
-        _handleChannelLevels(session, data);
+        handleChannelLevels(session, data);
         break;
       case _opcodeTimeCorrection:
-        _handleTimeCorrectionAck(session, data);
+        handleTimeCorrectionAck(session, data);
         break;
       case _opcodeSetRecord:
-        _handleSetRecordAck(session, data);
+        handleSetRecordAck(session, data);
         break;
       case _opcodeStartRecord:
-        _handleStartRecordAck(session, data);
+        handleStartRecordAck(session, data);
         break;
       case _opcodeReset:
-        _handleResetAck(session, data);
+        handleResetAck(session, data);
         break;
       case _opcodeEnterDimmingMode:
-        _handleEnterDimmingModeAck(session, data);
+        handleEnterDimmingModeAck(session, data);
         break;
       case _opcodeExitDimmingMode:
-        _handleExitDimmingModeAck(session, data);
+        handleExitDimmingModeAck(session, data);
         break;
       // PARITY: Removed 0xFF sync end case. reef-b-app uses 0x21 + data[2]==0x02 instead.
     }
+  }
 
-
-  void _handleSceneReturn(
+  void handleSceneReturn(
     _DeviceSession session,
     Uint8List data, {
     required bool isCustom,
   }) {
-    final LedStateScene? scene = _parseSceneReturn(
+    final LedStateScene? scene = parseSceneReturn(
       session,
       data,
       isCustom: isCustom,
@@ -451,11 +454,11 @@ class BleLedRepositoryImpl extends LedRepository
     }
     // PARITY: reef-b-app only notifies UI at sync END, not during sync.
     if (!session.cache.isSyncing) {
-      _emitLedState(session);
+      emitLedState(session);
     }
   }
 
-  LedStateScene? _parseSceneReturn(
+  LedStateScene? parseSceneReturn(
     _DeviceSession session,
     Uint8List data, {
     required bool isCustom,
@@ -493,8 +496,8 @@ class BleLedRepositoryImpl extends LedRepository
       presetCode: code,
     );
   }
-  void _handleRecordReturn(_DeviceSession session, Uint8List data) {
-    final LedRecord? record = _parseRecordReturn(data);
+  void handleRecordReturn(_DeviceSession session, Uint8List data) {
+    final LedRecord? record = parseRecordReturn(data);
     if (record == null) {
       return;
     }
@@ -507,18 +510,19 @@ class BleLedRepositoryImpl extends LedRepository
     }
     // PARITY: reef-b-app only notifies UI at sync END, not during sync.
     if (!session.cache.isSyncing) {
-      _emitRecordState(session);
+      emitRecordState(session);
     }
   }
 
-  void _handleScheduleReturn(_DeviceSession session, Uint8List data) {
+  void handleScheduleReturn(_DeviceSession session, Uint8List data) {
     // PARITY: Opcode 0x26 (RETURN_SCHEDULE) is NOT implemented in reef-b-app.
     // _parseScheduleReturn returns null, so this handler does nothing.
-    final LedStateSchedule? schedule = _parseScheduleReturn(data);
+    // ignore: unused_local_variable
+    final LedStateSchedule? schedule = parseScheduleReturn(data);
     // No-op: schedule is always null per parity with reef-b-app
   }
 
-  LedStateSchedule? _parseScheduleReturn(Uint8List data) {
+  LedStateSchedule? parseScheduleReturn(Uint8List data) {
     // PARITY: reef-b-app does NOT implement opcode 0x26 (RETURN_SCHEDULE).
     // Verified: CommandManager.kt has no handler for CMD_LED_RETURN_SCHEDULE.
     // Return null to match reef-b-app behavior.
@@ -530,7 +534,7 @@ class BleLedRepositoryImpl extends LedRepository
     return null;
   }
 
-  LedRecord? _parseRecordReturn(Uint8List data) {
+  LedRecord? parseRecordReturn(Uint8List data) {
     if (data.length != 14) {
       return null;
     }
@@ -549,7 +553,7 @@ class BleLedRepositoryImpl extends LedRepository
     );
   }
 
-  void _handlePreviewAck(_DeviceSession session, Uint8List data) {
+  void handlePreviewAck(_DeviceSession session, Uint8List data) {
     if (data.length != 4) {
       return;
     }
@@ -567,10 +571,10 @@ class BleLedRepositoryImpl extends LedRepository
         session.cache.previewingRecordId = null;
         break;
     }
-    _emitRecordState(session);
+    emitRecordState(session);
   }
 
-  void _handleDeleteRecordAck(_DeviceSession session, Uint8List data) {
+  void handleDeleteRecordAck(_DeviceSession session, Uint8List data) {
     if (data.length != 4) {
       return;
     }
@@ -592,10 +596,10 @@ class BleLedRepositoryImpl extends LedRepository
       session.cache.recordStatus = LedRecordStatus.error;
       session.resolveRecordMutationFailure();
     }
-    _emitRecordState(session);
+    emitRecordState(session);
   }
 
-  void _handleClearRecordsAck(_DeviceSession session, Uint8List data) {
+  void handleClearRecordsAck(_DeviceSession session, Uint8List data) {
     if (data.length != 4) {
       return;
     }
@@ -612,18 +616,18 @@ class BleLedRepositoryImpl extends LedRepository
       session.resolveRecordMutationFailure();
     }
     session.cache.pendingClearRecords = false;
-    _emitRecordState(session);
+    emitRecordState(session);
   }
 
-  void _handleMutationAck(_DeviceSession session, Uint8List data) {
+  void handleMutationAck(_DeviceSession session, Uint8List data) {
     if (session.cache.pendingScheduleId != null) {
-      _handleScheduleAck(session, data);
+      handleScheduleAck(session, data);
       return;
     }
-    _handleDeleteRecordAck(session, data);
+    handleDeleteRecordAck(session, data);
   }
 
-  void _handleScheduleAck(_DeviceSession session, Uint8List data) {
+  void handleScheduleAck(_DeviceSession session, Uint8List data) {
     if (data.length != 4) {
       return;
     }
@@ -643,10 +647,10 @@ class BleLedRepositoryImpl extends LedRepository
       session.cache.status = LedStatus.error;
     }
     session.cache.pendingScheduleId = null;
-    _emitLedState(session);
+    emitLedState(session);
   }
 
-  void _handleChannelLevels(_DeviceSession session, Uint8List data) {
+  void handleChannelLevels(_DeviceSession session, Uint8List data) {
     // PARITY: reef-b-app treats 0x33 (CMD_LED_DIMMING) as ACK only, not data return.
     // Payload: [0x33, 0x01, result(0x00/0x01), checksum] = 4 bytes
     // 0x00 = failed, 0x01 = success
@@ -665,10 +669,10 @@ class BleLedRepositoryImpl extends LedRepository
       // reef-b-app doesn't revert, so we keep current state
       session.cache.status = LedStatus.error;
     }
-    _emitLedState(session);
+    emitLedState(session);
   }
 
-  void _handleTimeCorrectionAck(_DeviceSession session, Uint8List data) {
+  void handleTimeCorrectionAck(_DeviceSession session, Uint8List data) {
     // PARITY: reef-b-app payload: [0x20, len, result(0x00/0x01), checksum] = 4 bytes
     if (data.length != 4) {
       return; // Invalid payload
@@ -680,7 +684,7 @@ class BleLedRepositoryImpl extends LedRepository
     }
   }
 
-  void _handleSetRecordAck(_DeviceSession session, Uint8List data) {
+  void handleSetRecordAck(_DeviceSession session, Uint8List data) {
     // PARITY: reef-b-app payload: [0x27, len, result(0x00/0x01), checksum] = 4 bytes
     if (data.length != 4) {
       return; // Invalid payload
@@ -707,10 +711,10 @@ class BleLedRepositoryImpl extends LedRepository
       session.cache.recordStatus = LedRecordStatus.error;
       session.resolveRecordMutationFailure();
     }
-    _emitRecordState(session);
+    emitRecordState(session);
   }
 
-  void _handleStartRecordAck(_DeviceSession session, Uint8List data) {
+  void handleStartRecordAck(_DeviceSession session, Uint8List data) {
     // PARITY: reef-b-app payload: [0x2B, len, result(0x00/0x01), checksum] = 4 bytes
     if (data.length != 4) {
       return; // Invalid payload
@@ -723,10 +727,10 @@ class BleLedRepositoryImpl extends LedRepository
     } else {
       session.cache.status = LedStatus.error;
     }
-    _emitLedState(session);
+    emitLedState(session);
   }
 
-  void _handleResetAck(_DeviceSession session, Uint8List data) {
+  void handleResetAck(_DeviceSession session, Uint8List data) {
     // PARITY: reef-b-app payload: [0x2E, len, result(0x00/0x01), checksum] = 4 bytes
     if (data.length != 4) {
       return; // Invalid payload
@@ -741,27 +745,30 @@ class BleLedRepositoryImpl extends LedRepository
     // Note: Status is already set to syncing in resetToDefault(), will be updated at sync END
   }
 
-  void _handleEnterDimmingModeAck(_DeviceSession session, Uint8List data) {
+  void handleEnterDimmingModeAck(_DeviceSession session, Uint8List data) {
     // PARITY: reef-b-app payload: [0x32, len, result(0x00/0x01), checksum] = 4 bytes
     if (data.length != 4) {
       return; // Invalid payload
     }
+    // ignore: unused_local_variable
+    // ignore: unused_local_variable
     final bool success = (data[2] & 0xFF) == 0x01;
     // PARITY: reef-b-app ViewModel only logs success/failure, no state update
     // ACK is handled, no additional action needed
   }
 
-  void _handleExitDimmingModeAck(_DeviceSession session, Uint8List data) {
+  void handleExitDimmingModeAck(_DeviceSession session, Uint8List data) {
     // PARITY: reef-b-app payload: [0x34, len, result(0x00/0x01), checksum] = 4 bytes
     if (data.length != 4) {
       return; // Invalid payload
     }
+    // ignore: unused_local_variable
     final bool success = (data[2] & 0xFF) == 0x01;
     // PARITY: reef-b-app ViewModel only logs success/failure, no state update
     // ACK is handled, no additional action needed
   }
 
-  void _handlePresetSceneAck(_DeviceSession session, Uint8List data) {
+  void handlePresetSceneAck(_DeviceSession session, Uint8List data) {
     if (data.length != 4) {
       return;
     }
@@ -791,10 +798,10 @@ class BleLedRepositoryImpl extends LedRepository
     session.cache.pendingSceneId = null;
     session.cache.pendingPresetSceneCode = null;
     session.cache.pendingCustomSceneChannels = null;
-    _emitLedState(session);
+    emitLedState(session);
   }
 
-  void _handleCustomSceneAck(_DeviceSession session, Uint8List data) {
+  void handleCustomSceneAck(_DeviceSession session, Uint8List data) {
     if (data.length != 4) {
       return;
     }
@@ -826,10 +833,10 @@ class BleLedRepositoryImpl extends LedRepository
     session.cache.pendingSceneId = null;
     session.cache.pendingPresetSceneCode = null;
     session.cache.pendingCustomSceneChannels = null;
-    _emitLedState(session);
+    emitLedState(session);
   }
 
-  void _reconcileSceneStateFromSync(_DeviceSession session) {
+  void reconcileSceneStateFromSync(_DeviceSession session) {
     switch (session.cache.mode) {
       case LedMode.presetScene:
         final int? presetCode = session.cache.presetSceneCode;
@@ -870,7 +877,7 @@ class BleLedRepositoryImpl extends LedRepository
     }
   }
 
-  void _finalizeSync(_DeviceSession session) {
+  void finalizeSync(_DeviceSession session) {
     // PARITY: reef-b-app only notifies END, no state merging.
     // State is already updated immediately when RETURN opcodes are received.
     // This method only cleans up sync state and notifies completion.
@@ -887,11 +894,11 @@ class BleLedRepositoryImpl extends LedRepository
     session.syncInFlight = false;
     
     // Emit final state (reef-b-app ViewModel reads state directly, but koralcore needs to notify UI)
-    _emitLedState(session);
-    _emitRecordState(session);
+    emitLedState(session);
+    emitRecordState(session);
   }
 
-  void _finalizeMutation(_DeviceSession session) {
+  void finalizeMutation(_DeviceSession session) {
     // PARITY: Verified against reef-b-app CommandManager.kt.
     // - 0x2F (DELETE_RECORD): ViewModel calls ledInformation.deleteRecord() on SUCCESS
     // - 0x30 (CLEAR_RECORD): ViewModel calls ledInformation.clearRecord() on SUCCESS
@@ -899,36 +906,36 @@ class BleLedRepositoryImpl extends LedRepository
     // koralcore handles these in _handleDeleteRecordAck, _handleClearRecordsAck, _handleSetRecordAck.
     // This method only finalizes mutation state, which is already aligned.
     session.syncInFlight = false;
-    _emitLedState(session);
-    _emitRecordState(session);
+    emitLedState(session);
+    emitRecordState(session);
   }
 
-  Future<void> _sendCommand(String deviceId, Uint8List payload) async {
+  Future<void> sendCommand(String deviceId, Uint8List payload) async {
     try {
       await _bleAdapter.writeBytes(
         deviceId: deviceId,
         data: payload,
         options: _writeOptions,
       );
-    } catch (error, stackTrace) {
+    } catch (error) {
       // PARITY: Handle BLE command errors
       // Update session state to error and notify UI
       final _DeviceSession? session = _sessions[deviceId];
       if (session != null) {
         session.cache.status = LedStatus.error;
-        _emitLedState(session);
-        _emitRecordState(session);
+        emitLedState(session);
+        emitRecordState(session);
       }
       // Re-throw to allow caller to handle if needed
       rethrow;
     }
   }
 
-  void _emitLedState(_DeviceSession session) {
+  void emitLedState(_DeviceSession session) {
     session.ledStateController.add(session.cache.snapshotState());
   }
 
-  void _emitRecordState(_DeviceSession session) {
+  void emitRecordState(_DeviceSession session) {
     session.recordStateController.add(session.cache.snapshotRecords());
   }
 }
@@ -1063,7 +1070,7 @@ class _LedInformationCache {
       return false;
     }
     isSyncing = true;
-    status = LedStatus.syncing;
+    status = LedStatus.applying;
     return true;
   }
 
@@ -1303,6 +1310,7 @@ LedStateSchedule scheduleFromRecordForTest({
 }) =>
     _scheduleFromRecord(record: record, endMinutes: endMinutes);
 
+// ignore: unused_element
 void _rebuildSchedulesFromRecords(_LedInformationCache cache) {
   final List<LedStateSchedule> derived =
       _deriveSchedulesFromRecords(cache.records);

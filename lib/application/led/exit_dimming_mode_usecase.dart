@@ -1,5 +1,7 @@
 library;
 
+import 'dart:typed_data';
+
 import '../../infrastructure/ble/led/led_command_builder.dart';
 import '../../infrastructure/ble/ble_adapter.dart';
 import '../../infrastructure/ble/transport/ble_transport_models.dart';

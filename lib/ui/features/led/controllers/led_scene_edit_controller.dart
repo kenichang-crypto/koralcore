@@ -8,7 +8,8 @@ import '../../../../application/common/app_session.dart';
 import '../../../../application/led/add_scene_usecase.dart';
 import '../../../../application/led/enter_dimming_mode_usecase.dart';
 import '../../../../application/led/exit_dimming_mode_usecase.dart';
-import '../../../../application/led/set_channel_intensity.dart';
+import '../../../../application/led/set_channel_intensity.dart'
+    show ChannelIntensityChange, SetChannelIntensityUseCase, LightingStateSnapshot;
 import '../../../../application/led/update_scene_usecase.dart';
 import '../../../../infrastructure/repositories/scene_repository_impl.dart';
 import '../../../../application/led/apply_scene_usecase.dart';
@@ -243,9 +244,23 @@ class LedSceneEditController extends ChangeNotifier {
 
     // Fire and forget - don't wait for ACK
     setChannelIntensityUseCase
-        .execute(deviceId: deviceId, channelLevels: _channelLevels)
+        .execute(
+          deviceId: deviceId,
+          channels: _channelLevels.entries
+              .map(
+                (entry) => ChannelIntensityChange(
+                  channelId: entry.key,
+                  percentage: entry.value,
+                ),
+              )
+              .toList(),
+        )
         .catchError((_) {
       // Ignore errors for real-time dimming
+      return LightingStateSnapshot(
+        channels: const [],
+        updatedAt: DateTime.now(),
+      );
     });
   }
 

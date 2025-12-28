@@ -2,6 +2,7 @@ library;
 
 import 'pump_head_mode.dart';
 import 'pump_head_adjust_history.dart';
+import 'pump_head_record_detail.dart';
 
 /// Dosing state representing the current state of all pump heads.
 ///

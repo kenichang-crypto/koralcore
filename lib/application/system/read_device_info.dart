@@ -28,7 +28,7 @@ class ReadDeviceInfoUseCase {
   Future<void> execute({required String deviceId}) async {
     // 1) Send Read Device Info command
     // TODO: final resp = await bleAdapter.readDeviceInfo(deviceId)
-    final resp = await systemRepository.readDeviceInfo(deviceId);
+    await systemRepository.readDeviceInfo(deviceId);
 
     // 2) Parse response
     // TODO: parse resp -> {device_name, product_id, serial_number, hw_version}

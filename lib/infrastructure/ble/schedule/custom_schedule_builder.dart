@@ -3,13 +3,8 @@ import 'dart:typed_data';
 import '../../../domain/doser_dosing/doser_schedule.dart';
 import '../../../domain/doser_dosing/doser_schedule_type.dart';
 import '../../../domain/doser_dosing/schedule_time_models.dart';
-import '../../../domain/doser_dosing/schedule_repeat.dart';
-import '../../../domain/doser_dosing/weekday.dart';
-import '../../../domain/doser_dosing/schedule_weekday.dart';
 import '../../../domain/doser_dosing/custom_window_schedule_definition.dart';
-import '../../../domain/doser_dosing/dose_distribution.dart';
 import '../../../domain/doser_dosing/pump_speed.dart';
-import '../../../domain/doser_dosing/time_of_day.dart';
 import '../../ble/encoder/schedule/custom_schedule_chunk_encoder.dart';
 import '../../ble/encoder/schedule/custom_schedule_encoder_0x72.dart';
 import '../../ble/encoder/schedule/custom_schedule_encoder_0x73.dart';
@@ -51,11 +46,12 @@ List<Uint8List> buildCustomScheduleCommand(DoserSchedule schedule) {
 
   // Use existing encoders for each chunk
   final List<Uint8List> payloads = <Uint8List>[];
-  final Map<int, CustomScheduleChunkEncoder> encoders = <int, CustomScheduleChunkEncoder>{
-    0: CustomScheduleEncoder0x72(),
-    1: CustomScheduleEncoder0x73(),
-    2: CustomScheduleEncoder0x74(),
-  };
+  final Map<int, CustomScheduleChunkEncoder> encoders =
+      <int, CustomScheduleChunkEncoder>{
+        0: CustomScheduleEncoder0x72(),
+        1: CustomScheduleEncoder0x73(),
+        2: CustomScheduleEncoder0x74(),
+      };
 
   for (final ScheduleWindowChunk chunk in definition.chunks) {
     final CustomScheduleChunkEncoder? encoder = encoders[chunk.chunkIndex];
@@ -94,7 +90,8 @@ CustomWindowScheduleDefinition _convertToCustomWindowDefinition(
       WindowDoseEvent(
         minuteOffset: minuteOffset,
         doseMl: dosePerEvent,
-        speed: PumpSpeed.medium, // Default speed, can be extracted from schedule if available
+        speed: PumpSpeed
+            .medium, // Default speed, can be extracted from schedule if available
       ),
     );
   }

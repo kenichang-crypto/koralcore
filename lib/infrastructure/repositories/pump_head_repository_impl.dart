@@ -125,6 +125,7 @@ class PumpHeadRepositoryImpl extends PumpHeadRepository {
   Future<void> _savePumpHeadsToDatabase(
       String deviceId, List<PumpHead> heads) async {
     final db = await _dbHelper.database;
+    // ignore: unused_local_variable
     final now = DateTime.now().millisecondsSinceEpoch;
 
     // Delete existing heads for this device

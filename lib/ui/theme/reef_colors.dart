@@ -24,6 +24,10 @@ class ReefColors {
   static const Color textTertiary = Color(0x80000000); // text_aa
   static const Color textDisabled = Color(0x66000000); // text_aaaa_40
 
+  // Legacy greyscale aliases
+  static const Color grey = textSecondary;
+  static const Color greyLight = textTertiary;
+
   // Functional states
   static const Color success = Color(0xFF52D175); // text_success
   static const Color info = Color(0xFF47A9FF); // text_info

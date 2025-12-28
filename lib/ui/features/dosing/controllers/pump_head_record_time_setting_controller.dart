@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
-import '../../../../domain/device/device_context.dart';
 import '../../../../domain/doser_dosing/pump_head_record_detail.dart';
-import '../../../../domain/doser_dosing/pump_speed.dart';
 
 /// Controller for pump head record time setting page.
 ///
@@ -49,7 +47,7 @@ class PumpHeadRecordTimeSettingController extends ChangeNotifier {
   }
 
   // State
-  bool _isLoading = false;
+  final bool _isLoading = false;
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
   int _dropTimes = 3;
@@ -67,9 +65,10 @@ class PumpHeadRecordTimeSettingController extends ChangeNotifier {
   AppErrorCode? get lastErrorCode => _lastErrorCode;
 
   /// Check if device supports decimal dose (0.4ml minimum).
+  /// TODO: Get device context from AppContext.currentDeviceSession to check capabilities.
   bool get isDecimalDose {
-    final DeviceContext? context = session.deviceContext;
-    return context?.supportsDecimalMl ?? false;
+    // For now, default to false (1.0ml minimum) until device context is available.
+    return false;
   }
 
   /// Get minimum dose based on device capability.
@@ -137,7 +136,8 @@ class PumpHeadRecordTimeSettingController extends ChangeNotifier {
     }
 
     // Create time string for comparison
-    final String newTimeString = '${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')} ~ ${_endTime!.hour.toString().padLeft(2, '0')}:${_endTime!.minute.toString().padLeft(2, '0')}';
+    final String newTimeString =
+        '${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')} ~ ${_endTime!.hour.toString().padLeft(2, '0')}:${_endTime!.minute.toString().padLeft(2, '0')}';
 
     // Check against existing details (excluding initialDetail if editing)
     for (final detail in existingDetails) {
@@ -163,7 +163,8 @@ class PumpHeadRecordTimeSettingController extends ChangeNotifier {
           }
 
           // Check for overlap
-          if (newStartHour < existingEndHour && newEndHour > existingStartHour) {
+          if (newStartHour < existingEndHour &&
+              newEndHour > existingStartHour) {
             return true;
           }
         }
@@ -230,13 +231,4 @@ class PumpHeadRecordTimeSettingController extends ChangeNotifier {
       rotatingSpeed: _rotatingSpeed,
     );
   }
-
-  void _setError(AppErrorCode code) {
-    _lastErrorCode = code;
-  }
-
-  void _clearError() {
-    _lastErrorCode = null;
-  }
 }
-

@@ -6,7 +6,6 @@ import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../theme/reef_colors.dart';
-import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../components/app_error_presenter.dart';
@@ -60,14 +59,14 @@ class _LedRecordSettingView extends StatelessWidget {
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(l10n.ledRecordSettingTitle ?? 'LED Record Settings'),
+        title: Text(l10n.ledRecordSettingTitle),
         actions: [
           TextButton(
             onPressed: controller.isLoading || !isConnected
                 ? null
                 : () => _handleSave(context, controller, l10n),
             child: Text(
-              l10n.actionSave ?? 'Save',
+              l10n.actionSave,
               style: TextStyle(color: ReefColors.onPrimary),
             ),
           ),
@@ -111,7 +110,7 @@ class _LedRecordSettingView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  l10n.ledRecordSettingInitStrength ?? 'Initial Strength',
+                  l10n.ledRecordSettingInitStrength,
                   style: ReefTextStyles.title3,
                 ),
                 Text(
@@ -149,7 +148,7 @@ class _LedRecordSettingView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.ledRecordSettingSunrise ?? 'Sunrise Time',
+              l10n.ledRecordSettingSunrise,
               style: ReefTextStyles.title3,
             ),
             const SizedBox(height: ReefSpacing.sm),
@@ -182,7 +181,7 @@ class _LedRecordSettingView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.ledRecordSettingSunset ?? 'Sunset Time',
+              l10n.ledRecordSettingSunset,
               style: ReefTextStyles.title3,
             ),
             const SizedBox(height: ReefSpacing.sm),
@@ -218,11 +217,11 @@ class _LedRecordSettingView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  l10n.ledRecordSettingSlowStart ?? 'Slow Start',
+                  l10n.ledRecordSettingSlowStart,
                   style: ReefTextStyles.title3,
                 ),
                 Text(
-                  '${controller.slowStart} ${l10n.minute ?? 'min'}',
+                  '${controller.slowStart} ${l10n.minute}',
                   style: ReefTextStyles.title2,
                 ),
               ],
@@ -259,13 +258,10 @@ class _LedRecordSettingView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  l10n.ledRecordSettingMoonlight ?? 'Moonlight',
+                  l10n.ledRecordSettingMoonlight,
                   style: ReefTextStyles.title3,
                 ),
-                Text(
-                  '${controller.moonlight}%',
-                  style: ReefTextStyles.title2,
-                ),
+                Text('${controller.moonlight}%', style: ReefTextStyles.title2),
               ],
             ),
             const SizedBox(height: ReefSpacing.sm),
@@ -310,8 +306,7 @@ class _LedRecordSettingView extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n.ledRecordSettingErrorSunTime ??
-                  'Sunrise must be before sunset',
+              l10n.ledRecordSettingErrorSunTime,
             ),
           ),
         );
@@ -321,14 +316,12 @@ class _LedRecordSettingView extends StatelessWidget {
     if (success && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l10n.ledRecordSettingSuccess ?? 'Settings saved'),
+          content: Text(l10n.ledRecordSettingSuccess),
         ),
       );
       // Navigate to record page
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => const LedRecordPage(),
-        ),
+        MaterialPageRoute(builder: (_) => const LedRecordPage()),
       );
     }
   }
@@ -336,14 +329,12 @@ class _LedRecordSettingView extends StatelessWidget {
   void _maybeShowError(BuildContext context, AppErrorCode? code) {
     if (code == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = context.read<LedRecordSettingController>();
       final l10n = AppLocalizations.of(context);
       final message = describeAppError(l10n, code);
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     });
   }
 }
-

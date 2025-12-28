@@ -5,7 +5,6 @@ import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
-import '../../../../application/doser/single_dose_immediate_usecase.dart';
 import '../../../../domain/doser_dosing/pump_speed.dart';
 import '../../../../domain/doser_dosing/single_dose_immediate.dart';
 import '../../../components/app_error_presenter.dart';
@@ -46,9 +45,9 @@ void confirmDeleteDevice(
       await appContext.removeDeviceUseCase.execute(deviceId: deviceId);
       if (context.mounted) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.snackbarDeviceRemoved)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.snackbarDeviceRemoved)));
       }
     } on AppError catch (error) {
       if (context.mounted) {
@@ -75,7 +74,7 @@ void confirmResetDevice(
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text(l10n.dosingResetDevice ?? 'Reset Device'),
+      title: Text(l10n.dosingResetDevice),
       content: Text(
         'Are you sure you want to reset this device to default settings? This action cannot be undone.',
       ),
@@ -86,10 +85,8 @@ void confirmResetDevice(
         ),
         FilledButton(
           onPressed: () => Navigator.of(context).pop(true),
-          style: FilledButton.styleFrom(
-            backgroundColor: ReefColors.error,
-          ),
-          child: Text(l10n.dosingResetDevice ?? 'Reset'),
+          style: FilledButton.styleFrom(backgroundColor: ReefColors.error),
+          child: Text(l10n.dosingResetDevice),
         ),
       ],
     ),
@@ -100,7 +97,11 @@ void confirmResetDevice(
       await appContext.resetDosingStateUseCase.execute(deviceId: deviceId);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.dosingResetDeviceSuccess ?? 'Device reset successfully')),
+          SnackBar(
+            content: Text(
+              l10n.dosingResetDeviceSuccess,
+            ),
+          ),
         );
       }
     } on AppError catch (error) {
@@ -132,7 +133,9 @@ Future<void> handlePlayDosing(
 
   if (deviceId == null) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(describeAppError(l10n, AppErrorCode.noActiveDevice))),
+      SnackBar(
+        content: Text(describeAppError(l10n, AppErrorCode.noActiveDevice)),
+      ),
     );
     return;
   }
@@ -155,9 +158,7 @@ Future<void> handlePlayDosing(
 
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Dosing started for head $headId'),
-        ),
+        SnackBar(content: Text('Dosing started for head $headId')),
       );
     }
   } on AppError catch (error) {
@@ -169,9 +170,7 @@ Future<void> handlePlayDosing(
   } catch (error) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to start dosing: ${error.toString()}'),
-        ),
+        SnackBar(content: Text('Failed to start dosing: ${error.toString()}')),
       );
     }
   }
@@ -202,7 +201,9 @@ Future<void> handleConnect(
 
   if (deviceId == null) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(describeAppError(l10n, AppErrorCode.noActiveDevice))),
+      SnackBar(
+        content: Text(describeAppError(l10n, AppErrorCode.noActiveDevice)),
+      ),
     );
     return;
   }
@@ -210,9 +211,9 @@ Future<void> handleConnect(
   try {
     await appContext.connectDeviceUseCase.execute(deviceId: deviceId);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Device connected successfully')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Device connected successfully')));
     }
   } on AppError catch (error) {
     if (context.mounted) {
@@ -223,9 +224,7 @@ Future<void> handleConnect(
   } catch (error) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to connect: ${error.toString()}'),
-        ),
+        SnackBar(content: Text('Failed to connect: ${error.toString()}')),
       );
     }
   }
@@ -246,9 +245,9 @@ Future<void> handleDisconnect(
   try {
     await appContext.disconnectDeviceUseCase.execute(deviceId: deviceId);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Device disconnected')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Device disconnected')));
     }
   } on AppError catch (error) {
     if (context.mounted) {
@@ -259,11 +258,8 @@ Future<void> handleDisconnect(
   } catch (error) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to disconnect: ${error.toString()}'),
-        ),
+        SnackBar(content: Text('Failed to disconnect: ${error.toString()}')),
       );
     }
   }
 }
-

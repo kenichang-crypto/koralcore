@@ -3,13 +3,11 @@ import 'dart:typed_data';
 import '../../../domain/doser_dosing/doser_schedule.dart';
 import '../../../domain/doser_dosing/doser_schedule_type.dart';
 import '../../../domain/doser_dosing/schedule_time_models.dart';
-import '../../../domain/doser_dosing/schedule_repeat.dart';
 import '../../../domain/doser_dosing/weekday.dart';
 import '../../../domain/doser_dosing/schedule_weekday.dart';
 import '../../../domain/doser_dosing/encoder/single_dose_encoding_utils.dart';
 import '../../../domain/doser_dosing/pump_speed.dart';
 import '../../../domain/doser_dosing/daily_average_schedule_definition.dart';
-import '../../../domain/doser_dosing/dose_distribution.dart';
 import '../../ble/encoder/schedule/daily_average_schedule_encoder.dart';
 
 /// Builds the BLE payload for a 24h schedule (opcodes 0x70 or 0x71).
@@ -83,7 +81,8 @@ DailyAverageScheduleDefinition _convertToDailyAverageDefinition(
         hour: hour,
         minute: minute,
         doseMl: dosePerSlot,
-        speed: PumpSpeed.medium, // Default speed, can be extracted from schedule if available
+        speed: PumpSpeed
+            .medium, // Default speed, can be extracted from schedule if available
       ),
     );
   }
@@ -133,9 +132,7 @@ Uint8List _buildDateRangeCommand(DoserSchedule schedule) {
   payload.add(SingleDoseEncodingUtils.mapPumpSpeedToByte(PumpSpeed.medium));
 
   // Checksum
-  final int checksum = SingleDoseEncodingUtils.checksumFor(
-    payload.sublist(1),
-  );
+  final int checksum = SingleDoseEncodingUtils.checksumFor(payload.sublist(1));
   payload.add(checksum);
 
   return Uint8List.fromList(payload);

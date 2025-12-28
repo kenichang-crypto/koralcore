@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../theme/colors.dart';
-import '../../../theme/dimensions.dart';
+import '../../../../theme/colors.dart';
+import '../../../../theme/dimensions.dart';
 
 /// SceneIconPicker
 ///

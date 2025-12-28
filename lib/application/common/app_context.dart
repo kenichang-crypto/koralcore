@@ -27,6 +27,10 @@ import '../../platform/contracts/led_record_repository.dart';
 import '../../platform/contracts/led_repository.dart';
 import '../../platform/contracts/pump_head_repository.dart';
 import '../../platform/contracts/sink_repository.dart';
+import '../../platform/contracts/warning_repository.dart';
+import '../../platform/contracts/drop_type_repository.dart';
+import '../../infrastructure/repositories/warning_repository_impl.dart';
+import '../../infrastructure/repositories/drop_type_repository_impl.dart';
 import '../common/app_error_mapper.dart';
 import '../device/connect_device_usecase.dart';
 import '../device/disconnect_device_usecase.dart';
@@ -83,6 +87,8 @@ class AppContext {
   final DosingRepository dosingRepository;
   final PumpHeadRepository pumpHeadRepository;
   final SinkRepository sinkRepository;
+  final WarningRepository warningRepository;
+  final DropTypeRepository dropTypeRepository;
   final CurrentDeviceSession currentDeviceSession;
   final BleAdapter bleAdapter;
 
@@ -122,6 +128,11 @@ class AppContext {
   final StartLedPreviewUseCase startLedPreviewUseCase;
   final StopLedPreviewUseCase stopLedPreviewUseCase;
   final StartLedRecordUseCase startLedRecordUseCase;
+  final AddSceneUseCase addSceneUseCase;
+  final UpdateSceneUseCase updateSceneUseCase;
+  final DeleteSceneUseCase deleteSceneUseCase;
+  final EnterDimmingModeUseCase enterDimmingModeUseCase;
+  final ExitDimmingModeUseCase exitDimmingModeUseCase;
 
   AppContext._({
     required this.deviceRepository,
@@ -130,6 +141,8 @@ class AppContext {
     required this.dosingRepository,
     required this.pumpHeadRepository,
     required this.sinkRepository,
+    required this.warningRepository,
+    required this.dropTypeRepository,
     required this.currentDeviceSession,
     required this.bleAdapter,
     required this.scanDevicesUseCase,
@@ -171,6 +184,8 @@ class AppContext {
     required this.deleteSceneUseCase,
     required this.enterDimmingModeUseCase,
     required this.exitDimmingModeUseCase,
+    required this.observeDosingStateUseCase,
+    required this.readDosingStateUseCase,
   });
 
   factory AppContext.bootstrap() {
@@ -179,6 +194,10 @@ class AppContext {
       sinkRepository: sinkRepository,
     );
     final PumpHeadRepository pumpHeadRepository = PumpHeadRepositoryImpl();
+    final WarningRepository warningRepository = WarningRepositoryImpl();
+    final DropTypeRepository dropTypeRepository = DropTypeRepositoryImpl(
+      pumpHeadRepository: pumpHeadRepository,
+    );
     const LedPort ledPort = LightingRepositoryImpl();
     final currentDeviceSession = CurrentDeviceSession();
     final BleTransportLogBuffer transportLogBuffer = BleTransportLogBuffer();
@@ -240,6 +259,8 @@ class AppContext {
       dosingRepository: dosingRepository,
       pumpHeadRepository: pumpHeadRepository,
       sinkRepository: sinkRepository,
+      warningRepository: warningRepository,
+      dropTypeRepository: dropTypeRepository,
       currentDeviceSession: currentDeviceSession,
       bleAdapter: bleAdapter,
       scanDevicesUseCase: ScanDevicesUseCase(

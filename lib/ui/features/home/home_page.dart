@@ -39,7 +39,7 @@ class HomePage extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.warning, color: ReefColors.onPrimary),
-            tooltip: l10n.warningTitle ?? 'Warnings',
+            tooltip: l10n.warningTitle,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(

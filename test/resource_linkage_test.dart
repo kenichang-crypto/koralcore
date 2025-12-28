@@ -5,6 +5,7 @@
 /// 2. All asset constants are valid
 /// 3. All l10n strings are accessible
 /// 4. All color/theme references are valid
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -59,4 +60,3 @@ void main() {
     });
   });
 }
-

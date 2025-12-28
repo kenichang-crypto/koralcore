@@ -375,13 +375,13 @@ class _DropTypeCard extends StatelessWidget {
     return Card(
       child: ListTile(
         title: Text(
-          l10n.dropTypeTitle ?? 'Drop Type',
+          l10n.dropTypeTitle,
           style: ReefTextStyles.subheader.copyWith(
             color: ReefColors.textPrimary,
           ),
         ),
         subtitle: Text(
-          l10n.dropTypeSubtitle ?? 'Manage drop types',
+          l10n.dropTypeSubtitle,
           style: ReefTextStyles.caption1.copyWith(
             color: ReefColors.textSecondary,
           ),

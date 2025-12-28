@@ -96,8 +96,8 @@ int _argb(int r, int g, int b) {
 }
 
 int _tint(int color) {
-  final int r = (((color >> 16) & 0xFF) + 30).clamp(0, 255) as int;
-  final int g = (((color >> 8) & 0xFF) + 30).clamp(0, 255) as int;
-  final int b = ((color & 0xFF) + 30).clamp(0, 255) as int;
+  final int r = (((color >> 16) & 0xFF) + 30).clamp(0, 255);
+  final int g = (((color >> 8) & 0xFF) + 30).clamp(0, 255);
+  final int b = ((color & 0xFF) + 30).clamp(0, 255);
   return _argb(r, g, b);
 }

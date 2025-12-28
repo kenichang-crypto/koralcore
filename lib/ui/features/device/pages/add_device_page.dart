@@ -6,7 +6,6 @@ import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../theme/reef_colors.dart';
-import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../components/app_error_presenter.dart';
@@ -107,18 +106,18 @@ class _AddDeviceViewState extends State<_AddDeviceView> {
               }
             },
             child: Text(
-              l10n.actionSkip ?? 'Skip',
+              l10n.actionSkip,
               style: TextStyle(color: ReefColors.onPrimary),
             ),
           ),
-          title: Text(l10n.addDeviceTitle ?? 'Add Device'),
+          title: Text(l10n.addDeviceTitle),
           actions: [
             TextButton(
               onPressed: controller.isLoading || !isConnected
                   ? null
                   : () => _handleAdd(context, controller, l10n),
               child: Text(
-                l10n.actionAdd ?? 'Add',
+                l10n.actionAdd,
                 style: TextStyle(color: ReefColors.onPrimary),
               ),
             ),
@@ -154,14 +153,14 @@ class _AddDeviceViewState extends State<_AddDeviceView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.deviceName ?? 'Device Name',
+              l10n.deviceName,
               style: ReefTextStyles.title3,
             ),
             const SizedBox(height: ReefSpacing.sm),
             TextField(
               controller: _nameController,
               decoration: InputDecoration(
-                hintText: l10n.deviceNameHint ?? 'Enter device name',
+                hintText: l10n.deviceNameHint,
                 border: const OutlineInputBorder(),
               ),
               onChanged: (value) {
@@ -186,12 +185,12 @@ class _AddDeviceViewState extends State<_AddDeviceView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.sinkPosition ?? 'Sink Position',
+              l10n.sinkPosition,
               style: ReefTextStyles.title3,
             ),
             const SizedBox(height: ReefSpacing.sm),
             ListTile(
-              title: Text(_sinkName ?? l10n.sinkPositionNotSet ?? 'Not set'),
+              title: Text(_sinkName ?? l10n.sinkPositionNotSet),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => _selectSinkPosition(context, controller, l10n),
             ),
@@ -208,9 +207,8 @@ class _AddDeviceViewState extends State<_AddDeviceView> {
   ) async {
     final String? selectedSinkId = await Navigator.of(context).push<String>(
       MaterialPageRoute(
-        builder: (_) => SinkPositionPage(
-          initialSinkId: controller.selectedSinkId,
-        ),
+        builder: (_) =>
+            SinkPositionPage(initialSinkId: controller.selectedSinkId),
       ),
     );
 
@@ -218,13 +216,13 @@ class _AddDeviceViewState extends State<_AddDeviceView> {
       controller.setSelectedSinkId(selectedSinkId);
       final String? name = await controller.getSinkNameById(selectedSinkId);
       setState(() {
-        _sinkName = name ?? l10n.sinkPositionNotSet ?? 'Not set';
+        _sinkName = name ?? l10n.sinkPositionNotSet;
       });
     } else if (selectedSinkId == '') {
       // "No" selected
       controller.setSelectedSinkId(null);
       setState(() {
-        _sinkName = l10n.sinkPositionNotSet ?? 'Not set';
+        _sinkName = l10n.sinkPositionNotSet;
       });
     }
   }
@@ -238,17 +236,13 @@ class _AddDeviceViewState extends State<_AddDeviceView> {
     if (success && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l10n.addDeviceSuccess ?? 'Device added successfully'),
+          content: Text(l10n.addDeviceSuccess),
         ),
       );
       Navigator.of(context).pop(true);
     } else if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            l10n.addDeviceFailed ?? 'Failed to add device',
-          ),
-        ),
+        SnackBar(content: Text(l10n.addDeviceFailed)),
       );
     }
   }
@@ -256,14 +250,12 @@ class _AddDeviceViewState extends State<_AddDeviceView> {
   void _maybeShowError(BuildContext context, AppErrorCode? code) {
     if (code == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = context.read<AddDeviceController>();
       final l10n = AppLocalizations.of(context);
       final message = describeAppError(l10n, code);
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     });
   }
 }
-

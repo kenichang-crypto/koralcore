@@ -8,12 +8,10 @@ import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
-import '../../../../theme/reef_colors.dart';
-import '../../../../theme/reef_radius.dart';
-import '../../../../theme/reef_spacing.dart';
-import '../../../../theme/reef_text.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_radius.dart';
+import '../../../theme/reef_spacing.dart';
+import '../../../theme/reef_text.dart';
 
 /// DeviceSettingsPage
 ///
@@ -30,6 +28,7 @@ class DeviceSettingsPage extends StatefulWidget {
 class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
   late TextEditingController _nameController;
   bool _isLoading = false;
+  // ignore: unused_field
   AppErrorCode? _lastErrorCode;
 
   @override
@@ -61,7 +60,7 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
     if (newName.isEmpty) {
       _setError(AppErrorCode.invalidParam);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.deviceNameEmpty ?? 'Device name cannot be empty')),
+        SnackBar(content: Text(l10n.deviceNameEmpty)),
       );
       return;
     }
@@ -80,7 +79,7 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
       if (mounted) {
         Navigator.of(context).pop(true);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.deviceSettingsSaved ?? 'Device settings saved')),
+          SnackBar(content: Text(l10n.deviceSettingsSaved)),
         );
       }
     } on AppError catch (error) {
@@ -118,7 +117,8 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final session = context.watch<AppSession>();
-    final deviceName = session.activeDeviceName ?? l10n.deviceSettingsTitle ?? 'Device Settings';
+    // ignore: unused_local_variable
+    final deviceName = session.activeDeviceName ?? l10n.deviceSettingsTitle;
 
     return Scaffold(
       appBar: AppBar(
@@ -126,7 +126,7 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
         title: Text(
-          l10n.deviceSettingsTitle ?? 'Device Settings',
+          l10n.deviceSettingsTitle,
           style: ReefTextStyles.title2.copyWith(
             color: ReefColors.onPrimary,
           ),
@@ -152,7 +152,7 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
                   ? null
                   : _saveSettings,
               child: Text(
-                l10n.actionSave ?? 'Save',
+                l10n.actionSave,
                 style: ReefTextStyles.subheaderAccent.copyWith(
                   color: ReefColors.onPrimary,
                 ),
@@ -169,7 +169,7 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
           ],
           // Device Name Section
           Text(
-            l10n.deviceName ?? 'Device Name',
+            l10n.deviceName,
             style: ReefTextStyles.caption1.copyWith(
               color: ReefColors.textSecondary,
             ),
@@ -178,7 +178,7 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
           TextField(
             controller: _nameController,
             decoration: InputDecoration(
-              hintText: l10n.deviceNameHint ?? 'Enter device name',
+              hintText: l10n.deviceNameHint,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(ReefRadius.md),
               ),
@@ -194,7 +194,7 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
 
           // Device Info Section (read-only)
           Text(
-            l10n.deviceInfo ?? 'Device Information',
+            l10n.deviceInfo,
             style: ReefTextStyles.caption1.copyWith(
               color: ReefColors.textSecondary,
             ),
@@ -211,15 +211,13 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _InfoRow(
-                    label: l10n.deviceId ?? 'Device ID',
+                    label: l10n.deviceId,
                     value: session.activeDeviceId ?? '-',
                   ),
                   const SizedBox(height: ReefSpacing.md),
                   _InfoRow(
-                    label: l10n.deviceState ?? 'State',
-                    value: session.isBleConnected
-                        ? (l10n.deviceStateConnected ?? 'Connected')
-                        : (l10n.deviceStateDisconnected ?? 'Disconnected'),
+                    label: 'State',
+                    value: session.isBleConnected ? 'Connected' : 'Disconnected',
                   ),
                 ],
               ),

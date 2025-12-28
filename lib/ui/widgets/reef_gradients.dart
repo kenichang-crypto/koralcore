@@ -5,7 +5,6 @@
 library;
 
 import 'package:flutter/material.dart';
-import '../theme/reef_colors.dart';
 
 /// Rainbow gradient widget.
 ///
@@ -63,13 +62,8 @@ Container createGradientContainer({
     width: width,
     height: height,
     decoration: BoxDecoration(
-      gradient: LinearGradient(
-        begin: begin,
-        end: end,
-        colors: colors,
-      ),
+      gradient: LinearGradient(begin: begin, end: end, colors: colors),
     ),
     child: child,
   );
 }
-

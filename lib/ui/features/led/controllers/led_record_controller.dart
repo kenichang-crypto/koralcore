@@ -258,6 +258,11 @@ class LedRecordController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _setError(AppErrorCode errorCode) {
+    _lastErrorCode = errorCode;
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     _subscription?.cancel();

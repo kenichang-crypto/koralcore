@@ -38,7 +38,7 @@ class LedSceneEditPage extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context).ledSceneEditTitle ?? 'Edit Scene'),
+              title: Text(AppLocalizations.of(context).ledSceneEditTitle),
             ),
             body: const Center(child: CircularProgressIndicator()),
           );
@@ -47,7 +47,7 @@ class LedSceneEditPage extends StatelessWidget {
         if (snapshot.hasError || snapshot.data == null) {
           return Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context).ledSceneEditTitle ?? 'Edit Scene'),
+              title: Text(AppLocalizations.of(context).ledSceneEditTitle),
             ),
             body: Center(
               child: Padding(
@@ -174,7 +174,7 @@ class _LedSceneEditViewState extends State<_LedSceneEditView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.ledSceneEditTitle ?? 'Edit Scene'),
+        title: Text(l10n.ledSceneEditTitle),
         actions: [
           if (controller.isDimmingMode)
             Padding(
@@ -196,8 +196,8 @@ class _LedSceneEditViewState extends State<_LedSceneEditView> {
           // Scene name input
           TextField(
             decoration: InputDecoration(
-              labelText: l10n.ledSceneNameLabel ?? 'Scene Name',
-              hintText: l10n.ledSceneNameHint ?? 'Enter scene name',
+              labelText: l10n.ledSceneNameLabel,
+              hintText: l10n.ledSceneNameHint,
               border: const OutlineInputBorder(),
             ),
             controller: TextEditingController(text: controller.name)
@@ -229,7 +229,7 @@ class _LedSceneEditViewState extends State<_LedSceneEditView> {
 
           // Channel sliders
           Text(
-            l10n.ledControlChannelsSection ?? 'Channel Levels',
+            'Channel Levels',
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: AppDimensions.spacingM),
@@ -266,7 +266,7 @@ class _LedSceneEditViewState extends State<_LedSceneEditView> {
                       if (success) {
                         Navigator.of(context).pop(true);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(l10n.ledSceneEditSuccess ?? 'Scene updated successfully')),
+                          SnackBar(content: Text(l10n.ledSceneEditSuccess)),
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -281,7 +281,7 @@ class _LedSceneEditViewState extends State<_LedSceneEditView> {
                   }
                 : null,
             icon: const Icon(Icons.save),
-            label: Text(l10n.actionSave ?? 'Save'),
+            label: Text(l10n.actionSave),
           ),
         ],
       ),
@@ -293,18 +293,17 @@ class _LedSceneEditViewState extends State<_LedSceneEditView> {
     LedSceneEditController controller,
     bool enabled,
   ) {
-    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final channels = [
-      ('coldWhite', l10n.ledChannelColdWhite ?? 'Cold White'),
-      ('royalBlue', l10n.ledChannelRoyalBlue ?? 'Royal Blue'),
-      ('blue', l10n.ledChannelBlue ?? 'Blue'),
-      ('red', l10n.ledChannelRed ?? 'Red'),
-      ('green', l10n.ledChannelGreen ?? 'Green'),
-      ('purple', l10n.ledChannelPurple ?? 'Purple'),
-      ('uv', l10n.ledChannelUv ?? 'UV'),
-      ('warmWhite', l10n.ledChannelWarmWhite ?? 'Warm White'),
-      ('moonLight', l10n.ledChannelMoonLight ?? 'Moon Light'),
+      ('coldWhite', 'Cold White'),
+      ('royalBlue', 'Royal Blue'),
+      ('blue', 'Blue'),
+      ('red', 'Red'),
+      ('green', 'Green'),
+      ('purple', 'Purple'),
+      ('uv', 'UV'),
+      ('warmWhite', 'Warm White'),
+      ('moonLight', 'Moon Light'),
     ];
 
     return channels.map((channel) {

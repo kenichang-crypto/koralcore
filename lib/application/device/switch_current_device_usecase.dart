@@ -25,7 +25,7 @@ class SwitchCurrentDeviceUseCase {
   Future<void> execute({required String deviceId}) async {
     // 1) Validate device exists
     // TODO: if not exists -> return error
-    final existing = await deviceRepository.getDevice(deviceId);
+    await deviceRepository.getDevice(deviceId);
 
     // 2) Set application currentDevice (context)
     // TODO: appContext.setCurrentDevice(deviceId)
@@ -36,7 +36,7 @@ class SwitchCurrentDeviceUseCase {
 
     // 3) Load cached device state and notify presentation
     // TODO: final state = await deviceRepository.getState(deviceId)
-    final state = await deviceRepository.getDeviceState(deviceId);
+    await deviceRepository.getDeviceState(deviceId);
     // TODO: notify UI to load state
 
     // 4) Optionally: trigger a light sync

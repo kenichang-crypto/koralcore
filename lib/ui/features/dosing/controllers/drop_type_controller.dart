@@ -64,7 +64,9 @@ class DropTypeController extends ChangeNotifier {
 
     try {
       // Check if name already exists
-      final existing = _dropTypes.where((dt) => dt.name == name.trim()).toList();
+      final existing = _dropTypes
+          .where((dt) => dt.name == name.trim())
+          .toList();
       if (existing.isNotEmpty) {
         _setError(AppErrorCode.invalidParam);
         return false;
@@ -108,7 +110,7 @@ class DropTypeController extends ChangeNotifier {
         return false;
       }
 
-      final DropType? current = _dropTypes.firstWhere(
+      final DropType current = _dropTypes.firstWhere(
         (dt) => dt.id == id,
         orElse: () => throw Exception('DropType not found'),
       );
@@ -177,4 +179,3 @@ class DropTypeController extends ChangeNotifier {
     _lastErrorCode = null;
   }
 }
-

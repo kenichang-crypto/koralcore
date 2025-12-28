@@ -1,14 +1,13 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../application/doser/apply_schedule_usecase.dart';
-import '../../../../domain/device/device_context.dart';
 import '../../../../domain/doser_dosing/pump_head.dart';
 import '../../../../domain/doser_dosing/pump_head_mode.dart';
 import '../../../../domain/doser_dosing/pump_head_record_detail.dart';
 import '../../../../domain/doser_dosing/pump_head_record_type.dart';
-import '../../../../domain/doser_dosing/pump_speed.dart';
 import '../../../../platform/contracts/pump_head_repository.dart';
 
 /// Controller for pump head record setting page.
@@ -35,7 +34,15 @@ class PumpHeadRecordSettingController extends ChangeNotifier {
   int? _dropVolume;
   int _rotatingSpeed = 2; // Default: medium
   int? _selectRunTime; // 0:立即執行, 1:一週固定天數, 2:時間範圍, 3:時間點
-  List<bool> _weekDays = [false, false, false, false, false, false, false]; // Sun-Sat
+  final List<bool> _weekDays = [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+  ]; // Sun-Sat
   DateTimeRange? _dateRange;
   String? _timeString; // For single timed dose
   List<PumpHeadRecordDetail> _recordDetails = [];
@@ -52,13 +59,15 @@ class PumpHeadRecordSettingController extends ChangeNotifier {
   List<bool> get weekDays => List.unmodifiable(_weekDays);
   DateTimeRange? get dateRange => _dateRange;
   String? get timeString => _timeString;
-  List<PumpHeadRecordDetail> get recordDetails => List.unmodifiable(_recordDetails);
+  List<PumpHeadRecordDetail> get recordDetails =>
+      List.unmodifiable(_recordDetails);
   AppErrorCode? get lastErrorCode => _lastErrorCode;
 
   /// Check if device supports decimal dose (0.4ml minimum).
+  /// TODO: Get device context from AppContext.currentDeviceSession to check capabilities.
   bool get isDecimalDose {
-    final DeviceContext? context = session.deviceContext;
-    return context?.supportsDecimalMl ?? false;
+    // For now, default to false (1.0ml minimum) until device context is available.
+    return false;
   }
 
   /// Get minimum dose based on device capability.
@@ -77,10 +86,7 @@ class PumpHeadRecordSettingController extends ChangeNotifier {
       }
 
       // Load pump head
-      final PumpHead? head = await pumpHeadRepository.getPumpHead(
-        deviceId: deviceId,
-        headId: headId,
-      );
+      final PumpHead? head = await pumpHeadRepository.getPumpHead(deviceId, headId);
       _pumpHead = head;
 
       // TODO: Load current mode from BLE state
@@ -155,8 +161,8 @@ class PumpHeadRecordSettingController extends ChangeNotifier {
 
     // Sort by start time
     updated.sort((a, b) {
-      final aStart = a.timeString?.split(' ~ ')?.first ?? '00:00';
-      final bStart = b.timeString?.split(' ~ ')?.first ?? '00:00';
+      final aStart = a.timeString?.split(' ~ ').first ?? '00:00';
+      final bStart = b.timeString?.split(' ~ ').first ?? '00:00';
       return aStart.compareTo(bStart);
     });
 
@@ -240,7 +246,8 @@ class PumpHeadRecordSettingController extends ChangeNotifier {
           }
 
           // Check max drop limit
-          if (_pumpHead?.maxDrop != null && _dropVolume! > _pumpHead!.maxDrop!) {
+          if (_pumpHead?.maxDrop != null &&
+              _dropVolume! > _pumpHead!.maxDrop!) {
             onDropOutOfTodayBound();
             return false;
           }
@@ -321,4 +328,3 @@ class PumpHeadRecordSettingController extends ChangeNotifier {
     _lastErrorCode = null;
   }
 }
-

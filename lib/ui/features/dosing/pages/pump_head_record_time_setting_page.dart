@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../domain/doser_dosing/pump_head_record_detail.dart';
-import '../../../../domain/doser_dosing/pump_speed.dart';
 import '../../../theme/reef_colors.dart';
-import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../components/app_error_presenter.dart';
@@ -32,7 +29,6 @@ class PumpHeadRecordTimeSettingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appContext = context.read<AppContext>();
     final session = context.read<AppSession>();
     return ChangeNotifierProvider<PumpHeadRecordTimeSettingController>(
       create: (_) => PumpHeadRecordTimeSettingController(
@@ -87,7 +83,7 @@ class _PumpHeadRecordTimeSettingViewState
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          l10n.dosingScheduleEditTimeSlotTitle ?? 'Time Slot Settings',
+          l10n.dosingScheduleEditTimeSlotTitle,
         ),
         actions: [
           TextButton(
@@ -95,7 +91,7 @@ class _PumpHeadRecordTimeSettingViewState
                 ? null
                 : () => _handleSave(context, controller, l10n),
             child: Text(
-              l10n.actionSave ?? 'Save',
+              l10n.actionSave,
               style: TextStyle(color: ReefColors.onPrimary),
             ),
           ),
@@ -134,7 +130,7 @@ class _PumpHeadRecordTimeSettingViewState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.dosingScheduleEditTimeRangeLabel ?? 'Time Range',
+              l10n.dosingScheduleEditTimeRangeLabel,
               style: ReefTextStyles.title3,
             ),
             const SizedBox(height: ReefSpacing.sm),
@@ -146,8 +142,7 @@ class _PumpHeadRecordTimeSettingViewState
                     child: Text(
                       controller.startTime != null
                           ? '${controller.startTime!.hour.toString().padLeft(2, '0')}:${controller.startTime!.minute.toString().padLeft(2, '0')}'
-                          : l10n.dosingScheduleEditSelectStartTime ??
-                              'Start Time',
+                          : l10n.dosingScheduleEditSelectStartTime,
                     ),
                   ),
                 ),
@@ -160,7 +155,7 @@ class _PumpHeadRecordTimeSettingViewState
                     child: Text(
                       controller.endTime != null
                           ? '${controller.endTime!.hour.toString().padLeft(2, '0')}:${controller.endTime!.minute.toString().padLeft(2, '0')}'
-                          : l10n.dosingScheduleEditSelectEndTime ?? 'End Time',
+                          : l10n.dosingScheduleEditSelectEndTime,
                     ),
                   ),
                 ),
@@ -184,20 +179,15 @@ class _PumpHeadRecordTimeSettingViewState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.dosingScheduleEditDropTimesLabel ?? 'Drop Times',
+              l10n.dosingScheduleEditDropTimesLabel,
               style: ReefTextStyles.title3,
             ),
             const SizedBox(height: ReefSpacing.sm),
             DropdownButtonFormField<int>(
-              value: controller.dropTimes,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
+              initialValue: controller.dropTimes,
+              decoration: const InputDecoration(border: OutlineInputBorder()),
               items: controller.dropTimesRange.map((value) {
-                return DropdownMenuItem(
-                  value: value,
-                  child: Text('$value'),
-                );
+                return DropdownMenuItem(value: value, child: Text('$value'));
               }).toList(),
               onChanged: (value) {
                 if (value != null) {
@@ -223,7 +213,7 @@ class _PumpHeadRecordTimeSettingViewState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.dosingScheduleEditDoseLabel ?? 'Total Volume (ml)',
+              'Total Volume (ml)',
               style: ReefTextStyles.title3,
             ),
             const SizedBox(height: ReefSpacing.sm),
@@ -231,7 +221,7 @@ class _PumpHeadRecordTimeSettingViewState
               controller: _dropVolumeController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                hintText: l10n.dosingScheduleEditDoseHint ?? 'Enter volume',
+                hintText: 'Enter volume',
                 suffixText: 'ml',
                 border: const OutlineInputBorder(),
               ),
@@ -258,7 +248,7 @@ class _PumpHeadRecordTimeSettingViewState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.dosingScheduleEditRotatingSpeedLabel ?? 'Pump Speed',
+              l10n.dosingScheduleEditRotatingSpeedLabel,
               style: ReefTextStyles.title3,
             ),
             const SizedBox(height: ReefSpacing.sm),
@@ -266,15 +256,15 @@ class _PumpHeadRecordTimeSettingViewState
               segments: [
                 ButtonSegment(
                   value: 1,
-                  label: Text(l10n.dosingScheduleEditSpeedLow ?? 'Low'),
+                  label: Text(l10n.dosingScheduleEditSpeedLow),
                 ),
                 ButtonSegment(
                   value: 2,
-                  label: Text(l10n.dosingScheduleEditSpeedMedium ?? 'Medium'),
+                  label: Text(l10n.dosingScheduleEditSpeedMedium),
                 ),
                 ButtonSegment(
                   value: 3,
-                  label: Text(l10n.dosingScheduleEditSpeedHigh ?? 'High'),
+                  label: Text(l10n.dosingScheduleEditSpeedHigh),
                 ),
               ],
               selected: {controller.rotatingSpeed},
@@ -327,10 +317,8 @@ class _PumpHeadRecordTimeSettingViewState
           SnackBar(
             content: Text(
               controller.isDecimalDose
-                  ? (l10n.dosingScheduleEditErrorVolumeTooLittleNew ??
-                      'Volume too little (min: 0.4ml per drop)')
-                  : (l10n.dosingScheduleEditErrorVolumeTooLittleOld ??
-                      'Volume too little (min: 1.0ml per drop)'),
+                  ? l10n.dosingScheduleEditErrorVolumeTooLittleNew
+                  : l10n.dosingScheduleEditErrorVolumeTooLittleOld,
             ),
           ),
         );
@@ -339,8 +327,7 @@ class _PumpHeadRecordTimeSettingViewState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n.dosingScheduleEditErrorVolumeTooMuch ??
-                  'Volume too much (max: 500ml)',
+              l10n.dosingScheduleEditErrorVolumeTooMuch,
             ),
           ),
         );
@@ -349,8 +336,7 @@ class _PumpHeadRecordTimeSettingViewState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n.dosingScheduleEditErrorTimeExists ??
-                  'Time slot already exists',
+              l10n.dosingScheduleEditErrorTimeExists,
             ),
           ),
         );
@@ -365,14 +351,12 @@ class _PumpHeadRecordTimeSettingViewState
   void _maybeShowError(BuildContext context, AppErrorCode? code) {
     if (code == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = context.read<PumpHeadRecordTimeSettingController>();
       final l10n = AppLocalizations.of(context);
       final message = describeAppError(l10n, code);
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     });
   }
 }
-

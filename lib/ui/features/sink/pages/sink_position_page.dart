@@ -3,12 +3,10 @@ import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../application/common/app_context.dart';
-import '../../../../domain/sink/sink.dart';
 import '../../../theme/reef_colors.dart';
-import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
-import '../../controllers/sink_manager_controller.dart';
+import '../controllers/sink_manager_controller.dart';
 
 /// Sink position selection page.
 ///
@@ -71,14 +69,14 @@ class _SinkPositionViewState extends State<_SinkPositionView> {
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(l10n.sinkPositionTitle ?? 'Select Sink Position'),
+        title: Text(l10n.sinkPositionTitle),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(_selectedSinkId ?? '');
             },
             child: Text(
-              l10n.actionDone ?? 'Done',
+              l10n.actionDone,
               style: TextStyle(color: ReefColors.onPrimary),
             ),
           ),
@@ -91,7 +89,7 @@ class _SinkPositionViewState extends State<_SinkPositionView> {
               children: [
                 // "No" option
                 ListTile(
-                  title: Text(l10n.sinkPositionNotSet ?? 'Not set'),
+                  title: Text(l10n.sinkPositionNotSet),
                   selected: _selectedSinkId == null || _selectedSinkId == '',
                   selectedTileColor: ReefColors.primary.withOpacity(0.1),
                   onTap: () {
@@ -130,23 +128,23 @@ class _SinkPositionViewState extends State<_SinkPositionView> {
     final bool? result = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.sinkAddTitle ?? 'Add Sink'),
+        title: Text(l10n.sinkAddTitle),
         content: TextField(
           controller: textController,
           decoration: InputDecoration(
-            labelText: l10n.sinkNameLabel ?? 'Sink Name',
-            hintText: l10n.sinkNameHint ?? 'Enter sink name',
+            labelText: l10n.sinkNameLabel,
+            hintText: l10n.sinkNameHint,
           ),
           autofocus: true,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.actionCancel ?? 'Cancel'),
+            child: const Text('Cancel'),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.actionAdd ?? 'Add'),
+            child: Text(l10n.actionAdd),
           ),
         ],
       ),
@@ -159,7 +157,7 @@ class _SinkPositionViewState extends State<_SinkPositionView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                l10n.sinkAddSuccess ?? 'Sink added successfully',
+                l10n.sinkAddSuccess,
               ),
             ),
           );
@@ -167,7 +165,7 @@ class _SinkPositionViewState extends State<_SinkPositionView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                l10n.sinkNameExists ?? 'Sink name already exists',
+                l10n.sinkNameExists,
               ),
             ),
           );

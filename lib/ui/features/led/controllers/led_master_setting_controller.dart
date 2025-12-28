@@ -35,14 +35,14 @@ class LedMasterSettingController extends ChangeNotifier {
 
     try {
       // Load all devices for this sink
-      final List<Map<String, dynamic>> allDevices =
-          await deviceRepository.listSavedDevices();
+      final List<Map<String, dynamic>> allDevices = await deviceRepository
+          .listSavedDevices();
 
       // Filter LED devices for this sink
       final List<Map<String, dynamic>> sinkDevices = allDevices
-          .where((device) =>
-              device['sink_id'] == sinkId &&
-              device['type'] == 'LED')
+          .where(
+            (device) => device['sink_id'] == sinkId && device['type'] == 'LED',
+          )
           .toList();
 
       // Group devices by group (A, B, C, D, E)
@@ -55,8 +55,7 @@ class LedMasterSettingController extends ChangeNotifier {
 
       // Create group structures
       _groups = ['A', 'B', 'C', 'D', 'E'].map((groupKey) {
-        final List<Map<String, dynamic>> devices =
-            grouped[groupKey] ?? [];
+        final List<Map<String, dynamic>> devices = grouped[groupKey] ?? [];
         // Sort by master (master first)
         devices.sort((a, b) {
           final bool aMaster = (a['is_master'] as int? ?? 0) != 0;
@@ -64,10 +63,7 @@ class LedMasterSettingController extends ChangeNotifier {
           if (aMaster == bMaster) return 0;
           return aMaster ? -1 : 1;
         });
-        return _DeviceGroup(
-          id: groupKey,
-          devices: devices,
-        );
+        return _DeviceGroup(id: groupKey, devices: devices);
       }).toList();
 
       _clearError();
@@ -86,12 +82,12 @@ class LedMasterSettingController extends ChangeNotifier {
 
     try {
       // Get current master in this group
-      final _DeviceGroup? group = _groups.firstWhere(
+      final _DeviceGroup group = _groups.firstWhere(
         (g) => g.id == groupId,
         orElse: () => _DeviceGroup(id: groupId, devices: []),
       );
 
-      final Map<String, dynamic>? currentMaster = group.devices.firstWhere(
+      final Map<String, dynamic> currentMaster = group.devices.firstWhere(
         (d) => (d['is_master'] as int? ?? 0) != 0,
         orElse: () => <String, dynamic>{},
       );
@@ -104,9 +100,9 @@ class LedMasterSettingController extends ChangeNotifier {
       }
 
       // Reload to get fresh device data
-      final List<Map<String, dynamic>> allDevices =
-          await deviceRepository.listSavedDevices();
-      final Map<String, dynamic>? deviceToUpdate = allDevices.firstWhere(
+      final List<Map<String, dynamic>> allDevices = await deviceRepository
+          .listSavedDevices();
+      final Map<String, dynamic> deviceToUpdate = allDevices.firstWhere(
         (d) => d['id'] == deviceId,
         orElse: () => <String, dynamic>{},
       );
@@ -137,7 +133,7 @@ class LedMasterSettingController extends ChangeNotifier {
 
     try {
       // Check if target group is full (max 4 devices)
-      final _DeviceGroup? targetGroup = _groups.firstWhere(
+      final _DeviceGroup targetGroup = _groups.firstWhere(
         (g) => g.id == targetGroupId,
         orElse: () => _DeviceGroup(id: targetGroupId, devices: []),
       );
@@ -148,9 +144,9 @@ class LedMasterSettingController extends ChangeNotifier {
       }
 
       // Update device group using addSavedDevice
-      final List<Map<String, dynamic>> allDevices =
-          await deviceRepository.listSavedDevices();
-      final Map<String, dynamic>? deviceToUpdate = allDevices.firstWhere(
+      final List<Map<String, dynamic>> allDevices = await deviceRepository
+          .listSavedDevices();
+      final Map<String, dynamic> deviceToUpdate = allDevices.firstWhere(
         (d) => d['id'] == deviceId,
         orElse: () => <String, dynamic>{},
       );
@@ -193,9 +189,5 @@ class _DeviceGroup {
   final String id;
   final List<Map<String, dynamic>> devices;
 
-  const _DeviceGroup({
-    required this.id,
-    required this.devices,
-  });
+  const _DeviceGroup({required this.id, required this.devices});
 }
-

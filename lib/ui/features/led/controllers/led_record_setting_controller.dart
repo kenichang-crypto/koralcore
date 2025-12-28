@@ -97,10 +97,14 @@ class LedRecordSettingController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Calculate time points
+      // Calculate time points (for future BLE command implementation)
+      // ignore: unused_local_variable
       final int sunriseStart = sunriseMinutes;
+      // ignore: unused_local_variable
       final int sunriseEnd = sunriseMinutes + _slowStart;
+      // ignore: unused_local_variable
       final int sunsetStart = sunsetMinutes - _slowStart;
+      // ignore: unused_local_variable
       final int sunsetEnd = sunsetMinutes;
 
       // TODO: Send BLE commands to set records

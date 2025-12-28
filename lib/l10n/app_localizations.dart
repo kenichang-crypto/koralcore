@@ -1765,71 +1765,1031 @@ abstract class AppLocalizations {
   /// **'Schedule applied.'**
   String get ledScheduleSnackApplied;
 
-  /// No description provided for @led_runtime_status.
+  /// No description provided for @ledRuntimeStatus.
   ///
   /// In en, this message translates to:
   /// **'Runtime status'**
-  String get led_runtime_status;
+  String get ledRuntimeStatus;
 
-  /// No description provided for @led_runtime_idle.
+  /// No description provided for @ledRuntimeIdle.
   ///
   /// In en, this message translates to:
   /// **'Idle'**
-  String get led_runtime_idle;
+  String get ledRuntimeIdle;
 
-  /// No description provided for @led_runtime_applying.
+  /// No description provided for @ledRuntimeApplying.
   ///
   /// In en, this message translates to:
   /// **'Applying'**
-  String get led_runtime_applying;
+  String get ledRuntimeApplying;
 
-  /// No description provided for @led_runtime_preview.
+  /// No description provided for @ledRuntimePreview.
   ///
   /// In en, this message translates to:
   /// **'Previewing'**
-  String get led_runtime_preview;
+  String get ledRuntimePreview;
 
-  /// No description provided for @led_runtime_schedule_active.
+  /// No description provided for @ledRuntimeScheduleActive.
   ///
   /// In en, this message translates to:
   /// **'Schedule active'**
-  String get led_runtime_schedule_active;
+  String get ledRuntimeScheduleActive;
 
-  /// No description provided for @led_scene_currently_running.
+  /// No description provided for @ledSceneCurrentlyRunning.
   ///
   /// In en, this message translates to:
   /// **'Currently running'**
-  String get led_scene_currently_running;
+  String get ledSceneCurrentlyRunning;
 
-  /// No description provided for @led_scene_preset.
+  /// No description provided for @ledScenePreset.
   ///
   /// In en, this message translates to:
   /// **'Preset scene'**
-  String get led_scene_preset;
+  String get ledScenePreset;
 
-  /// No description provided for @led_scene_custom.
+  /// No description provided for @ledSceneCustom.
   ///
   /// In en, this message translates to:
   /// **'Custom scene'**
-  String get led_scene_custom;
+  String get ledSceneCustom;
 
-  /// No description provided for @led_scene_channel_count.
+  /// No description provided for @ledSceneChannelCount.
   ///
   /// In en, this message translates to:
   /// **'{count} channels'**
-  String led_scene_channel_count(int count);
+  String ledSceneChannelCount(int count);
 
-  /// No description provided for @led_schedule_daily.
+  /// No description provided for @ledScheduleDaily.
   ///
   /// In en, this message translates to:
   /// **'Daily schedule'**
-  String get led_schedule_daily;
+  String get ledScheduleDaily;
 
-  /// No description provided for @led_schedule_window.
+  /// No description provided for @ledScheduleWindow.
   ///
   /// In en, this message translates to:
   /// **'Time window'**
-  String get led_schedule_window;
+  String get ledScheduleWindow;
+
+  /// No description provided for @actionSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get actionSave;
+
+  /// No description provided for @actionDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get actionDelete;
+
+  /// No description provided for @actionAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get actionAdd;
+
+  /// No description provided for @actionDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get actionDone;
+
+  /// No description provided for @actionSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get actionSkip;
+
+  /// No description provided for @actionRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get actionRefresh;
+
+  /// No description provided for @actionClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get actionClear;
+
+  /// No description provided for @deviceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Name'**
+  String get deviceName;
+
+  /// No description provided for @deviceNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter device name'**
+  String get deviceNameHint;
+
+  /// No description provided for @deviceNameEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Device name cannot be empty'**
+  String get deviceNameEmpty;
+
+  /// No description provided for @deviceId.
+  ///
+  /// In en, this message translates to:
+  /// **'Device ID'**
+  String get deviceId;
+
+  /// No description provided for @deviceInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Info'**
+  String get deviceInfo;
+
+  /// No description provided for @deviceSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Settings'**
+  String get deviceSettingsTitle;
+
+  /// No description provided for @deviceSettingsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings saved'**
+  String get deviceSettingsSaved;
+
+  /// No description provided for @deviceActionEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get deviceActionEdit;
+
+  /// No description provided for @deviceActionAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Device'**
+  String get deviceActionAdd;
+
+  /// No description provided for @deviceState.
+  ///
+  /// In en, this message translates to:
+  /// **'State'**
+  String get deviceState;
+
+  /// No description provided for @ledSettingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'LED Settings'**
+  String get ledSettingTitle;
+
+  /// No description provided for @ledRecordSettingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'LED Record Settings'**
+  String get ledRecordSettingTitle;
+
+  /// No description provided for @ledRecordTimeSettingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'LED Record Time Settings'**
+  String get ledRecordTimeSettingTitle;
+
+  /// No description provided for @ledSceneAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Scene'**
+  String get ledSceneAddTitle;
+
+  /// No description provided for @ledSceneEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Scene'**
+  String get ledSceneEditTitle;
+
+  /// No description provided for @ledSceneDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Scene'**
+  String get ledSceneDeleteTitle;
+
+  /// No description provided for @ledMasterSettingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Master Settings'**
+  String get ledMasterSettingTitle;
+
+  /// No description provided for @ledRecordTimeSettingTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get ledRecordTimeSettingTimeLabel;
+
+  /// No description provided for @ledRecordTimeSettingChannelsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Channels'**
+  String get ledRecordTimeSettingChannelsLabel;
+
+  /// No description provided for @ledRecordTimeSettingErrorTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid time'**
+  String get ledRecordTimeSettingErrorTime;
+
+  /// No description provided for @ledRecordTimeSettingErrorTimeExists.
+  ///
+  /// In en, this message translates to:
+  /// **'Time already exists'**
+  String get ledRecordTimeSettingErrorTimeExists;
+
+  /// No description provided for @ledRecordTimeSettingSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Record saved'**
+  String get ledRecordTimeSettingSuccess;
+
+  /// No description provided for @ledSceneNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Scene Name'**
+  String get ledSceneNameLabel;
+
+  /// No description provided for @ledSceneNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter scene name'**
+  String get ledSceneNameHint;
+
+  /// No description provided for @ledSceneEditSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Scene updated'**
+  String get ledSceneEditSuccess;
+
+  /// No description provided for @ledSceneAddSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Scene added'**
+  String get ledSceneAddSuccess;
+
+  /// No description provided for @ledSceneDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Select scenes to delete'**
+  String get ledSceneDeleteDescription;
+
+  /// No description provided for @ledSceneDeleteEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No scenes to delete'**
+  String get ledSceneDeleteEmpty;
+
+  /// No description provided for @ledSceneDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Scene?'**
+  String get ledSceneDeleteConfirmTitle;
+
+  /// No description provided for @ledSceneDeleteConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete \"{name}\"?'**
+  String ledSceneDeleteConfirmMessage(String name);
+
+  /// No description provided for @ledSceneDeleteSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Scene \"{name}\" deleted'**
+  String ledSceneDeleteSuccess(String name);
+
+  /// No description provided for @ledSceneDeleteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete scene'**
+  String get ledSceneDeleteError;
+
+  /// No description provided for @ledSceneLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum scenes reached'**
+  String get ledSceneLimitReached;
+
+  /// No description provided for @ledMasterSettingGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group'**
+  String get ledMasterSettingGroup;
+
+  /// No description provided for @ledMasterSettingMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Master'**
+  String get ledMasterSettingMaster;
+
+  /// No description provided for @ledMasterSettingSlave.
+  ///
+  /// In en, this message translates to:
+  /// **'Slave'**
+  String get ledMasterSettingSlave;
+
+  /// No description provided for @ledMasterSettingSetMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Set as Master'**
+  String get ledMasterSettingSetMaster;
+
+  /// No description provided for @ledMasterSettingMoveGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Move Group'**
+  String get ledMasterSettingMoveGroup;
+
+  /// No description provided for @ledMasterSettingSetMasterSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Master set successfully'**
+  String get ledMasterSettingSetMasterSuccess;
+
+  /// No description provided for @ledMasterSettingSelectGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Group'**
+  String get ledMasterSettingSelectGroup;
+
+  /// No description provided for @ledMasterSettingGroupFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Group is full'**
+  String get ledMasterSettingGroupFull;
+
+  /// No description provided for @ledMasterSettingMoveGroupSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Group moved successfully'**
+  String get ledMasterSettingMoveGroupSuccess;
+
+  /// No description provided for @ledMasterSettingMoveGroupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to move group'**
+  String get ledMasterSettingMoveGroupFailed;
+
+  /// No description provided for @ledRecordSettingInitStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial Strength'**
+  String get ledRecordSettingInitStrength;
+
+  /// No description provided for @ledRecordSettingSunrise.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunrise'**
+  String get ledRecordSettingSunrise;
+
+  /// No description provided for @ledRecordSettingSunset.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunset'**
+  String get ledRecordSettingSunset;
+
+  /// No description provided for @ledRecordSettingSlowStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Slow Start'**
+  String get ledRecordSettingSlowStart;
+
+  /// No description provided for @ledRecordSettingMoonlight.
+  ///
+  /// In en, this message translates to:
+  /// **'Moonlight'**
+  String get ledRecordSettingMoonlight;
+
+  /// No description provided for @ledRecordSettingErrorSunTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid sunrise/sunset time'**
+  String get ledRecordSettingErrorSunTime;
+
+  /// No description provided for @ledRecordSettingSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings saved'**
+  String get ledRecordSettingSuccess;
+
+  /// No description provided for @minute.
+  ///
+  /// In en, this message translates to:
+  /// **'minute'**
+  String get minute;
+
+  /// No description provided for @ledScenesActionEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get ledScenesActionEdit;
+
+  /// No description provided for @ledDynamicScene.
+  ///
+  /// In en, this message translates to:
+  /// **'Dynamic Scene'**
+  String get ledDynamicScene;
+
+  /// No description provided for @ledStaticScene.
+  ///
+  /// In en, this message translates to:
+  /// **'Static Scene'**
+  String get ledStaticScene;
+
+  /// No description provided for @ledScenesActionAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Scene'**
+  String get ledScenesActionAdd;
+
+  /// No description provided for @ledScenesActionUnfavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Favorite'**
+  String get ledScenesActionUnfavorite;
+
+  /// No description provided for @ledScenesActionFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Favorite'**
+  String get ledScenesActionFavorite;
+
+  /// No description provided for @ledResetDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Device'**
+  String get ledResetDevice;
+
+  /// No description provided for @sinkPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Sink Position'**
+  String get sinkPosition;
+
+  /// No description provided for @sinkPositionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sink Position'**
+  String get sinkPositionTitle;
+
+  /// No description provided for @sinkPositionNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Set'**
+  String get sinkPositionNotSet;
+
+  /// No description provided for @sinkPositionSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set'**
+  String get sinkPositionSet;
+
+  /// No description provided for @sinkAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Sink'**
+  String get sinkAddTitle;
+
+  /// No description provided for @sinkNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sink Name'**
+  String get sinkNameLabel;
+
+  /// No description provided for @sinkNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter sink name'**
+  String get sinkNameHint;
+
+  /// No description provided for @sinkAddSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Sink added'**
+  String get sinkAddSuccess;
+
+  /// No description provided for @sinkNameExists.
+  ///
+  /// In en, this message translates to:
+  /// **'Sink name already exists'**
+  String get sinkNameExists;
+
+  /// No description provided for @sinkManagerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sink Manager'**
+  String get sinkManagerTitle;
+
+  /// No description provided for @sinkEmptyStateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Sinks'**
+  String get sinkEmptyStateTitle;
+
+  /// No description provided for @sinkEmptyStateSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a sink to get started'**
+  String get sinkEmptyStateSubtitle;
+
+  /// No description provided for @sinkEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Sink'**
+  String get sinkEditTitle;
+
+  /// No description provided for @sinkDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Sink'**
+  String get sinkDeleteTitle;
+
+  /// No description provided for @sinkDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this sink?'**
+  String get sinkDeleteMessage;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @warningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Warnings'**
+  String get warningTitle;
+
+  /// No description provided for @warningClearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All'**
+  String get warningClearAll;
+
+  /// No description provided for @warningClearAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All Warnings?'**
+  String get warningClearAllTitle;
+
+  /// No description provided for @warningClearAllContent.
+  ///
+  /// In en, this message translates to:
+  /// **'This will clear all warnings'**
+  String get warningClearAllContent;
+
+  /// No description provided for @warningClearAllSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'All warnings cleared'**
+  String get warningClearAllSuccess;
+
+  /// No description provided for @warningId.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning ID: {id}'**
+  String warningId(int id);
+
+  /// No description provided for @warningEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Warnings'**
+  String get warningEmptyTitle;
+
+  /// No description provided for @warningEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All clear!'**
+  String get warningEmptySubtitle;
+
+  /// No description provided for @addDeviceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Device'**
+  String get addDeviceTitle;
+
+  /// No description provided for @addDeviceSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Device added'**
+  String get addDeviceSuccess;
+
+  /// No description provided for @addDeviceFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to add device'**
+  String get addDeviceFailed;
+
+  /// No description provided for @dosingScheduleEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Schedule'**
+  String get dosingScheduleEditTitle;
+
+  /// No description provided for @dosingScheduleTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule Type'**
+  String get dosingScheduleTypeLabel;
+
+  /// No description provided for @dosingScheduleTypeNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No Schedule'**
+  String get dosingScheduleTypeNone;
+
+  /// No description provided for @dosingScheduleType24h.
+  ///
+  /// In en, this message translates to:
+  /// **'24-Hour Average'**
+  String get dosingScheduleType24h;
+
+  /// No description provided for @dosingScheduleEditTimeRangeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Range'**
+  String get dosingScheduleEditTimeRangeLabel;
+
+  /// No description provided for @dosingScheduleEditTimePointLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Point'**
+  String get dosingScheduleEditTimePointLabel;
+
+  /// No description provided for @dosingScheduleEditSelectDateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Date Range'**
+  String get dosingScheduleEditSelectDateRange;
+
+  /// No description provided for @dosingScheduleEditSelectDateTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Date & Time'**
+  String get dosingScheduleEditSelectDateTime;
+
+  /// No description provided for @dosingScheduleEditCustomDetailsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Details'**
+  String get dosingScheduleEditCustomDetailsLabel;
+
+  /// No description provided for @dosingScheduleEditNoTimeSlots.
+  ///
+  /// In en, this message translates to:
+  /// **'No time slots'**
+  String get dosingScheduleEditNoTimeSlots;
+
+  /// No description provided for @dosingScheduleEditRotatingSpeedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotating Speed'**
+  String get dosingScheduleEditRotatingSpeedLabel;
+
+  /// No description provided for @dosingScheduleEditSpeedLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get dosingScheduleEditSpeedLow;
+
+  /// No description provided for @dosingScheduleEditSpeedMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get dosingScheduleEditSpeedMedium;
+
+  /// No description provided for @dosingScheduleEditSpeedHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get dosingScheduleEditSpeedHigh;
+
+  /// No description provided for @dosingScheduleEditErrorVolumeEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume cannot be empty'**
+  String get dosingScheduleEditErrorVolumeEmpty;
+
+  /// No description provided for @dosingScheduleEditErrorTimeEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Time cannot be empty'**
+  String get dosingScheduleEditErrorTimeEmpty;
+
+  /// No description provided for @dosingScheduleEditErrorVolumeTooLittleNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume too little'**
+  String get dosingScheduleEditErrorVolumeTooLittleNew;
+
+  /// No description provided for @dosingScheduleEditErrorVolumeTooLittleOld.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume too little (old)'**
+  String get dosingScheduleEditErrorVolumeTooLittleOld;
+
+  /// No description provided for @dosingScheduleEditErrorVolumeTooMuch.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume too much'**
+  String get dosingScheduleEditErrorVolumeTooMuch;
+
+  /// No description provided for @dosingScheduleEditErrorVolumeOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume exceeds maximum limit'**
+  String get dosingScheduleEditErrorVolumeOutOfRange;
+
+  /// No description provided for @dosingScheduleEditErrorDetailsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Time slots are required'**
+  String get dosingScheduleEditErrorDetailsEmpty;
+
+  /// No description provided for @dosingScheduleEditErrorTimeExists.
+  ///
+  /// In en, this message translates to:
+  /// **'Time already exists'**
+  String get dosingScheduleEditErrorTimeExists;
+
+  /// No description provided for @dosingScheduleEditTimeSlotTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Time Slot'**
+  String get dosingScheduleEditTimeSlotTitle;
+
+  /// No description provided for @dosingScheduleEditSelectStartTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Start Time'**
+  String get dosingScheduleEditSelectStartTime;
+
+  /// No description provided for @dosingScheduleEditSelectEndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Select End Time'**
+  String get dosingScheduleEditSelectEndTime;
+
+  /// No description provided for @dosingScheduleEditDropTimesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop Times'**
+  String get dosingScheduleEditDropTimesLabel;
+
+  /// No description provided for @dosingCalibrationAdjustListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustment List'**
+  String get dosingCalibrationAdjustListTitle;
+
+  /// No description provided for @dosingResetDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Device'**
+  String get dosingResetDevice;
+
+  /// No description provided for @dosingResetDeviceSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Device reset successfully'**
+  String get dosingResetDeviceSuccess;
+
+  /// No description provided for @dosingNoPumpHeads.
+  ///
+  /// In en, this message translates to:
+  /// **'No pump heads'**
+  String get dosingNoPumpHeads;
+
+  /// No description provided for @dosingHistorySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get dosingHistorySubtitle;
+
+  /// No description provided for @dosingAdjustListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustment List'**
+  String get dosingAdjustListTitle;
+
+  /// No description provided for @dosingAdjustListStartAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Adjustment'**
+  String get dosingAdjustListStartAdjust;
+
+  /// No description provided for @dosingRotatingSpeedLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get dosingRotatingSpeedLow;
+
+  /// No description provided for @dosingRotatingSpeedMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get dosingRotatingSpeedMedium;
+
+  /// No description provided for @dosingRotatingSpeedHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get dosingRotatingSpeedHigh;
+
+  /// No description provided for @dosingAdjustListEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Adjustments'**
+  String get dosingAdjustListEmptyTitle;
+
+  /// No description provided for @dosingAdjustListEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No adjustment records yet'**
+  String get dosingAdjustListEmptySubtitle;
+
+  /// No description provided for @dropSettingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop Settings'**
+  String get dropSettingTitle;
+
+  /// No description provided for @delayTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Delay Time'**
+  String get delayTime;
+
+  /// No description provided for @delayTimeRequiresConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection required for delay time'**
+  String get delayTimeRequiresConnection;
+
+  /// No description provided for @sinkPositionFeatureComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get sinkPositionFeatureComingSoon;
+
+  /// No description provided for @dropTypeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop Types'**
+  String get dropTypeTitle;
+
+  /// No description provided for @dropTypeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage drop types'**
+  String get dropTypeSubtitle;
+
+  /// No description provided for @dropTypeNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get dropTypeNo;
+
+  /// No description provided for @dropTypeAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Drop Type'**
+  String get dropTypeAddTitle;
+
+  /// No description provided for @dropTypeNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop Type Name'**
+  String get dropTypeNameLabel;
+
+  /// No description provided for @dropTypeNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter drop type name'**
+  String get dropTypeNameHint;
+
+  /// No description provided for @dropTypeAddSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop type added'**
+  String get dropTypeAddSuccess;
+
+  /// No description provided for @dropTypeNameExists.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop type name already exists'**
+  String get dropTypeNameExists;
+
+  /// No description provided for @dropTypeEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Drop Type'**
+  String get dropTypeEditTitle;
+
+  /// No description provided for @dropTypeEditSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop type updated'**
+  String get dropTypeEditSuccess;
+
+  /// No description provided for @dropTypeDeleteUsedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop Type in Use'**
+  String get dropTypeDeleteUsedTitle;
+
+  /// No description provided for @dropTypeDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Drop Type'**
+  String get dropTypeDeleteTitle;
+
+  /// No description provided for @dropTypeDeleteUsedContent.
+  ///
+  /// In en, this message translates to:
+  /// **'This drop type is in use and cannot be deleted'**
+  String get dropTypeDeleteUsedContent;
+
+  /// No description provided for @dropTypeDeleteContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this drop type?'**
+  String get dropTypeDeleteContent;
+
+  /// No description provided for @dropTypeDeleteSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop type deleted'**
+  String get dropTypeDeleteSuccess;
+
+  /// No description provided for @dropTypeDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete drop type'**
+  String get dropTypeDeleteFailed;
+
+  /// No description provided for @weekdaySunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get weekdaySunday;
+
+  /// No description provided for @weekdayMonday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get weekdayMonday;
+
+  /// No description provided for @weekdayTuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get weekdayTuesday;
+
+  /// No description provided for @weekdayWednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get weekdayWednesday;
+
+  /// No description provided for @weekdayThursday.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get weekdayThursday;
+
+  /// No description provided for @weekdayFriday.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get weekdayFriday;
+
+  /// No description provided for @weekdaySaturday.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get weekdaySaturday;
 }
 
 class _AppLocalizationsDelegate

@@ -13,7 +13,10 @@ import '../../../theme/reef_colors.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/led_record_controller.dart';
+import '../widgets/led_record_line_chart.dart';
 import '../widgets/led_spectrum_chart.dart';
+import 'led_record_setting_page.dart';
+import 'led_record_time_setting_page.dart';
 
 class LedRecordPage extends StatelessWidget {
   const LedRecordPage({super.key});
@@ -115,6 +118,18 @@ class _LedRecordViewState extends State<_LedRecordView> {
                   else if (controller.records.isEmpty)
                     _LedRecordsEmptyState(l10n: l10n)
                   else ...[
+                    _LedRecordChartSection(
+                      controller: controller,
+                      session: session,
+                      l10n: l10n,
+                    ),
+                    const SizedBox(height: AppDimensions.spacingL),
+                    _LedRecordTimeSelector(
+                      controller: controller,
+                      session: session,
+                      l10n: l10n,
+                    ),
+                    const SizedBox(height: AppDimensions.spacingL),
                     _LedRecordSelectionCard(
                       controller: controller,
                       session: session,
@@ -128,6 +143,7 @@ class _LedRecordViewState extends State<_LedRecordView> {
                         child: _LedRecordTile(
                           record: record,
                           controller: controller,
+                          session: session,
                         ),
                       ),
                     ),
@@ -237,6 +253,114 @@ class _LedRecordViewState extends State<_LedRecordView> {
     if (confirmed == true) {
       await controller.clearRecords();
     }
+  }
+}
+
+class _LedRecordChartSection extends StatelessWidget {
+  const _LedRecordChartSection({
+    required this.controller,
+    required this.session,
+    required this.l10n,
+  });
+
+  final LedRecordController controller;
+  final AppSession session;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.ledRecordsTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: AppDimensions.spacingM),
+            LedRecordLineChart(
+              records: controller.records,
+              selectedMinutes: controller.selectedRecord?.minutesFromMidnight,
+              onTap: (minutes) {
+                controller.selectTime(minutes);
+              },
+              height: 250,
+              showLegend: true,
+              interactive: session.isBleConnected && !controller.isBusy,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LedRecordTimeSelector extends StatelessWidget {
+  const _LedRecordTimeSelector({
+    required this.controller,
+    required this.session,
+    required this.l10n,
+  });
+
+  final LedRecordController controller;
+  final AppSession session;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final now = DateTime.now();
+    final currentTime =
+        '${now.hour.toString().padLeft(2, '0')} : ${now.minute.toString().padLeft(2, '0')}';
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.ledRecordsSelectedTimeLabel,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppColors.grey700,
+                  ),
+                ),
+                const SizedBox(height: AppDimensions.spacingXS),
+                Text(
+                  currentTime,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.chevron_left),
+                  tooltip: l10n.ledRecordsActionPrev,
+                  onPressed: session.isBleConnected && controller.canNavigate
+                      ? controller.goToPreviousRecord
+                      : null,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.chevron_right),
+                  tooltip: l10n.ledRecordsActionNext,
+                  onPressed: session.isBleConnected && controller.canNavigate
+                      ? controller.goToNextRecord
+                      : null,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -428,10 +552,15 @@ class _LedRecordsEmptyState extends StatelessWidget {
 }
 
 class _LedRecordTile extends StatelessWidget {
-  const _LedRecordTile({required this.record, required this.controller});
+  const _LedRecordTile({
+    required this.record,
+    required this.controller,
+    required this.session,
+  });
 
   final LedRecord record;
   final LedRecordController controller;
+  final AppSession session;
 
   @override
   Widget build(BuildContext context) {
@@ -445,9 +574,22 @@ class _LedRecordTile extends StatelessWidget {
           ? ReefColors.primary.withValues(alpha: 0.08)
           : ReefColors.surface,
       borderRadius: BorderRadius.circular(AppDimensions.radiusL),
-      child: InkWell(
+        child: InkWell(
         borderRadius: BorderRadius.circular(AppDimensions.radiusL),
-        onTap: () => controller.selectRecord(record.id),
+        onTap: () {
+          controller.selectRecord(record.id);
+          // Navigate to time setting page for editing
+          if (session.isBleConnected && !controller.isBusy) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => LedRecordTimeSettingPage(initialRecord: record),
+              ),
+            );
+          }
+        },
+        onLongPress: session.isBleConnected && !controller.isBusy
+            ? () => _confirmDeleteRecord(context, controller, record)
+            : null,
         child: Padding(
           padding: const EdgeInsets.all(AppDimensions.spacingL),
           child: Row(

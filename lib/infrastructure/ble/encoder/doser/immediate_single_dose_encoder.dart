@@ -1,4 +1,4 @@
-import '../../../../domain/doser/encoder/single_dose_encoding_utils.dart';
+import '../../../../domain/doser_dosing/encoder/single_dose_encoding_utils.dart';
 import '../../../../domain/doser_dosing/single_dose_immediate.dart';
 
 /// Encoder for BLE opcode 0x6E (Immediate Single Dose).

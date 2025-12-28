@@ -86,6 +86,10 @@ class LedCommandBuilder {
     ]);
   }
 
+  Uint8List enterDimmingMode() => _build(<int>[0x32, 0x00]);
+
+  Uint8List exitDimmingMode() => _build(<int>[0x34, 0x00]);
+
   Uint8List dimming(Map<String, int> channels) {
     final List<int> ordered = <int>[
       for (final String key in ledChannelOrder)

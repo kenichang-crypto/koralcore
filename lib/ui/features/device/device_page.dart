@@ -13,6 +13,7 @@ import '../../theme/reef_spacing.dart';
 import '../../theme/reef_text.dart';
 import 'controllers/device_list_controller.dart';
 import 'widgets/device_card.dart';
+import 'pages/add_device_page.dart';
 
 class DevicePage extends StatefulWidget {
   const DevicePage({super.key});
@@ -221,6 +222,17 @@ class _DevicePageState extends State<DevicePage> {
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const AddDevicePage(),
+            ),
+          );
+        },
+        icon: const Icon(Icons.add),
+        label: Text(l10n.deviceActionAdd ?? 'Add Device'),
       ),
     );
   }

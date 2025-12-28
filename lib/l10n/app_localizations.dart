@@ -1363,6 +1363,12 @@ abstract class AppLocalizations {
   /// **'Create schedules in the Reef B app to view them here.'**
   String get ledScheduleEmptySubtitle;
 
+  /// No description provided for @ledScheduleDerivedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'From LED record'**
+  String get ledScheduleDerivedLabel;
+
   /// No description provided for @ledRecordsTitle.
   ///
   /// In en, this message translates to:
@@ -1758,6 +1764,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Schedule applied.'**
   String get ledScheduleSnackApplied;
+
+  /// No description provided for @led_runtime_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Runtime status'**
+  String get led_runtime_status;
+
+  /// No description provided for @led_runtime_idle.
+  ///
+  /// In en, this message translates to:
+  /// **'Idle'**
+  String get led_runtime_idle;
+
+  /// No description provided for @led_runtime_applying.
+  ///
+  /// In en, this message translates to:
+  /// **'Applying'**
+  String get led_runtime_applying;
+
+  /// No description provided for @led_runtime_preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Previewing'**
+  String get led_runtime_preview;
+
+  /// No description provided for @led_runtime_schedule_active.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule active'**
+  String get led_runtime_schedule_active;
+
+  /// No description provided for @led_scene_currently_running.
+  ///
+  /// In en, this message translates to:
+  /// **'Currently running'**
+  String get led_scene_currently_running;
+
+  /// No description provided for @led_scene_preset.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset scene'**
+  String get led_scene_preset;
+
+  /// No description provided for @led_scene_custom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom scene'**
+  String get led_scene_custom;
+
+  /// No description provided for @led_scene_channel_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} channels'**
+  String led_scene_channel_count(int count);
+
+  /// No description provided for @led_schedule_daily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily schedule'**
+  String get led_schedule_daily;
+
+  /// No description provided for @led_schedule_window.
+  ///
+  /// In en, this message translates to:
+  /// **'Time window'**
+  String get led_schedule_window;
 }
 
 class _AppLocalizationsDelegate

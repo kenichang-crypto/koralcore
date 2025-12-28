@@ -55,10 +55,9 @@ class InitializeDeviceUseCase {
     // TODO: await ReadDeviceInfoUseCase.productId or separate usecase
 
     // 4) Read Capability
-    // TODO: await ReadCapabilityUseCase().execute(deviceId: deviceId)
     final capabilityPayload = await systemRepository.readCapability(deviceId);
     final capabilitySet = CapabilitySet.fromRaw(capabilityPayload);
-    // TODO: capabilityRegistry.register(deviceId, capabilitySet)
+    // Capability is stored in DeviceContext, which is the single source of truth
 
     final product = _resolveProduct(
       capabilitySet: capabilitySet,

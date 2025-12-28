@@ -1,10 +1,10 @@
 import 'dart:typed_data';
 
-import '../../../../domain/doser/encoder/single_dose_encoding_utils.dart';
-import '../../../../domain/doser_schedule/daily_average_schedule_definition.dart';
-import '../../../../domain/doser_schedule/scheduled_dose_trigger.dart';
-import '../../../../domain/doser_schedule/single_dose_plan.dart';
-import '../../../../domain/doser_schedule/schedule_weekday.dart';
+import '../../../../domain/doser_dosing/encoder/single_dose_encoding_utils.dart';
+import '../../../../domain/doser_dosing/daily_average_schedule_definition.dart';
+import '../../../../domain/doser_dosing/scheduled_dose_trigger.dart';
+import '../../../../domain/doser_dosing/single_dose_plan.dart';
+import '../../../../domain/doser_dosing/schedule_weekday.dart';
 
 /// Encoder for BLE opcode 0x70 (Daily Average / 24h schedule).
 class DailyAverageScheduleEncoder {

@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import '../../../domain/doser_schedule/custom_window_schedule_definition.dart';
+import '../../../domain/doser_dosing/custom_window_schedule_definition.dart';
 import '../encoder/schedule/custom_schedule_encoder_0x72.dart';
 import '../verification/encoder_verifier.dart';
 import '../verification/golden_payloads.dart';

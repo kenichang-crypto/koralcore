@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
@@ -16,11 +17,13 @@ import '../controllers/led_scene_list_controller.dart';
 import '../models/led_scene_summary.dart';
 import '../support/scene_channel_helper.dart';
 import '../support/scene_display_text.dart';
+import '../widgets/led_record_line_chart.dart';
 import '../widgets/led_spectrum_chart.dart';
 import 'led_control_page.dart';
 import 'led_record_page.dart';
 import 'led_scene_list_page.dart';
 import 'led_schedule_list_page.dart';
+import '../../../device/pages/device_settings_page.dart';
 
 const _ledIconAsset = 'assets/icons/led/led_main.png';
 
@@ -40,14 +43,52 @@ class LedMainPage extends StatelessWidget {
         observeLedStateUseCase: appContext.observeLedStateUseCase,
         readLedStateUseCase: appContext.readLedStateUseCase,
         stopLedPreviewUseCase: appContext.stopLedPreviewUseCase,
+        observeLedRecordStateUseCase: appContext.observeLedRecordStateUseCase,
+        readLedRecordStateUseCase: appContext.readLedRecordStateUseCase,
+        startLedPreviewUseCase: appContext.startLedPreviewUseCase,
+        startLedRecordUseCase: appContext.startLedRecordUseCase,
       )..initialize(),
       child: const _LedMainScaffold(),
     );
   }
 }
 
-class _LedMainScaffold extends StatelessWidget {
+class _LedMainScaffold extends StatefulWidget {
   const _LedMainScaffold();
+
+  @override
+  State<_LedMainScaffold> createState() => _LedMainScaffoldState();
+}
+
+class _LedMainScaffoldState extends State<_LedMainScaffold> {
+  bool _isLandscape = false;
+
+  @override
+  void dispose() {
+    // Reset to portrait when leaving page
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    super.dispose();
+  }
+
+  void _toggleOrientation() {
+    setState(() {
+      _isLandscape = !_isLandscape;
+    });
+    if (_isLandscape) {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    } else {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,13 +107,145 @@ class _LedMainScaffold extends StatelessWidget {
           appBar: AppBar(
             backgroundColor: ReefColors.primaryStrong,
             elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: ReefColors.onPrimary),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
             title: Text(
-              l10n.ledHeader,
+              deviceName,
               style: ReefTextStyles.title2.copyWith(
                 color: ReefColors.onPrimary,
                 fontWeight: FontWeight.w700,
               ),
             ),
+            actions: [
+              // Favorite button
+              Builder(
+                builder: (context) {
+                  final appContext = context.read<AppContext>();
+                  return FutureBuilder<bool>(
+                    future: session.activeDeviceId != null
+                        ? appContext.deviceRepository.isDeviceFavorite(session.activeDeviceId!)
+                        : Future.value(false),
+                    builder: (context, snapshot) {
+                      final isFavorite = snapshot.data ?? false;
+                      final deviceId = session.activeDeviceId;
+                      return IconButton(
+                        icon: Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: isFavorite
+                              ? ReefColors.error
+                              : ReefColors.onPrimary.withValues(alpha: 0.7),
+                        ),
+                        tooltip: isFavorite ? 'Unfavorite' : 'Favorite',
+                        onPressed: featuresEnabled && !controller.isPreviewing && deviceId != null
+                            ? () async {
+                                try {
+                                  await appContext.toggleFavoriteDeviceUseCase.execute(
+                                    deviceId: deviceId,
+                                  );
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          isFavorite
+                                              ? 'Device unfavorited'
+                                              : 'Device favorited',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } catch (error) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Failed to toggle favorite: $error'),
+                                      ),
+                                    );
+                                  }
+                                }
+                              }
+                            : null,
+                      );
+                    },
+                  );
+                },
+              ),
+              // Expand button (landscape/portrait toggle)
+              IconButton(
+                icon: Icon(
+                  _isLandscape ? Icons.fullscreen_exit : Icons.fullscreen,
+                  color: ReefColors.onPrimary,
+                ),
+                tooltip: _isLandscape ? 'Portrait' : 'Landscape',
+                onPressed: featuresEnabled && !controller.isPreviewing
+                    ? _toggleOrientation
+                    : null,
+              ),
+              // Menu button
+              PopupMenuButton<String>(
+                icon: Icon(Icons.more_vert, color: ReefColors.onPrimary),
+                enabled: featuresEnabled && !controller.isPreviewing,
+                onSelected: (value) {
+                  switch (value) {
+                    case 'edit':
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const DeviceSettingsPage(),
+                        ),
+                      );
+                      break;
+                    case 'delete':
+                      _confirmDeleteDevice(context, session);
+                      break;
+                    case 'reset':
+                      if (isConnected) {
+                        _confirmResetDevice(context, session, appContext);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.deviceStateDisconnected)),
+                        );
+                      }
+                      break;
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.edit, size: 20),
+                        const SizedBox(width: ReefSpacing.sm),
+                        Text(l10n.deviceActionEdit ?? 'Edit'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.delete, size: 20, color: ReefColors.error),
+                        const SizedBox(width: ReefSpacing.sm),
+                        Text(
+                          l10n.deviceActionDelete,
+                          style: const TextStyle(color: ReefColors.error),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'reset',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.refresh, size: 20),
+                        const SizedBox(width: ReefSpacing.sm),
+                        Text(l10n.ledResetDevice ?? 'Reset Device'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
           body: SafeArea(
             child: ListView(
@@ -97,6 +270,22 @@ class _LedMainScaffold extends StatelessWidget {
                 ),
                 const SizedBox(height: ReefSpacing.xl),
                 _RuntimeStatusCard(controller: controller),
+                const SizedBox(height: ReefSpacing.xl),
+                if (controller.hasRecords) ...[
+                  _RecordChartSection(
+                    controller: controller,
+                    isConnected: isConnected,
+                    featuresEnabled: featuresEnabled,
+                    l10n: l10n,
+                  ),
+                  const SizedBox(height: ReefSpacing.xl),
+                ],
+                _FavoriteSceneSection(
+                  controller: controller,
+                  isConnected: isConnected,
+                  featuresEnabled: featuresEnabled,
+                  l10n: l10n,
+                ),
                 const SizedBox(height: ReefSpacing.xl),
                 _SceneListSection(l10n: l10n, controller: controller),
                 const SizedBox(height: ReefSpacing.xl),
@@ -829,6 +1018,196 @@ class _EntryTile extends StatelessWidget {
         ),
         trailing: Icon(Icons.chevron_right, color: titleColor),
         onTap: enabled ? onTapWhenEnabled : () => showBleGuardDialog(context),
+      ),
+    );
+  }
+}
+
+void _confirmDeleteDevice(
+  BuildContext context,
+  AppSession session,
+) async {
+  final l10n = AppLocalizations.of(context);
+  final appContext = context.read<AppContext>();
+  final deviceId = session.activeDeviceId;
+
+  if (deviceId == null) {
+    return;
+  }
+
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l10n.deviceDeleteConfirmTitle),
+      content: Text(l10n.deviceDeleteConfirmMessage),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(l10n.deviceDeleteConfirmSecondary),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(l10n.deviceDeleteConfirmPrimary),
+        ),
+      ],
+    ),
+  );
+
+  if (confirmed == true && context.mounted) {
+    try {
+      await appContext.removeDeviceUseCase.execute(deviceId: deviceId);
+      if (context.mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.snackbarDeviceRemoved)),
+        );
+      }
+    } on AppError catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(describeAppError(l10n, error.code))),
+        );
+      }
+    }
+  }
+}
+
+void _confirmResetDevice(
+  BuildContext context,
+  AppSession session,
+  AppContext appContext,
+) async {
+  final l10n = AppLocalizations.of(context);
+  final deviceId = session.activeDeviceId;
+
+  if (deviceId == null) {
+    return;
+  }
+
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l10n.ledResetDevice ?? 'Reset Device'),
+      content: Text(
+        'Are you sure you want to reset this device to default settings? This action cannot be undone.',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(l10n.deviceDeleteConfirmSecondary),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          style: FilledButton.styleFrom(
+            backgroundColor: ReefColors.error,
+          ),
+          child: Text(l10n.ledResetDevice ?? 'Reset'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirmed == true && context.mounted) {
+    try {
+      await appContext.resetLedStateUseCase.execute(deviceId: deviceId);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Device reset successfully')),
+        );
+      }
+    } on AppError catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(describeAppError(l10n, error.code))),
+        );
+      }
+    }
+  }
+}
+
+class _RecordChartSection extends StatelessWidget {
+  final LedSceneListController controller;
+  final bool isConnected;
+  final bool featuresEnabled;
+  final AppLocalizations l10n;
+
+  const _RecordChartSection({
+    required this.controller,
+    required this.isConnected,
+    required this.featuresEnabled,
+    required this.l10n,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: ReefColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.md),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(ReefSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  l10n.ledEntryRecords,
+                  style: ReefTextStyles.subheaderAccent.copyWith(
+                    color: ReefColors.textPrimary,
+                  ),
+                ),
+                Row(
+                  children: [
+                    if (featuresEnabled && controller.hasRecords) ...[
+                      IconButton(
+                        icon: Icon(
+                          controller.isPreviewing
+                              ? Icons.stop
+                              : Icons.play_arrow,
+                        ),
+                        tooltip: controller.isPreviewing
+                            ? l10n.ledRecordsActionPreviewStop
+                            : l10n.ledRecordsActionPreviewStart,
+                        onPressed: controller.isBusy
+                            ? null
+                            : controller.togglePreview,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.play_circle_outline),
+                        tooltip: 'Continue Record',
+                        onPressed: controller.isBusy || controller.isPreviewing
+                            ? null
+                            : controller.startRecord,
+                      ),
+                    ],
+                    IconButton(
+                      icon: const Icon(Icons.chevron_right),
+                      onPressed: featuresEnabled
+                          ? () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const LedRecordPage(),
+                                ),
+                              );
+                            }
+                          : null,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: ReefSpacing.md),
+            LedRecordLineChart(
+              records: controller.records,
+              height: 200,
+              showLegend: true,
+              interactive: false,
+            ),
+          ],
+        ),
       ),
     );
   }

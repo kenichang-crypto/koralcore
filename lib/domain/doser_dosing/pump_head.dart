@@ -10,6 +10,7 @@ class PumpHead {
   final DateTime? lastDoseAt;
   final String statusKey;
   final PumpHeadStatus status;
+  final int? maxDrop; // Maximum drop volume limit (ml), null = no limit
 
   const PumpHead({
     required this.headId,
@@ -21,6 +22,7 @@ class PumpHead {
     required this.lastDoseAt,
     required this.statusKey,
     this.status = PumpHeadStatus.idle,
+    this.maxDrop,
   });
 
   PumpHead copyWith({
@@ -33,6 +35,7 @@ class PumpHead {
     DateTime? lastDoseAt,
     String? statusKey,
     PumpHeadStatus? status,
+    int? maxDrop,
   }) {
     return PumpHead(
       headId: headId ?? this.headId,
@@ -44,6 +47,7 @@ class PumpHead {
       lastDoseAt: lastDoseAt ?? this.lastDoseAt,
       statusKey: statusKey ?? this.statusKey,
       status: status ?? this.status,
+      maxDrop: maxDrop ?? this.maxDrop,
     );
   }
 }

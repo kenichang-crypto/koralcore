@@ -6,9 +6,9 @@ import 'package:koralcore/l10n/app_localizations.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../domain/doser_dosing/pump_speed.dart';
-import '../../../../domain/doser_schedule/custom_window_schedule_definition.dart';
-import '../../../../domain/doser_schedule/daily_average_schedule_definition.dart';
-import '../../../../domain/doser_schedule/schedule_weekday.dart';
+import '../../../../domain/doser_dosing/custom_window_schedule_definition.dart';
+import '../../../../domain/doser_dosing/daily_average_schedule_definition.dart';
+import '../../../../domain/doser_dosing/schedule_weekday.dart';
 import '../../../../theme/colors.dart';
 import '../../../../theme/dimensions.dart';
 import '../../../components/app_error_presenter.dart';
@@ -167,7 +167,7 @@ class _ScheduleEditPageState extends State<ScheduleEditPage> {
               const SizedBox(width: AppDimensions.spacingM),
               Expanded(
                 child: FilledButton(
-                  onPressed: _isSaving ? null : _handleSave,
+                  onPressed: !isConnected || _isSaving ? null : _handleSave,
                   child: _isSaving
                       ? const SizedBox(
                           width: 18,

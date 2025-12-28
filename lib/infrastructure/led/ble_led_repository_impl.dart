@@ -26,18 +26,25 @@ import '../../platform/contracts/led_repository.dart';
 class BleLedRepositoryImpl extends LedRepository
     implements LedRecordRepository {
   // Opcodes mirror reef-b-app; keep aligned with Android CommandManager.
+  static const int _opcodeTimeCorrection = 0x20;
   static const int _opcodeSyncStart = 0x21; // START / RETURN / END sequence
   static const int _opcodeReturnRecord = 0x23;
   static const int _opcodeReturnPresetScene = 0x24;
   static const int _opcodeReturnCustomScene = 0x25;
   static const int _opcodeReturnSchedule = 0x26;
+  static const int _opcodeSetRecord = 0x27;
   static const int _opcodeUsePresetScene = 0x28;
   static const int _opcodeUseCustomScene = 0x29;
   static const int _opcodePreviewAck = 0x2A;
+  static const int _opcodeStartRecord = 0x2B;
+  static const int _opcodeReset = 0x2E;
   static const int _opcodeMutationAck = 0x2F; // delete/clear/set/start acks
   static const int _opcodeClearRecordsAck = 0x30;
+  static const int _opcodeEnterDimmingMode = 0x32;
   static const int _opcodeChannelLevels = 0x33;
-  static const int _opcodeSyncEnd = 0xFF;
+  static const int _opcodeExitDimmingMode = 0x34;
+  // PARITY: reef-b-app uses 0x21 + data[2]==0x02 for sync END, not 0xFF.
+  // Removed _opcodeSyncEnd = 0xFF;
   BleLedRepositoryImpl({
     required BleAdapter bleAdapter,
     LedCommandBuilder? commandBuilder,
@@ -159,6 +166,15 @@ class BleLedRepositoryImpl extends LedRepository
     return session.cache.snapshotState();
   }
 
+  @override
+  Future<LedState> startRecord(String deviceId) async {
+    final _DeviceSession session = _ensureSession(deviceId);
+    session.cache.status = LedStatus.applying;
+    _emitLedState(session);
+    await _sendCommand(deviceId, _commandBuilder.startRecordPlayback());
+    return session.cache.snapshotState();
+  }
+
   // ---------------------------------------------------------------------------
   // LedRecordRepository
   // ---------------------------------------------------------------------------
@@ -272,7 +288,14 @@ class BleLedRepositoryImpl extends LedRepository
   }
 
   void _handleNotifyError(Object error, StackTrace stackTrace) {
-    // TODO: Surface BLE errors via cache + state emit.
+    // PARITY: Surface BLE errors via cache + state emit.
+    // When BLE notification stream errors, mark all sessions as error state
+    for (final _DeviceSession session in _sessions.values) {
+      session.cache.status = LedStatus.error;
+      session.cache.recordStatus = LedRecordStatus.error;
+      _emitLedState(session);
+      _emitRecordState(session);
+    }
   }
 
   void _handleConnectionState(BleConnectionState state) {
@@ -284,14 +307,11 @@ class BleLedRepositoryImpl extends LedRepository
     if (state.isDisconnected) {
       session.cache.invalidate();
       session.syncInFlight = false;
-      session.activeSync = null;
       _emitLedState(session);
       _emitRecordState(session);
       return;
     }
     if (state.isConnected) {
-      // Guard against overlapping syncs by resetting activeSync.
-      session.activeSync = null;
       session.syncInFlight = false;
       _requestSync(session);
     }
@@ -306,7 +326,6 @@ class BleLedRepositoryImpl extends LedRepository
       return;
     }
     session.syncInFlight = true;
-    session.activeSync = null;
     _sendCommand(session.deviceId, _commandBuilder.syncInformation());
   }
 
@@ -326,14 +345,35 @@ class BleLedRepositoryImpl extends LedRepository
       return;
     }
     final int opcode = data[0] & 0xFF;
-    session.activeSync ??= _SyncSession(deviceId: session.deviceId);
+    // PARITY: Removed _SyncSession. reef-b-app updates state immediately, no buffering.
 
     switch (opcode) {
       case _opcodeSyncStart:
-        session.activeSync!.begin();
-        session.cache.status = LedStatus.syncing;
-        session.cache.recordStatus = LedRecordStatus.idle;
-        session.cache.handleSyncStart();
+        // PARITY: reef-b-app uses 0x21 with data[2] to indicate sync status:
+        // 0x01 = START, 0x02 = END, 0x00 = FAILED
+        if (data.length < 3) {
+          return; // Invalid payload
+        }
+        final int status = data[2] & 0xFF;
+        switch (status) {
+          case 0x01: // Sync START
+            // PARITY: reef-b-app clears information on START, no sync session needed.
+            session.cache.status = LedStatus.syncing;
+            session.cache.recordStatus = LedRecordStatus.idle;
+            session.cache.handleSyncStart();
+            break;
+          case 0x02: // Sync END
+            // PARITY: reef-b-app only notifies END, no state merging.
+            _finalizeSync(session);
+            break;
+          case 0x00: // Sync FAILED
+            session.cache.finishSync();
+            session.syncInFlight = false;
+            break;
+          default:
+            // Unknown status, ignore
+            break;
+        }
         break;
       case _opcodeReturnPresetScene:
         _handleSceneReturn(session, data, isCustom: false);
@@ -365,10 +405,26 @@ class BleLedRepositoryImpl extends LedRepository
       case _opcodeChannelLevels:
         _handleChannelLevels(session, data);
         break;
-      case _opcodeSyncEnd:
-        _finalizeSync(session);
+      case _opcodeTimeCorrection:
+        _handleTimeCorrectionAck(session, data);
         break;
-  }
+      case _opcodeSetRecord:
+        _handleSetRecordAck(session, data);
+        break;
+      case _opcodeStartRecord:
+        _handleStartRecordAck(session, data);
+        break;
+      case _opcodeReset:
+        _handleResetAck(session, data);
+        break;
+      case _opcodeEnterDimmingMode:
+        _handleEnterDimmingModeAck(session, data);
+        break;
+      case _opcodeExitDimmingMode:
+        _handleExitDimmingModeAck(session, data);
+        break;
+      // PARITY: Removed 0xFF sync end case. reef-b-app uses 0x21 + data[2]==0x02 instead.
+    }
 
 
   void _handleSceneReturn(
@@ -384,18 +440,18 @@ class BleLedRepositoryImpl extends LedRepository
     if (scene == null) {
       return;
     }
-    final _SyncSession? sync = session.activeSync;
-    if (sync != null) {
-      sync.upsertScene(scene);
-    } else {
-      session.cache.saveScene(scene);
-    }
+    // PARITY: reef-b-app updates state immediately, no buffering.
+    session.cache.saveScene(scene);
     if (isCustom) {
       session.cache.setMode(LedMode.customScene);
       session.cache.customSceneChannels = scene.channelLevels;
     } else if (scene.presetCode != null) {
       session.cache.setMode(LedMode.presetScene);
       session.cache.presetSceneCode = scene.presetCode;
+    }
+    // PARITY: reef-b-app only notifies UI at sync END, not during sync.
+    if (!session.cache.isSyncing) {
+      _emitLedState(session);
     }
   }
 
@@ -442,24 +498,24 @@ class BleLedRepositoryImpl extends LedRepository
     if (record == null) {
       return;
     }
-    final _SyncSession? sync = session.activeSync;
-    if (sync != null) {
-      sync.upsertRecord(record);
-    } else {
-      session.cache.saveRecord(record);
-      _rebuildSchedulesFromRecords(session.cache);
-      _emitRecordState(session);
-    }
+    // PARITY: reef-b-app updates state immediately, no buffering.
+    session.cache.saveRecord(record);
+    // PARITY: reef-b-app does not derive schedules from records.
+    // Removed _rebuildSchedulesFromRecords() call.
     if (session.cache.mode == LedMode.none) {
       session.cache.setMode(LedMode.record);
+    }
+    // PARITY: reef-b-app only notifies UI at sync END, not during sync.
+    if (!session.cache.isSyncing) {
+      _emitRecordState(session);
     }
   }
 
   void _handleScheduleReturn(_DeviceSession session, Uint8List data) {
+    // PARITY: Opcode 0x26 (RETURN_SCHEDULE) is NOT implemented in reef-b-app.
+    // _parseScheduleReturn returns null, so this handler does nothing.
     final LedStateSchedule? schedule = _parseScheduleReturn(data);
-    if (schedule != null) {
-      session.activeSync?.schedules.add(schedule);
-    }
+    // No-op: schedule is always null per parity with reef-b-app
   }
 
   LedStateSchedule? _parseScheduleReturn(Uint8List data) {
@@ -541,7 +597,8 @@ class BleLedRepositoryImpl extends LedRepository
         session.cache.pendingRecordId = null;
       }
       session.cache.recordStatus = LedRecordStatus.idle;
-      _rebuildSchedulesFromRecords(session.cache);
+      // PARITY: reef-b-app does not derive schedules from records.
+      // Removed _rebuildSchedulesFromRecords() call.
       session.resolveRecordMutationSuccess();
     } else {
       session.cache.recordStatus = LedRecordStatus.error;
@@ -559,7 +616,8 @@ class BleLedRepositoryImpl extends LedRepository
       session.cache.clearRecords();
       session.cache.recordStatus = LedRecordStatus.idle;
       session.cache.previewingRecordId = null;
-      _rebuildSchedulesFromRecords(session.cache);
+      // PARITY: reef-b-app does not derive schedules from records.
+      // Removed _rebuildSchedulesFromRecords() call.
       session.resolveRecordMutationSuccess();
     } else {
       session.cache.recordStatus = LedRecordStatus.error;
@@ -601,32 +659,118 @@ class BleLedRepositoryImpl extends LedRepository
   }
 
   void _handleChannelLevels(_DeviceSession session, Uint8List data) {
-    // Channel levels must only be processed during an active sync session.
-    // If received outside sync, abort sync to prevent partial state application.
-    if (!session.cache.isSyncing || session.activeSync == null) {
-      session.syncInFlight = false;
-      session.activeSync = null;
-      return;
+    // PARITY: reef-b-app treats 0x33 (CMD_LED_DIMMING) as ACK only, not data return.
+    // Payload: [0x33, 0x01, result(0x00/0x01), checksum] = 4 bytes
+    // 0x00 = failed, 0x01 = success
+    // Channel levels are already updated in setChannelLevels() before sending command.
+    if (data.length != 4) {
+      return; // Invalid payload
     }
 
-    // Payload structure: [opcode(0x33), length(0x09), ch0, ch1, ..., ch8, checksum]
-    // Expected length: 12 bytes (opcode + length + 9 channels + checksum)
-    // Channel bytes are at indices 2-10 (9 bytes total)
-    if (data.length != 12) {
-      // Malformed payload: abort sync to prevent partial state
-      session.syncInFlight = false;
-      session.activeSync = null;
-      return;
+    final bool success = (data[2] & 0xFF) == 0x01;
+    if (success) {
+      // ACK success: channel levels already updated in setChannelLevels()
+      // No additional state update needed
+      session.cache.status = LedStatus.idle;
+    } else {
+      // ACK failed: revert channel levels? Or keep current state?
+      // reef-b-app doesn't revert, so we keep current state
+      session.cache.status = LedStatus.error;
     }
+    _emitLedState(session);
+  }
 
-    // Extract channel payload bytes (skip opcode and length, take 9 channel values)
-    // Payload bytes start at index 2, we need exactly 9 bytes for 9 channels
-    final List<int> channelBytes = data.sublist(2, 11);
-    final Map<String, int> channels = _decodeChannelPayload(channelBytes);
+  void _handleTimeCorrectionAck(_DeviceSession session, Uint8List data) {
+    // PARITY: reef-b-app payload: [0x20, len, result(0x00/0x01), checksum] = 4 bytes
+    if (data.length != 4) {
+      return; // Invalid payload
+    }
+    final bool success = (data[2] & 0xFF) == 0x01;
+    // PARITY: reef-b-app ViewModel triggers sync on success
+    if (success) {
+      _requestSync(session);
+    }
+  }
 
-    // Store parsed channels in sync session for application at sync END
-    // Do NOT emit or apply state here - must wait for sync END boundary
-    session.activeSync!.pendingChannels = channels;
+  void _handleSetRecordAck(_DeviceSession session, Uint8List data) {
+    // PARITY: reef-b-app payload: [0x27, len, result(0x00/0x01), checksum] = 4 bytes
+    if (data.length != 4) {
+      return; // Invalid payload
+    }
+    final bool success = (data[2] & 0xFF) == 0x01;
+    if (success) {
+      // PARITY: reef-b-app ViewModel calls ledInformation.addRecord(LedRecord(...))
+      // Note: We need pending record data (hour, minute, channels) to create the record
+      // This requires tracking pending state when setRecord is called
+      // For now, we'll need to add pendingRecordData to _LedInformationCache
+      final pending = session.cache.pendingRecordData;
+      if (pending != null) {
+        final record = LedRecord(
+          id: _recordIdForMinutes(pending.minutesFromMidnight),
+          minutesFromMidnight: pending.minutesFromMidnight,
+          channelLevels: pending.channelLevels,
+        );
+        session.cache.saveRecord(record);
+        session.cache.pendingRecordData = null;
+      }
+      session.cache.recordStatus = LedRecordStatus.idle;
+      session.resolveRecordMutationSuccess();
+    } else {
+      session.cache.recordStatus = LedRecordStatus.error;
+      session.resolveRecordMutationFailure();
+    }
+    _emitRecordState(session);
+  }
+
+  void _handleStartRecordAck(_DeviceSession session, Uint8List data) {
+    // PARITY: reef-b-app payload: [0x2B, len, result(0x00/0x01), checksum] = 4 bytes
+    if (data.length != 4) {
+      return; // Invalid payload
+    }
+    final bool success = (data[2] & 0xFF) == 0x01;
+    if (success) {
+      // PARITY: reef-b-app calls ledInformation?.setMode(LedMode.RECORD)
+      session.cache.setMode(LedMode.record);
+      session.cache.status = LedStatus.idle;
+    } else {
+      session.cache.status = LedStatus.error;
+    }
+    _emitLedState(session);
+  }
+
+  void _handleResetAck(_DeviceSession session, Uint8List data) {
+    // PARITY: reef-b-app payload: [0x2E, len, result(0x00/0x01), checksum] = 4 bytes
+    if (data.length != 4) {
+      return; // Invalid payload
+    }
+    final bool success = (data[2] & 0xFF) == 0x01;
+    // PARITY: reef-b-app ViewModel calls dbResetDevice(DeviceReset(nowDevice.id)) on success
+    // koralcore already handles invalidate + sync in resetToDefault(), so ACK just confirms
+    if (success) {
+      // Reset command already triggered invalidate + sync, ACK confirms completion
+      // No additional action needed
+    }
+    // Note: Status is already set to syncing in resetToDefault(), will be updated at sync END
+  }
+
+  void _handleEnterDimmingModeAck(_DeviceSession session, Uint8List data) {
+    // PARITY: reef-b-app payload: [0x32, len, result(0x00/0x01), checksum] = 4 bytes
+    if (data.length != 4) {
+      return; // Invalid payload
+    }
+    final bool success = (data[2] & 0xFF) == 0x01;
+    // PARITY: reef-b-app ViewModel only logs success/failure, no state update
+    // ACK is handled, no additional action needed
+  }
+
+  void _handleExitDimmingModeAck(_DeviceSession session, Uint8List data) {
+    // PARITY: reef-b-app payload: [0x34, len, result(0x00/0x01), checksum] = 4 bytes
+    if (data.length != 4) {
+      return; // Invalid payload
+    }
+    final bool success = (data[2] & 0xFF) == 0x01;
+    // PARITY: reef-b-app ViewModel only logs success/failure, no state update
+    // ACK is handled, no additional action needed
   }
 
   void _handlePresetSceneAck(_DeviceSession session, Uint8List data) {
@@ -739,49 +883,22 @@ class BleLedRepositoryImpl extends LedRepository
   }
 
   void _finalizeSync(_DeviceSession session) {
-    final _SyncSession? sync = session.activeSync;
-    if (sync == null) {
-      return;
-    }
-    if (sync.scenes.isNotEmpty) {
-      session.cache.scenes = List<LedStateScene>.unmodifiable(sync.scenes);
-    }
-    final List<LedStateSchedule> scheduleSource = sync.schedules.isNotEmpty
-        ? sync.schedules
-        : _deriveSchedulesFromRecords(sync.records);
-    if (scheduleSource.isNotEmpty) {
-      session.cache.schedules = List<LedStateSchedule>.unmodifiable(
-        scheduleSource,
-      );
-      if (session.cache.pendingScheduleId != null) {
-        final String pendingId = session.cache.pendingScheduleId!;
-        final bool exists = scheduleSource.any(
-          (s) => s.scheduleId == pendingId,
-        );
-        if (exists) {
-          session.cache.activeScheduleId = pendingId;
-          session.cache.activeSceneId = null;
-        }
-      }
-    }
-    if (sync.records.isNotEmpty) {
-      sync.records.sort(
-        (LedRecord a, LedRecord b) =>
-            a.minutesFromMidnight.compareTo(b.minutesFromMidnight),
-      );
-      session.cache.records = List<LedRecord>.unmodifiable(sync.records);
-      session.cache.recordStatus = LedRecordStatus.idle;
-      session.cache.pendingRecordId = null;
-      session.cache.pendingClearRecords = false;
-      session.cache.previewingRecordId = null;
-    }
-    _reconcileSceneStateFromSync(session);
+    // PARITY: reef-b-app only notifies END, no state merging.
+    // State is already updated immediately when RETURN opcodes are received.
+    // This method only cleans up sync state and notifies completion.
+    
+    // Clean up pending states
+    session.cache.recordStatus = LedRecordStatus.idle;
+    session.cache.pendingRecordId = null;
+    session.cache.pendingRecordData = null;
+    session.cache.pendingClearRecords = false;
+    session.cache.previewingRecordId = null;
+    
+    // Finish sync
     session.cache.finishSync();
     session.syncInFlight = false;
-    if (sync.pendingChannels != null) {
-      session.cache.applyChannels(sync.pendingChannels!);
-    }
-    session.activeSync = null;
+    
+    // Emit final state (reef-b-app ViewModel reads state directly, but koralcore needs to notify UI)
     _emitLedState(session);
     _emitRecordState(session);
   }
@@ -793,12 +910,25 @@ class BleLedRepositoryImpl extends LedRepository
     _emitRecordState(session);
   }
 
-  Future<void> _sendCommand(String deviceId, Uint8List payload) {
-    return _bleAdapter.writeBytes(
-      deviceId: deviceId,
-      data: payload,
-      options: _writeOptions,
-    );
+  Future<void> _sendCommand(String deviceId, Uint8List payload) async {
+    try {
+      await _bleAdapter.writeBytes(
+        deviceId: deviceId,
+        data: payload,
+        options: _writeOptions,
+      );
+    } catch (error, stackTrace) {
+      // PARITY: Handle BLE command errors
+      // Update session state to error and notify UI
+      final _DeviceSession? session = _sessions[deviceId];
+      if (session != null) {
+        session.cache.status = LedStatus.error;
+        _emitLedState(session);
+        _emitRecordState(session);
+      }
+      // Re-throw to allow caller to handle if needed
+      rethrow;
+    }
   }
 
   void _emitLedState(_DeviceSession session) {
@@ -829,7 +959,7 @@ class _DeviceSession {
   final StreamController<LedState> ledStateController;
   final StreamController<LedRecordState> recordStateController;
   final StreamController<BleNotifyPacket> _queue;
-  _SyncSession? activeSync;
+  // PARITY: Removed activeSync. reef-b-app updates state immediately, no buffering.
   Future<void>? _processing;
   bool syncInFlight = false;
   _RecordMutationTracker? _recordMutation;
@@ -898,6 +1028,7 @@ class _LedInformationCache {
   String? pendingSceneId;
   String? pendingScheduleId;
   String? pendingRecordId;
+  _PendingRecordData? pendingRecordData;
   int? presetSceneCode;
   Map<String, int>? customSceneChannels;
   int? pendingPresetSceneCode;
@@ -953,6 +1084,7 @@ class _LedInformationCache {
     pendingPresetSceneCode = null;
     pendingCustomSceneChannels = null;
     pendingRecordId = null;
+    pendingRecordData = null;
     pendingClearRecords = false;
     if (recordStatus != LedRecordStatus.previewing) {
       recordStatus = LedRecordStatus.idle;
@@ -966,6 +1098,7 @@ class _LedInformationCache {
     activeSceneId = null;
     activeScheduleId = null;
     pendingRecordId = null;
+    pendingRecordData = null;
     pendingClearRecords = false;
     previewingRecordId = null;
     recordStatus = LedRecordStatus.applying;
@@ -1088,45 +1221,7 @@ class _LedInformationCache {
   }
 }
 
-class _SyncSession {
-  _SyncSession({required this.deviceId});
-
-  final String deviceId;
-  final List<LedStateScene> scenes = <LedStateScene>[];
-  final List<LedStateSchedule> schedules = <LedStateSchedule>[];
-  final List<LedRecord> records = <LedRecord>[];
-  Map<String, int>? pendingChannels;
-
-  void begin() {
-    scenes.clear();
-    schedules.clear();
-    records.clear();
-    pendingChannels = null;
-  }
-
-  void upsertScene(LedStateScene scene) {
-    final int index = scenes.indexWhere(
-      (LedStateScene existing) => existing.sceneId == scene.sceneId,
-    );
-    if (index >= 0) {
-      scenes[index] = scene;
-    } else {
-      scenes.add(scene);
-    }
-  }
-
-  void upsertRecord(LedRecord record) {
-    final int index = records.indexWhere(
-      (LedRecord existing) => existing.id == record.id,
-    );
-    if (index >= 0) {
-      records[index] = record;
-    } else {
-      records.add(record);
-    }
-  }
-
-}
+// PARITY: Removed _SyncSession class. reef-b-app updates state immediately, no buffering.
 
 
 class _RecordMutationTracker {
@@ -1417,4 +1512,19 @@ bool _channelsMatch(Map<String, int> a, Map<String, int> b) {
     }
   }
   return true;
+}
+
+// ---------------------------------------------------------------------------
+// Internal helper classes
+// ---------------------------------------------------------------------------
+
+/// Pending record data for SET_RECORD ACK handling.
+class _PendingRecordData {
+  _PendingRecordData({
+    required this.minutesFromMidnight,
+    required this.channelLevels,
+  });
+
+  final int minutesFromMidnight;
+  final Map<String, int> channelLevels;
 }

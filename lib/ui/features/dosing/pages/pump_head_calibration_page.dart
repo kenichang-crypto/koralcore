@@ -12,6 +12,7 @@ import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/pump_head_calibration_controller.dart';
 import '../models/pump_head_calibration_record.dart';
+import 'pump_head_adjust_list_page.dart';
 
 class PumpHeadCalibrationPage extends StatelessWidget {
   final String headId;
@@ -48,7 +49,22 @@ class _PumpHeadCalibrationView extends StatelessWidget {
         _maybeShowCalibrationError(context, controller.lastErrorCode);
 
         return Scaffold(
-          appBar: AppBar(title: Text(l10n.dosingCalibrationHistoryTitle)),
+          appBar: AppBar(
+            title: Text(l10n.dosingCalibrationHistoryTitle),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.history),
+                tooltip: l10n.dosingCalibrationAdjustListTitle ?? 'Adjust List',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => PumpHeadAdjustListPage(headId: headId),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
           body: RefreshIndicator(
             onRefresh: controller.refresh,
             child: ListView(

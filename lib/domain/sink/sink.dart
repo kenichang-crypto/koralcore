@@ -23,4 +23,19 @@ class Sink {
       deviceIds: List.unmodifiable(deviceIds),
     );
   }
+
+  /// Creates a copy with updated fields.
+  Sink copyWith({
+    SinkId? id,
+    String? name,
+    SinkType? type,
+    List<String>? deviceIds,
+  }) {
+    return Sink(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      deviceIds: deviceIds ?? this.deviceIds,
+    );
+  }
 }

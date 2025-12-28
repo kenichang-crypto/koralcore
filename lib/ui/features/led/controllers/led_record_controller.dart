@@ -169,6 +169,22 @@ class LedRecordController extends ChangeNotifier {
     _updateSelectionByMinutes(ordered.last.minutesFromMidnight);
   }
 
+  Future<void> deleteRecord(String recordId) async {
+    await _stopPreviewIfNeeded();
+    await _runAction(() async {
+      try {
+        await deleteLedRecordUseCase.execute(deviceId: _deviceId!, recordId: recordId);
+        _emitEvent(const LedRecordEvent.deleteSuccess());
+      } on AppError catch (error) {
+        _setError(error.code);
+        _emitEvent(LedRecordEvent.deleteFailure(error.code));
+      } catch (_) {
+        _setError(AppErrorCode.unknownError);
+        _emitEvent(const LedRecordEvent.deleteFailure(AppErrorCode.unknownError));
+      }
+    });
+  }
+
   Future<void> deleteSelectedRecord() async {
     final LedRecord? record = selectedRecord;
     if (record == null) {
@@ -339,6 +355,10 @@ class LedRecordController extends ChangeNotifier {
           a.minutesFromMidnight.compareTo(b.minutesFromMidnight),
     );
     return ordered;
+  }
+
+  void selectTime(int minutes) {
+    _updateSelectionByMinutes(minutes);
   }
 
   void _updateSelectionByMinutes(int minutes) {

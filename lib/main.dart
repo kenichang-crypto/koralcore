@@ -6,9 +6,9 @@ import 'application/common/app_context.dart';
 import 'application/common/app_session.dart';
 import 'application/system/ble_readiness_controller.dart';
 import 'ui/theme/reef_theme.dart';
-import 'ui/app/main_scaffold.dart';
 import 'ui/app/navigation_controller.dart';
 import 'ui/features/device/controllers/device_list_controller.dart';
+import 'ui/features/splash/pages/splash_page.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 
 void main() {
@@ -54,7 +54,7 @@ class _KoralCoreAppState extends State<KoralCoreApp> {
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: AppLocalizations.supportedLocales,
-        home: const MainScaffold(),
+        home: const SplashPage(),
       ),
     );
   }

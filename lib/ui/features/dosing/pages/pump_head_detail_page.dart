@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_session.dart';
-import '../../../../domain/doser_schedule/dosing_schedule_summary.dart';
+import '../../../../domain/doser_dosing/dosing_schedule_summary.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
@@ -71,6 +71,40 @@ class _PumpHeadDetailView extends StatelessWidget {
               color: ReefColors.onPrimary,
             ),
             title: Text(l10n.dosingPumpHeadSummaryTitle(summary.headId)),
+            actions: [
+              // Menu button (Edit settings)
+              PopupMenuButton<String>(
+                icon: Icon(Icons.more_vert, color: ReefColors.onPrimary),
+                enabled: isConnected,
+                onSelected: (value) {
+                  switch (value) {
+                    case 'edit':
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => PumpHeadSettingsPage(
+                            headId: headId,
+                            initialName: summary.displayName,
+                            initialDelaySeconds: 0,
+                          ),
+                        ),
+                      );
+                      break;
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.edit, size: 20),
+                        const SizedBox(width: ReefSpacing.sm),
+                        Text(l10n.dosingPumpHeadSettingsTitle),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
           body: RefreshIndicator(
             onRefresh: controller.refresh,

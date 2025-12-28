@@ -76,12 +76,28 @@ class BleTodayTotalsDataSource implements TodayTotalsDataSource {
     required TodayDoseReadOpcode opcode,
     required int pumpId,
   }) {
+    // PARITY: reef-b-app CommandManager.getDropGetTotalDropCommand() and
+    // getDropGetTotalDropDecimalCommand() both use dataSum() for checksum.
+    // Format: [opcode, length, pumpId, checksum]
+    // Template: [0x7A, 0x01, 0x00, 0x00] or [0x7E, 0x01, 0x00, 0x00]
     final int opcodeByte = opcode == TodayDoseReadOpcode.modern0x7E
         ? 0x7E
         : 0x7A;
+    final int length = 0x01; // Payload length (1 byte: pumpId)
     final int normalizedPumpId = pumpId.clamp(0, 0xFF).toInt();
-    // Firmware expects opcode + 1-byte payload (pump id). If additional bytes
-    // such as checksum become required, extend this builder accordingly.
-    return Uint8List.fromList(<int>[opcodeByte, normalizedPumpId]);
+    
+    // PARITY: dataSum() calculates: sum of bytes from index 2 to array.size
+    // For command template [0x7A, 0x01, 0x00, 0x00]:
+    //   After setting command[2] = pumpId, we have [0x7A, 0x01, pumpId, 0x00]
+    //   dataSum() = copyOfRange(2, 4) = [pumpId, 0x00]
+    //   sum = pumpId + 0 = pumpId
+    final int checksum = normalizedPumpId & 0xFF;
+    
+    return Uint8List.fromList(<int>[
+      opcodeByte,
+      length,
+      normalizedPumpId,
+      checksum,
+    ]);
   }
 }

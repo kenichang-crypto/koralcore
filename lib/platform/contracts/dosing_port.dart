@@ -1,10 +1,10 @@
 library;
 
 import '../../domain/doser_dosing/today_dose_summary.dart';
-import '../../domain/doser_schedule/dosing_schedule_summary.dart';
+import '../../domain/doser_dosing/dosing_schedule_summary.dart';
 
 export '../../domain/doser_dosing/today_dose_summary.dart';
-export '../../domain/doser_schedule/dosing_schedule_summary.dart';
+export '../../domain/doser_dosing/dosing_schedule_summary.dart';
 
 /// Identifiers for the legacy (0x7A) and modern (0x7E) dosing read opcodes.
 enum TodayDoseReadOpcode { legacy0x7A, modern0x7E }

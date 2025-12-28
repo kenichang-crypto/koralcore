@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import '../../domain/device/device_context.dart';
-import '../../domain/doser/encoder/timed_single_dose_encoder.dart';
+import '../../domain/doser_dosing/encoder/timed_single_dose_encoder.dart';
 import '../../domain/doser_dosing/single_dose_timed.dart';
 import '../../infrastructure/ble/ble_adapter.dart';
 import '../../infrastructure/ble/transport/ble_transport_models.dart';

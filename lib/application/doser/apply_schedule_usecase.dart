@@ -4,14 +4,17 @@ import '../../domain/device/device_context.dart';
 import '../../domain/doser_dosing/doser_schedule.dart';
 import '../../domain/doser_dosing/doser_schedule_type.dart';
 import '../../domain/doser_dosing/pump_head.dart';
-import '../../domain/doser_schedule/custom_window_schedule_definition.dart';
-import '../../domain/doser_schedule/daily_average_schedule_definition.dart';
+import '../../domain/doser_dosing/custom_window_schedule_definition.dart';
+import '../../domain/doser_dosing/daily_average_schedule_definition.dart';
 import '../../infrastructure/ble/encoder/schedule/custom_schedule_chunk_encoder.dart';
 import '../../infrastructure/ble/encoder/schedule/custom_schedule_encoder_0x72.dart';
 import '../../infrastructure/ble/encoder/schedule/custom_schedule_encoder_0x73.dart';
 import '../../infrastructure/ble/encoder/schedule/custom_schedule_encoder_0x74.dart';
 import '../../infrastructure/ble/encoder/schedule/daily_average_schedule_encoder.dart';
 import '../../infrastructure/ble/schedule/schedule_sender.dart';
+import '../../infrastructure/ble/schedule/h24_schedule_builder.dart';
+import '../../infrastructure/ble/schedule/custom_schedule_builder.dart';
+import '../../infrastructure/ble/schedule/oneshot_schedule_builder.dart';
 import '../../infrastructure/ble/transport/ble_transport_models.dart';
 import '../../platform/contracts/device_repository.dart';
 import '../../platform/contracts/pump_head_repository.dart';
@@ -91,32 +94,46 @@ class ApplyScheduleUseCase {
       return busyFailure;
     }
 
-    // 4) TODO: Branch based on schedule.type (manual / BLE 15 / BLE 16 are
-    //    intentionally excluded from this UseCase).
+    // 4) Branch based on schedule.type and build/send appropriate payloads
     switch (schedule.type) {
       case DoserScheduleType.h24:
+        try {
+          final Uint8List payload = buildH24ScheduleCommand(schedule);
+          return await _sendSchedulePayloads(
+            deviceId: deviceContext.deviceId,
+            payloads: <Uint8List>[payload],
+          );
+        } catch (error) {
+          return ScheduleResult.failure(
+            errorCode: scheduleResultMapper.unknownFailure(),
+          );
+        }
+
       case DoserScheduleType.custom:
-        // TODO: Invoke existing schedule BLE flow for 24h/custom via
-        //    deviceRepository.applySchedule(...) or equivalent adapter call.
-        // TODO: Build payload via schedule_command_builder + branch-specific
-        //    builder implementations.
-        // TODO: Send payload via infrastructure ScheduleSender (no BLE logic
-        //    embedded in the use case).
-        // TODO: Map BLE response to ScheduleResult using ScheduleResultMapper.
-        // TODO: Return ScheduleResult.success() once BLE command finishes.
-        return ScheduleResult.failure(
-          errorCode: scheduleResultMapper.unknownFailure(),
-        );
+        try {
+          final List<Uint8List> payloads = buildCustomScheduleCommand(schedule);
+          return await _sendSchedulePayloads(
+            deviceId: deviceContext.deviceId,
+            payloads: payloads,
+          );
+        } catch (error) {
+          return ScheduleResult.failure(
+            errorCode: scheduleResultMapper.unknownFailure(),
+          );
+        }
 
       case DoserScheduleType.oneshotSchedule:
-        // TODO: Build oneshot payload via schedule_command_builder ->
-        //    buildOneshotScheduleCommand.
-        // TODO: Send payload via ScheduleSender to the BLE adapter.
-        // TODO: Map BLE response to ScheduleResult via ScheduleResultMapper.
-        // TODO: Return ScheduleResult.success() once BLE chain finishes.
-        return ScheduleResult.failure(
-          errorCode: scheduleResultMapper.unknownFailure(),
-        );
+        try {
+          final Uint8List payload = buildOneshotScheduleCommand(schedule);
+          return await _sendSchedulePayloads(
+            deviceId: deviceContext.deviceId,
+            payloads: <Uint8List>[payload],
+          );
+        } catch (error) {
+          return ScheduleResult.failure(
+            errorCode: scheduleResultMapper.unknownFailure(),
+          );
+        }
     }
   }
 

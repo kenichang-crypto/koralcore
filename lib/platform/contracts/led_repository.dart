@@ -30,4 +30,6 @@ abstract class LedRepository {
     required String deviceId,
     required Map<String, int> channelLevels,
   });
+
+  Future<LedState> startRecord(String deviceId);
 }

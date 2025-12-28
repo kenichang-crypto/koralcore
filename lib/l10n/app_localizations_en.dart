@@ -680,6 +680,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Create schedules in the Reef B app to view them here.';
 
   @override
+  String get ledScheduleDerivedLabel => 'From LED record';
+
+  @override
   String get ledRecordsTitle => 'LED records';
 
   @override
@@ -894,4 +897,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ledScheduleSnackApplied => 'Schedule applied.';
+
+  @override
+  String get led_runtime_status => 'Runtime status';
+
+  @override
+  String get led_runtime_idle => 'Idle';
+
+  @override
+  String get led_runtime_applying => 'Applying';
+
+  @override
+  String get led_runtime_preview => 'Previewing';
+
+  @override
+  String get led_runtime_schedule_active => 'Schedule active';
+
+  @override
+  String get led_scene_currently_running => 'Currently running';
+
+  @override
+  String get led_scene_preset => 'Preset scene';
+
+  @override
+  String get led_scene_custom => 'Custom scene';
+
+  @override
+  String led_scene_channel_count(int count) {
+    return '$count channels';
+  }
+
+  @override
+  String get led_schedule_daily => 'Daily schedule';
+
+  @override
+  String get led_schedule_window => 'Time window';
 }

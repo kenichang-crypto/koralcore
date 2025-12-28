@@ -14,6 +14,9 @@ import '../models/led_scene_summary.dart';
 import '../support/scene_channel_helper.dart';
 import '../support/scene_display_text.dart';
 import '../widgets/led_spectrum_chart.dart';
+import 'led_scene_add_page.dart';
+import 'led_scene_edit_page.dart';
+import 'led_scene_delete_page.dart';
 
 const _ledIconAsset = 'assets/icons/led/led_main.png';
 
@@ -52,7 +55,37 @@ class _LedSceneListView extends StatelessWidget {
         _maybeShowEvent(context, controller);
 
         return Scaffold(
-          appBar: AppBar(title: Text(l10n.ledScenesListTitle)),
+          appBar: AppBar(
+            title: Text(l10n.ledScenesListTitle),
+            actions: [
+              // Edit button (進入刪除場景頁面)
+              IconButton(
+                icon: const Icon(Icons.edit),
+                tooltip: l10n.ledScenesActionEdit ?? 'Edit',
+                onPressed: isConnected && !controller.isBusy
+                    ? () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const LedSceneDeletePage(),
+                          ),
+                        );
+                      }
+                    : null,
+              ),
+            ],
+          ),
+          floatingActionButton: isConnected && !controller.isBusy
+              ? FloatingActionButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const LedSceneAddPage(),
+                      ),
+                    );
+                  },
+                  child: const Icon(Icons.add),
+                )
+              : null,
           body: RefreshIndicator(
             onRefresh: controller.refresh,
             child: ListView(
@@ -93,26 +126,108 @@ class _LedSceneListView extends StatelessWidget {
                   )
                 else if (controller.scenes.isEmpty)
                   _ScenesEmptyState(l10n: l10n)
-                else
-                  ...controller.scenes.map(
-                    (scene) => Padding(
-                      padding: const EdgeInsets.only(
-                        bottom: AppDimensions.spacingM,
-                      ),
-                      child: _SceneCard(
-                        scene: scene,
-                        l10n: l10n,
-                        channelCount: controller.currentChannelLevels.length,
-                        onApply:
-                            isConnected &&
-                                !controller.isBusy &&
-                                scene.isEnabled &&
-                                !scene.isActive
-                            ? () => controller.applyScene(scene.id)
-                            : null,
+                else ...[
+                  // Dynamic Scenes Section
+                  if (controller.dynamicScenes.isNotEmpty) ...[
+                    Text(
+                      l10n.ledDynamicScene ?? 'Dynamic Scene',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: AppColors.grey700,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
+                    const SizedBox(height: AppDimensions.spacingS),
+                    ...controller.dynamicScenes.map(
+                      (scene) => Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: AppDimensions.spacingM,
+                        ),
+                        child: _SceneCard(
+                          scene: scene,
+                          l10n: l10n,
+                          channelCount: controller.currentChannelLevels.length,
+                          isConnected: isConnected,
+                          controller: controller,
+                          onApply:
+                              isConnected &&
+                                  !controller.isBusy &&
+                                  scene.isEnabled &&
+                                  !scene.isActive
+                              ? () => controller.applyScene(scene.id)
+                              : null,
+                          onTap: isConnected && !controller.isBusy
+                              ? () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => LedSceneEditPage(sceneId: scene.id),
+                                    ),
+                                  );
+                                }
+                              : null,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppDimensions.spacingL),
+                  ],
+                  // Static Scenes Section
+                  if (controller.staticScenes.isNotEmpty) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          l10n.ledStaticScene ?? 'Static Scene',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: AppColors.grey700,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        if (isConnected && !controller.isBusy)
+                          IconButton(
+                            icon: const Icon(Icons.add),
+                            tooltip: l10n.ledScenesActionAdd ?? 'Add Scene',
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const LedSceneAddPage(),
+                                ),
+                              );
+                            },
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: AppDimensions.spacingS),
+                    ...controller.staticScenes.map(
+                      (scene) => Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: AppDimensions.spacingM,
+                        ),
+                        child: _SceneCard(
+                          scene: scene,
+                          l10n: l10n,
+                          channelCount: controller.currentChannelLevels.length,
+                          isConnected: isConnected,
+                          controller: controller,
+                          onApply:
+                              isConnected &&
+                                  !controller.isBusy &&
+                                  scene.isEnabled &&
+                                  !scene.isActive
+                              ? () => controller.applyScene(scene.id)
+                              : null,
+                          onTap: isConnected && !controller.isBusy
+                              ? () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => LedSceneEditPage(sceneId: scene.id),
+                                    ),
+                                  );
+                                }
+                              : null,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ],
             ),
           ),
@@ -190,12 +305,18 @@ class _SceneCard extends StatelessWidget {
   final AppLocalizations l10n;
   final int channelCount;
   final VoidCallback? onApply;
+  final VoidCallback? onTap;
+  final bool isConnected;
+  final LedSceneListController controller;
 
   const _SceneCard({
     required this.scene,
     required this.l10n,
     required this.channelCount,
     this.onApply,
+    this.onTap,
+    required this.isConnected,
+    required this.controller,
   });
 
   @override
@@ -237,7 +358,10 @@ class _SceneCard extends StatelessWidget {
           width: isActive ? 1.5 : 1,
         ),
       ),
-      child: Padding(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusM),
+        child: Padding(
         padding: const EdgeInsets.all(AppDimensions.spacingL),
         child: Row(
           children: [
@@ -318,25 +442,44 @@ class _SceneCard extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: AppDimensions.spacingS),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: OutlinedButton.icon(
-                      onPressed: onApply,
-                      icon: Icon(
-                        scene.isActive ? Icons.check : Icons.play_arrow,
+                  Row(
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: onApply,
+                        icon: Icon(
+                          scene.isActive ? Icons.check : Icons.play_arrow,
+                        ),
+                        label: Text(
+                          scene.isActive
+                              ? l10n.ledSceneStatusActive
+                              : l10n.actionApply,
+                        ),
                       ),
-                      label: Text(
-                        scene.isActive
-                            ? l10n.ledSceneStatusActive
-                            : l10n.actionApply,
-                      ),
-                    ),
+                      const SizedBox(width: AppDimensions.spacingS),
+                      // Favorite button
+                      if (isConnected && !controller.isBusy)
+                        IconButton(
+                          icon: Icon(
+                            scene.isFavorite
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color: scene.isFavorite
+                                ? AppColors.error
+                                : AppColors.grey500,
+                          ),
+                          tooltip: scene.isFavorite
+                              ? l10n.ledScenesActionUnfavorite ?? 'Unfavorite'
+                              : l10n.ledScenesActionFavorite ?? 'Favorite',
+                          onPressed: () => controller.toggleFavoriteScene(scene.id),
+                        ),
+                    ],
                   ),
                 ],
               ),
             ),
           ],
         ),
+      ),
       ),
     );
   }

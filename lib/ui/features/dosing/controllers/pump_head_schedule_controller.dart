@@ -7,8 +7,8 @@ import '../../../../application/common/app_session.dart';
 import '../../../../application/doser/apply_schedule_usecase.dart';
 import '../../../../application/doser/read_schedule.dart';
 import '../../../../application/doser/schedule_result.dart';
-import '../../../../domain/doser_schedule/custom_window_schedule_definition.dart';
-import '../../../../domain/doser_schedule/daily_average_schedule_definition.dart';
+import '../../../../domain/doser_dosing/custom_window_schedule_definition.dart';
+import '../../../../domain/doser_dosing/daily_average_schedule_definition.dart';
 import '../models/pump_head_schedule_entry.dart';
 
 class PumpHeadScheduleController extends ChangeNotifier {

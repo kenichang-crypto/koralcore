@@ -9,6 +9,7 @@ class LedSceneSummary {
   final bool isActive;
   final bool isPreset;
   final bool isDynamic;
+  final bool isFavorite;
   final String? iconKey;
   final int? presetCode;
   final Map<String, int> channelLevels;
@@ -22,6 +23,7 @@ class LedSceneSummary {
     this.isActive = false,
     this.isPreset = false,
     this.isDynamic = false,
+    this.isFavorite = false,
     this.iconKey,
     this.presetCode,
     required Map<String, int> channelLevels,
@@ -36,6 +38,7 @@ class LedSceneSummary {
     bool? isActive,
     bool? isPreset,
     bool? isDynamic,
+    bool? isFavorite,
     String? iconKey,
     int? presetCode,
     Map<String, int>? channelLevels,
@@ -49,6 +52,7 @@ class LedSceneSummary {
       isActive: isActive ?? this.isActive,
       isPreset: isPreset ?? this.isPreset,
       isDynamic: isDynamic ?? this.isDynamic,
+      isFavorite: isFavorite ?? this.isFavorite,
       iconKey: iconKey ?? this.iconKey,
       presetCode: presetCode ?? this.presetCode,
       channelLevels: channelLevels ?? this.channelLevels,

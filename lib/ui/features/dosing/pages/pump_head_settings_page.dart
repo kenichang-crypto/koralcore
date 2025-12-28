@@ -11,6 +11,7 @@ import '../../../theme/reef_text.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/pump_head_settings_controller.dart';
+import 'drop_type_page.dart';
 
 class PumpHeadSettingsPage extends StatelessWidget {
   final String headId;
@@ -227,6 +228,8 @@ class _PumpHeadSettingsViewState extends State<_PumpHeadSettingsView> {
                       const SizedBox(height: ReefSpacing.md),
                       _TankPlaceholderCard(l10n: l10n),
                       const SizedBox(height: ReefSpacing.md),
+                      _DropTypeCard(l10n: l10n),
+                      const SizedBox(height: ReefSpacing.md),
                       _DelayCard(
                         currentDelay: _selectedDelay,
                         delayOptions: _delayOptions,
@@ -357,6 +360,40 @@ class _TankPlaceholderCard extends StatelessWidget {
             color: ReefColors.textSecondary,
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _DropTypeCard extends StatelessWidget {
+  final AppLocalizations l10n;
+
+  const _DropTypeCard({required this.l10n});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        title: Text(
+          l10n.dropTypeTitle ?? 'Drop Type',
+          style: ReefTextStyles.subheader.copyWith(
+            color: ReefColors.textPrimary,
+          ),
+        ),
+        subtitle: Text(
+          l10n.dropTypeSubtitle ?? 'Manage drop types',
+          style: ReefTextStyles.caption1.copyWith(
+            color: ReefColors.textSecondary,
+          ),
+        ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const DropTypePage(),
+            ),
+          );
+        },
       ),
     );
   }

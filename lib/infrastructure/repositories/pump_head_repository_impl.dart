@@ -2,7 +2,10 @@ library;
 
 import 'dart:async';
 
+import 'package:sqflite/sqflite.dart';
+
 import '../../domain/doser_dosing/pump_head.dart';
+import '../../infrastructure/database/database_helper.dart';
 import '../../platform/contracts/pump_head_repository.dart';
 
 class PumpHeadRepositoryImpl extends PumpHeadRepository {
@@ -10,29 +13,37 @@ class PumpHeadRepositoryImpl extends PumpHeadRepository {
   static const double _defaultFlowRateMlPerMin = 1.0;
   static const List<String> _defaultHeadIds = <String>['A', 'B', 'C', 'D'];
 
+  final DatabaseHelper _dbHelper = DatabaseHelper();
   final Map<String, _PumpHeadStore> _stores = <String, _PumpHeadStore>{};
 
   PumpHeadRepositoryImpl();
 
   @override
   Future<List<PumpHead>> listPumpHeads(String deviceId) async {
+    await _loadPumpHeadsFromDatabase(deviceId);
     return _ensureStore(deviceId).heads;
   }
 
   @override
   Stream<List<PumpHead>> observePumpHeads(String deviceId) {
+    // Load from database when stream is first listened to
+    _loadPumpHeadsFromDatabase(deviceId);
     return _ensureStore(deviceId).stream;
   }
 
   @override
   Future<PumpHead?> getPumpHead(String deviceId, String headId) async {
+    await _loadPumpHeadsFromDatabase(deviceId);
     return _ensureStore(deviceId).headByHeadId(headId);
   }
 
   @override
   Future<void> savePumpHeads(String deviceId, List<PumpHead> heads) async {
     final _PumpHeadStore store = _ensureStore(deviceId);
-    store.setHeads(heads.map(_normalizeHead).toList(growable: false));
+    final List<PumpHead> normalizedHeads =
+        heads.map(_normalizeHead).toList(growable: false);
+    store.setHeads(normalizedHeads);
+    await _savePumpHeadsToDatabase(deviceId, normalizedHeads);
   }
 
   @override
@@ -48,6 +59,10 @@ class PumpHeadRepositoryImpl extends PumpHeadRepository {
       totalMl: totalMl,
       lastDoseAt: lastDoseAt,
     );
+    final PumpHead? updatedHead = store.headByHeadId(headId);
+    if (updatedHead != null) {
+      await _savePumpHeadToDatabase(deviceId, updatedHead);
+    }
   }
 
   @override
@@ -58,6 +73,10 @@ class PumpHeadRepositoryImpl extends PumpHeadRepository {
   }) async {
     final _PumpHeadStore store = _ensureStore(deviceId);
     store.updateStatus(headId: headId, status: status);
+    final PumpHead? updatedHead = store.headByHeadId(headId);
+    if (updatedHead != null) {
+      await _savePumpHeadToDatabase(deviceId, updatedHead);
+    }
   }
 
   @override
@@ -65,7 +84,115 @@ class PumpHeadRepositoryImpl extends PumpHeadRepository {
     required String deviceId,
     required DateTime now,
   }) async {
-    _ensureStore(deviceId).resetDailyIfNeeded(now);
+    final _PumpHeadStore store = _ensureStore(deviceId);
+    store.resetDailyIfNeeded(now);
+    // Save all heads after daily reset
+    await _savePumpHeadsToDatabase(deviceId, store.heads);
+  }
+
+  Future<void> _loadPumpHeadsFromDatabase(String deviceId) async {
+    // Check if already loaded for this device
+    if (_stores.containsKey(deviceId)) {
+      final store = _stores[deviceId]!;
+      if (store.heads.isNotEmpty) {
+        // Already have heads, check if we should reload from DB
+        // For now, we'll reload to ensure consistency
+      }
+    }
+
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'drop_head',
+      where: 'device_id = ?',
+      whereArgs: [deviceId],
+    );
+
+    final _PumpHeadStore store = _ensureStore(deviceId);
+
+    if (maps.isEmpty) {
+      // No heads in database, use defaults if store is empty
+      if (store.heads.isEmpty) {
+        // Store already has defaults from _ensureStore
+        return;
+      }
+      return;
+    }
+
+    final List<PumpHead> heads = maps.map((map) => _pumpHeadFromMap(map)).toList();
+    store.setHeads(heads);
+  }
+
+  Future<void> _savePumpHeadsToDatabase(
+      String deviceId, List<PumpHead> heads) async {
+    final db = await _dbHelper.database;
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    // Delete existing heads for this device
+    await db.delete(
+      'drop_head',
+      where: 'device_id = ?',
+      whereArgs: [deviceId],
+    );
+
+    // Insert all heads
+    for (final head in heads) {
+      await _savePumpHeadToDatabase(deviceId, head);
+    }
+  }
+
+  Future<void> _savePumpHeadToDatabase(String deviceId, PumpHead head) async {
+    final db = await _dbHelper.database;
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    await db.insert(
+      'drop_head',
+      {
+        'device_id': deviceId,
+        'head_id': head.headId,
+        'pump_id': head.pumpId,
+        'additive_name': head.additiveName.isEmpty ? null : head.additiveName,
+        'daily_target_ml': head.dailyTargetMl,
+        'today_dispensed_ml': head.todayDispensedMl,
+        'flow_rate_ml_per_min': head.flowRateMlPerMin,
+        'last_dose_at': head.lastDoseAt?.millisecondsSinceEpoch,
+        'status_key': head.statusKey,
+        'status': head.status.name,
+        'drop_type_id': null, // TODO: Map from additiveName to dropTypeId
+        'max_drop': head.maxDrop,
+        'created_at': now,
+        'updated_at': now,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  PumpHead _pumpHeadFromMap(Map<String, dynamic> map) {
+    return PumpHead(
+      headId: map['head_id'] as String,
+      pumpId: map['pump_id'] as int,
+      additiveName: map['additive_name'] as String? ?? '',
+      dailyTargetMl: (map['daily_target_ml'] as num?)?.toDouble() ?? _defaultDailyLimitMl,
+      todayDispensedMl: (map['today_dispensed_ml'] as num?)?.toDouble() ?? 0.0,
+      flowRateMlPerMin: (map['flow_rate_ml_per_min'] as num?)?.toDouble() ?? _defaultFlowRateMlPerMin,
+      lastDoseAt: map['last_dose_at'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['last_dose_at'] as int)
+          : null,
+      statusKey: map['status_key'] as String? ?? 'idle',
+      status: _statusFromString(map['status'] as String? ?? 'idle'),
+      maxDrop: map['max_drop'] as int?,
+    );
+  }
+
+  PumpHeadStatus _statusFromString(String status) {
+    switch (status) {
+      case 'running':
+        return PumpHeadStatus.running;
+      case 'error':
+        return PumpHeadStatus.error;
+      case 'idle':
+      default:
+        return PumpHeadStatus.idle;
+    }
   }
 
   _PumpHeadStore _ensureStore(String deviceId) {

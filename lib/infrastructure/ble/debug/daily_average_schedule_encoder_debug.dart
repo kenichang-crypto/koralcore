@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
 import '../../../domain/doser_dosing/pump_speed.dart';
-import '../../../domain/doser_schedule/daily_average_schedule_definition.dart';
-import '../../../domain/doser_schedule/schedule_weekday.dart';
+import '../../../domain/doser_dosing/daily_average_schedule_definition.dart';
+import '../../../domain/doser_dosing/schedule_weekday.dart';
 import '../verification/encoder_verifier.dart';
 import '../verification/golden_payloads.dart';
 import '../encoder/schedule/daily_average_schedule_encoder.dart';

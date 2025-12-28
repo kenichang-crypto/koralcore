@@ -12,7 +12,7 @@ import '../../../../domain/doser_dosing/today_dose_summary.dart';
 import '../../../../domain/doser_dosing/single_dose_immediate.dart';
 import '../../../../domain/doser_dosing/single_dose_timed.dart';
 import '../../../../domain/doser_dosing/pump_head.dart';
-import '../../../../domain/doser_schedule/dosing_schedule_summary.dart';
+import '../../../../domain/doser_dosing/dosing_schedule_summary.dart';
 import '../models/pump_head_summary.dart';
 
 class PumpHeadDetailController extends ChangeNotifier

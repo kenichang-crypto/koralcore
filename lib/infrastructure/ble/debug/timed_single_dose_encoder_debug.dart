@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import '../../../domain/doser/encoder/timed_single_dose_encoder.dart';
+import '../../../domain/doser_dosing/encoder/timed_single_dose_encoder.dart';
 import '../../../domain/doser_dosing/pump_speed.dart';
 import '../../../domain/doser_dosing/single_dose_timed.dart';
 import '../verification/encoder_verifier.dart';

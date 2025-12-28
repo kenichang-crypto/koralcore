@@ -13,6 +13,7 @@ import '../../theme/reef_text.dart';
 import '../device/controllers/device_list_controller.dart';
 import '../dosing/pages/dosing_main_page.dart';
 import '../led/pages/led_main_page.dart';
+import '../warning/pages/warning_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -35,6 +36,19 @@ class HomePage extends StatelessWidget {
             fontWeight: FontWeight.w700,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.warning, color: ReefColors.onPrimary),
+            tooltip: l10n.warningTitle ?? 'Warnings',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const WarningPage(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: ListView(

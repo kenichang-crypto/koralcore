@@ -1,5 +1,5 @@
 import '../../../domain/doser_dosing/pump_speed.dart';
-import '../../../domain/doser_schedule/custom_window_schedule_definition.dart';
+import '../../../domain/doser_dosing/custom_window_schedule_definition.dart';
 
 CustomWindowScheduleDefinition buildSampleCustomWindowSchedule() {
   return CustomWindowScheduleDefinition(

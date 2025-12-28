@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../application/common/app_context.dart';
+import '../../../../application/common/app_error.dart';
+import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../components/ble_guard.dart';
+import '../../../components/app_error_presenter.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../models/pump_head_summary.dart';
+import 'dosing_main_page_helpers.dart'
+    show confirmDeleteDevice, confirmResetDevice, handlePlayDosing, handleConnect, handleDisconnect;
 import 'manual_dosing_page.dart';
 import 'pump_head_detail_page.dart';
+import 'pump_head_schedule_page.dart';
+import 'pump_head_calibration_page.dart';
+import '../../../device/pages/device_settings_page.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 
 const _dosingIconAsset = 'assets/icons/dosing/dosing_main.png';
@@ -20,21 +29,150 @@ class DosingMainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final session = context.watch<AppSession>();
+    final appContext = context.read<AppContext>();
     final l10n = AppLocalizations.of(context);
     final bool isConnected = session.isBleConnected;
+    final deviceName = session.activeDeviceName ?? l10n.dosingHeader;
 
     return Scaffold(
       backgroundColor: ReefColors.primaryStrong,
       appBar: AppBar(
         backgroundColor: ReefColors.primaryStrong,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: ReefColors.onPrimary),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         title: Text(
-          l10n.dosingHeader,
+          deviceName,
           style: ReefTextStyles.title2.copyWith(
             color: ReefColors.onPrimary,
             fontWeight: FontWeight.w700,
           ),
         ),
+        actions: [
+          // Favorite button
+          FutureBuilder<bool>(
+            future: session.activeDeviceId != null
+                ? appContext.deviceRepository.isDeviceFavorite(session.activeDeviceId!)
+                : Future.value(false),
+            builder: (context, snapshot) {
+              final isFavorite = snapshot.data ?? false;
+              final deviceId = session.activeDeviceId;
+              return IconButton(
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: isFavorite
+                      ? ReefColors.error
+                      : ReefColors.onPrimary.withValues(alpha: 0.7),
+                ),
+                tooltip: isFavorite ? 'Unfavorite' : 'Favorite',
+                onPressed: isConnected && deviceId != null
+                    ? () async {
+                        try {
+                          await appContext.toggleFavoriteDeviceUseCase.execute(
+                            deviceId: deviceId,
+                          );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  isFavorite
+                                      ? 'Device unfavorited'
+                                      : 'Device favorited',
+                                ),
+                              ),
+                            );
+                          }
+                        } catch (error) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Failed to toggle favorite: $error'),
+                              ),
+                            );
+                          }
+                        }
+                      }
+                    : null,
+              );
+            },
+          ),
+          // Menu button
+          PopupMenuButton<String>(
+            icon: Icon(Icons.more_vert, color: ReefColors.onPrimary),
+            enabled: isConnected,
+            onSelected: (value) {
+              switch (value) {
+                case 'edit':
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const DeviceSettingsPage(),
+                    ),
+                  );
+                  break;
+                case 'delete':
+                  confirmDeleteDevice(context, session, appContext);
+                  break;
+                case 'reset':
+                  if (isConnected) {
+                    confirmResetDevice(context, session, appContext);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.deviceStateDisconnected)),
+                    );
+                  }
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'edit',
+                child: Row(
+                  children: [
+                    const Icon(Icons.edit, size: 20),
+                    const SizedBox(width: ReefSpacing.sm),
+                    Text(l10n.deviceActionEdit ?? 'Edit'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    const Icon(Icons.delete, size: 20, color: ReefColors.error),
+                    const SizedBox(width: ReefSpacing.sm),
+                    Text(
+                      l10n.deviceActionDelete,
+                      style: const TextStyle(color: ReefColors.error),
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'reset',
+                child: Row(
+                  children: [
+                    const Icon(Icons.refresh, size: 20),
+                    const SizedBox(width: ReefSpacing.sm),
+                    Text(l10n.dosingResetDevice ?? 'Reset Device'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          // BLE connection button
+          IconButton(
+            icon: Icon(
+              isConnected ? Icons.bluetooth_connected : Icons.bluetooth_disabled,
+              color: ReefColors.onPrimary,
+            ),
+            tooltip: isConnected ? 'Disconnect' : 'Connect',
+            onPressed: isConnected
+                ? () => handleDisconnect(context, session, appContext)
+                : () => handleConnect(context, session, appContext),
+          ),
+        ],
       ),
       body: SafeArea(
         child: ListView(
@@ -64,6 +202,8 @@ class DosingMainPage extends StatelessWidget {
             const SizedBox(height: ReefSpacing.lg),
             _PumpHeadList(
               isConnected: isConnected,
+              appContext: appContext,
+              session: session,
               onHeadTap: (headId) {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -71,12 +211,30 @@ class DosingMainPage extends StatelessWidget {
                   ),
                 );
               },
+              onHeadPlay: isConnected
+                  ? (headId) => handlePlayDosing(context, session, appContext, headId)
+                  : null,
             ),
             const SizedBox(height: ReefSpacing.xl),
             _EntryTile(
               title: l10n.dosingEntrySchedule,
-              subtitle: l10n.comingSoon,
+              subtitle: l10n.dosingScheduleOverviewSubtitle,
               enabled: isConnected,
+              onTapWhenEnabled: () {
+                // Navigate to first pump head's schedule page
+                final firstHeadId = _getFirstPumpHeadId(session);
+                if (firstHeadId != null) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => PumpHeadSchedulePage(headId: firstHeadId),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.dosingNoPumpHeads ?? 'No pump heads available')),
+                  );
+                }
+              },
             ),
             _EntryTile(
               title: l10n.dosingEntryManual,
@@ -90,39 +248,103 @@ class DosingMainPage extends StatelessWidget {
             ),
             _EntryTile(
               title: l10n.dosingEntryCalibration,
-              subtitle: l10n.comingSoon,
+              subtitle: l10n.dosingCalibrationHistorySubtitle,
               enabled: isConnected,
+              onTapWhenEnabled: () {
+                // Navigate to first pump head's calibration page
+                final firstHeadId = _getFirstPumpHeadId(session);
+                if (firstHeadId != null) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => PumpHeadCalibrationPage(headId: firstHeadId),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.dosingNoPumpHeads ?? 'No pump heads available')),
+                  );
+                }
+              },
             ),
             _EntryTile(
               title: l10n.dosingEntryHistory,
-              subtitle: l10n.comingSoon,
+              subtitle: l10n.dosingHistorySubtitle ?? 'View dosing records',
               enabled: isConnected,
+              onTapWhenEnabled: () {
+                // Navigate to first pump head's detail page (which shows record history)
+                final firstHeadId = _getFirstPumpHeadId(session);
+                if (firstHeadId != null) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => PumpHeadDetailPage(headId: firstHeadId),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.dosingNoPumpHeads ?? 'No pump heads available')),
+                  );
+                }
+              },
             ),
           ],
         ),
       ),
     );
   }
+
+  /// Get the first available pump head ID
+  String? _getFirstPumpHeadId(AppSession session) {
+    final pumpHeads = session.pumpHeads;
+    if (pumpHeads.isEmpty) {
+      return null;
+    }
+    // Return the first pump head's headId (e.g., 'A', 'B', 'C', 'D')
+    return pumpHeads.first.headId;
+  }
 }
 
 class _PumpHeadList extends StatelessWidget {
   final bool isConnected;
+  final AppContext appContext;
+  final AppSession session;
   final ValueChanged<String> onHeadTap;
+  final ValueChanged<String>? onHeadPlay;
 
-  const _PumpHeadList({required this.isConnected, required this.onHeadTap});
+  const _PumpHeadList({
+    required this.isConnected,
+    required this.appContext,
+    required this.session,
+    required this.onHeadTap,
+    this.onHeadPlay,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final session = context.watch<AppSession>();
     final l10n = AppLocalizations.of(context);
+    
+    // Get real pump heads from session, or use empty placeholders
+    final List<PumpHead> pumpHeads = session.pumpHeads;
+    final Map<String, PumpHead> headMap = {
+      for (final PumpHead head in pumpHeads) head.headId.toUpperCase(): head,
+    };
+    
     final List<Widget> cards = <Widget>[];
     for (final String headId in _headOrder) {
-      final summary = PumpHeadSummary.demo(headId);
+      final PumpHead? head = headMap[headId.toUpperCase()];
+      final PumpHeadSummary summary = head != null
+          ? PumpHeadSummary.fromPumpHead(head)
+          : PumpHeadSummary.empty(headId);
+      
       cards.add(
         _DropHeadCard(
           summary: summary,
           isConnected: isConnected,
           l10n: l10n,
           onTap: isConnected ? () => onHeadTap(headId) : null,
+          onPlay: isConnected && onHeadPlay != null
+              ? () => onHeadPlay!(headId)
+              : null,
         ),
       );
       cards.add(const SizedBox(height: ReefSpacing.md));
@@ -141,12 +363,14 @@ class _DropHeadCard extends StatelessWidget {
   final bool isConnected;
   final AppLocalizations l10n;
   final VoidCallback? onTap;
+  final VoidCallback? onPlay;
 
   const _DropHeadCard({
     required this.summary,
     required this.isConnected,
     required this.l10n,
     this.onTap,
+    this.onPlay,
   });
 
   @override
@@ -219,9 +443,21 @@ class _DropHeadCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: ReefSpacing.sm),
-                const Icon(
-                  Icons.chevron_right,
-                  color: ReefColors.textSecondary,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (onPlay != null)
+                      IconButton(
+                        icon: const Icon(Icons.play_arrow),
+                        color: ReefColors.primary,
+                        tooltip: 'Play',
+                        onPressed: onPlay,
+                      ),
+                    const Icon(
+                      Icons.chevron_right,
+                      color: ReefColors.textSecondary,
+                    ),
+                  ],
                 ),
               ],
             ),

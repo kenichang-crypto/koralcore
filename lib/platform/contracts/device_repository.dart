@@ -65,4 +65,7 @@ abstract class DeviceRepository {
 
   /// Optional: retrieve cached device state (e.g., last known state)
   Future<String?> getDeviceState(String deviceId);
+
+  /// Update device name
+  Future<void> updateDeviceName(String deviceId, String name);
 }

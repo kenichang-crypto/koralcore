@@ -13,6 +13,7 @@ import '../../../components/ble_guard.dart';
 import '../controllers/pump_head_schedule_controller.dart';
 import '../models/pump_head_schedule_entry.dart';
 import 'schedule_edit_page.dart';
+import 'pump_head_record_setting_page.dart';
 
 const _dosingIconAsset = 'assets/icons/dosing/dosing_main.png';
 
@@ -74,7 +75,14 @@ class _PumpHeadScheduleView extends StatelessWidget {
                 const SizedBox(height: AppDimensions.spacingL),
                 FilledButton.icon(
                   onPressed: isConnected
-                      ? () => _openScheduleEditor(context)
+                      ? () {
+                          // Navigate to PumpHeadRecordSettingPage for new schedule
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => PumpHeadRecordSettingPage(headId: headId),
+                            ),
+                          );
+                        }
                       : null,
                   icon: const Icon(Icons.add),
                   label: Text(l10n.dosingScheduleAddButton),

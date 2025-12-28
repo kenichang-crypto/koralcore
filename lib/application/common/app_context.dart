@@ -10,14 +10,18 @@ import '../../infrastructure/ble/schedule/led/led_schedule_command_builder.dart'
 import '../../infrastructure/ble/schedule/schedule_sender.dart';
 import '../../infrastructure/ble/transport/ble_read_transport.dart';
 import '../../infrastructure/ble/transport/ble_transport_log_buffer.dart';
+import '../../infrastructure/dosing/ble_dosing_repository_impl.dart';
 import '../../infrastructure/led/ble_led_repository_impl.dart';
 import '../../infrastructure/repositories/device_repository_impl.dart';
 import '../../infrastructure/repositories/doser_repository_impl.dart';
 import '../../infrastructure/repositories/lighting_repository_impl.dart';
 import '../../infrastructure/repositories/pump_head_repository_impl.dart';
 import '../../infrastructure/repositories/sink_repository_impl.dart';
+import '../../infrastructure/repositories/scene_repository_impl.dart';
+import '../../infrastructure/ble/led/led_command_builder.dart';
 import '../../platform/contracts/device_repository.dart';
 import '../../platform/contracts/dosing_port.dart';
+import '../../platform/contracts/dosing_repository.dart';
 import '../../platform/contracts/led_port.dart';
 import '../../platform/contracts/led_record_repository.dart';
 import '../../platform/contracts/led_repository.dart';
@@ -28,9 +32,13 @@ import '../device/connect_device_usecase.dart';
 import '../device/disconnect_device_usecase.dart';
 import '../device/remove_device_usecase.dart';
 import '../device/scan_devices_usecase.dart';
+import '../device/toggle_favorite_device_usecase.dart';
+import '../device/update_device_name_usecase.dart';
 import '../doser/apply_schedule_usecase.dart';
+import '../doser/observe_dosing_state_usecase.dart';
 import '../doser/read_calibration_history.dart';
 import '../doser/read_dosing_schedule_summary_usecase.dart';
+import '../doser/read_dosing_state_usecase.dart';
 import '../doser/read_schedule.dart';
 import '../doser/read_today_total.dart';
 import '../doser/single_dose_immediate_usecase.dart';
@@ -38,6 +46,7 @@ import '../doser/single_dose_timed_usecase.dart';
 import '../doser/schedule_capability_guard.dart';
 import '../doser/schedule_result_mapper.dart';
 import '../doser/update_pump_head_settings.dart';
+import '../doser/reset_dosing_state_usecase.dart';
 import '../led/apply_led_schedule_usecase.dart';
 import '../led/apply_scene_usecase.dart';
 import '../led/clear_led_records_usecase.dart';
@@ -57,7 +66,13 @@ import '../led/reset_led_state_usecase.dart';
 import '../led/save_led_schedule_usecase.dart';
 import '../led/set_channel_intensity.dart';
 import '../led/start_led_preview_usecase.dart';
+import '../led/start_led_record_usecase.dart';
 import '../led/stop_led_preview_usecase.dart';
+import '../led/add_scene_usecase.dart';
+import '../led/update_scene_usecase.dart';
+import '../led/delete_scene_usecase.dart';
+import '../led/enter_dimming_mode_usecase.dart';
+import '../led/exit_dimming_mode_usecase.dart';
 import '../session/current_device_session.dart';
 
 /// Root dependency graph for the UI layer.
@@ -65,6 +80,7 @@ class AppContext {
   final DeviceRepository deviceRepository;
   final LedRepository ledRepository;
   final LedRecordRepository ledRecordRepository;
+  final DosingRepository dosingRepository;
   final PumpHeadRepository pumpHeadRepository;
   final SinkRepository sinkRepository;
   final CurrentDeviceSession currentDeviceSession;
@@ -74,6 +90,8 @@ class AppContext {
   final ConnectDeviceUseCase connectDeviceUseCase;
   final DisconnectDeviceUseCase disconnectDeviceUseCase;
   final RemoveDeviceUseCase removeDeviceUseCase;
+  final ToggleFavoriteDeviceUseCase toggleFavoriteDeviceUseCase;
+  final UpdateDeviceNameUseCase updateDeviceNameUseCase;
   final ReadScheduleUseCase readScheduleUseCase;
   final ReadTodayTotalUseCase readTodayTotalUseCase;
   final ReadDosingScheduleSummaryUseCase readDosingScheduleSummaryUseCase;
@@ -86,6 +104,7 @@ class AppContext {
   final SetChannelIntensityUseCase setChannelIntensityUseCase;
   final ApplySceneUseCase applySceneUseCase;
   final ResetLedStateUseCase resetLedStateUseCase;
+  final ResetDosingStateUseCase resetDosingStateUseCase;
   final UpdatePumpHeadSettingsUseCase updatePumpHeadSettingsUseCase;
   final SingleDoseImmediateUseCase singleDoseImmediateUseCase;
   final SingleDoseTimedUseCase singleDoseTimedUseCase;
@@ -93,6 +112,8 @@ class AppContext {
   final ApplyLedScheduleUseCase applyLedScheduleUseCase;
   final ObserveLedStateUseCase observeLedStateUseCase;
   final ReadLedStateUseCase readLedStateUseCase;
+  final ObserveDosingStateUseCase observeDosingStateUseCase;
+  final ReadDosingStateUseCase readDosingStateUseCase;
   final ObserveLedRecordStateUseCase observeLedRecordStateUseCase;
   final ReadLedRecordStateUseCase readLedRecordStateUseCase;
   final RefreshLedRecordStateUseCase refreshLedRecordStateUseCase;
@@ -100,11 +121,13 @@ class AppContext {
   final ClearLedRecordsUseCase clearLedRecordsUseCase;
   final StartLedPreviewUseCase startLedPreviewUseCase;
   final StopLedPreviewUseCase stopLedPreviewUseCase;
+  final StartLedRecordUseCase startLedRecordUseCase;
 
   AppContext._({
     required this.deviceRepository,
     required this.ledRepository,
     required this.ledRecordRepository,
+    required this.dosingRepository,
     required this.pumpHeadRepository,
     required this.sinkRepository,
     required this.currentDeviceSession,
@@ -113,6 +136,8 @@ class AppContext {
     required this.connectDeviceUseCase,
     required this.disconnectDeviceUseCase,
     required this.removeDeviceUseCase,
+    required this.toggleFavoriteDeviceUseCase,
+    required this.updateDeviceNameUseCase,
     required this.readScheduleUseCase,
     required this.readTodayTotalUseCase,
     required this.readDosingScheduleSummaryUseCase,
@@ -125,6 +150,7 @@ class AppContext {
     required this.setChannelIntensityUseCase,
     required this.applySceneUseCase,
     required this.resetLedStateUseCase,
+    required this.resetDosingStateUseCase,
     required this.updatePumpHeadSettingsUseCase,
     required this.singleDoseImmediateUseCase,
     required this.singleDoseTimedUseCase,
@@ -139,6 +165,12 @@ class AppContext {
     required this.clearLedRecordsUseCase,
     required this.startLedPreviewUseCase,
     required this.stopLedPreviewUseCase,
+    required this.startLedRecordUseCase,
+    required this.addSceneUseCase,
+    required this.updateSceneUseCase,
+    required this.deleteSceneUseCase,
+    required this.enterDimmingModeUseCase,
+    required this.exitDimmingModeUseCase,
   });
 
   factory AppContext.bootstrap() {
@@ -162,6 +194,10 @@ class AppContext {
     );
     final LedRepository ledRepository = bleLedRepository;
     final LedRecordRepository ledRecordRepository = bleLedRepository;
+    final BleDosingRepositoryImpl bleDosingRepository = BleDosingRepositoryImpl(
+      bleAdapter: bleAdapter,
+    );
+    final DosingRepository dosingRepository = bleDosingRepository;
     final BleReadTransport bleReadTransport = BleAdapterReadTransport(
       adapter: bleAdapter,
     );
@@ -201,6 +237,7 @@ class AppContext {
       deviceRepository: deviceRepository,
       ledRepository: ledRepository,
       ledRecordRepository: ledRecordRepository,
+      dosingRepository: dosingRepository,
       pumpHeadRepository: pumpHeadRepository,
       sinkRepository: sinkRepository,
       currentDeviceSession: currentDeviceSession,
@@ -221,6 +258,12 @@ class AppContext {
       removeDeviceUseCase: RemoveDeviceUseCase(
         deviceRepository: deviceRepository,
         currentDeviceSession: currentDeviceSession,
+      ),
+      toggleFavoriteDeviceUseCase: ToggleFavoriteDeviceUseCase(
+        deviceRepository: deviceRepository,
+      ),
+      updateDeviceNameUseCase: UpdateDeviceNameUseCase(
+        deviceRepository: deviceRepository,
       ),
       readScheduleUseCase: const ReadScheduleUseCase(),
       readTodayTotalUseCase: readTodayTotalUseCase,
@@ -251,6 +294,10 @@ class AppContext {
       resetLedStateUseCase: ResetLedStateUseCase(
         deviceRepository: deviceRepository,
         ledRepository: ledRepository,
+      ),
+      resetDosingStateUseCase: ResetDosingStateUseCase(
+        deviceRepository: deviceRepository,
+        dosingRepository: dosingRepository,
       ),
       updatePumpHeadSettingsUseCase: const UpdatePumpHeadSettingsUseCase(),
       singleDoseImmediateUseCase: SingleDoseImmediateUseCase(
@@ -283,6 +330,12 @@ class AppContext {
       ),
       observeLedStateUseCase: observeLedStateUseCase,
       readLedStateUseCase: readLedStateUseCase,
+      observeDosingStateUseCase: ObserveDosingStateUseCase(
+        dosingRepository: dosingRepository,
+      ),
+      readDosingStateUseCase: ReadDosingStateUseCase(
+        dosingRepository: dosingRepository,
+      ),
       observeLedRecordStateUseCase: ObserveLedRecordStateUseCase(
         repository: ledRecordRepository,
       ),
@@ -303,6 +356,29 @@ class AppContext {
       ),
       stopLedPreviewUseCase: StopLedPreviewUseCase(
         repository: ledRecordRepository,
+      ),
+      startLedRecordUseCase: StartLedRecordUseCase(
+        repository: ledRepository,
+      ),
+      addSceneUseCase: AddSceneUseCase(
+        ledRepository: ledRepository,
+        sceneRepository: SceneRepositoryImpl(),
+      ),
+      updateSceneUseCase: UpdateSceneUseCase(
+        ledRepository: ledRepository,
+        sceneRepository: SceneRepositoryImpl(),
+      ),
+      deleteSceneUseCase: DeleteSceneUseCase(
+        ledRepository: ledRepository,
+        sceneRepository: SceneRepositoryImpl(),
+      ),
+      enterDimmingModeUseCase: EnterDimmingModeUseCase(
+        bleAdapter: bleAdapter,
+        commandBuilder: const LedCommandBuilder(),
+      ),
+      exitDimmingModeUseCase: ExitDimmingModeUseCase(
+        bleAdapter: bleAdapter,
+        commandBuilder: const LedCommandBuilder(),
       ),
     );
   }

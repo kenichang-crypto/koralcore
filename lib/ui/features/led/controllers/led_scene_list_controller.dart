@@ -6,11 +6,18 @@ import '../../../../application/common/app_error.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../application/led/apply_scene_usecase.dart';
+import '../../../../application/led/observe_led_record_state_usecase.dart';
 import '../../../../application/led/observe_led_state_usecase.dart';
+import '../../../../application/led/read_led_record_state_usecase.dart';
 import '../../../../application/led/read_led_scenes.dart';
 import '../../../../application/led/read_led_state_usecase.dart';
+import '../../../../application/led/start_led_preview_usecase.dart';
+import '../../../../application/led/start_led_record_usecase.dart';
 import '../../../../application/led/stop_led_preview_usecase.dart';
+import '../../../../domain/led_lighting/led_record.dart';
+import '../../../../domain/led_lighting/led_record_state.dart';
 import '../../../../domain/led_lighting/led_state.dart';
+import '../../../../infrastructure/repositories/favorite_repository_impl.dart';
 import '../models/led_scene_summary.dart';
 
 class LedSceneListController extends ChangeNotifier {
@@ -21,6 +28,10 @@ class LedSceneListController extends ChangeNotifier {
     required this.observeLedStateUseCase,
     required this.readLedStateUseCase,
     required this.stopLedPreviewUseCase,
+    required this.observeLedRecordStateUseCase,
+    required this.readLedRecordStateUseCase,
+    required this.startLedPreviewUseCase,
+    required this.startLedRecordUseCase,
   });
 
   final AppSession session;
@@ -29,14 +40,22 @@ class LedSceneListController extends ChangeNotifier {
   final ObserveLedStateUseCase observeLedStateUseCase;
   final ReadLedStateUseCase readLedStateUseCase;
   final StopLedPreviewUseCase stopLedPreviewUseCase;
+  final ObserveLedRecordStateUseCase observeLedRecordStateUseCase;
+  final ReadLedRecordStateUseCase readLedRecordStateUseCase;
+  final StartLedPreviewUseCase startLedPreviewUseCase;
+  final StartLedRecordUseCase startLedRecordUseCase;
+  final FavoriteRepositoryImpl _favoriteRepository = FavoriteRepositoryImpl();
 
   StreamSubscription<LedState>? _stateSubscription;
+  StreamSubscription<LedRecordState>? _recordSubscription;
   List<LedSceneSummary> _scenes = const [];
   LedStatus? _ledStatus;
   String? _activeSceneId;
   String? _activeScheduleId;
   List<LedStateSchedule> _schedules = const [];
   Map<String, int> _currentChannelLevels = const <String, int>{};
+  List<LedRecord> _records = const <LedRecord>[];
+  bool _isRecordPreviewing = false;
   bool _initialized = false;
   bool _isLoading = true;
   bool _isPerformingAction = false;
@@ -44,9 +63,13 @@ class LedSceneListController extends ChangeNotifier {
   LedSceneEvent? _pendingEvent;
 
   List<LedSceneSummary> get scenes => _scenes;
+  List<LedSceneSummary> get dynamicScenes =>
+      _scenes.where((scene) => scene.isDynamic).toList(growable: false);
+  List<LedSceneSummary> get staticScenes =>
+      _scenes.where((scene) => !scene.isDynamic).toList(growable: false);
   bool get isLoading => _isLoading;
   bool get isBusy => _isPerformingAction || _ledStatus == LedStatus.applying;
-  bool get isPreviewing => _activeSceneId != null;
+  bool get isPreviewing => _activeSceneId != null || _isRecordPreviewing;
   bool get isWriteLocked => isBusy || isPreviewing;
   AppErrorCode? get lastErrorCode => _lastErrorCode;
   Map<String, int> get currentChannelLevels => _currentChannelLevels;
@@ -54,6 +77,8 @@ class LedSceneListController extends ChangeNotifier {
   String? get activeSceneId => _activeSceneId;
   String? get activeScheduleId => _activeScheduleId;
   List<LedStateSchedule> get schedules => _schedules;
+  List<LedRecord> get records => _records;
+  bool get hasRecords => _records.isNotEmpty;
 
   LedStateSchedule? get activeSchedule {
     if (_activeScheduleId == null) {
@@ -79,8 +104,10 @@ class LedSceneListController extends ChangeNotifier {
     }
     _initialized = true;
     await _bootstrapLedState();
+    await _bootstrapRecordState();
     await refresh();
     _subscribeToLedState();
+    _subscribeToRecordState();
   }
 
   Future<void> refresh() async {
@@ -102,7 +129,8 @@ class LedSceneListController extends ChangeNotifier {
     try {
       final List<ReadLedSceneSnapshot> snapshots = await readLedScenesUseCase
           .execute(deviceId: deviceId);
-      _scenes = snapshots.map(_mapSnapshot).toList(growable: false);
+      final Set<String> favoriteSceneIds = await _favoriteRepository.getFavoriteScenes(deviceId);
+      _scenes = snapshots.map((snapshot) => _mapSnapshot(snapshot, favoriteSceneIds)).toList(growable: false);
       _applyActiveSceneFlag();
       _lastErrorCode = null;
     } on AppError catch (error) {
@@ -157,9 +185,68 @@ class LedSceneListController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> startRecord() async {
+    final String? deviceId = session.activeDeviceId;
+    if (deviceId == null) {
+      _setError(AppErrorCode.noActiveDevice);
+      notifyListeners();
+      return;
+    }
+    if (isBusy || isPreviewing) {
+      return;
+    }
+
+    await _stopPreview(deviceId);
+    await _runAction(() async {
+      try {
+        await startLedRecordUseCase.execute(deviceId: deviceId);
+      } on AppError catch (error) {
+        _setError(error.code);
+      } catch (_) {
+        _setError(AppErrorCode.unknownError);
+      }
+    });
+  }
+
+  Future<void> togglePreview() async {
+    final String? deviceId = session.activeDeviceId;
+    if (deviceId == null) {
+      _setError(AppErrorCode.noActiveDevice);
+      notifyListeners();
+      return;
+    }
+    if (isBusy) {
+      return;
+    }
+
+    if (_isRecordPreviewing) {
+      await _stopPreview(deviceId);
+      return;
+    }
+
+    // Start preview from first record if available
+    if (_records.isEmpty) {
+      return;
+    }
+
+    await _runAction(() async {
+      try {
+        await startLedPreviewUseCase.execute(
+          deviceId: deviceId,
+          recordId: _records.first.id,
+        );
+      } on AppError catch (error) {
+        _setError(error.code);
+      } catch (_) {
+        _setError(AppErrorCode.unknownError);
+      }
+    });
+  }
+
   @override
   void dispose() {
     _stateSubscription?.cancel();
+    _recordSubscription?.cancel();
     super.dispose();
   }
 
@@ -172,7 +259,7 @@ class LedSceneListController extends ChangeNotifier {
     notifyListeners();
   }
 
-  LedSceneSummary _mapSnapshot(ReadLedSceneSnapshot snapshot) {
+  LedSceneSummary _mapSnapshot(ReadLedSceneSnapshot snapshot, Set<String> favoriteSceneIds) {
     return LedSceneSummary(
       id: snapshot.id,
       name: snapshot.name,
@@ -187,6 +274,7 @@ class LedSceneListController extends ChangeNotifier {
       iconKey: snapshot.iconKey,
       presetCode: snapshot.presetCode,
       channelLevels: snapshot.channelLevels,
+      isFavorite: favoriteSceneIds.contains(snapshot.id),
     );
   }
 
@@ -237,6 +325,21 @@ class LedSceneListController extends ChangeNotifier {
         .toList(growable: false);
   }
 
+  Future<void> toggleFavoriteScene(String sceneId) async {
+    final String? deviceId = session.activeDeviceId;
+    if (deviceId == null) {
+      return;
+    }
+
+    await _favoriteRepository.toggleFavoriteScene(
+      deviceId: deviceId,
+      sceneId: sceneId,
+    );
+
+    // Refresh scenes to update favorite status
+    await refresh();
+  }
+
   void _handleStateError(Object error) {
     if (error is AppError) {
       _setError(error.code);
@@ -257,9 +360,49 @@ class LedSceneListController extends ChangeNotifier {
     }
   }
 
+  Future<void> _bootstrapRecordState() async {
+    final String? deviceId = session.activeDeviceId;
+    if (deviceId == null) {
+      return;
+    }
+    try {
+      final LedRecordState state = await readLedRecordStateUseCase.execute(
+        deviceId: deviceId,
+      );
+      _updateRecordState(state);
+    } on AppError {
+      // Ignore record errors during bootstrap
+    } catch (_) {
+      // Swallow unexpected errors
+    }
+  }
+
+  void _subscribeToRecordState() {
+    final String? deviceId = session.activeDeviceId;
+    if (deviceId == null) {
+      return;
+    }
+    _recordSubscription?.cancel();
+    _recordSubscription = observeLedRecordStateUseCase
+        .execute(deviceId: deviceId)
+        .listen(_updateRecordState, onError: _handleRecordStateError);
+  }
+
+  void _updateRecordState(LedRecordState state) {
+    _records = state.records;
+    _isRecordPreviewing = state.status == LedRecordStatus.previewing;
+    notifyListeners();
+  }
+
+  void _handleRecordStateError(Object error) {
+    // Ignore record state errors in main page
+  }
+
   Future<void> _stopPreview(String deviceId) async {
     try {
-      await stopLedPreviewUseCase.execute(deviceId: deviceId);
+      if (_isRecordPreviewing) {
+        await stopLedPreviewUseCase.execute(deviceId: deviceId);
+      }
     } on AppError {
       // Best-effort guard; ignore errors so scene apply can still surface them.
     }

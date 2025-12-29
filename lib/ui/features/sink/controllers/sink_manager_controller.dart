@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../../application/common/app_error_code.dart';
 import '../../../../domain/sink/sink.dart';
 import '../../../../platform/contracts/sink_repository.dart';
 
@@ -14,10 +15,12 @@ class SinkManagerController extends ChangeNotifier {
   List<Sink> _sinks = <Sink>[];
   bool _isLoading = false;
   String? _errorMessage;
+  AppErrorCode? _errorCode;
 
   List<Sink> get sinks => List.unmodifiable(_sinks);
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  AppErrorCode? get errorCode => _errorCode;
   bool get isEmpty => _sinks.isEmpty;
 
   void _initialize() {
@@ -36,12 +39,14 @@ class SinkManagerController extends ChangeNotifier {
   Future<void> _loadSinks() async {
     _isLoading = true;
     _errorMessage = null;
+    _errorCode = null;
     notifyListeners();
 
     try {
       _sinks = sinkRepository.getCurrentSinks();
     } catch (e) {
-      _errorMessage = 'Failed to load sinks: $e';
+      _errorCode = AppErrorCode.unknownError;
+      _errorMessage = null; // Will be localized in UI using errorCode
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -90,7 +95,8 @@ class SinkManagerController extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _errorMessage = 'Failed to add sink: $e';
+      _errorCode = AppErrorCode.unknownError;
+      _errorMessage = null; // Will be localized in UI using errorCode
       _isLoading = false;
       notifyListeners();
       return false;
@@ -138,7 +144,8 @@ class SinkManagerController extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _errorMessage = 'Failed to edit sink: $e';
+      _errorCode = AppErrorCode.unknownError;
+      _errorMessage = null; // Will be localized in UI using errorCode
       _isLoading = false;
       notifyListeners();
       return false;
@@ -169,7 +176,8 @@ class SinkManagerController extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _errorMessage = 'Failed to delete sink: $e';
+      _errorCode = AppErrorCode.unknownError;
+      _errorMessage = null; // Will be localized in UI using errorCode
       _isLoading = false;
       notifyListeners();
       return false;
@@ -178,6 +186,7 @@ class SinkManagerController extends ChangeNotifier {
 
   void clearError() {
     _errorMessage = null;
+    _errorCode = null;
     notifyListeners();
   }
 }

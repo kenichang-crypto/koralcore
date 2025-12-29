@@ -7,8 +7,8 @@ import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../components/ble_guard.dart';
 import '../../../components/app_error_presenter.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_spacing.dart';
 import '../controllers/led_scene_edit_controller.dart';
 import '../widgets/led_spectrum_chart.dart';
 import '../widgets/scene_icon_picker.dart';
@@ -84,7 +84,7 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
                 child: Text(
                   'Dimming Mode',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.success,
+                        color: ReefColors.success,
                       ),
                 ),
               ),
@@ -92,20 +92,18 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(AppDimensions.spacingXL),
+        padding: const EdgeInsets.all(ReefSpacing.xl),
         children: [
           // Scene name input
           TextField(
             decoration: InputDecoration(
-              labelText: l10n.ledSceneNameLabel,
               hintText: l10n.ledSceneNameHint,
-              border: const OutlineInputBorder(),
             ),
             controller: TextEditingController(text: controller.name)
               ..selection = TextSelection.collapsed(offset: controller.name.length),
             onChanged: controller.setName,
           ),
-          const SizedBox(height: AppDimensions.spacingL),
+          const SizedBox(height: ReefSpacing.md),
           
           // Scene count limit indicator
           if (controller.sceneCount != null) ...[
@@ -113,7 +111,7 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
               currentCount: controller.sceneCount!,
               isLimitReached: controller.isSceneLimitReached,
             ),
-            const SizedBox(height: AppDimensions.spacingL),
+            const SizedBox(height: ReefSpacing.md),
           ],
           
           // Icon picker
@@ -121,7 +119,7 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
             selectedIconId: controller.iconId,
             onIconSelected: controller.setIconId,
           ),
-          const SizedBox(height: AppDimensions.spacingL),
+          const SizedBox(height: ReefSpacing.md),
           
           // Spectrum chart (simplified - will be enhanced in full version)
           if (controller.channelLevels.isNotEmpty)
@@ -130,11 +128,11 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
               height: 72,
               compact: true,
             ),
-          const SizedBox(height: AppDimensions.spacingL),
+          const SizedBox(height: ReefSpacing.md),
 
           if (!isConnected) ...[
             const BleGuardBanner(),
-            const SizedBox(height: AppDimensions.spacingL),
+            const SizedBox(height: ReefSpacing.md),
           ],
 
           // Channel sliders
@@ -142,12 +140,12 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
             'Channel Levels',
             style: Theme.of(context).textTheme.titleLarge,
           ),
-          const SizedBox(height: AppDimensions.spacingM),
+          const SizedBox(height: ReefSpacing.sm),
           ..._buildChannelSliders(context, controller, isConnected),
 
           if (controller.isLoading)
             const Padding(
-              padding: EdgeInsets.all(AppDimensions.spacingL),
+              padding: EdgeInsets.all(ReefSpacing.md),
               child: Center(child: CircularProgressIndicator()),
             ),
         ],
@@ -178,10 +176,10 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
       final (id, label) = channel;
       final value = controller.getChannelLevel(id);
       return Padding(
-        padding: const EdgeInsets.only(bottom: AppDimensions.spacingM),
+        padding: const EdgeInsets.only(bottom: ReefSpacing.sm),
         child: Card(
           child: Padding(
-            padding: const EdgeInsets.all(AppDimensions.spacingL),
+            padding: const EdgeInsets.all(ReefSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -198,7 +196,7 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
                     ),
                   ],
                 ),
-                const SizedBox(height: AppDimensions.spacingS),
+                const SizedBox(height: ReefSpacing.xs),
                 Slider(
                   value: value.toDouble(),
                   min: 0,
@@ -226,7 +224,7 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
     if (controller.isSceneLimitReached) {
       return FloatingActionButton.extended(
         onPressed: null,
-        backgroundColor: AppColors.grey400,
+        backgroundColor: ReefColors.textTertiary,
         icon: const Icon(Icons.block),
         label: Text(l10n.ledSceneLimitReached),
       );
@@ -238,11 +236,11 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
         // Preview button (dimming mode is already active, so this is informational)
         if (controller.isDimmingMode)
           Padding(
-            padding: const EdgeInsets.only(right: AppDimensions.spacingM),
+            padding: const EdgeInsets.only(right: ReefSpacing.sm),
             child: FloatingActionButton(
               heroTag: 'preview',
               onPressed: null,
-              backgroundColor: AppColors.success.withOpacity(0.7),
+              backgroundColor: ReefColors.success.withOpacity(0.7),
               child: const Icon(Icons.preview),
             ),
           ),
@@ -290,24 +288,24 @@ class _SceneCountIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: isLimitReached ? AppColors.warning.withOpacity(0.1) : AppColors.grey100,
+      color: isLimitReached ? ReefColors.warning.withOpacity(0.1) : ReefColors.surfaceMuted,
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingM),
+        padding: const EdgeInsets.all(ReefSpacing.sm),
         child: Row(
           children: [
             Icon(
               isLimitReached ? Icons.warning : Icons.info_outline,
-              color: isLimitReached ? AppColors.warning : AppColors.grey700,
+              color: isLimitReached ? ReefColors.warning : ReefColors.textSecondary,
               size: 20,
             ),
-            const SizedBox(width: AppDimensions.spacingS),
+            const SizedBox(width: ReefSpacing.xs),
             Expanded(
               child: Text(
                 isLimitReached
                     ? 'Scene limit reached ($currentCount/5). Cannot add more scenes.'
                     : 'Current scenes: $currentCount/5',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: isLimitReached ? AppColors.warning : AppColors.grey700,
+                      color: isLimitReached ? ReefColors.warning : ReefColors.textSecondary,
                       fontWeight: isLimitReached ? FontWeight.w600 : FontWeight.normal,
                     ),
               ),

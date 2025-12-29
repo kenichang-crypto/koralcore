@@ -9,8 +9,8 @@ import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../application/led/read_led_schedules.dart';
 import '../../../../application/led/save_led_schedule_usecase.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_spacing.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../models/led_schedule_summary.dart';
@@ -83,31 +83,31 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: ListView(
-        padding: const EdgeInsets.all(AppDimensions.spacingXL),
+        padding: const EdgeInsets.all(ReefSpacing.xl),
         children: [
           Text(
             l10n.ledScheduleEditDescription,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: AppColors.grey700,
+              color: ReefColors.textSecondary,
             ),
           ),
-          const SizedBox(height: AppDimensions.spacingL),
+          const SizedBox(height: ReefSpacing.md),
           if (!isConnected) ...[
             const BleGuardBanner(),
-            const SizedBox(height: AppDimensions.spacingL),
+            const SizedBox(height: ReefSpacing.md),
           ],
           _buildNameField(l10n),
-          const SizedBox(height: AppDimensions.spacingL),
+          const SizedBox(height: ReefSpacing.md),
           _buildTypeSelector(l10n),
-          const SizedBox(height: AppDimensions.spacingL),
+          const SizedBox(height: ReefSpacing.md),
           _buildTimePickers(l10n),
-          const SizedBox(height: AppDimensions.spacingL),
+          const SizedBox(height: ReefSpacing.md),
           _buildRecurrenceSelector(l10n),
-          const SizedBox(height: AppDimensions.spacingL),
+          const SizedBox(height: ReefSpacing.md),
           _buildEnabledToggle(l10n),
-          const SizedBox(height: AppDimensions.spacingL),
+          const SizedBox(height: ReefSpacing.md),
           _buildChannelSection(l10n),
-          const SizedBox(height: AppDimensions.spacingXL),
+          const SizedBox(height: ReefSpacing.xl),
           Row(
             children: [
               Expanded(
@@ -118,7 +118,7 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
                   child: Text(l10n.actionCancel),
                 ),
               ),
-              const SizedBox(width: AppDimensions.spacingM),
+              const SizedBox(width: ReefSpacing.sm),
               Expanded(
                 child: FilledButton(
                   onPressed: !isConnected || _isSaving ? null : _handleSave,
@@ -162,7 +162,7 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(l10n.ledScheduleEditTypeLabel, style: theme.textTheme.titleSmall),
-        const SizedBox(height: AppDimensions.spacingS),
+        const SizedBox(height: ReefSpacing.xs),
         DropdownButtonFormField<LedScheduleType>(
           initialValue: _type,
           items: [
@@ -197,7 +197,7 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(l10n.ledScheduleEditStartLabel, style: theme.textTheme.titleSmall),
-        const SizedBox(height: AppDimensions.spacingS),
+        const SizedBox(height: ReefSpacing.xs),
         Row(
           children: [
             Expanded(
@@ -206,7 +206,7 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
                 onPressed: _isSaving ? null : () => _pickTime(isStart: true),
               ),
             ),
-            const SizedBox(width: AppDimensions.spacingM),
+            const SizedBox(width: ReefSpacing.sm),
             Expanded(
               child: _TimeButton(
                 label: materialLocalizations.formatTimeOfDay(_endTime),
@@ -228,7 +228,7 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
           l10n.ledScheduleEditRecurrenceLabel,
           style: theme.textTheme.titleSmall,
         ),
-        const SizedBox(height: AppDimensions.spacingS),
+        const SizedBox(height: ReefSpacing.xs),
         DropdownButtonFormField<LedScheduleRecurrence>(
           initialValue: _recurrence,
           items: [
@@ -275,10 +275,10 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
           l10n.ledScheduleEditChannelsHeader,
           style: theme.textTheme.titleSmall,
         ),
-        const SizedBox(height: AppDimensions.spacingS),
+        const SizedBox(height: ReefSpacing.xs),
         ..._channelValues.entries.map(
           (entry) => Padding(
-            padding: const EdgeInsets.only(bottom: AppDimensions.spacingM),
+            padding: const EdgeInsets.only(bottom: ReefSpacing.sm),
             child: _ChannelSlider(
               label: _channelLabel(entry.key, l10n),
               value: entry.value,
@@ -465,7 +465,7 @@ class _ChannelSlider extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        padding: const EdgeInsets.all(ReefSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -480,7 +480,7 @@ class _ChannelSlider extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: AppDimensions.spacingS),
+            const SizedBox(height: ReefSpacing.xs),
             Slider(
               value: value,
               min: 0,

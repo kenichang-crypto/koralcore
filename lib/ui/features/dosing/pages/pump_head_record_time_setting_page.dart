@@ -185,7 +185,7 @@ class _PumpHeadRecordTimeSettingViewState
             const SizedBox(height: ReefSpacing.sm),
             DropdownButtonFormField<int>(
               initialValue: controller.dropTimes,
-              decoration: const InputDecoration(border: OutlineInputBorder()),
+              decoration: const InputDecoration(),
               items: controller.dropTimesRange.map((value) {
                 return DropdownMenuItem(value: value, child: Text('$value'));
               }).toList(),
@@ -220,10 +220,9 @@ class _PumpHeadRecordTimeSettingViewState
             TextField(
               controller: _dropVolumeController,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Enter volume',
                 suffixText: 'ml',
-                border: const OutlineInputBorder(),
               ),
               onChanged: (value) {
                 final int? volume = int.tryParse(value);

@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_spacing.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/manual_dosing_controller.dart';
@@ -71,30 +71,30 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
             children: [
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.all(AppDimensions.spacingXL),
+                  padding: const EdgeInsets.all(ReefSpacing.xl),
                   children: [
                     Text(
                       l10n.dosingManualPageSubtitle,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: AppColors.grey700,
+                        color: ReefColors.textSecondary,
                       ),
                     ),
-                    const SizedBox(height: AppDimensions.spacingL),
+                    const SizedBox(height: ReefSpacing.md),
                     _buildHeadCard(theme, l10n, summary),
-                    const SizedBox(height: AppDimensions.spacingL),
+                    const SizedBox(height: ReefSpacing.md),
                     if (!isConnected) ...[
                       const BleGuardBanner(),
-                      const SizedBox(height: AppDimensions.spacingL),
+                      const SizedBox(height: ReefSpacing.md),
                     ],
                     _buildDoseCard(theme, l10n),
-                    const SizedBox(height: AppDimensions.spacingXL),
+                    const SizedBox(height: ReefSpacing.xl),
                   ],
                 ),
               ),
               SafeArea(
                 top: false,
                 child: Padding(
-                  padding: const EdgeInsets.all(AppDimensions.spacingXL),
+                  padding: const EdgeInsets.all(ReefSpacing.xl),
                   child: Row(
                     children: [
                       Expanded(
@@ -105,7 +105,7 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
                           child: Text(l10n.actionCancel),
                         ),
                       ),
-                      const SizedBox(width: AppDimensions.spacingM),
+                      const SizedBox(width: ReefSpacing.sm),
                       Expanded(
                         child: FilledButton(
                           onPressed: !isConnected || controller.isSubmitting
@@ -140,7 +140,7 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
   ) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        padding: const EdgeInsets.all(ReefSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -165,24 +165,24 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
                 });
               },
             ),
-            const SizedBox(height: AppDimensions.spacingM),
+            const SizedBox(height: ReefSpacing.sm),
             Text(
               summary.additiveName,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: AppColors.grey700,
+                color: ReefColors.textSecondary,
               ),
             ),
-            const SizedBox(height: AppDimensions.spacingS),
+            const SizedBox(height: ReefSpacing.xs),
             Row(
               children: [
                 Chip(
                   label: Text(l10n.dosingPumpHeadStatusReady),
-                  backgroundColor: AppColors.ocean500.withOpacity(0.12),
+                  backgroundColor: ReefColors.primary.withOpacity(0.12),
                   labelStyle: theme.textTheme.labelLarge?.copyWith(
-                    color: AppColors.ocean500,
+                    color: ReefColors.primary,
                   ),
                 ),
-                const SizedBox(width: AppDimensions.spacingS),
+                const SizedBox(width: ReefSpacing.xs),
                 Text(
                   '${summary.dailyTargetMl.toStringAsFixed(1)} ml/day',
                   style: theme.textTheme.bodySmall,
@@ -198,7 +198,7 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
   Widget _buildDoseCard(ThemeData theme, AppLocalizations l10n) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        padding: const EdgeInsets.all(ReefSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -206,14 +206,14 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
               l10n.dosingManualDoseInputLabel,
               style: theme.textTheme.titleSmall,
             ),
-            const SizedBox(height: AppDimensions.spacingS),
+            const SizedBox(height: ReefSpacing.xs),
             Row(
               children: [
                 IconButton(
                   onPressed: _decrementDose,
                   icon: const Icon(Icons.remove_circle_outline),
                 ),
-                const SizedBox(width: AppDimensions.spacingS),
+                const SizedBox(width: ReefSpacing.xs),
                 Expanded(
                   child: TextField(
                     controller: _doseController,
@@ -237,7 +237,7 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
                     textInputAction: TextInputAction.done,
                   ),
                 ),
-                const SizedBox(width: AppDimensions.spacingS),
+                const SizedBox(width: ReefSpacing.xs),
                 IconButton(
                   onPressed: _incrementDose,
                   icon: const Icon(Icons.add_circle_outline),

@@ -61,9 +61,9 @@ class _LedSettingPageState extends State<LedSettingPage> {
     final newName = _nameController.text.trim();
     if (newName.isEmpty) {
       _setError(AppErrorCode.invalidParam);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.deviceNameEmpty)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.deviceNameEmpty)));
       return;
     }
 
@@ -80,24 +80,24 @@ class _LedSettingPageState extends State<LedSettingPage> {
 
       if (mounted) {
         Navigator.of(context).pop(true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.deviceSettingsSaved)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.deviceSettingsSaved)));
       }
     } on AppError catch (error) {
       _setError(error.code);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(describeAppError(l10n, error.code)),
-          ),
+          SnackBar(content: Text(describeAppError(l10n, error.code))),
         );
       }
     } catch (error) {
       _setError(AppErrorCode.unknownError);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save settings: $error')),
+          SnackBar(
+            content: Text(describeAppError(l10n, AppErrorCode.unknownError)),
+          ),
         );
       }
     } finally {
@@ -127,9 +127,7 @@ class _LedSettingPageState extends State<LedSettingPage> {
         elevation: 0,
         title: Text(
           l10n.ledSettingTitle,
-          style: ReefTextStyles.title2.copyWith(
-            color: ReefColors.onPrimary,
-          ),
+          style: ReefTextStyles.title2.copyWith(color: ReefColors.onPrimary),
         ),
         actions: [
           if (_isLoading)
@@ -141,7 +139,9 @@ class _LedSettingPageState extends State<LedSettingPage> {
                   height: 20,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(ReefColors.onPrimary),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      ReefColors.onPrimary,
+                    ),
                   ),
                 ),
               ),
@@ -181,9 +181,7 @@ class _LedSettingPageState extends State<LedSettingPage> {
               filled: true,
               fillColor: ReefColors.surface,
             ),
-            style: ReefTextStyles.body1.copyWith(
-              color: ReefColors.textPrimary,
-            ),
+            style: ReefTextStyles.body1.copyWith(color: ReefColors.textPrimary),
             enabled: !_isLoading,
           ),
           const SizedBox(height: ReefSpacing.xl),
@@ -215,16 +213,18 @@ class _LedSettingPageState extends State<LedSettingPage> {
                 final String? activeDeviceId = session.activeDeviceId;
                 String? currentSinkId;
                 if (activeDeviceId != null) {
-                  final device = await appContext.deviceRepository.getDevice(activeDeviceId);
+                  final device = await appContext.deviceRepository.getDevice(
+                    activeDeviceId,
+                  );
                   currentSinkId = device?['sinkId']?.toString();
                 }
-                final String? selectedSinkId = await Navigator.of(context).push<String>(
-                  MaterialPageRoute(
-                    builder: (_) => SinkPositionPage(
-                      initialSinkId: currentSinkId,
-                    ),
-                  ),
-                );
+                final String? selectedSinkId = await Navigator.of(context)
+                    .push<String>(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            SinkPositionPage(initialSinkId: currentSinkId),
+                      ),
+                    );
                 // TODO: Update device sink_id if selectedSinkId is not null
                 if (selectedSinkId != null && context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -267,7 +267,9 @@ class _LedSettingPageState extends State<LedSettingPage> {
                   const SizedBox(height: ReefSpacing.md),
                   _InfoRow(
                     label: 'State',
-                    value: session.isBleConnected ? 'Connected' : 'Disconnected',
+                    value: session.isBleConnected
+                        ? 'Connected'
+                        : 'Disconnected',
                   ),
                 ],
               ),
@@ -285,10 +287,7 @@ class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const _InfoRow({
-    required this.label,
-    required this.value,
-  });
+  const _InfoRow({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -308,13 +307,10 @@ class _InfoRow extends StatelessWidget {
           flex: 3,
           child: Text(
             value,
-            style: ReefTextStyles.body1.copyWith(
-              color: ReefColors.textPrimary,
-            ),
+            style: ReefTextStyles.body1.copyWith(color: ReefColors.textPrimary),
           ),
         ),
       ],
     );
   }
 }
-

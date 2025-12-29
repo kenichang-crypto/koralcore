@@ -9,8 +9,8 @@ import '../../../../domain/doser_dosing/pump_speed.dart';
 import '../../../../domain/doser_dosing/custom_window_schedule_definition.dart';
 import '../../../../domain/doser_dosing/daily_average_schedule_definition.dart';
 import '../../../../domain/doser_dosing/schedule_weekday.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_spacing.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/pump_head_schedule_controller.dart';
@@ -108,28 +108,28 @@ class _ScheduleEditPageState extends State<ScheduleEditPage> {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: ListView(
-        padding: const EdgeInsets.all(AppDimensions.spacingXL),
+        padding: const EdgeInsets.all(ReefSpacing.xl),
         children: [
           Text(
             l10n.dosingPumpHeadSummaryTitle(widget.headId.toUpperCase()),
             style: theme.textTheme.titleMedium,
           ),
-          const SizedBox(height: AppDimensions.spacingS),
+          const SizedBox(height: ReefSpacing.xs),
           Text(
             l10n.dosingScheduleEditDescription,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: AppColors.grey700,
+              color: ReefColors.textSecondary,
             ),
           ),
-          const SizedBox(height: AppDimensions.spacingL),
+          const SizedBox(height: ReefSpacing.md),
           if (!isConnected) ...[
             const BleGuardBanner(),
-            const SizedBox(height: AppDimensions.spacingL),
+            const SizedBox(height: ReefSpacing.md),
           ],
           _buildTypeSelector(l10n),
-          const SizedBox(height: AppDimensions.spacingL),
+          const SizedBox(height: ReefSpacing.md),
           _buildEnabledToggle(l10n),
-          const SizedBox(height: AppDimensions.spacingL),
+          const SizedBox(height: ReefSpacing.md),
           if (_type == PumpHeadScheduleType.dailyAverage)
             _DailyAverageForm(
               doseController: _dailyDoseController,
@@ -149,9 +149,9 @@ class _ScheduleEditPageState extends State<ScheduleEditPage> {
               onStartChanged: (time) => setState(() => _windowStartTime = time),
               onEndChanged: (time) => setState(() => _windowEndTime = time),
             ),
-          const SizedBox(height: AppDimensions.spacingL),
+          const SizedBox(height: ReefSpacing.md),
           _buildRecurrenceSelector(l10n),
-          const SizedBox(height: AppDimensions.spacingXL),
+          const SizedBox(height: ReefSpacing.xl),
           Row(
             children: [
               Expanded(
@@ -164,7 +164,7 @@ class _ScheduleEditPageState extends State<ScheduleEditPage> {
                   child: Text(l10n.actionCancel),
                 ),
               ),
-              const SizedBox(width: AppDimensions.spacingM),
+              const SizedBox(width: ReefSpacing.sm),
               Expanded(
                 child: FilledButton(
                   onPressed: !isConnected || _isSaving ? null : _handleSave,
@@ -193,7 +193,7 @@ class _ScheduleEditPageState extends State<ScheduleEditPage> {
           l10n.dosingScheduleEditTypeLabel,
           style: theme.textTheme.titleSmall,
         ),
-        const SizedBox(height: AppDimensions.spacingS),
+        const SizedBox(height: ReefSpacing.xs),
         DropdownButtonFormField<PumpHeadScheduleType>(
           initialValue: _type,
           items: [
@@ -232,7 +232,7 @@ class _ScheduleEditPageState extends State<ScheduleEditPage> {
           l10n.dosingScheduleEditRecurrenceLabel,
           style: theme.textTheme.titleSmall,
         ),
-        const SizedBox(height: AppDimensions.spacingS),
+        const SizedBox(height: ReefSpacing.xs),
         DropdownButtonFormField<PumpHeadScheduleRecurrence>(
           initialValue: _recurrence,
           items: [
@@ -510,7 +510,7 @@ class _DailyAverageForm extends StatelessWidget {
     final localizations = MaterialLocalizations.of(context);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        padding: const EdgeInsets.all(ReefSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -518,7 +518,7 @@ class _DailyAverageForm extends StatelessWidget {
               l10n.dosingScheduleTypeDaily,
               style: theme.textTheme.titleMedium,
             ),
-            const SizedBox(height: AppDimensions.spacingL),
+            const SizedBox(height: ReefSpacing.md),
             TextField(
               controller: doseController,
               keyboardType: const TextInputType.numberWithOptions(
@@ -530,7 +530,7 @@ class _DailyAverageForm extends StatelessWidget {
                 suffixText: 'ml',
               ),
             ),
-            const SizedBox(height: AppDimensions.spacingL),
+            const SizedBox(height: ReefSpacing.md),
             _NumberStepper(
               label: l10n.dosingScheduleEditEventsLabel,
               value: eventsPerDay,
@@ -538,7 +538,7 @@ class _DailyAverageForm extends StatelessWidget {
               max: 24,
               onChanged: onEventsChanged,
             ),
-            const SizedBox(height: AppDimensions.spacingL),
+            const SizedBox(height: ReefSpacing.md),
             _TimePickerTile(
               label: l10n.dosingScheduleEditStartTimeLabel,
               value: localizations.formatTimeOfDay(startTime),
@@ -585,7 +585,7 @@ class _CustomWindowForm extends StatelessWidget {
     final localizations = MaterialLocalizations.of(context);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        padding: const EdgeInsets.all(ReefSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -593,7 +593,7 @@ class _CustomWindowForm extends StatelessWidget {
               l10n.dosingScheduleTypeCustom,
               style: theme.textTheme.titleMedium,
             ),
-            const SizedBox(height: AppDimensions.spacingL),
+            const SizedBox(height: ReefSpacing.md),
             TextField(
               controller: doseController,
               keyboardType: const TextInputType.numberWithOptions(
@@ -605,7 +605,7 @@ class _CustomWindowForm extends StatelessWidget {
                 suffixText: 'ml',
               ),
             ),
-            const SizedBox(height: AppDimensions.spacingL),
+            const SizedBox(height: ReefSpacing.md),
             _NumberStepper(
               label: l10n.dosingScheduleEditWindowEventsLabel,
               value: eventsPerWindow,
@@ -613,7 +613,7 @@ class _CustomWindowForm extends StatelessWidget {
               max: 8,
               onChanged: onEventsChanged,
             ),
-            const SizedBox(height: AppDimensions.spacingL),
+            const SizedBox(height: ReefSpacing.md),
             _TimePickerTile(
               label: l10n.dosingScheduleEditWindowStartLabel,
               value: localizations.formatTimeOfDay(startTime),
@@ -627,7 +627,7 @@ class _CustomWindowForm extends StatelessWidget {
                 }
               },
             ),
-            const SizedBox(height: AppDimensions.spacingM),
+            const SizedBox(height: ReefSpacing.sm),
             _TimePickerTile(
               label: l10n.dosingScheduleEditWindowEndLabel,
               value: localizations.formatTimeOfDay(endTime),

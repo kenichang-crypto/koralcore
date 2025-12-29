@@ -5,12 +5,13 @@ import 'package:provider/provider.dart';
 
 import '../../../application/device/device_snapshot.dart';
 import '../../../application/system/ble_readiness_controller.dart';
-import '../../components/app_error_presenter.dart';
 import '../../components/ble_guard.dart';
+import '../../components/error_state_widget.dart';
 import '../../theme/reef_colors.dart';
 import '../../theme/reef_radius.dart';
 import '../../theme/reef_spacing.dart';
 import '../../theme/reef_text.dart';
+import '../../widgets/reef_backgrounds.dart';
 import '../device/controllers/device_list_controller.dart';
 
 class BluetoothPage extends StatefulWidget {
@@ -59,18 +60,15 @@ class _BluetoothPageState extends State<BluetoothPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final error = controller.lastErrorCode;
       if (error != null) {
-        final message = describeAppError(l10n, error);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message)));
+        showErrorSnackBar(context, error);
         controller.clearError();
       }
     });
 
     return Scaffold(
-      backgroundColor: ReefColors.primaryStrong,
       appBar: AppBar(
-        backgroundColor: ReefColors.primaryStrong,
+        backgroundColor: ReefColors.primary,
+        foregroundColor: ReefColors.onPrimary,
         elevation: 0,
         title: Text(
           l10n.bluetoothHeader,
@@ -80,13 +78,14 @@ class _BluetoothPageState extends State<BluetoothPage> {
           ),
         ),
       ),
-      body: SafeArea(
+      body: ReefMainBackground(
+        child: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(ReefSpacing.xl),
           children: [
             Text(
               l10n.bleDisconnectedWarning,
-              style: ReefTextStyles.body.copyWith(color: ReefColors.surface),
+              style: ReefTextStyles.body.copyWith(color: ReefColors.textPrimary),
             ),
             const SizedBox(height: ReefSpacing.md),
             if (!bleReady) ...[
@@ -95,7 +94,7 @@ class _BluetoothPageState extends State<BluetoothPage> {
               Text(
                 l10n.bleOnboardingDisabledHint,
                 style: ReefTextStyles.caption1.copyWith(
-                  color: ReefColors.surface,
+                  color: ReefColors.textPrimary,
                 ),
               ),
               const SizedBox(height: ReefSpacing.md),
@@ -109,7 +108,8 @@ class _BluetoothPageState extends State<BluetoothPage> {
             ],
           ],
         ),
-      ),
+          ),
+        ),
     );
   }
 }
@@ -257,7 +257,7 @@ class _ScanningRow extends StatelessWidget {
           const SizedBox(width: ReefSpacing.md),
           Text(
             l10n.bluetoothScanning,
-            style: ReefTextStyles.caption1.copyWith(color: ReefColors.surface),
+            style: ReefTextStyles.caption1.copyWith(color: ReefColors.textPrimary),
           ),
         ],
       ),

@@ -6,10 +6,13 @@ import 'package:provider/provider.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error_code.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
-import '../../../components/app_error_presenter.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_spacing.dart';
+import '../../../theme/reef_radius.dart';
 import '../../../components/ble_guard.dart';
+import '../../../components/error_state_widget.dart';
+import '../../../components/loading_state_widget.dart';
+import '../../../components/empty_state_widget.dart';
 import '../controllers/pump_head_calibration_controller.dart';
 import '../models/pump_head_calibration_record.dart';
 import 'pump_head_adjust_list_page.dart';
@@ -46,7 +49,16 @@ class _PumpHeadCalibrationView extends StatelessWidget {
       builder: (context, session, controller, _) {
         final isConnected = session.isBleConnected;
         final theme = Theme.of(context);
-        _maybeShowCalibrationError(context, controller.lastErrorCode);
+        // Show error if any
+        final AppErrorCode? errorCode = controller.lastErrorCode;
+        if (errorCode != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              showErrorSnackBar(context, errorCode);
+              controller.clearError();
+            }
+          });
+        }
 
         return Scaffold(
           appBar: AppBar(
@@ -69,38 +81,33 @@ class _PumpHeadCalibrationView extends StatelessWidget {
             onRefresh: controller.refresh,
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(AppDimensions.spacingXL),
+              padding: const EdgeInsets.all(ReefSpacing.xl),
               children: [
                 Text(
                   l10n.dosingPumpHeadSummaryTitle(headId.toUpperCase()),
                   style: theme.textTheme.titleMedium,
                 ),
-                const SizedBox(height: AppDimensions.spacingS),
+                const SizedBox(height: ReefSpacing.xs),
                 Text(
                   l10n.dosingCalibrationHistorySubtitle,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: AppColors.grey700,
+                    color: ReefColors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: AppDimensions.spacingL),
+                const SizedBox(height: ReefSpacing.md),
                 if (!isConnected) ...[
                   const BleGuardBanner(),
-                  const SizedBox(height: AppDimensions.spacingXL),
+                  const SizedBox(height: ReefSpacing.xl),
                 ],
                 if (controller.isLoading)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical: AppDimensions.spacingXXL,
-                    ),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
+                  const LoadingStateWidget.center()
                 else if (controller.records.isEmpty)
                   _CalibrationEmptyState(l10n: l10n)
                 else
                   ...controller.records.map(
                     (record) => Padding(
                       padding: const EdgeInsets.only(
-                        bottom: AppDimensions.spacingM,
+                        bottom: ReefSpacing.sm,
                       ),
                       child: _CalibrationRecordCard(
                         record: record,
@@ -125,29 +132,11 @@ class _CalibrationEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingXL),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(Icons.tune_outlined, size: 32),
-            const SizedBox(height: AppDimensions.spacingM),
-            Text(
-              l10n.dosingCalibrationHistoryEmptyTitle,
-              style: theme.textTheme.titleMedium,
-            ),
-            const SizedBox(height: AppDimensions.spacingS),
-            Text(
-              l10n.dosingCalibrationHistoryEmptySubtitle,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: AppColors.grey700,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return EmptyStateCard(
+      title: l10n.dosingCalibrationHistoryEmptyTitle,
+      subtitle: l10n.dosingCalibrationHistoryEmptySubtitle,
+      icon: Icons.tune_outlined,
+      iconSize: 32,
     );
   }
 }
@@ -169,12 +158,12 @@ class _CalibrationRecordCard extends StatelessWidget {
     final dateText = DateFormat('MMM d • h:mm a').format(record.performedAt);
     return Card(
       child: InkWell(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusL),
+        borderRadius: BorderRadius.circular(ReefRadius.lg),
         onTap: isConnected
             ? () => _showComingSoon(context)
             : () => showBleGuardDialog(context),
         child: Padding(
-          padding: const EdgeInsets.all(AppDimensions.spacingL),
+          padding: const EdgeInsets.all(ReefSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -189,12 +178,12 @@ class _CalibrationRecordCard extends StatelessWidget {
                   Text(
                     dateText,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.grey700,
+                      color: ReefColors.textSecondary,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: AppDimensions.spacingM),
+              const SizedBox(height: ReefSpacing.sm),
               Text(
                 l10n.dosingCalibrationRecordFlow(
                   record.flowRateMlPerMin.toStringAsFixed(1),
@@ -202,11 +191,11 @@ class _CalibrationRecordCard extends StatelessWidget {
                 style: theme.textTheme.titleMedium,
               ),
               if (record.note != null) ...[
-                const SizedBox(height: AppDimensions.spacingXS),
+                const SizedBox(height: ReefSpacing.xxxs),
                 Text(
                   '${l10n.dosingCalibrationRecordNoteLabel}: ${record.note!}',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppColors.grey700,
+                    color: ReefColors.textSecondary,
                   ),
                 ),
               ],
@@ -224,16 +213,3 @@ class _CalibrationRecordCard extends StatelessWidget {
   }
 }
 
-void _maybeShowCalibrationError(BuildContext context, AppErrorCode? code) {
-  if (code == null) return;
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    final controller = context.read<PumpHeadCalibrationController>();
-    final l10n = AppLocalizations.of(context);
-    final message = describeAppError(l10n, code);
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
-    controller.clearError();
-  });
-}

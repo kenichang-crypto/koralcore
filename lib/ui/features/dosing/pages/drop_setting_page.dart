@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error.dart';
+import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
@@ -108,8 +109,11 @@ class _DropSettingPageState extends State<DropSettingPage> {
       }
     } catch (error) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save settings: $error')),
+          SnackBar(
+            content: Text(describeAppError(l10n, AppErrorCode.unknownError)),
+          ),
         );
       }
     } finally {
@@ -229,11 +233,6 @@ class _DropSettingPageState extends State<DropSettingPage> {
             controller: _nameController,
             decoration: InputDecoration(
               hintText: l10n.deviceNameHint,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(ReefRadius.md),
-              ),
-              filled: true,
-              fillColor: ReefColors.surface,
             ),
             style: ReefTextStyles.body1.copyWith(
               color: ReefColors.textPrimary,

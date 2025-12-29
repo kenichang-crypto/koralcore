@@ -155,13 +155,14 @@ class _LedRecordTimeSettingViewState extends State<_LedRecordTimeSettingView> {
     BuildContext context,
     LedRecordTimeSettingController controller,
   ) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(ReefSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Spectrum', style: ReefTextStyles.title3),
+            Text(l10n.ledRecordTimeSettingSpectrumLabel, style: ReefTextStyles.title3),
             const SizedBox(height: ReefSpacing.sm),
             LedSpectrumChart.fromChannelMap(
               controller.channelLevels,

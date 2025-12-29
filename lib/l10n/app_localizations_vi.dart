@@ -1011,6 +1011,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get ledRecordTimeSettingTimeLabel => 'Time';
 
   @override
+  String get ledRecordTimeSettingSpectrumLabel => 'Spectrum';
+
+  @override
   String get ledRecordTimeSettingChannelsLabel => 'Channels';
 
   @override
@@ -1055,6 +1058,21 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get ledSceneDeleteError => 'Failed to delete scene';
+
+  @override
+  String get ledSceneDeleteLocalScenesTitle => 'Local Scenes';
+
+  @override
+  String get ledSceneDeleteDeviceScenesTitle => 'Device Scenes (Read-only)';
+
+  @override
+  String get ledSceneDeleteCannotDeleteDeviceScenes =>
+      'Cannot delete device scenes';
+
+  @override
+  String ledSceneIdLabel(String id) {
+    return 'Scene ID: $id';
+  }
 
   @override
   String get ledSceneLimitReached => 'Maximum scenes reached';
@@ -1132,7 +1150,40 @@ class AppLocalizationsVi extends AppLocalizations {
   String get ledScenesActionFavorite => 'Add Favorite';
 
   @override
+  String get deviceActionFavorite => 'Favorite';
+
+  @override
+  String get deviceActionUnfavorite => 'Unfavorite';
+
+  @override
+  String get deviceFavorited => 'Device favorited';
+
+  @override
+  String get deviceUnfavorited => 'Device unfavorited';
+
+  @override
+  String get ledOrientationPortrait => 'Portrait';
+
+  @override
+  String get ledOrientationLandscape => 'Landscape';
+
+  @override
+  String get ledFavoriteScenesTitle => 'Favorite Scenes';
+
+  @override
+  String get ledFavoriteScenesSubtitle => 'Your favorite scenes';
+
+  @override
+  String get ledContinueRecord => 'Resume execution.';
+
+  @override
+  String get actionPlay => 'Run';
+
+  @override
   String get ledResetDevice => 'Reset Device';
+
+  @override
+  String get sinkTypeDefault => 'Default';
 
   @override
   String get sinkPosition => 'Sink Position';
@@ -1178,6 +1229,11 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get sinkDeleteMessage => 'Are you sure you want to delete this sink?';
+
+  @override
+  String sinkDeviceCount(int count) {
+    return '$count devices';
+  }
 
   @override
   String get cancel => 'Cancel';

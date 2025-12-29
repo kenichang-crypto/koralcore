@@ -6,10 +6,13 @@ import 'package:provider/provider.dart';
 import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
-import '../../../components/app_error_presenter.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_spacing.dart';
+import '../../../theme/reef_radius.dart';
 import '../../../components/ble_guard.dart';
+import '../../../components/error_state_widget.dart';
+import '../../../components/loading_state_widget.dart';
+import '../../../components/empty_state_widget.dart';
 import '../controllers/pump_head_schedule_controller.dart';
 import '../models/pump_head_schedule_entry.dart';
 import 'schedule_edit_page.dart';
@@ -51,7 +54,16 @@ class _PumpHeadScheduleView extends StatelessWidget {
         final theme = Theme.of(context);
         final isConnected = session.isBleConnected;
         final entries = controller.entries;
-        _maybeShowError(context, controller.lastErrorCode);
+        // Show error if any
+        final AppErrorCode? errorCode = controller.lastErrorCode;
+        if (errorCode != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              showErrorSnackBar(context, errorCode);
+              controller.clearError();
+            }
+          });
+        }
 
         return Scaffold(
           appBar: AppBar(title: Text(l10n.dosingScheduleOverviewTitle)),
@@ -59,20 +71,20 @@ class _PumpHeadScheduleView extends StatelessWidget {
             onRefresh: controller.refresh,
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(AppDimensions.spacingXL),
+              padding: const EdgeInsets.all(ReefSpacing.xl),
               children: [
                 Text(
                   l10n.dosingPumpHeadSummaryTitle(headId.toUpperCase()),
                   style: theme.textTheme.titleMedium,
                 ),
-                const SizedBox(height: AppDimensions.spacingS),
+                const SizedBox(height: ReefSpacing.xs),
                 Text(
                   l10n.dosingScheduleOverviewSubtitle,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: AppColors.grey700,
+                    color: ReefColors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: AppDimensions.spacingL),
+                const SizedBox(height: ReefSpacing.md),
                 FilledButton.icon(
                   onPressed: isConnected
                       ? () {
@@ -87,7 +99,7 @@ class _PumpHeadScheduleView extends StatelessWidget {
                   icon: const Icon(Icons.add),
                   label: Text(l10n.dosingScheduleAddButton),
                 ),
-                const SizedBox(height: AppDimensions.spacingS),
+                const SizedBox(height: ReefSpacing.xs),
                 FilledButton(
                   onPressed: isConnected
                       ? () => _openScheduleEditor(
@@ -97,7 +109,7 @@ class _PumpHeadScheduleView extends StatelessWidget {
                       : null,
                   child: Text(l10n.dosingScheduleEditTemplateDaily),
                 ),
-                const SizedBox(height: AppDimensions.spacingS),
+                const SizedBox(height: ReefSpacing.xs),
                 OutlinedButton(
                   onPressed: isConnected
                       ? () => _openScheduleEditor(
@@ -107,25 +119,20 @@ class _PumpHeadScheduleView extends StatelessWidget {
                       : null,
                   child: Text(l10n.dosingScheduleEditTemplateCustom),
                 ),
-                const SizedBox(height: AppDimensions.spacingL),
+                const SizedBox(height: ReefSpacing.md),
                 if (!isConnected) ...[
                   const BleGuardBanner(),
-                  const SizedBox(height: AppDimensions.spacingXL),
+                  const SizedBox(height: ReefSpacing.xl),
                 ],
                 if (controller.isLoading)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical: AppDimensions.spacingXXL,
-                    ),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
+                  const LoadingStateWidget.center()
                 else if (entries.isEmpty)
                   _ScheduleEmptyState(l10n: l10n)
                 else
                   ...entries.map(
                     (entry) => Padding(
                       padding: const EdgeInsets.only(
-                        bottom: AppDimensions.spacingM,
+                        bottom: ReefSpacing.sm,
                       ),
                       child: _ScheduleEntryCard(
                         entry: entry,
@@ -143,19 +150,6 @@ class _PumpHeadScheduleView extends StatelessWidget {
     );
   }
 
-  void _maybeShowError(BuildContext context, AppErrorCode? code) {
-    if (code == null) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = context.read<PumpHeadScheduleController>();
-      final l10n = AppLocalizations.of(context);
-      final message = describeAppError(l10n, code);
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
-      controller.clearError();
-    });
-  }
 
   Future<void> _openScheduleEditor(
     BuildContext context, {
@@ -189,29 +183,11 @@ class _ScheduleEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingXL),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Image.asset(_dosingIconAsset, width: 32, height: 32),
-            const SizedBox(height: AppDimensions.spacingM),
-            Text(
-              l10n.dosingScheduleEmptyTitle,
-              style: theme.textTheme.titleMedium,
-            ),
-            const SizedBox(height: AppDimensions.spacingS),
-            Text(
-              l10n.dosingScheduleEmptySubtitle,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: AppColors.grey700,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return EmptyStateCard(
+      title: l10n.dosingScheduleEmptyTitle,
+      subtitle: l10n.dosingScheduleEmptySubtitle,
+      imageAsset: _dosingIconAsset,
+      iconSize: 32,
     );
   }
 }
@@ -237,19 +213,19 @@ class _ScheduleEntryCard extends StatelessWidget {
     final statusLabel = entry.isEnabled
         ? l10n.dosingScheduleStatusEnabled
         : l10n.dosingScheduleStatusDisabled;
-    final statusColor = entry.isEnabled ? AppColors.grey700 : AppColors.warning;
+    final statusColor = entry.isEnabled ? ReefColors.textSecondary : ReefColors.warning;
     final Color chipColor = entry.isEnabled
-        ? AppColors.ocean500
-        : AppColors.grey500;
+        ? ReefColors.primary
+        : ReefColors.textTertiary;
     final Color chipBackground = entry.isEnabled
-        ? AppColors.ocean500.withOpacity(0.12)
-        : AppColors.grey100;
+        ? ReefColors.primary.withOpacity(0.12)
+        : ReefColors.surfaceMuted;
     return Card(
       child: InkWell(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusL),
+        borderRadius: BorderRadius.circular(ReefRadius.lg),
         onTap: isConnected ? onTap : () => showBleGuardDialog(context),
         child: Padding(
-          padding: const EdgeInsets.all(AppDimensions.spacingL),
+          padding: const EdgeInsets.all(ReefSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -257,13 +233,13 @@ class _ScheduleEntryCard extends StatelessWidget {
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppDimensions.spacingM,
-                      vertical: AppDimensions.spacingXS,
+                      horizontal: ReefSpacing.sm,
+                      vertical: ReefSpacing.xxxs,
                     ),
                     decoration: BoxDecoration(
                       color: chipBackground,
                       borderRadius: BorderRadius.circular(
-                        AppDimensions.radiusM,
+                        ReefRadius.md,
                       ),
                     ),
                     child: Text(
@@ -277,9 +253,9 @@ class _ScheduleEntryCard extends StatelessWidget {
                   const Icon(Icons.chevron_right),
                 ],
               ),
-              const SizedBox(height: AppDimensions.spacingM),
+              const SizedBox(height: ReefSpacing.sm),
               Text(_headline(entry), style: theme.textTheme.titleMedium),
-              const SizedBox(height: AppDimensions.spacingXS),
+              const SizedBox(height: ReefSpacing.xxxs),
               if (entry.isWindow)
                 Text(
                   '${_formatTime(entry.startTime)} – ${_formatTime(entry.endTime!)}',
@@ -290,7 +266,7 @@ class _ScheduleEntryCard extends StatelessWidget {
                   _formatTime(entry.startTime),
                   style: theme.textTheme.bodyMedium,
                 ),
-              const SizedBox(height: AppDimensions.spacingXS),
+              const SizedBox(height: ReefSpacing.xxxs),
               Text(
                 '$recurrence • $statusLabel',
                 style: theme.textTheme.bodySmall?.copyWith(

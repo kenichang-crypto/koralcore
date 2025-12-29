@@ -45,6 +45,15 @@ class ReefTheme {
     return base.copyWith(
       colorScheme: colorScheme,
       textTheme: textTheme,
+      // Card theme
+      cardTheme: CardThemeData(
+        color: ReefColors.surface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(ReefRadius.lg),
+        ),
+      ),
+      // FilledButton theme (Primary buttons)
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: ReefColors.primary,
@@ -56,6 +65,7 @@ class ReefTheme {
           ),
         ),
       ),
+      // OutlinedButton theme (Secondary buttons)
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: ReefColors.primary,
@@ -65,6 +75,46 @@ class ReefTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(ReefRadius.lg),
           ),
+        ),
+      ),
+      // TextButton theme (Text buttons)
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: ReefColors.primaryStrong,
+          textStyle: ReefTextStyles.body,
+          padding: buttonPadding,
+        ),
+      ),
+      // InputDecorationTheme (TextField styling)
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: ReefColors.surfaceMuted, // bg_aaa (#F7F7F7)
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(ReefRadius.xs), // dp_4
+          borderSide: BorderSide.none, // No border
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(ReefRadius.xs),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(ReefRadius.xs),
+          borderSide: BorderSide.none,
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(ReefRadius.xs),
+          borderSide: BorderSide.none,
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(ReefRadius.xs),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: ReefSpacing.md,
+          vertical: ReefSpacing.sm,
+        ),
+        hintStyle: ReefTextStyles.body.copyWith(
+          color: ReefColors.textSecondary,
         ),
       ),
     );

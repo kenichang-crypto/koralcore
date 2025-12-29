@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_radius.dart';
+import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../app/main_scaffold.dart';
 
@@ -33,11 +35,9 @@ class _SplashPageState extends State<SplashPage> {
     }
 
     // Navigate to MainScaffold
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => const MainScaffold(),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const MainScaffold()));
   }
 
   @override
@@ -61,7 +61,7 @@ class _SplashPageState extends State<SplashPage> {
                     height: 120,
                     decoration: BoxDecoration(
                       color: ReefColors.onPrimary,
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(ReefRadius.lg),
                     ),
                     child: Icon(
                       Icons.water_drop,
@@ -71,7 +71,7 @@ class _SplashPageState extends State<SplashPage> {
                   );
                 },
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: ReefSpacing.xxl),
               // App Name
               Text(
                 'KoralCore',
@@ -80,7 +80,7 @@ class _SplashPageState extends State<SplashPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: ReefSpacing.xs),
               // App Tagline
               Text(
                 'Reef Aquarium Control System',
@@ -95,4 +95,3 @@ class _SplashPageState extends State<SplashPage> {
     );
   }
 }
-

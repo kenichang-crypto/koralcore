@@ -2,254 +2,194 @@ import 'package:flutter/material.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-import '../../../application/common/app_session.dart';
 import '../../../application/device/device_snapshot.dart';
-import '../../app/navigation_controller.dart';
-import '../../components/ble_guard.dart';
 import '../../theme/reef_colors.dart';
 import '../../theme/reef_radius.dart';
 import '../../theme/reef_spacing.dart';
 import '../../theme/reef_text.dart';
+import '../../widgets/reef_backgrounds.dart';
+import '../../assets/reef_material_icons.dart';
+import '../../components/empty_state_widget.dart';
 import '../device/controllers/device_list_controller.dart';
 import '../dosing/pages/dosing_main_page.dart';
 import '../led/pages/led_main_page.dart';
 import '../warning/pages/warning_page.dart';
+import '../sink/pages/sink_manager_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final session = context.watch<AppSession>();
     final devices = context.watch<DeviceListController>().savedDevices;
     final l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: ReefColors.primaryStrong,
-      appBar: AppBar(
-        backgroundColor: ReefColors.primaryStrong,
-        elevation: 0,
-        title: Text(
-          l10n.tabHome,
-          style: ReefTextStyles.title2.copyWith(
-            color: ReefColors.onPrimary,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.warning, color: ReefColors.onPrimary),
-            tooltip: l10n.warningTitle,
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const WarningPage(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(ReefSpacing.xl),
-          children: [
-            _SinkHeaderCard(
-              deviceCount: devices.length,
-              isConnected: session.isBleConnected,
-              activeDeviceName: session.activeDeviceName,
-              onConnectTap: () =>
-                  context.read<NavigationController>().select(2),
-              l10n: l10n,
-            ),
-            if (!session.isBleConnected) ...[
-              const SizedBox(height: ReefSpacing.md),
-              const BleGuardBanner(),
+      body: ReefMainBackground(
+        child: SafeArea(
+          child: Column(
+            children: [
+              // 頂部按鈕區域
+              _TopButtonBar(
+                onWarningTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const WarningPage(),
+                    ),
+                  );
+                },
+                l10n: l10n,
+              ),
+              // Sink 選擇器區域
+              _SinkSelectorBar(
+                onManagerTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const SinkManagerPage(),
+                    ),
+                  );
+                },
+                l10n: l10n,
+              ),
+              // 設備列表區域
+              Expanded(
+                child: devices.isEmpty
+                    ? _EmptyState(l10n: l10n)
+                    : ListView(
+                        padding: EdgeInsets.only(
+                          left: ReefSpacing.sm,
+                          right: ReefSpacing.sm,
+                          top: ReefSpacing.xs,
+                          bottom: ReefSpacing.xl,
+                        ),
+                        children: [
+                          for (int i = 0; i < devices.length; i++) ...[
+                            _HomeDeviceTile(device: devices[i], l10n: l10n),
+                            if (i != devices.length - 1)
+                              const SizedBox(height: ReefSpacing.md),
+                          ],
+                        ],
+                      ),
+              ),
             ],
-            const SizedBox(height: ReefSpacing.xl),
-            _DeviceSection(devices: devices, l10n: l10n),
-            const SizedBox(height: ReefSpacing.xl),
-            _FeatureActionCard(
-              title: l10n.sectionLedTitle,
-              subtitle: l10n.ledSubHeader,
-              asset: 'assets/icons/home/home_led.png',
-              onTap: () => _openGuarded(
-                context,
-                session.isBleConnected,
-                const LedMainPage(),
-              ),
-            ),
-            const SizedBox(height: ReefSpacing.md),
-            _FeatureActionCard(
-              title: l10n.sectionDosingTitle,
-              subtitle: l10n.dosingSubHeader,
-              asset: 'assets/icons/home/home_dosing.png',
-              onTap: () => _openGuarded(
-                context,
-                session.isBleConnected,
-                const DosingMainPage(),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  void _openGuarded(BuildContext context, bool isConnected, Widget page) {
-    if (!isConnected) {
-      showBleGuardDialog(context);
-      return;
-    }
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
-  }
 }
 
-class _SinkHeaderCard extends StatelessWidget {
-  final int deviceCount;
-  final bool isConnected;
-  final String? activeDeviceName;
-  final VoidCallback onConnectTap;
+class _TopButtonBar extends StatelessWidget {
+  final VoidCallback onWarningTap;
   final AppLocalizations l10n;
 
-  const _SinkHeaderCard({
-    required this.deviceCount,
-    required this.isConnected,
-    required this.activeDeviceName,
-    required this.onConnectTap,
+  const _TopButtonBar({
+    required this.onWarningTap,
     required this.l10n,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: ReefColors.surface.withValues(alpha: 0.12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(ReefRadius.lg),
+    return Padding(
+      padding: EdgeInsets.only(
+        top: ReefSpacing.sm,
+        bottom: ReefSpacing.xs,
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(ReefSpacing.xl),
-        child: Row(
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: ReefColors.surface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(ReefRadius.lg),
-              ),
-              child: Center(
-                child: Image.asset(
-                  'assets/icons/home/home_header.png',
-                  width: 32,
-                  height: 32,
-                ),
-              ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          IconButton(
+            icon: Icon(
+              ReefMaterialIcons.warning,
+              color: ReefColors.textPrimary,
             ),
-            const SizedBox(width: ReefSpacing.lg),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'My Reef',
-                    style: ReefTextStyles.title2.copyWith(
-                      color: ReefColors.surface,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: ReefSpacing.xs),
-                  Text(
-                    '$deviceCount devices',
-                    style: ReefTextStyles.body.copyWith(
-                      color: ReefColors.surface,
-                    ),
-                  ),
-                  if (isConnected) ...[
-                    const SizedBox(height: ReefSpacing.xs),
-                    Text(
-                      l10n.homeStatusConnected(
-                        activeDeviceName ?? l10n.deviceHeader,
-                      ),
-                      style: ReefTextStyles.caption1.copyWith(
-                        color: ReefColors.surface,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
+            tooltip: l10n.warningTitle,
+            onPressed: onWarningTap,
+            padding: EdgeInsets.all(ReefSpacing.sm),
+            constraints: const BoxConstraints(
+              minWidth: 56,
+              minHeight: 44,
             ),
-            if (!isConnected)
-              FilledButton(
-                onPressed: onConnectTap,
-                style: FilledButton.styleFrom(
-                  backgroundColor: ReefColors.surface,
-                  foregroundColor: ReefColors.primaryStrong,
-                ),
-                child: Text(l10n.homeConnectCta),
-              ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _DeviceSection extends StatelessWidget {
-  final List<DeviceSnapshot> devices;
+class _SinkSelectorBar extends StatelessWidget {
+  final VoidCallback onManagerTap;
   final AppLocalizations l10n;
 
-  const _DeviceSection({required this.devices, required this.l10n});
+  const _SinkSelectorBar({
+    required this.onManagerTap,
+    required this.l10n,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.deviceHeader,
-          style: ReefTextStyles.title2.copyWith(color: ReefColors.surface),
-        ),
-        const SizedBox(height: ReefSpacing.md),
-        if (devices.isEmpty)
-          Card(
-            color: ReefColors.surface,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(ReefRadius.lg),
+    // TODO: 實現完整的 Sink 選擇器功能
+    // 現在先顯示一個臨時的簡單版本
+    String selectedSink = 'All Sinks'; // 臨時值
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: ReefSpacing.md,
+        right: ReefSpacing.md,
+        top: ReefSpacing.xs,
+        bottom: ReefSpacing.xs,
+      ),
+      child: Row(
+        children: [
+          // Sink 選擇器（臨時使用 Text，後續替換為 DropdownButton）
+          Text(
+            selectedSink,
+            style: ReefTextStyles.body.copyWith(
+              color: ReefColors.textPrimary,
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(ReefSpacing.xl),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.deviceEmptyTitle,
-                    style: ReefTextStyles.subheaderAccent.copyWith(
-                      color: ReefColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: ReefSpacing.xs),
-                  Text(
-                    l10n.deviceEmptySubtitle,
-                    style: ReefTextStyles.caption1.copyWith(
-                      color: ReefColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
+          ),
+          const SizedBox(width: ReefSpacing.xs),
+          Icon(
+            ReefMaterialIcons.down,
+            size: 24,
+            color: ReefColors.textPrimary,
+          ),
+          const Spacer(),
+          // Sink 管理按鈕
+          IconButton(
+            icon: Icon(
+              ReefMaterialIcons.menu,
+              color: ReefColors.textPrimary,
+              size: 30,
             ),
-          )
-        else ...[
-          for (int i = 0; i < devices.length; i++) ...[
-            _HomeDeviceTile(device: devices[i], l10n: l10n),
-            if (i != devices.length - 1) const SizedBox(height: ReefSpacing.md),
-          ],
+            onPressed: onManagerTap,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(
+              minWidth: 30,
+              minHeight: 30,
+            ),
+          ),
         ],
-      ],
+      ),
     );
   }
 }
+
+class _EmptyState extends StatelessWidget {
+  final AppLocalizations l10n;
+
+  const _EmptyState({required this.l10n});
+
+  @override
+  Widget build(BuildContext context) {
+    return EmptyStateWidget(
+      title: l10n.deviceEmptyTitle,
+      subtitle: l10n.deviceEmptySubtitle,
+    );
+  }
+}
+
 
 class _HomeDeviceTile extends StatelessWidget {
   final DeviceSnapshot device;
@@ -336,73 +276,6 @@ class _HomeDeviceTile extends StatelessWidget {
   }
 }
 
-class _FeatureActionCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final String asset;
-  final VoidCallback onTap;
-
-  const _FeatureActionCard({
-    required this.title,
-    required this.subtitle,
-    required this.asset,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(ReefRadius.lg),
-      child: Container(
-        padding: const EdgeInsets.all(ReefSpacing.xl),
-        decoration: BoxDecoration(
-          color: ReefColors.surface.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(ReefRadius.lg),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: ReefColors.surface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(ReefRadius.md),
-              ),
-              child: Center(child: Image.asset(asset, width: 28, height: 28)),
-            ),
-            const SizedBox(width: ReefSpacing.lg),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: ReefTextStyles.subheaderAccent.copyWith(
-                      color: ReefColors.surface,
-                    ),
-                  ),
-                  const SizedBox(height: ReefSpacing.xs),
-                  Text(
-                    subtitle,
-                    style: ReefTextStyles.caption1.copyWith(
-                      color: ReefColors.surface,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              color: ReefColors.surface,
-              size: 16,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 enum _DeviceKind { led, doser }
 

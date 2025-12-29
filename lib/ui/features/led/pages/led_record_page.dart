@@ -7,11 +7,13 @@ import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../domain/led_lighting/led_record.dart';
 import '../../../../domain/led_lighting/led_record_state.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
 import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_spacing.dart';
+import '../../../theme/reef_radius.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
+import '../../../components/error_state_widget.dart';
+import '../../../components/loading_state_widget.dart';
 import '../controllers/led_record_controller.dart';
 import '../widgets/led_record_line_chart.dart';
 import '../widgets/led_spectrum_chart.dart';
@@ -93,27 +95,22 @@ class _LedRecordViewState extends State<_LedRecordView> {
             body: RefreshIndicator(
               onRefresh: controller.refresh,
               child: ListView(
-                padding: const EdgeInsets.all(AppDimensions.spacingXL),
+                padding: const EdgeInsets.all(ReefSpacing.xl),
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [
                   Text(
                     l10n.ledRecordsSubtitle,
                     style: Theme.of(
                       context,
-                    ).textTheme.bodyMedium?.copyWith(color: AppColors.grey700),
+                    ).textTheme.bodyMedium?.copyWith(color: ReefColors.textSecondary),
                   ),
-                  const SizedBox(height: AppDimensions.spacingL),
+                  const SizedBox(height: ReefSpacing.md),
                   if (!session.isBleConnected) ...[
                     const BleGuardBanner(),
-                    const SizedBox(height: AppDimensions.spacingL),
+                    const SizedBox(height: ReefSpacing.md),
                   ],
                   if (controller.isLoading)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: AppDimensions.spacingXXL,
-                      ),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
+                    const LoadingStateWidget.inline()
                   else if (controller.records.isEmpty)
                     _LedRecordsEmptyState(l10n: l10n)
                   else ...[
@@ -122,22 +119,22 @@ class _LedRecordViewState extends State<_LedRecordView> {
                       session: session,
                       l10n: l10n,
                     ),
-                    const SizedBox(height: AppDimensions.spacingL),
+                    const SizedBox(height: ReefSpacing.md),
                     _LedRecordTimeSelector(
                       controller: controller,
                       session: session,
                       l10n: l10n,
                     ),
-                    const SizedBox(height: AppDimensions.spacingL),
+                    const SizedBox(height: ReefSpacing.md),
                     _LedRecordSelectionCard(
                       controller: controller,
                       session: session,
                     ),
-                    const SizedBox(height: AppDimensions.spacingL),
+                    const SizedBox(height: ReefSpacing.md),
                     ...controller.records.map(
                       (record) => Padding(
                         padding: const EdgeInsets.only(
-                          bottom: AppDimensions.spacingM,
+                          bottom: ReefSpacing.sm,
                         ),
                         child: _LedRecordTile(
                           record: record,
@@ -165,12 +162,7 @@ class _LedRecordViewState extends State<_LedRecordView> {
       if (!context.mounted) {
         return;
       }
-      final messenger = ScaffoldMessenger.of(context);
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(describeAppError(AppLocalizations.of(context), code)),
-        ),
-      );
+      showErrorSnackBar(context, code);
       controller.clearError();
     });
   }
@@ -270,7 +262,7 @@ class _LedRecordChartSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        padding: const EdgeInsets.all(ReefSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -278,7 +270,7 @@ class _LedRecordChartSection extends StatelessWidget {
               l10n.ledRecordsTitle,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: AppDimensions.spacingM),
+            const SizedBox(height: ReefSpacing.sm),
             LedRecordLineChart(
               records: controller.records,
               selectedMinutes: controller.selectedRecord?.minutesFromMidnight,
@@ -316,7 +308,7 @@ class _LedRecordTimeSelector extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        padding: const EdgeInsets.all(ReefSpacing.md),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -326,10 +318,10 @@ class _LedRecordTimeSelector extends StatelessWidget {
                 Text(
                   l10n.ledRecordsSelectedTimeLabel,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppColors.grey700,
+                    color: ReefColors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: AppDimensions.spacingXS),
+                const SizedBox(height: ReefSpacing.xxxs),
                 Text(
                   currentTime,
                   style: theme.textTheme.headlineMedium?.copyWith(
@@ -388,7 +380,7 @@ class _LedRecordSelectionCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        padding: const EdgeInsets.all(ReefSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -401,10 +393,10 @@ class _LedRecordSelectionCard extends StatelessWidget {
                       Text(
                         l10n.ledRecordsSelectedTimeLabel,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: AppColors.grey700,
+                          color: ReefColors.textSecondary,
                         ),
                       ),
-                      const SizedBox(height: AppDimensions.spacingXS),
+                      const SizedBox(height: ReefSpacing.xxxs),
                       Text(
                         controller.selectedTimeLabel,
                         style: theme.textTheme.headlineSmall,
@@ -414,28 +406,28 @@ class _LedRecordSelectionCard extends StatelessWidget {
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppDimensions.spacingM,
-                    vertical: AppDimensions.spacingS,
+                    horizontal: ReefSpacing.sm,
+                    vertical: ReefSpacing.xs,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.grey100,
-                    borderRadius: BorderRadius.circular(AppDimensions.radiusL),
+                    color: ReefColors.surfaceMuted,
+                    borderRadius: BorderRadius.circular(ReefRadius.lg),
                   ),
                   child: Text(statusLabel, style: theme.textTheme.labelLarge),
                 ),
               ],
             ),
-            const SizedBox(height: AppDimensions.spacingL),
+            const SizedBox(height: ReefSpacing.md),
             LedSpectrumChart.fromChannelMap(
               spectrum,
               height: 72,
               compact: true,
               emptyLabel: l10n.ledControlEmptyState,
             ),
-            const SizedBox(height: AppDimensions.spacingM),
+            const SizedBox(height: ReefSpacing.sm),
             Wrap(
-              spacing: AppDimensions.spacingM,
-              runSpacing: AppDimensions.spacingS,
+              spacing: ReefSpacing.sm,
+              runSpacing: ReefSpacing.xs,
               children: [
                 OutlinedButton.icon(
                   onPressed: controller.canNavigate && session.isBleConnected
@@ -531,16 +523,16 @@ class _LedRecordsEmptyState extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingXL),
+        padding: const EdgeInsets.all(ReefSpacing.xl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(l10n.ledRecordsEmptyTitle, style: theme.textTheme.titleMedium),
-            const SizedBox(height: AppDimensions.spacingS),
+            const SizedBox(height: ReefSpacing.xs),
             Text(
               l10n.ledRecordsEmptySubtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: AppColors.grey700,
+                color: ReefColors.textSecondary,
               ),
             ),
           ],
@@ -572,9 +564,9 @@ class _LedRecordTile extends StatelessWidget {
       color: selected
           ? ReefColors.primary.withValues(alpha: 0.08)
           : ReefColors.surface,
-      borderRadius: BorderRadius.circular(AppDimensions.radiusL),
+      borderRadius: BorderRadius.circular(ReefRadius.lg),
       child: InkWell(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusL),
+        borderRadius: BorderRadius.circular(ReefRadius.lg),
         onTap: () {
           controller.selectRecord(record.id);
           // Navigate to time setting page for editing
@@ -590,7 +582,7 @@ class _LedRecordTile extends StatelessWidget {
             ? () => _confirmDeleteRecord(context, controller, record)
             : null,
         child: Padding(
-          padding: const EdgeInsets.all(AppDimensions.spacingL),
+          padding: const EdgeInsets.all(ReefSpacing.md),
           child: Row(
             children: [
               Expanded(
@@ -601,11 +593,11 @@ class _LedRecordTile extends StatelessWidget {
                       _formatMinutes(record.minutesFromMidnight),
                       style: theme.textTheme.titleMedium,
                     ),
-                    const SizedBox(height: AppDimensions.spacingXS),
+                    const SizedBox(height: ReefSpacing.xxxs),
                     Text(
                       summary,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: AppColors.grey700,
+                        color: ReefColors.textSecondary,
                       ),
                     ),
                   ],
@@ -614,7 +606,7 @@ class _LedRecordTile extends StatelessWidget {
               if (selected)
                 const Icon(Icons.check_circle, color: ReefColors.primary)
               else
-                const Icon(Icons.chevron_right, color: AppColors.grey500),
+                const Icon(Icons.chevron_right, color: ReefColors.textTertiary),
             ],
           ),
         ),

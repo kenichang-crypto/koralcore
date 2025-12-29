@@ -95,7 +95,9 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
       _setError(AppErrorCode.unknownError);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save settings: $error')),
+          SnackBar(
+            content: Text(describeAppError(l10n, AppErrorCode.unknownError)),
+          ),
         );
       }
     } finally {

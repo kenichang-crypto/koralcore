@@ -5,9 +5,11 @@ import 'package:koralcore/l10n/app_localizations.dart';
 import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_spacing.dart';
 import '../../../components/app_error_presenter.dart';
+import '../../../components/error_state_widget.dart';
+import '../../../components/loading_state_widget.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/led_control_controller.dart';
 
@@ -45,33 +47,33 @@ class _LedControlView extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(title: Text(l10n.ledControlTitle)),
           body: controller.isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const LoadingStateWidget.center()
               : ListView(
-                  padding: const EdgeInsets.all(AppDimensions.spacingXL),
+                  padding: const EdgeInsets.all(ReefSpacing.xl),
                   children: [
                     Text(
                       l10n.ledControlSubtitle,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: AppColors.grey700,
+                        color: ReefColors.textSecondary,
                       ),
                     ),
-                    const SizedBox(height: AppDimensions.spacingL),
+                    const SizedBox(height: ReefSpacing.md),
                     if (!isConnected) ...[
                       const BleGuardBanner(),
-                      const SizedBox(height: AppDimensions.spacingL),
+                      const SizedBox(height: ReefSpacing.md),
                     ],
                     Text(
                       l10n.ledControlChannelsSection,
                       style: theme.textTheme.titleLarge,
                     ),
-                    const SizedBox(height: AppDimensions.spacingM),
+                    const SizedBox(height: ReefSpacing.sm),
                     if (controller.channels.isEmpty)
                       _LedControlEmptyState(message: l10n.ledControlEmptyState)
                     else
                       ...controller.channels.map(
                         (channel) => Padding(
                           padding: const EdgeInsets.only(
-                            bottom: AppDimensions.spacingM,
+                            bottom: ReefSpacing.sm,
                           ),
                           child: _ChannelSliderCard(
                             key: ValueKey(channel.id),
@@ -85,7 +87,7 @@ class _LedControlView extends StatelessWidget {
           bottomNavigationBar: SafeArea(
             top: false,
             child: Padding(
-              padding: const EdgeInsets.all(AppDimensions.spacingXL),
+              padding: const EdgeInsets.all(ReefSpacing.xl),
               child: Row(
                 children: [
                   Expanded(
@@ -99,20 +101,20 @@ class _LedControlView extends StatelessWidget {
                                   controller.resetEdits();
                                   Navigator.of(context).pop();
                                 },
-                          child: const Text('Discard'),
+                          child: Text(l10n.actionCancel),
                         ),
-                        const SizedBox(height: AppDimensions.spacingXS),
+                        const SizedBox(height: ReefSpacing.xxxs),
                         Text(
                           'Discard local changes',
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: AppColors.grey700,
+                            color: ReefColors.textSecondary,
                           ),
                           textAlign: TextAlign.center,
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: AppDimensions.spacingM),
+                  const SizedBox(width: ReefSpacing.sm),
                   Expanded(
                     child: FilledButton(
                       onPressed:
@@ -176,7 +178,7 @@ class _ChannelSliderCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        padding: const EdgeInsets.all(ReefSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -193,7 +195,7 @@ class _ChannelSliderCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: AppDimensions.spacingS),
+            const SizedBox(height: ReefSpacing.xs),
             Slider(
               value: channel.value.toDouble(),
               min: 0,
@@ -205,11 +207,11 @@ class _ChannelSliderCard extends StatelessWidget {
                   : null,
             ),
             if (hasChanged) ...[
-              const SizedBox(height: AppDimensions.spacingXS),
+              const SizedBox(height: ReefSpacing.xxxs),
               Text(
                 'Changes apply after tapping Apply',
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: AppColors.warning,
+                  color: ReefColors.warning,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -231,10 +233,10 @@ class _LedControlEmptyState extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        padding: const EdgeInsets.all(ReefSpacing.md),
         child: Text(
           message,
-          style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.grey700),
+          style: theme.textTheme.bodyMedium?.copyWith(color: ReefColors.textSecondary),
         ),
       ),
     );
@@ -247,8 +249,6 @@ void _maybeShowError(BuildContext context, LedControlController controller) {
     return;
   }
 
-  final l10n = AppLocalizations.of(context);
-  final messenger = ScaffoldMessenger.of(context);
-  messenger.showSnackBar(SnackBar(content: Text(describeAppError(l10n, code))));
+  showErrorSnackBar(context, code);
   controller.clearError();
 }

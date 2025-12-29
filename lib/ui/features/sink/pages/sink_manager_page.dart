@@ -4,8 +4,12 @@ import 'package:provider/provider.dart';
 
 import '../../../../application/common/app_context.dart';
 import '../../../../domain/sink/sink.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_spacing.dart';
+import '../../../widgets/reef_backgrounds.dart';
+import '../../../components/error_state_widget.dart';
+import '../../../components/loading_state_widget.dart';
+import '../../../components/empty_state_widget.dart';
 import '../controllers/sink_manager_controller.dart';
 
 class SinkManagerPage extends StatelessWidget {
@@ -41,7 +45,9 @@ class _SinkManagerView extends StatelessWidget {
             onPressed: () => _showAddSinkDialog(context, controller),
             child: const Icon(Icons.add),
           ),
-          body: _buildBody(context, controller, l10n),
+          body: ReefMainBackground(
+            child: _buildBody(context, controller, l10n),
+          ),
         );
       },
     );
@@ -53,65 +59,30 @@ class _SinkManagerView extends StatelessWidget {
     AppLocalizations l10n,
   ) {
     if (controller.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const LoadingStateWidget.center();
     }
 
-    if (controller.errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              controller.errorMessage!,
-              style: const TextStyle(color: Colors.red),
-            ),
-            const SizedBox(height: AppDimensions.spacingM),
-            ElevatedButton(
-              onPressed: () {
-                controller.clearError();
-                controller.reload();
-              },
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
+    if (controller.errorCode != null || controller.errorMessage != null) {
+      return ErrorStateWidget(
+        errorCode: controller.errorCode,
+        customMessage: controller.errorMessage,
+        onRetry: () {
+          controller.clearError();
+          controller.reload();
+        },
       );
     }
 
     if (controller.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.water_drop_outlined,
-              size: 64,
-              color: AppColors.grey400,
-            ),
-            const SizedBox(height: AppDimensions.spacingM),
-            Text(
-              l10n.sinkEmptyStateTitle,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.grey700,
-              ),
-            ),
-            const SizedBox(height: AppDimensions.spacingS),
-            Text(
-              l10n.sinkEmptyStateSubtitle,
-              style: const TextStyle(
-                color: AppColors.grey500,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+      return EmptyStateWidget(
+        title: l10n.sinkEmptyStateTitle,
+        subtitle: l10n.sinkEmptyStateSubtitle,
+        icon: Icons.water_drop_outlined,
       );
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(AppDimensions.spacingXL),
+      padding: const EdgeInsets.all(ReefSpacing.xl),
       itemCount: controller.sinks.length,
       itemBuilder: (context, index) {
         final sink = controller.sinks[index];
@@ -226,7 +197,7 @@ class _SinkManagerView extends StatelessWidget {
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(l10n.cancel),
           ),
-          ElevatedButton(
+          FilledButton(
             onPressed: () async {
               // ignore: unused_local_variable
               final success = await controller.deleteSink(sink.id);
@@ -234,8 +205,8 @@ class _SinkManagerView extends StatelessWidget {
                 Navigator.of(dialogContext).pop();
               }
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+            style: FilledButton.styleFrom(
+              backgroundColor: ReefColors.danger,
             ),
             child: Text(l10n.delete),
           ),
@@ -258,23 +229,24 @@ class _SinkCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Card(
-      margin: const EdgeInsets.only(bottom: AppDimensions.spacingM),
+      margin: const EdgeInsets.only(bottom: ReefSpacing.sm),
       child: ListTile(
         leading: Icon(
           Icons.water_drop,
           color: sink.type == SinkType.defaultSink
-              ? AppColors.primary
-              : AppColors.grey600,
+              ? ReefColors.primary
+              : ReefColors.textSecondary,
         ),
         title: Text(sink.name),
         subtitle: Text(
-          '${sink.deviceIds.length} ${sink.deviceIds.length == 1 ? 'device' : 'devices'}',
+          l10n.sinkDeviceCount(sink.deviceIds.length),
         ),
         trailing: sink.type == SinkType.defaultSink
-            ? const Chip(
-                label: Text('Default'),
-                padding: EdgeInsets.symmetric(horizontal: 8),
+            ? Chip(
+                label: Text(l10n.sinkTypeDefault),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
               )
             : const Icon(Icons.chevron_right),
         onTap: sink.type == SinkType.defaultSink ? null : onTap,

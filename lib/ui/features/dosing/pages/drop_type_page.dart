@@ -190,7 +190,6 @@ class _DropTypeViewState extends State<_DropTypeView> {
         content: TextField(
           controller: textController,
           decoration: InputDecoration(
-            labelText: l10n.dropTypeNameLabel,
             hintText: l10n.dropTypeNameHint,
           ),
           autofocus: true,
@@ -198,7 +197,7 @@ class _DropTypeViewState extends State<_DropTypeView> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
@@ -246,7 +245,6 @@ class _DropTypeViewState extends State<_DropTypeView> {
         content: TextField(
           controller: textController,
           decoration: InputDecoration(
-            labelText: l10n.dropTypeNameLabel,
             hintText: l10n.dropTypeNameHint,
           ),
           autofocus: true,
@@ -254,7 +252,7 @@ class _DropTypeViewState extends State<_DropTypeView> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
@@ -314,7 +312,7 @@ class _DropTypeViewState extends State<_DropTypeView> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),

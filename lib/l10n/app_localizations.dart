@@ -1981,6 +1981,12 @@ abstract class AppLocalizations {
   /// **'Time'**
   String get ledRecordTimeSettingTimeLabel;
 
+  /// No description provided for @ledRecordTimeSettingSpectrumLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Spectrum'**
+  String get ledRecordTimeSettingSpectrumLabel;
+
   /// No description provided for @ledRecordTimeSettingChannelsLabel.
   ///
   /// In en, this message translates to:
@@ -2064,6 +2070,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to delete scene'**
   String get ledSceneDeleteError;
+
+  /// No description provided for @ledSceneDeleteLocalScenesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Local Scenes'**
+  String get ledSceneDeleteLocalScenesTitle;
+
+  /// No description provided for @ledSceneDeleteDeviceScenesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Scenes (Read-only)'**
+  String get ledSceneDeleteDeviceScenesTitle;
+
+  /// No description provided for @ledSceneDeleteCannotDeleteDeviceScenes.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot delete device scenes'**
+  String get ledSceneDeleteCannotDeleteDeviceScenes;
+
+  /// No description provided for @ledSceneIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Scene ID: {id}'**
+  String ledSceneIdLabel(String id);
 
   /// No description provided for @ledSceneLimitReached.
   ///
@@ -2215,11 +2245,77 @@ abstract class AppLocalizations {
   /// **'Add Favorite'**
   String get ledScenesActionFavorite;
 
+  /// No description provided for @deviceActionFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite'**
+  String get deviceActionFavorite;
+
+  /// No description provided for @deviceActionUnfavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Unfavorite'**
+  String get deviceActionUnfavorite;
+
+  /// No description provided for @deviceFavorited.
+  ///
+  /// In en, this message translates to:
+  /// **'Device favorited'**
+  String get deviceFavorited;
+
+  /// No description provided for @deviceUnfavorited.
+  ///
+  /// In en, this message translates to:
+  /// **'Device unfavorited'**
+  String get deviceUnfavorited;
+
+  /// No description provided for @ledOrientationPortrait.
+  ///
+  /// In en, this message translates to:
+  /// **'Portrait'**
+  String get ledOrientationPortrait;
+
+  /// No description provided for @ledOrientationLandscape.
+  ///
+  /// In en, this message translates to:
+  /// **'Landscape'**
+  String get ledOrientationLandscape;
+
+  /// No description provided for @ledFavoriteScenesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite Scenes'**
+  String get ledFavoriteScenesTitle;
+
+  /// No description provided for @ledFavoriteScenesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your favorite scenes'**
+  String get ledFavoriteScenesSubtitle;
+
+  /// No description provided for @ledContinueRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume execution.'**
+  String get ledContinueRecord;
+
+  /// No description provided for @actionPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Run'**
+  String get actionPlay;
+
   /// No description provided for @ledResetDevice.
   ///
   /// In en, this message translates to:
   /// **'Reset Device'**
   String get ledResetDevice;
+
+  /// No description provided for @sinkTypeDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get sinkTypeDefault;
 
   /// No description provided for @sinkPosition.
   ///
@@ -2310,6 +2406,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to delete this sink?'**
   String get sinkDeleteMessage;
+
+  /// No description provided for @sinkDeviceCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} devices'**
+  String sinkDeviceCount(int count);
 
   /// No description provided for @cancel.
   ///

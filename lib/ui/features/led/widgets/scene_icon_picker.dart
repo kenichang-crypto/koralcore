@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_radius.dart';
+import '../../../theme/reef_spacing.dart';
 
 /// SceneIconPicker
 ///
@@ -26,7 +27,7 @@ class SceneIconPicker extends StatelessWidget {
           'Scene Icon',
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        const SizedBox(height: AppDimensions.spacingM),
+        const SizedBox(height: ReefSpacing.sm),
         SizedBox(
           height: 80,
           child: ListView.builder(
@@ -60,7 +61,7 @@ class _IconItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppDimensions.spacingXS),
+      padding: const EdgeInsets.symmetric(horizontal: ReefSpacing.xxxs),
       child: GestureDetector(
         onTap: onTap,
         child: Container(
@@ -68,13 +69,13 @@ class _IconItem extends StatelessWidget {
           height: 64,
           decoration: BoxDecoration(
             color: isSelected
-                ? AppColors.primary.withOpacity(0.1)
-                : AppColors.grey100,
+                ? ReefColors.primary.withOpacity(0.1)
+                : ReefColors.surfaceMuted,
             border: Border.all(
-              color: isSelected ? AppColors.primary : AppColors.grey300,
+              color: isSelected ? ReefColors.primary : ReefColors.textDisabled,
               width: isSelected ? 2 : 1,
             ),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(ReefRadius.sm),
           ),
           child: Center(
             child: _getIconForId(iconId),
@@ -129,7 +130,7 @@ class _IconItem extends StatelessWidget {
     return Icon(
       iconData,
       size: 32,
-      color: isSelected ? AppColors.primary : AppColors.grey700,
+      color: isSelected ? ReefColors.primary : ReefColors.textSecondary,
     );
   }
 }

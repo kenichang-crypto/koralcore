@@ -148,23 +148,23 @@ class _PumpHeadRecordSettingViewState
             const SizedBox(height: ReefSpacing.sm),
             DropdownButtonFormField<PumpHeadRecordType>(
               initialValue: controller.selectedRecordType,
-              decoration: const InputDecoration(border: OutlineInputBorder()),
+              decoration: const InputDecoration(),
               items: [
                 DropdownMenuItem(
                   value: PumpHeadRecordType.none,
-                  child: const Text('No Schedule'),
+                  child: Text(l10n.dosingScheduleTypeNone),
                 ),
                 DropdownMenuItem(
                   value: PumpHeadRecordType.h24,
-                  child: const Text('24-Hour Average'),
+                  child: Text(l10n.dosingScheduleType24h),
                 ),
                 DropdownMenuItem(
                   value: PumpHeadRecordType.single,
-                  child: const Text('Single Dose'),
+                  child: Text(l10n.dosingScheduleTypeSingle),
                 ),
                 DropdownMenuItem(
                   value: PumpHeadRecordType.custom,
-                  child: const Text('Custom'),
+                  child: Text(l10n.dosingScheduleTypeCustom),
                 ),
               ],
               onChanged: (value) {
@@ -198,10 +198,9 @@ class _PumpHeadRecordSettingViewState
             TextField(
               controller: _dropVolumeController,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Enter volume',
                 suffixText: 'ml',
-                border: const OutlineInputBorder(),
               ),
               onChanged: (value) {
                 final int? volume = int.tryParse(value);
@@ -570,7 +569,7 @@ class _PumpHeadRecordSettingViewState
     if (success && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Schedule saved'),
+          content: Text(l10n.dosingScheduleEditSuccess),
         ),
       );
       Navigator.of(context).pop(true);

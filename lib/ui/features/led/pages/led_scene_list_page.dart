@@ -5,10 +5,13 @@ import 'package:provider/provider.dart';
 import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_spacing.dart';
+import '../../../theme/reef_radius.dart';
+import '../../../widgets/reef_backgrounds.dart';
 import '../../../components/ble_guard.dart';
-import '../../../components/app_error_presenter.dart';
+import '../../../components/error_state_widget.dart';
+import '../../../components/loading_state_widget.dart';
 import '../controllers/led_scene_list_controller.dart';
 import '../models/led_scene_summary.dart';
 import '../support/scene_channel_helper.dart';
@@ -90,149 +93,145 @@ class _LedSceneListView extends StatelessWidget {
                   child: const Icon(Icons.add),
                 )
               : null,
-          body: RefreshIndicator(
-            onRefresh: controller.refresh,
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(AppDimensions.spacingXL),
-              children: [
-                Text(
-                  l10n.ledScenesListSubtitle,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: AppColors.grey700,
-                  ),
-                ),
-                const SizedBox(height: AppDimensions.spacingL),
-                if (controller.currentChannelLevels.isNotEmpty) ...[
-                  LedSpectrumChart.fromChannelMap(
-                    controller.currentChannelLevels,
-                    height: 72,
-                    compact: true,
-                    emptyLabel: l10n.ledControlEmptyState,
-                  ),
-                  const SizedBox(height: AppDimensions.spacingL),
-                ],
-                if (!isConnected) ...[
-                  const BleGuardBanner(),
-                  const SizedBox(height: AppDimensions.spacingXL),
-                ],
-                if (controller.isBusy)
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: AppDimensions.spacingM),
-                    child: LinearProgressIndicator(),
-                  ),
-                if (controller.isLoading)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical: AppDimensions.spacingXXL,
-                    ),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                else if (controller.scenes.isEmpty)
-                  _ScenesEmptyState(l10n: l10n)
-                else ...[
-                  // Dynamic Scenes Section
-                  if (controller.dynamicScenes.isNotEmpty) ...[
+          body: ReefMainBackground(
+            child: SafeArea(
+              child: RefreshIndicator(
+                onRefresh: controller.refresh,
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(ReefSpacing.xl),
+                  children: [
                     Text(
-                      l10n.ledDynamicScene,
+                      l10n.ledScenesListSubtitle,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: AppColors.grey700,
-                        fontWeight: FontWeight.w600,
+                        color: ReefColors.textSecondary,
                       ),
                     ),
-                    const SizedBox(height: AppDimensions.spacingS),
-                    ...controller.dynamicScenes.map(
-                      (scene) => Padding(
-                        padding: const EdgeInsets.only(
-                          bottom: AppDimensions.spacingM,
-                        ),
-                        child: _SceneCard(
-                          scene: scene,
-                          l10n: l10n,
-                          channelCount: controller.currentChannelLevels.length,
-                          isConnected: isConnected,
-                          controller: controller,
-                          onApply:
-                              isConnected &&
-                                  !controller.isBusy &&
-                                  scene.isEnabled &&
-                                  !scene.isActive
-                              ? () => controller.applyScene(scene.id)
-                              : null,
-                          onTap: isConnected && !controller.isBusy
-                              ? () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => LedSceneEditPage(sceneId: scene.id),
-                                    ),
-                                  );
-                                }
-                              : null,
-                        ),
+                    const SizedBox(height: ReefSpacing.md),
+                    if (controller.currentChannelLevels.isNotEmpty) ...[
+                      LedSpectrumChart.fromChannelMap(
+                        controller.currentChannelLevels,
+                        height: 72,
+                        compact: true,
+                        emptyLabel: l10n.ledControlEmptyState,
                       ),
-                    ),
-                    const SizedBox(height: AppDimensions.spacingL),
-                  ],
-                  // Static Scenes Section
-                  if (controller.staticScenes.isNotEmpty) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
+                      const SizedBox(height: ReefSpacing.md),
+                    ],
+                    if (!isConnected) ...[
+                      const BleGuardBanner(),
+                      const SizedBox(height: ReefSpacing.xl),
+                    ],
+                    if (controller.isBusy)
+                      const LoadingStateWidget.linear(),
+                    if (controller.isLoading)
+                      const LoadingStateWidget.inline()
+                    else if (controller.scenes.isEmpty)
+                      _ScenesEmptyState(l10n: l10n)
+                    else ...[
+                      // Dynamic Scenes Section
+                      if (controller.dynamicScenes.isNotEmpty) ...[
                         Text(
-                          l10n.ledStaticScene,
+                          l10n.ledDynamicScene,
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: AppColors.grey700,
+                            color: ReefColors.textSecondary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        if (isConnected && !controller.isBusy)
-                          IconButton(
-                            icon: const Icon(Icons.add),
-                            tooltip: l10n.ledScenesActionAdd,
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const LedSceneAddPage(),
-                                ),
-                              );
-                            },
+                        const SizedBox(height: ReefSpacing.xs),
+                        ...controller.dynamicScenes.map(
+                          (scene) => Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: ReefSpacing.sm,
+                            ),
+                            child: _SceneCard(
+                              scene: scene,
+                              l10n: l10n,
+                              channelCount: controller.currentChannelLevels.length,
+                              isConnected: isConnected,
+                              controller: controller,
+                              onApply:
+                                  isConnected &&
+                                      !controller.isBusy &&
+                                      scene.isEnabled &&
+                                      !scene.isActive
+                                  ? () => controller.applyScene(scene.id)
+                                  : null,
+                              onTap: isConnected && !controller.isBusy
+                                  ? () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => LedSceneEditPage(sceneId: scene.id),
+                                        ),
+                                      );
+                                    }
+                                  : null,
+                            ),
                           ),
-                      ],
-                    ),
-                    const SizedBox(height: AppDimensions.spacingS),
-                    ...controller.staticScenes.map(
-                      (scene) => Padding(
-                        padding: const EdgeInsets.only(
-                          bottom: AppDimensions.spacingM,
                         ),
-                        child: _SceneCard(
-                          scene: scene,
-                          l10n: l10n,
-                          channelCount: controller.currentChannelLevels.length,
-                          isConnected: isConnected,
-                          controller: controller,
-                          onApply:
-                              isConnected &&
-                                  !controller.isBusy &&
-                                  scene.isEnabled &&
-                                  !scene.isActive
-                              ? () => controller.applyScene(scene.id)
-                              : null,
-                          onTap: isConnected && !controller.isBusy
-                              ? () {
+                        const SizedBox(height: ReefSpacing.md),
+                      ],
+                      // Static Scenes Section
+                      if (controller.staticScenes.isNotEmpty) ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              l10n.ledStaticScene,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: ReefColors.textSecondary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            if (isConnected && !controller.isBusy)
+                              IconButton(
+                                icon: const Icon(Icons.add),
+                                tooltip: l10n.ledScenesActionAdd,
+                                onPressed: () {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
-                                      builder: (_) => LedSceneEditPage(sceneId: scene.id),
+                                      builder: (_) => const LedSceneAddPage(),
                                     ),
                                   );
-                                }
-                              : null,
+                                },
+                              ),
+                          ],
                         ),
-                      ),
-                    ),
+                        const SizedBox(height: ReefSpacing.xs),
+                        ...controller.staticScenes.map(
+                          (scene) => Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: ReefSpacing.sm,
+                            ),
+                            child: _SceneCard(
+                              scene: scene,
+                              l10n: l10n,
+                              channelCount: controller.currentChannelLevels.length,
+                              isConnected: isConnected,
+                              controller: controller,
+                              onApply:
+                                  isConnected &&
+                                      !controller.isBusy &&
+                                      scene.isEnabled &&
+                                      !scene.isActive
+                                  ? () => controller.applyScene(scene.id)
+                                  : null,
+                              onTap: isConnected && !controller.isBusy
+                                  ? () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => LedSceneEditPage(sceneId: scene.id),
+                                        ),
+                                      );
+                                    }
+                                  : null,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ],
-                ],
-              ],
+                ),
+              ),
             ),
           ),
         );
@@ -247,8 +246,7 @@ void _maybeShowError(BuildContext context, LedSceneListController controller) {
     return;
   }
 
-  final message = describeAppError(AppLocalizations.of(context), code);
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  showErrorSnackBar(context, code);
   controller.clearError();
 }
 
@@ -259,18 +257,15 @@ void _maybeShowEvent(BuildContext context, LedSceneListController controller) {
   }
 
   final l10n = AppLocalizations.of(context);
-  late final String message;
   switch (event.type) {
     case LedSceneEventType.applySuccess:
-      message = l10n.ledScenesSnackApplied;
+      showSuccessSnackBar(context, l10n.ledScenesSnackApplied);
       break;
     case LedSceneEventType.applyFailure:
       final code = event.errorCode ?? AppErrorCode.unknownError;
-      message = describeAppError(l10n, code);
+      showErrorSnackBar(context, code);
       break;
   }
-
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
 
 class _ScenesEmptyState extends StatelessWidget {
@@ -283,18 +278,18 @@ class _ScenesEmptyState extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingXL),
+        padding: const EdgeInsets.all(ReefSpacing.xl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Image.asset(_ledIconAsset, width: 32, height: 32),
-            const SizedBox(height: AppDimensions.spacingM),
+            const SizedBox(height: ReefSpacing.sm),
             Text(l10n.ledScenesEmptyTitle, style: theme.textTheme.titleMedium),
-            const SizedBox(height: AppDimensions.spacingS),
+            const SizedBox(height: ReefSpacing.xs),
             Text(
               l10n.ledScenesEmptySubtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: AppColors.grey700,
+                color: ReefColors.textSecondary,
               ),
             ),
           ],
@@ -338,10 +333,10 @@ class _SceneCard extends StatelessWidget {
         ? l10n.ledSceneStatusEnabled
         : l10n.ledSceneStatusDisabled;
     final Color statusColor = isActive
-        ? AppColors.success
+        ? ReefColors.success
         : scene.isEnabled
-        ? AppColors.success
-        : AppColors.warning;
+        ? ReefColors.success
+        : ReefColors.warning;
     final Color badgeBackground = statusColor.withOpacity(
       isActive ? 0.2 : 0.12,
     );
@@ -354,19 +349,19 @@ class _SceneCard extends StatelessWidget {
     );
 
     return Card(
-      color: isActive ? AppColors.ocean100 : null,
+      color: isActive ? ReefColors.primaryOverlay : null,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusM),
+        borderRadius: BorderRadius.circular(ReefRadius.md),
         side: BorderSide(
-          color: isActive ? AppColors.ocean500 : AppColors.grey200,
+          color: isActive ? ReefColors.primary : ReefColors.textTertiary,
           width: isActive ? 1.5 : 1,
         ),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusM),
+        borderRadius: BorderRadius.circular(ReefRadius.md),
         child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacingL),
+        padding: const EdgeInsets.all(ReefSpacing.md),
         child: Row(
           children: [
             _SceneSwatch(
@@ -374,7 +369,7 @@ class _SceneCard extends StatelessWidget {
               icon: sceneIcon,
               isDynamic: scene.isDynamic,
             ),
-            const SizedBox(width: AppDimensions.spacingL),
+            const SizedBox(width: ReefSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -400,52 +395,52 @@ class _SceneCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: AppDimensions.spacingXS),
+                  const SizedBox(height: ReefSpacing.xxxs),
                   Text(
                     sceneDescription,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.grey700,
+                      color: ReefColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: AppDimensions.spacingXS),
+                  const SizedBox(height: ReefSpacing.xxxs),
                   Wrap(
-                    spacing: AppDimensions.spacingS,
-                    runSpacing: AppDimensions.spacingXS,
+                    spacing: ReefSpacing.xs,
+                    runSpacing: ReefSpacing.xxxs,
                     children: [
                       Text(
                         typeLabel,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: AppColors.grey700,
+                          color: ReefColors.textSecondary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       Text(
                         channelLabel,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: AppColors.grey700,
+                          color: ReefColors.textSecondary,
                         ),
                       ),
                     ],
                   ),
                   if (channelStats.isNotEmpty) ...[
-                    const SizedBox(height: AppDimensions.spacingXS),
+                    const SizedBox(height: ReefSpacing.xxxs),
                     _ChannelBadges(
                       stats: channelStats,
-                      textColor: AppColors.grey800,
-                      backgroundColor: AppColors.grey100,
+                      textColor: ReefColors.textPrimary,
+                      backgroundColor: ReefColors.surfaceMuted,
                     ),
                   ],
                   if (isActive) ...[
-                    const SizedBox(height: AppDimensions.spacingXS),
+                    const SizedBox(height: ReefSpacing.xxxs),
                     Text(
                       l10n.ledSceneCurrentlyRunning,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: AppColors.success,
+                        color: ReefColors.success,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
-                  const SizedBox(height: AppDimensions.spacingS),
+                  const SizedBox(height: ReefSpacing.xs),
                   Row(
                     children: [
                       OutlinedButton.icon(
@@ -459,7 +454,7 @@ class _SceneCard extends StatelessWidget {
                               : l10n.actionApply,
                         ),
                       ),
-                      const SizedBox(width: AppDimensions.spacingS),
+                      const SizedBox(width: ReefSpacing.xs),
                       // Favorite button
                       if (isConnected && !controller.isBusy)
                         IconButton(
@@ -468,8 +463,8 @@ class _SceneCard extends StatelessWidget {
                                 ? Icons.favorite
                                 : Icons.favorite_border,
                             color: scene.isFavorite
-                                ? AppColors.error
-                                : AppColors.grey500,
+                                ? ReefColors.danger
+                                : ReefColors.textTertiary,
                           ),
                           tooltip: scene.isFavorite
                               ? l10n.ledScenesActionUnfavorite
@@ -508,7 +503,7 @@ class _SceneSwatch extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<Color> colors = palette.isNotEmpty
         ? palette
-        : const <Color>[AppColors.ocean500, AppColors.ocean300];
+        : const <Color>[ReefColors.primary, ReefColors.primaryOverlay];
     final List<Color> gradientColors = colors.length == 1
         ? <Color>[colors.first, colors.first.withOpacity(0.7)]
         : colors;
@@ -517,7 +512,7 @@ class _SceneSwatch extends StatelessWidget {
       width: 56,
       height: 80,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusM),
+        borderRadius: BorderRadius.circular(ReefRadius.md),
         gradient: LinearGradient(
           colors: gradientColors,
           begin: Alignment.topLeft,
@@ -557,18 +552,18 @@ class _ChannelBadges extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: AppDimensions.spacingS,
-      runSpacing: AppDimensions.spacingXS,
+      spacing: ReefSpacing.xs,
+      runSpacing: ReefSpacing.xxxs,
       children: stats
           .map(
             (stat) => Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppDimensions.spacingS,
-                vertical: AppDimensions.spacingXS,
+                horizontal: ReefSpacing.xs,
+                vertical: ReefSpacing.xxxs,
               ),
               decoration: BoxDecoration(
                 color: backgroundColor,
-                borderRadius: BorderRadius.circular(AppDimensions.radiusS),
+                borderRadius: BorderRadius.circular(ReefRadius.sm),
               ),
               child: Text(
                 '${stat.label} ${stat.value}%',

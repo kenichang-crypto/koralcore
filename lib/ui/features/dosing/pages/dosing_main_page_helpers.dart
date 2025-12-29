@@ -114,7 +114,7 @@ void confirmResetDevice(
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to reset device: ${error.toString()}'),
+            content: Text(describeAppError(l10n, AppErrorCode.unknownError)),
           ),
         );
       }
@@ -170,7 +170,9 @@ Future<void> handlePlayDosing(
   } catch (error) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to start dosing: ${error.toString()}')),
+        SnackBar(
+          content: Text(describeAppError(l10n, AppErrorCode.unknownError)),
+        ),
       );
     }
   }
@@ -211,9 +213,9 @@ Future<void> handleConnect(
   try {
     await appContext.connectDeviceUseCase.execute(deviceId: deviceId);
     if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Device connected successfully')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.snackbarDeviceConnected)),
+      );
     }
   } on AppError catch (error) {
     if (context.mounted) {
@@ -224,7 +226,9 @@ Future<void> handleConnect(
   } catch (error) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to connect: ${error.toString()}')),
+        SnackBar(
+          content: Text(describeAppError(l10n, AppErrorCode.unknownError)),
+        ),
       );
     }
   }
@@ -245,9 +249,9 @@ Future<void> handleDisconnect(
   try {
     await appContext.disconnectDeviceUseCase.execute(deviceId: deviceId);
     if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Device disconnected')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.snackbarDeviceDisconnected)),
+      );
     }
   } on AppError catch (error) {
     if (context.mounted) {
@@ -258,7 +262,9 @@ Future<void> handleDisconnect(
   } catch (error) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to disconnect: ${error.toString()}')),
+        SnackBar(
+          content: Text(describeAppError(l10n, AppErrorCode.unknownError)),
+        ),
       );
     }
   }

@@ -9,8 +9,10 @@ import '../../../../application/common/app_session.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
-import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
+import '../../../components/error_state_widget.dart';
+import '../../../components/loading_state_widget.dart';
+import '../../../components/empty_state_widget.dart';
 import '../controllers/pump_head_calibration_controller.dart';
 import '../models/pump_head_calibration_record.dart';
 import 'pump_head_calibration_page.dart';
@@ -92,7 +94,7 @@ class _PumpHeadAdjustListView extends StatelessWidget {
         ],
       ),
       body: controller.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingStateWidget.center()
           : Column(
               children: [
                 if (!isConnected) ...[const BleGuardBanner()],
@@ -122,12 +124,8 @@ class _PumpHeadAdjustListView extends StatelessWidget {
   void _maybeShowError(BuildContext context, AppErrorCode? code) {
     if (code == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final l10n = AppLocalizations.of(context);
-      final message = describeAppError(l10n, code);
       if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      showErrorSnackBar(context, code);
     });
   }
 }
@@ -238,24 +236,10 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.history, size: 64, color: ReefColors.grey),
-          const SizedBox(height: ReefSpacing.md),
-          Text(
-            l10n.dosingAdjustListEmptyTitle,
-            style: ReefTextStyles.title2,
-          ),
-          const SizedBox(height: ReefSpacing.sm),
-          Text(
-            l10n.dosingAdjustListEmptySubtitle,
-            style: ReefTextStyles.body1.copyWith(color: ReefColors.grey),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+    return EmptyStateWidget(
+      title: l10n.dosingAdjustListEmptyTitle,
+      subtitle: l10n.dosingAdjustListEmptySubtitle,
+      icon: Icons.history,
     );
   }
 }

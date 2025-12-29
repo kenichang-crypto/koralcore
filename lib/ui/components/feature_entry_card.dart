@@ -27,7 +27,6 @@ class FeatureEntryCard extends StatelessWidget {
     return Opacity(
       opacity: enabled ? 1 : 0.45,
       child: Card(
-        color: ReefColors.surface,
         child: InkWell(
           borderRadius: BorderRadius.circular(ReefRadius.lg),
           onTap: enabled ? onTap : null,

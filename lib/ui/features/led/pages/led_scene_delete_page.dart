@@ -6,8 +6,8 @@ import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../application/led/delete_scene_usecase.dart';
 import '../../../components/ble_guard.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_spacing.dart';
 import '../../../../infrastructure/repositories/scene_repository_impl.dart';
 import '../controllers/led_scene_list_controller.dart';
 import '../models/led_scene_summary.dart';
@@ -67,37 +67,37 @@ class _LedSceneDeleteView extends StatelessWidget {
         title: Text(l10n.ledSceneDeleteTitle),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(AppDimensions.spacingXL),
+        padding: const EdgeInsets.all(ReefSpacing.xl),
         children: [
           Text(
             l10n.ledSceneDeleteDescription,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.grey700,
+                  color: ReefColors.textSecondary,
                 ),
           ),
-          const SizedBox(height: AppDimensions.spacingL),
+          const SizedBox(height: ReefSpacing.md),
           if (!currentIsConnected) ...[
             const BleGuardBanner(),
-            const SizedBox(height: AppDimensions.spacingL),
+            const SizedBox(height: ReefSpacing.md),
           ],
           if (controller.isLoading)
             const Center(
               child: Padding(
-                padding: EdgeInsets.all(AppDimensions.spacingXXL),
+                padding: EdgeInsets.all(ReefSpacing.xxl),
                 child: CircularProgressIndicator(),
               ),
             )
           else ...[
             // Show local scenes (from SceneRepositoryImpl)
             _buildLocalScenes(context, session, controller, currentIsConnected),
-            const SizedBox(height: AppDimensions.spacingL),
+            const SizedBox(height: ReefSpacing.md),
             // Show device scenes (read-only, cannot delete)
             if (controller.staticScenes.isNotEmpty) ...[
               Text(
-                'Device Scenes (Read-only)',
+                l10n.ledSceneDeleteDeviceScenesTitle,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              const SizedBox(height: AppDimensions.spacingM),
+              const SizedBox(height: ReefSpacing.sm),
               ...controller.staticScenes.map(
                 (scene) => _SceneInfoCard(scene: scene, canDelete: false),
               ),
@@ -114,13 +114,14 @@ class _LedSceneDeleteView extends StatelessWidget {
     LedSceneListController controller,
     bool isConnected,
   ) {
+    final l10n = AppLocalizations.of(context);
     final deviceId = session.activeDeviceId;
     if (deviceId == null) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(AppDimensions.spacingXXL),
+          padding: const EdgeInsets.all(ReefSpacing.xxl),
           child: Text(
-            AppLocalizations.of(context).ledSceneDeleteEmpty,
+            l10n.ledSceneDeleteEmpty,
           ),
         ),
       );
@@ -132,7 +133,7 @@ class _LedSceneDeleteView extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
             child: Padding(
-              padding: EdgeInsets.all(AppDimensions.spacingL),
+              padding: EdgeInsets.all(ReefSpacing.md),
               child: CircularProgressIndicator(),
             ),
           );
@@ -141,9 +142,9 @@ class _LedSceneDeleteView extends StatelessWidget {
         if (snapshot.hasError || snapshot.data == null || snapshot.data!.isEmpty) {
           return Center(
             child: Padding(
-              padding: const EdgeInsets.all(AppDimensions.spacingXXL),
+              padding: const EdgeInsets.all(ReefSpacing.xxl),
               child: Text(
-                AppLocalizations.of(context).ledSceneDeleteEmpty,
+                l10n.ledSceneDeleteEmpty,
               ),
             ),
           );
@@ -153,10 +154,10 @@ class _LedSceneDeleteView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Local Scenes',
+              l10n.ledSceneDeleteLocalScenesTitle,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: AppDimensions.spacingM),
+            const SizedBox(height: ReefSpacing.sm),
             ...snapshot.data!.map(
               (scene) => _SceneDeleteCard(
                 scene: scene,
@@ -224,9 +225,9 @@ class _SceneDeleteCard extends StatelessWidget {
     return Card(
       child: ListTile(
         title: Text(scene.name),
-        subtitle: Text('ID: ${scene.sceneIdString}'),
+        subtitle: Text(l10n.ledSceneIdLabel(scene.sceneIdString)),
         trailing: IconButton(
-          icon: Icon(Icons.delete, color: AppColors.error),
+          icon: Icon(Icons.delete, color: ReefColors.danger),
           onPressed: isConnected
               ? () => _confirmDelete(context, l10n)
               : () => showBleGuardDialog(context),
@@ -246,11 +247,11 @@ class _SceneDeleteCard extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.actionCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            style: TextButton.styleFrom(foregroundColor: ReefColors.danger),
             child: Text(l10n.actionDelete),
           ),
         ],
@@ -283,7 +284,7 @@ class _SceneDeleteCard extends StatelessWidget {
             content: Text(
               l10n.ledSceneDeleteError,
             ),
-            backgroundColor: AppColors.error,
+            backgroundColor: ReefColors.danger,
           ),
         );
       }
@@ -302,23 +303,24 @@ class _SceneInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       child: ListTile(
         title: Text(scene.name),
-        subtitle: Text(scene.isPreset ? 'Preset Scene' : 'Device Scene'),
+        subtitle: Text(scene.isPreset ? l10n.ledScenePreset : l10n.ledSceneCustom),
         trailing: canDelete
             ? IconButton(
-                icon: Icon(Icons.delete, color: AppColors.error),
+                icon: Icon(Icons.delete, color: ReefColors.danger),
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Cannot delete device scenes'),
-                      backgroundColor: AppColors.warning,
+                      content: Text(l10n.ledSceneDeleteCannotDeleteDeviceScenes),
+                      backgroundColor: ReefColors.warning,
                     ),
                   );
                 },
               )
-            : const Icon(Icons.info_outline, color: AppColors.grey700),
+            : const Icon(Icons.info_outline, color: ReefColors.textSecondary),
       ),
     );
   }

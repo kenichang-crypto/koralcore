@@ -7,8 +7,8 @@ import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../components/ble_guard.dart';
 import '../../../components/app_error_presenter.dart';
-import '../../../../theme/colors.dart';
-import '../../../../theme/dimensions.dart';
+import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_spacing.dart';
 import '../../../../infrastructure/repositories/scene_repository_impl.dart';
 import '../controllers/led_scene_edit_controller.dart';
 import '../widgets/led_spectrum_chart.dart';
@@ -51,11 +51,11 @@ class LedSceneEditPage extends StatelessWidget {
             ),
             body: Center(
               child: Padding(
-                padding: const EdgeInsets.all(AppDimensions.spacingXL),
+                padding: const EdgeInsets.all(ReefSpacing.xl),
                 child: Text(
                   snapshot.error?.toString() ?? 'Scene not found',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.error,
+                        color: ReefColors.danger,
                       ),
                 ),
               ),
@@ -183,7 +183,7 @@ class _LedSceneEditViewState extends State<_LedSceneEditView> {
                 child: Text(
                   'Dimming Mode',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.success,
+                        color: ReefColors.success,
                       ),
                 ),
               ),
@@ -191,7 +191,7 @@ class _LedSceneEditViewState extends State<_LedSceneEditView> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(AppDimensions.spacingXL),
+        padding: const EdgeInsets.all(ReefSpacing.xl),
         children: [
           // Scene name input
           TextField(
@@ -204,14 +204,14 @@ class _LedSceneEditViewState extends State<_LedSceneEditView> {
               ..selection = TextSelection.collapsed(offset: controller.name.length),
             onChanged: controller.setName,
           ),
-          const SizedBox(height: AppDimensions.spacingL),
+          const SizedBox(height: ReefSpacing.md),
           
           // Icon picker
           SceneIconPicker(
             selectedIconId: controller.iconId,
             onIconSelected: controller.setIconId,
           ),
-          const SizedBox(height: AppDimensions.spacingL),
+          const SizedBox(height: ReefSpacing.md),
           
           // Spectrum chart
           if (controller.channelLevels.isNotEmpty)
@@ -220,11 +220,11 @@ class _LedSceneEditViewState extends State<_LedSceneEditView> {
               height: 72,
               compact: true,
             ),
-          const SizedBox(height: AppDimensions.spacingL),
+          const SizedBox(height: ReefSpacing.md),
 
           if (!isConnected) ...[
             const BleGuardBanner(),
-            const SizedBox(height: AppDimensions.spacingL),
+            const SizedBox(height: ReefSpacing.md),
           ],
 
           // Channel sliders
@@ -232,12 +232,12 @@ class _LedSceneEditViewState extends State<_LedSceneEditView> {
             'Channel Levels',
             style: Theme.of(context).textTheme.titleLarge,
           ),
-          const SizedBox(height: AppDimensions.spacingM),
+          const SizedBox(height: ReefSpacing.sm),
           ..._buildChannelSliders(context, controller, isConnected),
 
           if (controller.isLoading)
             const Padding(
-              padding: EdgeInsets.all(AppDimensions.spacingL),
+              padding: EdgeInsets.all(ReefSpacing.md),
               child: Center(child: CircularProgressIndicator()),
             ),
         ],
@@ -248,11 +248,11 @@ class _LedSceneEditViewState extends State<_LedSceneEditView> {
           // Preview indicator (dimming mode is already active)
           if (controller.isDimmingMode)
             Padding(
-              padding: const EdgeInsets.only(right: AppDimensions.spacingM),
+              padding: const EdgeInsets.only(right: ReefSpacing.sm),
               child: FloatingActionButton(
                 heroTag: 'preview',
                 onPressed: null,
-                backgroundColor: AppColors.success.withOpacity(0.7),
+                backgroundColor: ReefColors.success.withOpacity(0.7),
                 child: const Icon(Icons.preview),
               ),
             ),
@@ -310,10 +310,10 @@ class _LedSceneEditViewState extends State<_LedSceneEditView> {
       final (id, label) = channel;
       final value = controller.getChannelLevel(id);
       return Padding(
-        padding: const EdgeInsets.only(bottom: AppDimensions.spacingM),
+        padding: const EdgeInsets.only(bottom: ReefSpacing.sm),
         child: Card(
           child: Padding(
-            padding: const EdgeInsets.all(AppDimensions.spacingL),
+            padding: const EdgeInsets.all(ReefSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -330,7 +330,7 @@ class _LedSceneEditViewState extends State<_LedSceneEditView> {
                     ),
                   ],
                 ),
-                const SizedBox(height: AppDimensions.spacingS),
+                const SizedBox(height: ReefSpacing.xs),
                 Slider(
                   value: value.toDouble(),
                   min: 0,

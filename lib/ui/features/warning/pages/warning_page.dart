@@ -49,7 +49,6 @@ class _WarningView extends StatelessWidget {
     _maybeShowError(context, controller.lastErrorCode);
 
     return Scaffold(
-      backgroundColor: ReefColors.surfaceMuted,
       appBar: AppBar(
         backgroundColor: ReefColors.primary,
         foregroundColor: ReefColors.onPrimary,
@@ -118,7 +117,7 @@ class _WarningView extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),

@@ -5,12 +5,14 @@ import 'package:provider/provider.dart';
 
 import '../../../application/common/app_error_code.dart';
 import '../../../application/system/ble_readiness_controller.dart';
-import '../../components/app_error_presenter.dart';
 import '../../components/ble_guard.dart';
+import '../../components/error_state_widget.dart';
+import '../../components/empty_state_widget.dart';
 import '../../theme/reef_colors.dart';
 import '../../theme/reef_radius.dart';
 import '../../theme/reef_spacing.dart';
 import '../../theme/reef_text.dart';
+import '../../widgets/reef_backgrounds.dart';
 import 'controllers/device_list_controller.dart';
 import 'widgets/device_card.dart';
 import 'pages/add_device_page.dart';
@@ -40,9 +42,9 @@ class _DevicePageState extends State<DevicePage> {
 
     final bool selectionMode = controller.selectionMode;
     return Scaffold(
-      backgroundColor: ReefColors.primaryStrong,
       appBar: AppBar(
-        backgroundColor: ReefColors.primaryStrong,
+        backgroundColor: ReefColors.primary,
+        foregroundColor: ReefColors.onPrimary,
         elevation: 0,
         leading: selectionMode
             ? IconButton(
@@ -56,7 +58,7 @@ class _DevicePageState extends State<DevicePage> {
               ? l10n.deviceSelectionCount(controller.selectedIds.length)
               : l10n.deviceHeader,
           style: ReefTextStyles.title2.copyWith(
-            color: ReefColors.surface,
+            color: ReefColors.onPrimary,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -69,15 +71,16 @@ class _DevicePageState extends State<DevicePage> {
                   child: Text(
                     l10n.deviceActionDelete,
                     style: ReefTextStyles.bodyAccent.copyWith(
-                      color: ReefColors.surface,
+                      color: ReefColors.onPrimary,
                     ),
                   ),
                 ),
               ]
             : null,
       ),
-      body: SafeArea(
-        child: RefreshIndicator(
+      body: ReefMainBackground(
+        child: SafeArea(
+          child: RefreshIndicator(
           onRefresh: () => controller.refresh(),
           child: CustomScrollView(
             physics: const BouncingScrollPhysics(
@@ -206,7 +209,7 @@ class _DevicePageState extends State<DevicePage> {
                               child: Text(
                                 l10n.bluetoothEmptyState,
                                 style: ReefTextStyles.body.copyWith(
-                                  color: ReefColors.surface,
+                                  color: ReefColors.textPrimary,
                                 ),
                               ),
                             ),
@@ -222,7 +225,8 @@ class _DevicePageState extends State<DevicePage> {
             ],
           ),
         ),
-      ),
+          ),
+        ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.of(context).push(
@@ -274,11 +278,9 @@ class _DevicePageState extends State<DevicePage> {
   void _maybeShowError(AppErrorCode? code) {
     if (code == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final controller = context.read<DeviceListController>();
-      final l10n = AppLocalizations.of(context);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(describeAppError(l10n, code))));
+      showErrorSnackBar(context, code);
       controller.clearError();
     });
   }
@@ -338,35 +340,15 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(ReefSpacing.xl),
-      decoration: BoxDecoration(
-        color: ReefColors.surface,
-        borderRadius: BorderRadius.circular(ReefRadius.lg),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset(kDeviceEmptyIcon, width: 48, height: 48),
-          const SizedBox(height: ReefSpacing.md),
-          Text(
-            l10n.deviceEmptyTitle,
-            style: ReefTextStyles.subheaderAccent.copyWith(
-              color: ReefColors.textPrimary,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: ReefSpacing.sm),
-          Text(
-            l10n.deviceEmptySubtitle,
-            style: ReefTextStyles.body.copyWith(
-              color: ReefColors.textSecondary,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: ReefSpacing.lg),
-          FilledButton(onPressed: onScan, child: Text(l10n.bluetoothScanCta)),
-        ],
+    return EmptyStateWidget(
+      title: l10n.deviceEmptyTitle,
+      subtitle: l10n.deviceEmptySubtitle,
+      imageAsset: kDeviceEmptyIcon,
+      iconSize: 48,
+      useCard: true,
+      action: FilledButton(
+        onPressed: onScan,
+        child: Text(l10n.bluetoothScanCta),
       ),
     );
   }
@@ -387,7 +369,7 @@ class _SectionHeader extends StatelessWidget {
       child: Text(
         title,
         style: ReefTextStyles.subheaderAccent.copyWith(
-          color: ReefColors.surface,
+          color: ReefColors.textPrimary,
         ),
       ),
     );

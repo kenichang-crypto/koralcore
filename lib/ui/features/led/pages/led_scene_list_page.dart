@@ -8,7 +8,9 @@ import '../../../../application/common/app_session.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_radius.dart';
+import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_backgrounds.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/ble_guard.dart';
 import '../../../components/error_state_widget.dart';
 import '../../../components/loading_state_widget.dart';
@@ -62,7 +64,7 @@ class _LedSceneListView extends StatelessWidget {
         _maybeShowEvent(context, controller);
 
         return Scaffold(
-          appBar: AppBar(
+          appBar: ReefAppBar(
             title: Text(l10n.ledScenesListTitle),
             actions: [
               // Edit button (進入刪除場景頁面)
@@ -99,7 +101,13 @@ class _LedSceneListView extends StatelessWidget {
                 onRefresh: controller.refresh,
                 child: ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(ReefSpacing.xl),
+                  // PARITY: activity_led_scene.xml layout_led_scene padding 16/14/16/14dp
+                  padding: EdgeInsets.only(
+                    left: ReefSpacing.md, // dp_16 paddingStart
+                    top: 14, // dp_14 paddingTop (not standard spacing)
+                    right: ReefSpacing.md, // dp_16 paddingEnd
+                    bottom: 14, // dp_14 paddingBottom (not standard spacing)
+                  ),
                   children: [
                     Text(
                       l10n.ledScenesListSubtitle,
@@ -320,165 +328,109 @@ class _SceneCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final bool isActive = scene.isActive;
     final String sceneName = LedSceneDisplayText.name(scene, l10n);
-    final String sceneDescription = LedSceneDisplayText.description(
-      scene,
-      l10n,
-    );
-    final String statusLabel = isActive
-        ? l10n.ledSceneStatusActive
-        : scene.isEnabled
-        ? l10n.ledSceneStatusEnabled
-        : l10n.ledSceneStatusDisabled;
-    final Color statusColor = isActive
-        ? ReefColors.success
-        : scene.isEnabled
-        ? ReefColors.success
-        : ReefColors.warning;
-    final Color badgeBackground = statusColor.withOpacity(
-      isActive ? 0.2 : 0.12,
-    );
-    final String typeLabel = _sceneTypeLabel(scene);
-    final String channelLabel = l10n.ledSceneChannelCount(channelCount);
     final IconData sceneIcon = _sceneIcon(scene.iconKey, scene.isPreset);
-    final List<SceneChannelStat> channelStats = buildSceneChannelStats(
-      scene,
-      l10n,
-    );
 
+    // PARITY: adapter_scene.xml structure
+    // MaterialCardView: bg_aaa, cornerRadius 8dp, elevation 0
+    // padding: 8/6/12/6dp
+    // Contains: icon (24×24dp), name (body, text_aaaa), play button (20×20dp), favorite button (20×20dp)
     return Card(
-      color: isActive ? ReefColors.primaryOverlay : null,
+      color: ReefColors.surfaceMuted, // bg_aaa
+      elevation: 0, // dp_0
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(ReefRadius.md),
+        borderRadius: BorderRadius.circular(ReefSpacing.xs), // dp_8
         side: BorderSide(
-          color: isActive ? ReefColors.primary : ReefColors.textTertiary,
-          width: isActive ? 1.5 : 1,
+          color: isActive ? ReefColors.primary : Colors.transparent,
+          width: isActive ? 2 : 0, // strokeWidth 2 when active
         ),
       ),
+      margin: EdgeInsets.only(top: ReefSpacing.xs), // dp_8 marginTop
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(ReefRadius.md),
+        borderRadius: BorderRadius.circular(ReefSpacing.xs),
         child: Padding(
-        padding: const EdgeInsets.all(ReefSpacing.md),
-        child: Row(
-          children: [
-            _SceneSwatch(
-              palette: scene.palette,
-              icon: sceneIcon,
-              isDynamic: scene.isDynamic,
-            ),
-            const SizedBox(width: ReefSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          sceneName,
-                          style: theme.textTheme.titleMedium,
-                        ),
-                      ),
-                      Chip(
-                        backgroundColor: badgeBackground,
-                        label: Text(
-                          statusLabel,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: statusColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: ReefSpacing.xxxs),
-                  Text(
-                    sceneDescription,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: ReefColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: ReefSpacing.xxxs),
-                  Wrap(
-                    spacing: ReefSpacing.xs,
-                    runSpacing: ReefSpacing.xxxs,
-                    children: [
-                      Text(
-                        typeLabel,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: ReefColors.textSecondary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        channelLabel,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: ReefColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (channelStats.isNotEmpty) ...[
-                    const SizedBox(height: ReefSpacing.xxxs),
-                    _ChannelBadges(
-                      stats: channelStats,
-                      textColor: ReefColors.textPrimary,
-                      backgroundColor: ReefColors.surfaceMuted,
-                    ),
-                  ],
-                  if (isActive) ...[
-                    const SizedBox(height: ReefSpacing.xxxs),
-                    Text(
-                      l10n.ledSceneCurrentlyRunning,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: ReefColors.success,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: ReefSpacing.xs),
-                  Row(
-                    children: [
-                      OutlinedButton.icon(
-                        onPressed: onApply,
-                        icon: Icon(
-                          scene.isActive ? Icons.check : Icons.play_arrow,
-                        ),
-                        label: Text(
-                          scene.isActive
-                              ? l10n.ledSceneStatusActive
-                              : l10n.actionApply,
-                        ),
-                      ),
-                      const SizedBox(width: ReefSpacing.xs),
-                      // Favorite button
-                      if (isConnected && !controller.isBusy)
-                        IconButton(
-                          icon: Icon(
-                            scene.isFavorite
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: scene.isFavorite
-                                ? ReefColors.danger
-                                : ReefColors.textTertiary,
-                          ),
-                          tooltip: scene.isFavorite
-                              ? l10n.ledScenesActionUnfavorite
-                              : l10n.ledScenesActionFavorite,
-                          onPressed: () => controller.toggleFavoriteScene(scene.id),
-                        ),
-                    ],
-                  ),
-                ],
+          padding: EdgeInsets.only(
+            left: ReefSpacing.xs, // dp_8 paddingStart
+            top: ReefSpacing.sm, // dp_6 paddingTop
+            right: ReefSpacing.md, // dp_12 paddingEnd
+            bottom: ReefSpacing.sm, // dp_6 paddingBottom
+          ),
+          child: Row(
+            children: [
+              // Icon (img_icon) - 24×24dp
+              SizedBox(
+                width: 24, // dp_24
+                height: 24, // dp_24
+                child: Icon(
+                  sceneIcon,
+                  size: 24,
+                  color: ReefColors.textPrimary,
+                ),
               ),
-            ),
-          ],
+              SizedBox(width: ReefSpacing.xs), // dp_8 marginStart
+              // Name (tv_name) - body, text_aaaa
+              Expanded(
+                child: Text(
+                  sceneName,
+                  style: ReefTextStyles.body.copyWith(
+                    color: ReefColors.textPrimary, // text_aaaa
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              SizedBox(width: ReefSpacing.xs), // dp_8 marginStart
+              // Play button (btn_play) - 20×20dp
+              IconButton(
+                icon: Image.asset(
+                  isActive
+                      ? 'assets/icons/ic_play_select.png' // TODO: Add icon asset
+                      : 'assets/icons/ic_play_unselect.png', // TODO: Add icon asset
+                  width: 20, // dp_20
+                  height: 20, // dp_20
+                  errorBuilder: (context, error, stackTrace) => Icon(
+                    isActive ? Icons.play_arrow : Icons.play_arrow_outlined,
+                    size: 20,
+                    color: ReefColors.textPrimary,
+                  ),
+                ),
+                onPressed: onApply,
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints(
+                  minWidth: 20,
+                  minHeight: 20,
+                ),
+              ),
+              SizedBox(width: ReefSpacing.xs), // dp_8 marginStart
+              // Favorite button (btn_favorite) - 20×20dp
+              if (isConnected && !controller.isBusy)
+                IconButton(
+                  icon: Image.asset(
+                    scene.isFavorite
+                        ? 'assets/icons/ic_favorite_select.png' // TODO: Add icon asset
+                        : 'assets/icons/ic_favorite_unselect.png', // TODO: Add icon asset
+                    width: 20, // dp_20
+                    height: 20, // dp_20
+                    errorBuilder: (context, error, stackTrace) => Icon(
+                      scene.isFavorite ? Icons.favorite : Icons.favorite_border,
+                      size: 20,
+                      color: scene.isFavorite
+                          ? ReefColors.danger
+                          : ReefColors.textTertiary,
+                    ),
+                  ),
+                  onPressed: () => controller.toggleFavoriteScene(scene.id),
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(
+                    minWidth: 20,
+                    minHeight: 20,
+                  ),
+                ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

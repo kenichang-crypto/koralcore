@@ -6,17 +6,16 @@ import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../../domain/led_lighting/led_record.dart';
-import '../../../../domain/led_lighting/led_record_state.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_radius.dart';
+import '../../../theme/reef_text.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/app_error_presenter.dart';
-import '../../../components/ble_guard.dart';
 import '../../../components/error_state_widget.dart';
 import '../../../components/loading_state_widget.dart';
 import '../controllers/led_record_controller.dart';
 import '../widgets/led_record_line_chart.dart';
-import '../widgets/led_spectrum_chart.dart';
 import 'led_record_time_setting_page.dart';
 
 class LedRecordPage extends StatelessWidget {
@@ -65,7 +64,7 @@ class _LedRecordViewState extends State<_LedRecordView> {
             return true;
           },
           child: Scaffold(
-            appBar: AppBar(
+            appBar: ReefAppBar(
               title: Text(l10n.ledRecordsTitle),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
@@ -95,52 +94,61 @@ class _LedRecordViewState extends State<_LedRecordView> {
             body: RefreshIndicator(
               onRefresh: controller.refresh,
               child: ListView(
-                padding: const EdgeInsets.all(ReefSpacing.xl),
+                // PARITY: activity_led_record.xml layout_led_record
+                // No padding - sections handle their own margins
+                padding: EdgeInsets.zero,
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [
-                  Text(
-                    l10n.ledRecordsSubtitle,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: ReefColors.textSecondary),
-                  ),
-                  const SizedBox(height: ReefSpacing.md),
-                  if (!session.isBleConnected) ...[
-                    const BleGuardBanner(),
-                    const SizedBox(height: ReefSpacing.md),
-                  ],
                   if (controller.isLoading)
-                    const LoadingStateWidget.inline()
+                    Padding(
+                      padding: EdgeInsets.all(ReefSpacing.md),
+                      child: const LoadingStateWidget.inline(),
+                    )
                   else if (controller.records.isEmpty)
-                    _LedRecordsEmptyState(l10n: l10n)
+                    Padding(
+                      padding: EdgeInsets.all(ReefSpacing.md),
+                      child: _LedRecordsEmptyState(l10n: l10n),
+                    )
                   else ...[
-                    _LedRecordChartSection(
-                      controller: controller,
-                      session: session,
-                      l10n: l10n,
+                    // PARITY: layout_chart margin 16/12/16
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: ReefSpacing.md, // dp_16 marginStart
+                        top: ReefSpacing.sm, // dp_12 marginTop
+                        right: ReefSpacing.md, // dp_16 marginEnd
+                      ),
+                      child: _LedRecordChartSection(
+                        controller: controller,
+                        session: session,
+                        l10n: l10n,
+                      ),
                     ),
-                    const SizedBox(height: ReefSpacing.md),
-                    _LedRecordTimeSelector(
-                      controller: controller,
-                      session: session,
-                      l10n: l10n,
+                    // PARITY: tv_time_title margin 16/24/16
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: ReefSpacing.md, // dp_16 marginStart
+                        top: ReefSpacing.xl, // dp_24 marginTop
+                        right: ReefSpacing.md, // dp_16 marginEnd
+                      ),
+                      child: _LedRecordTimeSelector(
+                        controller: controller,
+                        session: session,
+                        l10n: l10n,
+                      ),
                     ),
-                    const SizedBox(height: ReefSpacing.md),
-                    _LedRecordSelectionCard(
-                      controller: controller,
-                      session: session,
-                    ),
-                    const SizedBox(height: ReefSpacing.md),
-                    ...controller.records.map(
-                      (record) => Padding(
-                        padding: const EdgeInsets.only(
-                          bottom: ReefSpacing.sm,
-                        ),
-                        child: _LedRecordTile(
-                          record: record,
-                          controller: controller,
-                          session: session,
-                        ),
+                    // PARITY: rv_time marginTop 8dp
+                    Padding(
+                      padding: EdgeInsets.only(
+                        top: ReefSpacing.xs, // dp_8 marginTop
+                      ),
+                      child: Column(
+                        children: controller.records.map(
+                          (record) => _LedRecordTile(
+                            record: record,
+                            controller: controller,
+                            session: session,
+                          ),
+                        ).toList(),
                       ),
                     ),
                   ],
@@ -260,29 +268,93 @@ class _LedRecordChartSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(ReefSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.ledRecordsTitle,
-              style: Theme.of(context).textTheme.titleMedium,
+    // PARITY: layout_chart background_white_radius, paddingTop 16dp, paddingBottom 24dp
+    return Container(
+      decoration: BoxDecoration(
+        color: ReefColors.surface,
+        borderRadius: BorderRadius.circular(ReefRadius.md),
+      ),
+      padding: EdgeInsets.only(
+        top: ReefSpacing.md, // dp_16 paddingTop
+        bottom: 24, // dp_24 paddingBottom (not standard spacing)
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // PARITY: tv_clock headline, text_aaaa
+          Text(
+            '${DateTime.now().hour.toString().padLeft(2, '0')} : ${DateTime.now().minute.toString().padLeft(2, '0')}',
+            style: ReefTextStyles.headline.copyWith(
+              color: ReefColors.textSecondary,
             ),
-            const SizedBox(height: ReefSpacing.sm),
-            LedRecordLineChart(
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: ReefSpacing.xs),
+          // PARITY: line_chart margin 8dp
+          Padding(
+            padding: EdgeInsets.all(ReefSpacing.xs), // dp_8 margin
+            child: LedRecordLineChart(
               records: controller.records,
               selectedMinutes: controller.selectedRecord?.minutesFromMidnight,
               onTap: (minutes) {
                 controller.selectTime(minutes);
               },
-              height: 250,
+              height: 242, // dp_242 height
               showLegend: true,
               interactive: session.isBleConnected && !controller.isBusy,
             ),
-          ],
-        ),
+          ),
+          // PARITY: layout_btn marginTop 16dp
+          Padding(
+            padding: EdgeInsets.only(
+              top: ReefSpacing.md, // dp_16 marginTop
+              left: ReefSpacing.xs, // dp_8 marginStart (from line_chart)
+              right: ReefSpacing.xs, // dp_8 marginEnd (from line_chart)
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // PARITY: btn_add, btn_minus, btn_prev, btn_next, btn_preview
+                // IconButton 24×24dp, marginEnd 12dp
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  iconSize: 24,
+                  onPressed: null, // TODO: Implement add functionality
+                ),
+                SizedBox(width: ReefSpacing.sm), // dp_12 marginEnd
+                IconButton(
+                  icon: const Icon(Icons.remove),
+                  iconSize: 24,
+                  onPressed: null, // TODO: Implement minus functionality
+                ),
+                SizedBox(width: ReefSpacing.sm), // dp_12 marginEnd
+                IconButton(
+                  icon: const Icon(Icons.chevron_left),
+                  iconSize: 24,
+                  onPressed: session.isBleConnected && controller.canNavigate
+                      ? controller.goToPreviousRecord
+                      : null,
+                ),
+                SizedBox(width: ReefSpacing.sm), // dp_12 marginEnd
+                IconButton(
+                  icon: const Icon(Icons.chevron_right),
+                  iconSize: 24,
+                  onPressed: session.isBleConnected && controller.canNavigate
+                      ? controller.goToNextRecord
+                      : null,
+                ),
+                SizedBox(width: ReefSpacing.sm), // dp_12 marginEnd
+                IconButton(
+                  icon: const Icon(Icons.play_arrow),
+                  iconSize: 24,
+                  onPressed: session.isBleConnected && controller.canPreview
+                      ? controller.togglePreview
+                      : null,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -301,217 +373,36 @@ class _LedRecordTimeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final now = DateTime.now();
-    final currentTime =
-        '${now.hour.toString().padLeft(2, '0')} : ${now.minute.toString().padLeft(2, '0')}';
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(ReefSpacing.md),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.ledRecordsSelectedTimeLabel,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: ReefColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: ReefSpacing.xxxs),
-                Text(
-                  currentTime,
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.chevron_left),
-                  tooltip: l10n.ledRecordsActionPrev,
-                  onPressed: session.isBleConnected && controller.canNavigate
-                      ? controller.goToPreviousRecord
-                      : null,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.chevron_right),
-                  tooltip: l10n.ledRecordsActionNext,
-                  onPressed: session.isBleConnected && controller.canNavigate
-                      ? controller.goToNextRecord
-                      : null,
-                ),
-              ],
-            ),
-          ],
+    // PARITY: tv_time_title body_accent, text_aaaa
+    // PARITY: btn_add_time ImageviewButton 24×24dp, marginEnd 16dp
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          l10n.time, // PARITY: @string/time
+          style: ReefTextStyles.bodyAccent.copyWith(
+            color: ReefColors.textSecondary,
+          ),
         ),
-      ),
+        IconButton(
+          icon: const Icon(Icons.add),
+          iconSize: 24,
+          onPressed: session.isBleConnected
+              ? () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const LedRecordTimeSettingPage(),
+                    ),
+                  );
+                }
+              : null,
+        ),
+      ],
     );
   }
 }
 
-class _LedRecordSelectionCard extends StatelessWidget {
-  const _LedRecordSelectionCard({
-    required this.controller,
-    required this.session,
-  });
-
-  final LedRecordController controller;
-  final AppSession session;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final String statusLabel = _statusLabel(l10n, controller.status);
-    final bool canTogglePreview =
-        session.isBleConnected &&
-        (controller.isPreviewing || controller.canPreview);
-    final Map<String, int> spectrum =
-        controller.selectedRecord?.channelLevels ??
-        (controller.records.isNotEmpty
-            ? controller.records.first.channelLevels
-            : const <String, int>{});
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(ReefSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.ledRecordsSelectedTimeLabel,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: ReefColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: ReefSpacing.xxxs),
-                      Text(
-                        controller.selectedTimeLabel,
-                        style: theme.textTheme.headlineSmall,
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: ReefSpacing.sm,
-                    vertical: ReefSpacing.xs,
-                  ),
-                  decoration: BoxDecoration(
-                    color: ReefColors.surfaceMuted,
-                    borderRadius: BorderRadius.circular(ReefRadius.lg),
-                  ),
-                  child: Text(statusLabel, style: theme.textTheme.labelLarge),
-                ),
-              ],
-            ),
-            const SizedBox(height: ReefSpacing.md),
-            LedSpectrumChart.fromChannelMap(
-              spectrum,
-              height: 72,
-              compact: true,
-              emptyLabel: l10n.ledControlEmptyState,
-            ),
-            const SizedBox(height: ReefSpacing.sm),
-            Wrap(
-              spacing: ReefSpacing.sm,
-              runSpacing: ReefSpacing.xs,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: controller.canNavigate && session.isBleConnected
-                      ? controller.goToPreviousRecord
-                      : null,
-                  icon: const Icon(Icons.chevron_left),
-                  label: Text(l10n.ledRecordsActionPrev),
-                ),
-                OutlinedButton.icon(
-                  onPressed: controller.canNavigate && session.isBleConnected
-                      ? controller.goToNextRecord
-                      : null,
-                  icon: const Icon(Icons.chevron_right),
-                  label: Text(l10n.ledRecordsActionNext),
-                ),
-                OutlinedButton.icon(
-                  onPressed:
-                      session.isBleConnected && controller.canDeleteSelected
-                      ? () => _confirmDelete(context, controller)
-                      : null,
-                  icon: const Icon(Icons.delete_outline),
-                  label: Text(l10n.ledRecordsActionDelete),
-                ),
-                FilledButton.icon(
-                  onPressed: canTogglePreview ? controller.togglePreview : null,
-                  icon: Icon(
-                    controller.isPreviewing ? Icons.stop : Icons.play_arrow,
-                  ),
-                  label: Text(
-                    controller.isPreviewing
-                        ? l10n.ledRecordsActionPreviewStop
-                        : l10n.ledRecordsActionPreviewStart,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _statusLabel(AppLocalizations l10n, LedRecordStatus? status) {
-    switch (status) {
-      case LedRecordStatus.applying:
-        return l10n.ledRecordsStatusApplying;
-      case LedRecordStatus.previewing:
-        return l10n.ledRecordsStatusPreview;
-      case LedRecordStatus.idle:
-      case LedRecordStatus.error:
-      case null:
-        return l10n.ledRecordsStatusIdle;
-    }
-  }
-
-  Future<void> _confirmDelete(
-    BuildContext context,
-    LedRecordController controller,
-  ) async {
-    final l10n = AppLocalizations.of(context);
-    final bool? confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(l10n.ledRecordsDeleteConfirmTitle),
-          content: Text(l10n.ledRecordsDeleteConfirmMessage),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text(l10n.actionCancel),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text(l10n.actionConfirm),
-            ),
-          ],
-        );
-      },
-    );
-    if (confirmed == true) {
-      await controller.deleteSelectedRecord();
-    }
-  }
-}
+// Removed unused _LedRecordSelectionCard class
 
 class _LedRecordsEmptyState extends StatelessWidget {
   const _LedRecordsEmptyState({required this.l10n});
@@ -555,18 +446,13 @@ class _LedRecordTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool selected = controller.selectedRecord?.id == record.id;
-    final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
-    final String summary = _formatChannels(record.channelLevels, l10n);
-
-    return Material(
-      color: selected
-          ? ReefColors.primary.withValues(alpha: 0.08)
-          : ReefColors.surface,
-      borderRadius: BorderRadius.circular(ReefRadius.lg),
+    // PARITY: adapter_led_record.xml structure
+    // ConstraintLayout: bg_aaaa
+    // padding: 16/12/16/12dp
+    // Contains: time (body, text_aaaa), more button (24×24dp)
+    return Container(
+      color: ReefColors.surface, // bg_aaaa
       child: InkWell(
-        borderRadius: BorderRadius.circular(ReefRadius.lg),
         onTap: () {
           controller.selectRecord(record.id);
           // Navigate to time setting page for editing
@@ -582,31 +468,35 @@ class _LedRecordTile extends StatelessWidget {
             ? () => _confirmDeleteRecord(context, controller, record)
             : null,
         child: Padding(
-          padding: const EdgeInsets.all(ReefSpacing.md),
+          padding: EdgeInsets.only(
+            left: ReefSpacing.md, // dp_16 paddingStart
+            top: ReefSpacing.md, // dp_12 paddingTop
+            right: ReefSpacing.md, // dp_16 paddingEnd
+            bottom: ReefSpacing.md, // dp_12 paddingBottom
+          ),
           child: Row(
             children: [
+              // Time (tv_time) - body, text_aaaa
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _formatMinutes(record.minutesFromMidnight),
-                      style: theme.textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: ReefSpacing.xxxs),
-                    Text(
-                      summary,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: ReefColors.textSecondary,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  _formatMinutes(record.minutesFromMidnight),
+                  style: ReefTextStyles.body.copyWith(
+                    color: ReefColors.textPrimary, // text_aaaa
+                  ),
                 ),
               ),
-              if (selected)
-                const Icon(Icons.check_circle, color: ReefColors.primary)
-              else
-                const Icon(Icons.chevron_right, color: ReefColors.textTertiary),
+              SizedBox(width: ReefSpacing.xs), // dp_8 marginStart
+              // More button (img_next) - 24×24dp
+              Image.asset(
+                'assets/icons/ic_more_enable.png', // TODO: Add icon asset
+                width: 24, // dp_24
+                height: 24, // dp_24
+                errorBuilder: (context, error, stackTrace) => Icon(
+                  Icons.chevron_right,
+                  size: 24,
+                  color: ReefColors.textTertiary,
+                ),
+              ),
             ],
           ),
         ),
@@ -621,16 +511,7 @@ class _LedRecordTile extends StatelessWidget {
     return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
   }
 
-  String _formatChannels(Map<String, int> levels, AppLocalizations l10n) {
-    if (levels.isEmpty) {
-      return l10n.ledControlEmptyState;
-    }
-    final Iterable<String> parts = levels.entries
-        .where((entry) => entry.value > 0)
-        .map((entry) => '${_channelLabel(entry.key, l10n)} ${entry.value}%');
-    final String summary = parts.join(' / ');
-    return summary.isEmpty ? l10n.ledControlEmptyState : summary;
-  }
+// Removed unused _formatChannels method
 
   Future<void> _confirmDeleteRecord(
     BuildContext context,
@@ -664,28 +545,5 @@ class _LedRecordTile extends StatelessWidget {
     }
   }
 
-  String _channelLabel(String key, AppLocalizations l10n) {
-    switch (key) {
-      case 'coldWhite':
-        return l10n.ledScheduleEditChannelWhite;
-      case 'royalBlue':
-        return l10n.ledScheduleEditChannelBlue;
-      case 'blue':
-        return l10n.ledChannelBlue;
-      case 'green':
-        return l10n.ledChannelGreen;
-      case 'red':
-        return l10n.ledChannelRed;
-      case 'purple':
-        return l10n.ledChannelPurple;
-      case 'uv':
-        return l10n.ledChannelUv;
-      case 'warmWhite':
-        return l10n.ledChannelWarmWhite;
-      case 'moonLight':
-        return l10n.ledChannelMoon;
-      default:
-        return key;
-    }
-  }
+// Removed unused _channelLabel method
 }

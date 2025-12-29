@@ -8,6 +8,7 @@ import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/ble_guard.dart';
 import '../../../components/error_state_widget.dart';
 import '../../../components/loading_state_widget.dart';
@@ -61,7 +62,7 @@ class _LedScheduleListViewState extends State<_LedScheduleListView> {
         _maybeShowEvent(context, controller);
 
         return Scaffold(
-          appBar: AppBar(title: Text(l10n.ledScheduleListTitle)),
+          appBar: ReefAppBar(title: Text(l10n.ledScheduleListTitle)),
           body: RefreshIndicator(
             onRefresh: controller.refresh,
             child: ListView(

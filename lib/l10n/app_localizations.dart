@@ -2892,6 +2892,38 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saturday'**
   String get weekdaySaturday;
+
+  String get group;
+
+  String get led;
+
+  String get masterSlave;
+
+  String get time;
+
+  String get record;
+
+  String get ledScene;
+
+  String get unassignedDevice;
+
+  String get ledSceneNoSetting;
+
+  String get dosingAdjustListDate;
+
+  String get dosingAdjustListVolume;
+
+  String get homeSpinnerAllSink;
+
+  String get homeSpinnerFavorite;
+
+  String get homeSpinnerUnassigned;
+
+  String get dosingPumpHeadNoType;
+
+  String get dosingPumpHeadModeScheduled;
+
+  String get dosingPumpHeadModeFree;
 }
 
 class _AppLocalizationsDelegate

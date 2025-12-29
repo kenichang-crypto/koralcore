@@ -12,6 +12,7 @@ import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
+import '../../../widgets/reef_app_bar.dart';
 
 /// LedSettingPage
 ///
@@ -121,7 +122,7 @@ class _LedSettingPageState extends State<LedSettingPage> {
     final session = context.watch<AppSession>();
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: ReefAppBar(
         backgroundColor: ReefColors.primaryStrong,
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
@@ -160,157 +161,147 @@ class _LedSettingPageState extends State<LedSettingPage> {
             ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(ReefSpacing.xl),
-        children: [
-          // Device Name Section
-          Text(
-            l10n.deviceName,
-            style: ReefTextStyles.caption1.copyWith(
-              color: ReefColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: ReefSpacing.sm),
-          TextField(
-            controller: _nameController,
-            decoration: InputDecoration(
-              hintText: l10n.deviceNameHint,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(ReefRadius.md),
+      body: Padding(
+        // PARITY: activity_led_setting.xml layout_led_setting padding 16/12/16/12dp
+        padding: EdgeInsets.only(
+          left: ReefSpacing.md, // dp_16 paddingStart
+          top: ReefSpacing.md, // dp_12 paddingTop
+          right: ReefSpacing.md, // dp_16 paddingEnd
+          bottom: ReefSpacing.md, // dp_12 paddingBottom
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Device Name Section
+            // PARITY: tv_device_name_title - caption1, 0dp width (constrained)
+            Text(
+              l10n.deviceName,
+              style: ReefTextStyles.caption1.copyWith(
+                color: ReefColors.textSecondary,
               ),
-              filled: true,
-              fillColor: ReefColors.surface,
             ),
-            style: ReefTextStyles.body1.copyWith(color: ReefColors.textPrimary),
-            enabled: !_isLoading,
-          ),
-          const SizedBox(height: ReefSpacing.xl),
-
-          // Sink Position Section
-          Text(
-            l10n.sinkPosition,
-            style: ReefTextStyles.caption1.copyWith(
-              color: ReefColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: ReefSpacing.sm),
-          Card(
-            color: ReefColors.surface,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(ReefRadius.md),
-            ),
-            child: ListTile(
-              title: Text(l10n.sinkPosition),
-              subtitle: Text(
-                l10n.sinkPositionNotSet,
-                style: ReefTextStyles.caption1.copyWith(
-                  color: ReefColors.textSecondary,
+            // PARITY: layout_name - marginTop 4dp, TextInputLayout style
+            // TextInputLayout: bg_aaa background, 4dp cornerRadius, no border, no hint
+            SizedBox(height: ReefSpacing.xs), // dp_4 marginTop
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                // PARITY: TextInputLayout style - bg_aaa, 4dp cornerRadius, no border
+                filled: true,
+                fillColor: ReefColors.surfaceMuted, // bg_aaa (#F7F7F7)
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(ReefRadius.xs), // dp_4
+                  borderSide: BorderSide.none, // boxStrokeWidth 0dp
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(ReefRadius.xs),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(ReefRadius.xs),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: ReefSpacing.md, // Standard padding
+                  vertical: ReefSpacing.sm,
                 ),
               ),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () async {
-                final appContext = context.read<AppContext>();
-                final String? activeDeviceId = session.activeDeviceId;
-                String? currentSinkId;
-                if (activeDeviceId != null) {
-                  final device = await appContext.deviceRepository.getDevice(
-                    activeDeviceId,
-                  );
-                  currentSinkId = device?['sinkId']?.toString();
-                }
-                final String? selectedSinkId = await Navigator.of(context)
-                    .push<String>(
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            SinkPositionPage(initialSinkId: currentSinkId),
-                      ),
-                    );
-                // TODO: Update device sink_id if selectedSinkId is not null
-                if (selectedSinkId != null && context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        selectedSinkId.isEmpty
-                            ? l10n.sinkPositionNotSet
-                            : l10n.sinkPositionSet,
-                      ),
-                    ),
-                  );
-                }
-              },
+              // PARITY: edt_name - body textAppearance
+              style: ReefTextStyles.body.copyWith(
+                color: ReefColors.textPrimary,
+              ),
+              enabled: !_isLoading,
+              maxLines: 1,
             ),
-          ),
-          const SizedBox(height: ReefSpacing.xl),
 
-          // Device Info Section
-          Text(
-            l10n.deviceInfo,
-            style: ReefTextStyles.caption1.copyWith(
-              color: ReefColors.textSecondary,
+            // Sink Position Section
+            // PARITY: tv_device_position_title - marginTop 16dp, caption1
+            SizedBox(height: ReefSpacing.md), // dp_16 marginTop
+            Text(
+              l10n.sinkPosition,
+              style: ReefTextStyles.caption1.copyWith(
+                color: ReefColors.textSecondary,
+              ),
             ),
-          ),
-          const SizedBox(height: ReefSpacing.sm),
-          Card(
-            color: ReefColors.surface,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(ReefRadius.md),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(ReefSpacing.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            // PARITY: btn_position - marginTop 4dp, BackgroundMaterialButton style
+            // BackgroundMaterialButton: bg_aaa background, 4dp cornerRadius, elevation 0dp,
+            // body textAppearance, icon at end, textAlignment textStart, maxLines 1, ellipsize end
+            SizedBox(height: ReefSpacing.xs), // dp_4 marginTop
+            MaterialButton(
+              onPressed: !_isLoading && session.isBleConnected
+                  ? () async {
+                      final appContext = context.read<AppContext>();
+                      final String? activeDeviceId = session.activeDeviceId;
+                      String? currentSinkId;
+                      if (activeDeviceId != null) {
+                        final device = await appContext.deviceRepository
+                            .getDevice(activeDeviceId);
+                        currentSinkId = device?['sinkId']?.toString();
+                      }
+                      final String? selectedSinkId = await Navigator.of(context)
+                          .push<String>(
+                            MaterialPageRoute(
+                              builder: (_) => SinkPositionPage(
+                                initialSinkId: currentSinkId,
+                              ),
+                            ),
+                          );
+                      // TODO: Update device sink_id if selectedSinkId is not null
+                      if (selectedSinkId != null && context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              selectedSinkId.isEmpty
+                                  ? l10n.sinkPositionNotSet
+                                  : l10n.sinkPositionSet,
+                            ),
+                          ),
+                        );
+                      }
+                    }
+                  : null,
+              // PARITY: BackgroundMaterialButton style
+              color: ReefColors.surfaceMuted, // bg_aaa background
+              elevation: 0, // elevation 0dp
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  ReefRadius.xs,
+                ), // 4dp cornerRadius
+              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: ReefSpacing.md,
+                vertical: ReefSpacing.sm,
+              ),
+              textColor: ReefColors.textPrimary, // text_aaaa
+              // PARITY: textAppearance body, textAlignment textStart, icon at end
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _InfoRow(
-                    label: l10n.deviceId,
-                    value: session.activeDeviceId ?? '-',
+                  Expanded(
+                    child: Text(
+                      l10n.sinkPositionNotSet, // TODO: Show actual sink name
+                      style: ReefTextStyles.body.copyWith(
+                        color: ReefColors.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.start,
+                    ),
                   ),
-                  const SizedBox(height: ReefSpacing.md),
-                  _InfoRow(
-                    label: 'State',
-                    value: session.isBleConnected
-                        ? 'Connected'
-                        : 'Disconnected',
+                  Icon(
+                    Icons.chevron_right, // ic_next
+                    size: 20,
+                    color: ReefColors.textPrimary,
                   ),
                 ],
               ),
             ),
-          ),
 
-          // Note: Master/Slave relationship management will be added in future
-        ],
+            // Note: Device Info Section removed to match activity_led_setting.xml
+            // (activity_led_setting.xml only has device name and position sections)
+          ],
+        ),
       ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _InfoRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 2,
-          child: Text(
-            label,
-            style: ReefTextStyles.caption1.copyWith(
-              color: ReefColors.textSecondary,
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 3,
-          child: Text(
-            value,
-            style: ReefTextStyles.body1.copyWith(color: ReefColors.textPrimary),
-          ),
-        ),
-      ],
     );
   }
 }

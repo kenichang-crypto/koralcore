@@ -9,6 +9,7 @@ import '../../../components/ble_guard.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../../infrastructure/repositories/scene_repository_impl.dart';
 import '../controllers/led_scene_edit_controller.dart';
 import '../widgets/led_spectrum_chart.dart';
@@ -37,7 +38,7 @@ class LedSceneEditPage extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
-            appBar: AppBar(
+            appBar: ReefAppBar(
               title: Text(AppLocalizations.of(context).ledSceneEditTitle),
             ),
             body: const Center(child: CircularProgressIndicator()),
@@ -46,7 +47,7 @@ class LedSceneEditPage extends StatelessWidget {
 
         if (snapshot.hasError || snapshot.data == null) {
           return Scaffold(
-            appBar: AppBar(
+            appBar: ReefAppBar(
               title: Text(AppLocalizations.of(context).ledSceneEditTitle),
             ),
             body: Center(
@@ -173,7 +174,7 @@ class _LedSceneEditViewState extends State<_LedSceneEditView> {
     final isConnected = session.isBleConnected;
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: ReefAppBar(
         title: Text(l10n.ledSceneEditTitle),
         actions: [
           if (controller.isDimmingMode)
@@ -191,7 +192,13 @@ class _LedSceneEditViewState extends State<_LedSceneEditView> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(ReefSpacing.xl),
+        // PARITY: activity_led_scene_edit.xml padding 16/12/16 (no explicit paddingBottom)
+        padding: EdgeInsets.only(
+          left: ReefSpacing.md, // dp_16 paddingStart
+          top: ReefSpacing.sm, // dp_12 paddingTop
+          right: ReefSpacing.md, // dp_16 paddingEnd
+          bottom: 40, // dp_40 paddingBottom (from sl_moon_light marginBottom)
+        ),
         children: [
           // Scene name input
           TextField(

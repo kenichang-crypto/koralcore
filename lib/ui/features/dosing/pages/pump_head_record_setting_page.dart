@@ -11,6 +11,7 @@ import '../../../../domain/doser_dosing/pump_head_record_type.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/pump_head_record_setting_controller.dart';
@@ -71,13 +72,10 @@ class _PumpHeadRecordSettingViewState
 
     return Scaffold(
       backgroundColor: ReefColors.surfaceMuted,
-      appBar: AppBar(
+      appBar: ReefAppBar(
         backgroundColor: ReefColors.primary,
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
-        titleTextStyle: ReefTextStyles.title2.copyWith(
-          color: ReefColors.onPrimary,
-        ),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
@@ -98,33 +96,70 @@ class _PumpHeadRecordSettingViewState
       body: controller.isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
-              padding: const EdgeInsets.all(ReefSpacing.lg),
+              // PARITY: activity_drop_head_record_setting.xml ScrollView + ConstraintLayout
+              // No padding - sections handle their own margins (16/12/16 for cards)
+              padding: EdgeInsets.zero,
               children: [
                 if (!isConnected) ...[
-                  const BleGuardBanner(),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: ReefSpacing.md),
+                    child: const BleGuardBanner(),
+                  ),
                   const SizedBox(height: ReefSpacing.lg),
                 ],
-                _buildRecordTypeSelector(context, controller, l10n),
-                const SizedBox(height: ReefSpacing.lg),
-                if (controller.selectedRecordType != PumpHeadRecordType.none)
-                  _buildVolumeSection(context, controller, l10n),
-                if (controller.selectedRecordType == PumpHeadRecordType.h24 ||
-                    controller.selectedRecordType == PumpHeadRecordType.custom)
-                  _buildTimeRangeSection(context, controller, l10n),
-                if (controller.selectedRecordType == PumpHeadRecordType.single)
-                  _buildTimePointSection(context, controller, l10n),
-                if (controller.selectedRecordType ==
-                    PumpHeadRecordType.custom) ...[
-                  const SizedBox(height: ReefSpacing.lg),
-                  _buildCustomDetailsSection(
-                    context,
-                    controller,
-                    l10n,
-                    isConnected,
+                // PARITY: layout_drop_type_info margin 16/12/16
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: ReefSpacing.md, // dp_16 marginStart
+                    top: ReefSpacing.sm, // dp_12 marginTop
+                    right: ReefSpacing.md, // dp_16 marginEnd
+                  ),
+                  child: _buildRecordTypeSelector(context, controller, l10n),
+                ),
+                // PARITY: tv_record_type_title marginTop 16dp
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: ReefSpacing.md, // dp_16 marginStart
+                    top: ReefSpacing.md, // dp_16 marginTop
+                    right: ReefSpacing.md, // dp_16 marginEnd
+                  ),
+                  child: _buildRecordTypeButton(context, controller, l10n),
+                ),
+                if (controller.selectedRecordType != PumpHeadRecordType.none) ...[
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: ReefSpacing.md),
+                    child: _buildVolumeSection(context, controller, l10n),
                   ),
                 ],
-                const SizedBox(height: ReefSpacing.lg),
-                _buildRotatingSpeedSection(context, controller, l10n),
+                if (controller.selectedRecordType == PumpHeadRecordType.h24 ||
+                    controller.selectedRecordType == PumpHeadRecordType.custom) ...[
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: ReefSpacing.md),
+                    child: _buildTimeRangeSection(context, controller, l10n),
+                  ),
+                ],
+                if (controller.selectedRecordType == PumpHeadRecordType.single) ...[
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: ReefSpacing.md),
+                    child: _buildTimePointSection(context, controller, l10n),
+                  ),
+                ],
+                if (controller.selectedRecordType ==
+                    PumpHeadRecordType.custom) ...[
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: ReefSpacing.md),
+                    child: _buildCustomDetailsSection(
+                      context,
+                      controller,
+                      l10n,
+                      isConnected,
+                    ),
+                  ),
+                ],
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: ReefSpacing.md),
+                  child: _buildRotatingSpeedSection(context, controller, l10n),
+                ),
               ],
             ),
     );
@@ -177,6 +212,99 @@ class _PumpHeadRecordSettingViewState
         ),
       ),
     );
+  }
+
+  Widget _buildRecordTypeButton(
+    BuildContext context,
+    PumpHeadRecordSettingController controller,
+    AppLocalizations l10n,
+  ) {
+    // PARITY: tv_record_type_title caption1, marginTop 16dp
+    // PARITY: btn_record_type BackgroundMaterialButton, marginTop 4dp
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.dosingScheduleTypeLabel, // PARITY: @string/drop_record_type
+          style: ReefTextStyles.caption1.copyWith(
+            color: ReefColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: ReefSpacing.xxxs), // dp_4 marginTop
+        MaterialButton(
+          onPressed: () => _showRecordTypeDialog(context, controller, l10n),
+          // PARITY: BackgroundMaterialButton style
+          color: ReefColors.surfaceMuted, // bg_aaa background
+          textColor: ReefColors.textPrimary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4), // dp_4 cornerRadius
+          ),
+          elevation: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                _getRecordTypeText(controller.selectedRecordType, l10n),
+                textAlign: TextAlign.start,
+              ),
+              const Icon(Icons.keyboard_arrow_down),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _getRecordTypeText(PumpHeadRecordType type, AppLocalizations l10n) {
+    switch (type) {
+      case PumpHeadRecordType.none:
+        return l10n.dosingScheduleTypeNone;
+      case PumpHeadRecordType.h24:
+        return l10n.dosingScheduleType24h;
+      case PumpHeadRecordType.single:
+        return l10n.dosingScheduleTypeSingle;
+      case PumpHeadRecordType.custom:
+        return l10n.dosingScheduleTypeCustom;
+    }
+  }
+
+  Future<void> _showRecordTypeDialog(
+    BuildContext context,
+    PumpHeadRecordSettingController controller,
+    AppLocalizations l10n,
+  ) async {
+    // TODO: Implement record type selection dialog
+    // For now, use a simple dropdown
+    final PumpHeadRecordType? result = await showDialog<PumpHeadRecordType>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.dosingScheduleTypeLabel),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text(l10n.dosingScheduleTypeNone),
+              onTap: () => Navigator.of(context).pop(PumpHeadRecordType.none),
+            ),
+            ListTile(
+              title: Text(l10n.dosingScheduleType24h),
+              onTap: () => Navigator.of(context).pop(PumpHeadRecordType.h24),
+            ),
+            ListTile(
+              title: Text(l10n.dosingScheduleTypeSingle),
+              onTap: () => Navigator.of(context).pop(PumpHeadRecordType.single),
+            ),
+            ListTile(
+              title: Text(l10n.dosingScheduleTypeCustom),
+              onTap: () => Navigator.of(context).pop(PumpHeadRecordType.custom),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (result != null) {
+      controller.setSelectedRecordType(result);
+    }
   }
 
   Widget _buildVolumeSection(
@@ -352,22 +480,15 @@ class _PumpHeadRecordSettingViewState
               )
             else
               ...controller.recordDetails.map(
-                (detail) => ListTile(
-                  title: Text(detail.timeString ?? ''),
-                  subtitle: Text('${detail.dropTime}x • ${detail.totalDrop}ml'),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: isConnected
-                        ? () {
-                            controller.deleteRecordDetail(detail);
-                          }
-                        : () => showBleGuardDialog(context),
-                  ),
-                  onLongPress: isConnected
-                      ? () {
-                          // Edit detail
-                          _editTimeSlot(context, controller, detail);
-                        }
+                (detail) => _CustomRecordDetailTile(
+                  detail: detail,
+                  isConnected: isConnected,
+                  l10n: l10n,
+                  onDelete: isConnected
+                      ? () => controller.deleteRecordDetail(detail)
+                      : () => showBleGuardDialog(context),
+                  onEdit: isConnected
+                      ? () => _editTimeSlot(context, controller, detail)
                       : () => showBleGuardDialog(context),
                 ),
               ),
@@ -587,5 +708,122 @@ class _PumpHeadRecordSettingViewState
       ).showSnackBar(SnackBar(content: Text(message)));
       // Clear error after showing
     });
+  }
+}
+
+/// Custom record detail tile matching adapter_drop_custom_record_detail.xml layout.
+///
+/// PARITY: Mirrors reef-b-app's adapter_drop_custom_record_detail.xml structure:
+/// - ConstraintLayout: bg_aaaa background, selectableItemBackground
+/// - Inner: padding 16/12/16/12dp
+/// - img_drop: 20×20dp (ic_drop)
+/// - tv_time: caption1, text_aaa, marginStart 8dp
+/// - tv_volume_and_times: caption1, text_aaaa, marginStart 8dp
+/// - tv_speed: caption1_accent, bg_secondary, marginStart 12dp
+/// - Divider: text_a color
+class _CustomRecordDetailTile extends StatelessWidget {
+  final PumpHeadRecordDetail detail;
+  final bool isConnected;
+  final AppLocalizations l10n;
+  final VoidCallback onDelete;
+  final VoidCallback onEdit;
+
+  const _CustomRecordDetailTile({
+    required this.detail,
+    required this.isConnected,
+    required this.l10n,
+    required this.onDelete,
+    required this.onEdit,
+  });
+
+  String _getSpeedText(int speed, AppLocalizations l10n) {
+    switch (speed) {
+      case 1:
+        return l10n.dosingRotatingSpeedLow;
+      case 2:
+        return l10n.dosingRotatingSpeedMedium;
+      case 3:
+        return l10n.dosingRotatingSpeedHigh;
+      default:
+        return l10n.dosingRotatingSpeedMedium;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final String timeText = detail.timeString ?? '';
+    final String volumeAndTimesText = '${detail.totalDrop} ml / ${detail.dropTime}次';
+    final String speedText = _getSpeedText(detail.rotatingSpeed, l10n);
+
+    // PARITY: adapter_drop_custom_record_detail.xml structure
+    return InkWell(
+      onTap: onEdit,
+      onLongPress: onDelete,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.only(
+              left: ReefSpacing.md, // dp_16 paddingStart
+              top: ReefSpacing.md, // dp_12 paddingTop
+              right: ReefSpacing.md, // dp_16 paddingEnd
+              bottom: ReefSpacing.md, // dp_12 paddingBottom
+            ),
+            decoration: BoxDecoration(
+              color: ReefColors.surface, // bg_aaaa background
+            ),
+            child: Row(
+              children: [
+                // Drop icon (img_drop) - 20×20dp
+                Image.asset(
+                  'assets/icons/ic_drop.png', // TODO: Add icon asset
+                  width: 20, // dp_20
+                  height: 20, // dp_20
+                  errorBuilder: (context, error, stackTrace) => Icon(
+                    Icons.water_drop,
+                    size: 20,
+                    color: ReefColors.primary,
+                  ),
+                ),
+                SizedBox(width: ReefSpacing.xs), // dp_8 marginStart
+                // Time (tv_time) - caption1, text_aaa
+                Text(
+                  timeText,
+                  style: ReefTextStyles.caption1.copyWith(
+                    color: ReefColors.textTertiary, // text_aaa
+                  ),
+                ),
+                SizedBox(width: ReefSpacing.xs), // dp_8 marginStart
+                // Volume and times (tv_volume_and_times) - caption1, text_aaaa
+                Text(
+                  volumeAndTimesText,
+                  style: ReefTextStyles.caption1.copyWith(
+                    color: ReefColors.textPrimary, // text_aaaa
+                  ),
+                ),
+                SizedBox(width: ReefSpacing.md), // dp_12 marginStart
+                // Speed (tv_speed) - caption1_accent, bg_secondary
+                Expanded(
+                  child: Text(
+                    speedText,
+                    style: ReefTextStyles.caption1Accent.copyWith(
+                      color: ReefColors.textSecondary, // bg_secondary (using textSecondary as fallback)
+                    ),
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Divider (text_a color)
+          Divider(
+            height: 1, // dp_1
+            thickness: 1, // dp_1
+            color: ReefColors.textDisabled, // text_a
+          ),
+        ],
+      ),
+    );
   }
 }

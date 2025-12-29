@@ -9,6 +9,7 @@ import '../../../../application/common/app_session.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_radius.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/ble_guard.dart';
 import '../../../components/error_state_widget.dart';
 import '../../../components/loading_state_widget.dart';
@@ -66,12 +67,18 @@ class _PumpHeadScheduleView extends StatelessWidget {
         }
 
         return Scaffold(
-          appBar: AppBar(title: Text(l10n.dosingScheduleOverviewTitle)),
+          appBar: ReefAppBar(title: Text(l10n.dosingScheduleOverviewTitle)),
           body: RefreshIndicator(
             onRefresh: controller.refresh,
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(ReefSpacing.xl),
+              // PARITY: General settings page layout - padding 16/12/16/40dp
+              padding: EdgeInsets.only(
+                left: ReefSpacing.md, // dp_16 paddingStart
+                top: ReefSpacing.sm, // dp_12 paddingTop
+                right: ReefSpacing.md, // dp_16 paddingEnd
+                bottom: 40, // dp_40 paddingBottom
+              ),
               children: [
                 Text(
                   l10n.dosingPumpHeadSummaryTitle(headId.toUpperCase()),

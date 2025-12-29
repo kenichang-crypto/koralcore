@@ -12,7 +12,7 @@ import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_backgrounds.dart';
-import '../../../../domain/led_lighting/led_state.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/ble_guard.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/error_state_widget.dart';
@@ -29,7 +29,6 @@ import 'led_scene_list_page.dart';
 import 'led_schedule_list_page.dart';
 import '../../device/pages/device_settings_page.dart';
 
-const _ledIconAsset = 'assets/icons/led/led_main.png';
 
 class LedMainPage extends StatelessWidget {
   const LedMainPage({super.key});
@@ -107,7 +106,7 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
         final bool featuresEnabled = isConnected && !writeLocked;
 
         return Scaffold(
-          appBar: AppBar(
+          appBar: ReefAppBar(
             backgroundColor: ReefColors.primary,
             foregroundColor: ReefColors.onPrimary,
             elevation: 0,
@@ -256,103 +255,202 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
           body: ReefMainBackground(
             child: SafeArea(
               child: ListView(
-              padding: const EdgeInsets.all(ReefSpacing.xl),
+              // PARITY: activity_led_main.xml ConstraintLayout
+              // No padding - sections handle their own margins
+              padding: EdgeInsets.zero,
               children: [
-                Text(
-                  l10n.ledSubHeader,
-                  style: ReefTextStyles.body.copyWith(
-                    color: ReefColors.textPrimary,
+                // PARITY: tv_name margin 16/8/4
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: ReefSpacing.md, // dp_16 marginStart
+                    top: ReefSpacing.xs, // dp_8 marginTop
+                    right: 4, // dp_4 marginEnd (not standard spacing)
+                  ),
+                  child: _DeviceInfoSection(
+                    deviceName: deviceName,
+                    isConnected: isConnected,
+                    session: session,
+                    l10n: l10n,
                   ),
                 ),
-                const SizedBox(height: ReefSpacing.md),
-                if (!isConnected) ...[
-                  const BleGuardBanner(),
-                  const SizedBox(height: ReefSpacing.md),
-                ],
-                const SizedBox(height: ReefSpacing.md),
-                _DeviceHeaderCard(
-                  deviceName: deviceName,
-                  isConnected: isConnected,
-                  l10n: l10n,
+                // PARITY: tv_record_title marginTop 20dp
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: ReefSpacing.md, // dp_16 marginStart (same as tv_name)
+                    top: 20, // dp_20 marginTop (not standard spacing)
+                    right: ReefSpacing.md, // dp_16 marginEnd (for btn_record_more)
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        l10n.record, // PARITY: @string/record
+                        style: ReefTextStyles.bodyAccent,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.more_horiz),
+                        iconSize: 24,
+                        onPressed: featuresEnabled
+                            ? () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const LedRecordPage(),
+                                  ),
+                                );
+                              }
+                            : null,
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: ReefSpacing.xl),
-                _RuntimeStatusCard(controller: controller),
-                const SizedBox(height: ReefSpacing.xl),
-                if (controller.hasRecords) ...[
-                  _RecordChartSection(
+                // PARITY: layout_record_background marginTop 4dp
+                if (controller.hasRecords)
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: ReefSpacing.md, // dp_16 marginStart
+                      top: ReefSpacing.xxxs, // dp_4 marginTop
+                      right: ReefSpacing.md, // dp_16 marginEnd
+                    ),
+                    child: _RecordChartSection(
+                      controller: controller,
+                      isConnected: isConnected,
+                      featuresEnabled: featuresEnabled,
+                      l10n: l10n,
+                    ),
+                  )
+                else
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: ReefSpacing.md, // dp_16 marginStart
+                      top: ReefSpacing.xxxs, // dp_4 marginTop
+                      right: ReefSpacing.md, // dp_16 marginEnd
+                    ),
+                    child: Container(
+                      padding: EdgeInsets.all(ReefSpacing.sm),
+                      decoration: BoxDecoration(
+                        color: ReefColors.surface,
+                        borderRadius: BorderRadius.circular(ReefRadius.md),
+                      ),
+                      child: Text(
+                        l10n.deviceStateDisconnected,
+                        style: ReefTextStyles.bodyAccent.copyWith(
+                          color: ReefColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ),
+                // PARITY: tv_scene_title marginTop 24dp
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: ReefSpacing.md, // dp_16 marginStart
+                    top: ReefSpacing.xl, // dp_24 marginTop
+                    right: ReefSpacing.md, // dp_16 marginEnd (for btn_scene_more)
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        l10n.ledScene, // PARITY: @string/led_scene
+                        style: ReefTextStyles.bodyAccent,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.more_horiz),
+                        iconSize: 24,
+                        onPressed: featuresEnabled
+                            ? () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const LedSceneListPage(),
+                                  ),
+                                );
+                              }
+                            : null,
+                      ),
+                    ],
+                  ),
+                ),
+                // PARITY: rv_favorite_scene marginTop 4dp, paddingStart/End 8dp
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: ReefSpacing.xxxs, // dp_4 marginTop
+                    left: ReefSpacing.xs, // dp_8 paddingStart
+                    right: ReefSpacing.xs, // dp_8 paddingEnd
+                  ),
+                  child: _FavoriteSceneSection(
                     controller: controller,
                     isConnected: isConnected,
                     featuresEnabled: featuresEnabled,
                     l10n: l10n,
                   ),
-                  const SizedBox(height: ReefSpacing.xl),
-                ],
-                _FavoriteSceneSection(
-                  controller: controller,
-                  isConnected: isConnected,
-                  featuresEnabled: featuresEnabled,
-                  l10n: l10n,
                 ),
-                const SizedBox(height: ReefSpacing.xl),
-                _SceneListSection(l10n: l10n, controller: controller),
-                const SizedBox(height: ReefSpacing.xl),
-                _EntryTile(
-                  title: l10n.ledEntryIntensity,
-                  subtitle: l10n.ledIntensityEntrySubtitle,
-                  enabled: featuresEnabled,
-                  onTapWhenEnabled: () {
-                    final messenger = ScaffoldMessenger.of(context);
-                    Navigator.of(context)
-                        .push<bool>(
-                          MaterialPageRoute(
-                            builder: (_) => const LedControlPage(),
-                          ),
-                        )
-                        .then((result) {
-                          if (result != true) {
-                            return;
-                          }
-                          messenger.showSnackBar(
-                            SnackBar(
-                              content: Text(l10n.ledControlApplySuccess),
+                // Entry tiles (not in XML, but part of Flutter implementation)
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: ReefSpacing.md),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: ReefSpacing.xl),
+                      _SceneListSection(l10n: l10n, controller: controller),
+                      const SizedBox(height: ReefSpacing.xl),
+                      _EntryTile(
+                        title: l10n.ledEntryIntensity,
+                        subtitle: l10n.ledIntensityEntrySubtitle,
+                        enabled: featuresEnabled,
+                        onTapWhenEnabled: () {
+                          final messenger = ScaffoldMessenger.of(context);
+                          Navigator.of(context)
+                              .push<bool>(
+                                MaterialPageRoute(
+                                  builder: (_) => const LedControlPage(),
+                                ),
+                              )
+                              .then((result) {
+                                if (result != true) {
+                                  return;
+                                }
+                                messenger.showSnackBar(
+                                  SnackBar(
+                                    content: Text(l10n.ledControlApplySuccess),
+                                  ),
+                                );
+                              });
+                        },
+                      ),
+                      _EntryTile(
+                        title: l10n.ledEntryScenes,
+                        subtitle: l10n.ledScenesListSubtitle,
+                        enabled: featuresEnabled,
+                        onTapWhenEnabled: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const LedSceneListPage(),
                             ),
                           );
-                        });
-                  },
-                ),
-                _EntryTile(
-                  title: l10n.ledEntryScenes,
-                  subtitle: l10n.ledScenesListSubtitle,
-                  enabled: featuresEnabled,
-                  onTapWhenEnabled: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const LedSceneListPage(),
+                        },
                       ),
-                    );
-                  },
-                ),
-                _EntryTile(
-                  title: l10n.ledEntryRecords,
-                  subtitle: l10n.ledEntryRecordsSubtitle,
-                  enabled: featuresEnabled,
-                  onTapWhenEnabled: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const LedRecordPage()),
-                    );
-                  },
-                ),
-                _EntryTile(
-                  title: l10n.ledEntrySchedule,
-                  subtitle: l10n.ledScheduleListSubtitle,
-                  enabled: featuresEnabled,
-                  onTapWhenEnabled: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const LedScheduleListPage(),
+                      _EntryTile(
+                        title: l10n.ledEntryRecords,
+                        subtitle: l10n.ledEntryRecordsSubtitle,
+                        enabled: featuresEnabled,
+                        onTapWhenEnabled: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const LedRecordPage()),
+                          );
+                        },
                       ),
-                    );
-                  },
+                      _EntryTile(
+                        title: l10n.ledEntrySchedule,
+                        subtitle: l10n.ledScheduleListSubtitle,
+                        enabled: featuresEnabled,
+                        onTapWhenEnabled: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const LedScheduleListPage(),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -364,286 +462,145 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
   }
 }
 
-class _DeviceHeaderCard extends StatelessWidget {
+/// Device info section matching activity_led_main.xml layout.
+///
+/// PARITY: Mirrors reef-b-app's activity_led_main.xml structure:
+/// - tv_name: Device name (body_accent, text_aaaa)
+/// - btn_ble: BLE state icon (48×32dp)
+/// - tv_position: Position/Sink name (caption2, text_aaa)
+/// - tv_group: Group (caption2, text_aa, optional)
+class _DeviceInfoSection extends StatelessWidget {
   final String deviceName;
   final bool isConnected;
+  final AppSession session;
   final AppLocalizations l10n;
 
-  const _DeviceHeaderCard({
+  const _DeviceInfoSection({
     required this.deviceName,
     required this.isConnected,
+    required this.session,
     required this.l10n,
   });
 
   @override
   Widget build(BuildContext context) {
-    final statusText = isConnected
-        ? l10n.deviceStateConnected
-        : l10n.deviceStateDisconnected;
-    final statusColor = isConnected
-        ? ReefColors.success
-        : ReefColors.textSecondary.withValues(alpha: 0.6);
+    final deviceId = session.activeDeviceId;
+    
+    // Get device info from repository
+    String? positionName;
+    String? groupName;
+    
+    // TODO: When DeviceSnapshot is extended to include sinkId and group,
+    // retrieve them from the device repository here
+    // For now, we'll use placeholders
+    if (deviceId != null) {
+      // Future: Get device from repository and extract sinkId/group
+      // final device = await appContext.deviceRepository.getDevice(deviceId);
+      // if (device != null && device['sink_id'] != null) {
+      //   final sink = await appContext.sinkRepository.getSinkById(device['sink_id']);
+      //   positionName = sink?.name;
+      //   groupName = device['device_group'];
+      // }
+      positionName = null; // Placeholder until DeviceSnapshot includes sinkId
+      groupName = null; // Placeholder until DeviceSnapshot includes group
+    }
 
-    return Container(
-      padding: const EdgeInsets.all(ReefSpacing.lg),
-      decoration: BoxDecoration(
-        color: ReefColors.surface.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(ReefRadius.lg),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: ReefColors.surface.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(ReefRadius.lg),
-            ),
-            child: Center(
-              child: Image.asset(_ledIconAsset, width: 30, height: 30),
-            ),
-          ),
-          const SizedBox(width: ReefSpacing.lg),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
+    // PARITY: activity_led_main.xml layout structure
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Device name row (tv_name + btn_ble)
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Device name (tv_name)
+            // PARITY: marginStart=16dp, marginTop=8dp, textAppearance=body_accent, textColor=text_aaaa
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: ReefSpacing.md, // dp_16
+                  top: ReefSpacing.xs, // dp_8
+                ),
+                child: Text(
                   deviceName,
                   style: ReefTextStyles.subheaderAccent.copyWith(
-                    color: ReefColors.surface,
+                    color: isConnected 
+                        ? ReefColors.textPrimary // text_aaaa when connected
+                        : ReefColors.textSecondary, // text_aa when disconnected
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+            // BLE state icon (btn_ble)
+            // PARITY: 48×32dp, marginEnd=16dp
+            Padding(
+              padding: EdgeInsets.only(
+                right: ReefSpacing.md, // dp_16
+                top: ReefSpacing.xs, // dp_8
+              ),
+              child: SizedBox(
+                width: 48, // dp_48
+                height: 32, // dp_32
+                child: Image.asset(
+                  isConnected
+                      ? 'assets/icons/bluetooth/ic_connect_background.png' // ic_connect_background
+                      : 'assets/icons/bluetooth/ic_disconnect_background.png', // ic_disconnect_background
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+          ],
+        ),
+        // Position and Group row (tv_position + tv_group)
+        Padding(
+          padding: EdgeInsets.only(
+            left: ReefSpacing.md, // dp_16
+            top: ReefSpacing.xs, // dp_8 (spacing between name and position)
+          ),
+          child: Row(
+            children: [
+              // Position (tv_position)
+              // PARITY: caption2, text_aaa
+              if (positionName != null)
+                Flexible(
+                  child: Text(
+                    positionName,
+                    style: ReefTextStyles.caption2.copyWith(
+                      color: ReefColors.textTertiary, // text_aaa
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                )
+              else
+                Text(
+                  l10n.unassignedDevice,
+                  style: ReefTextStyles.caption2.copyWith(
+                    color: ReefColors.textTertiary, // text_aaa
                   ),
                 ),
-                const SizedBox(height: ReefSpacing.xs),
+              // Group (tv_group)
+              // PARITY: caption2, text_aa, marginStart=4dp, visibility=gone if no group
+              if (groupName != null) ...[
+                SizedBox(width: ReefSpacing.xs), // dp_4
                 Text(
-                  statusText,
-                  style: ReefTextStyles.caption1.copyWith(color: statusColor),
-                ),
-                const SizedBox(height: ReefSpacing.xs),
-                Text(
-                  l10n.ledDetailHeaderHint,
-                  style: ReefTextStyles.caption1.copyWith(
-                    color: ReefColors.surface,
+                  '｜$groupName', // PARITY: "｜群組 A" format
+                  style: ReefTextStyles.caption2.copyWith(
+                    color: ReefColors.textSecondary, // text_aa
                   ),
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RuntimeStatusCard extends StatelessWidget {
-  final LedSceneListController controller;
-
-  const _RuntimeStatusCard({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final String statusLabel = _statusLabel(l10n);
-    final Color statusColor = _statusColor();
-    final LedSceneSummary? activeScene = _activeScene();
-    final LedStateSchedule? activeSchedule = controller.activeSchedule;
-    final List<Widget> chips = [];
-
-    if (activeScene != null) {
-      final String activeName = LedSceneDisplayText.name(activeScene, l10n);
-      chips.add(
-        _RuntimeInfoChip(
-          color: ReefColors.success,
-          label: l10n.ledSceneCurrentlyRunning,
-          value: activeName,
-          detail: _sceneTypeLabel(activeScene, l10n),
-        ),
-      );
-    }
-    if (activeSchedule != null) {
-      chips.add(
-        _RuntimeInfoChip(
-          color: ReefColors.info,
-          label: l10n.ledRuntimeScheduleActive,
-          value: _scheduleTypeLabel(activeSchedule, l10n),
-          detail: _scheduleRange(activeSchedule, context),
-        ),
-      );
-    }
-
-    return Card(
-      color: ReefColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(ReefRadius.md),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(ReefSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.ledRuntimeStatus,
-              style: ReefTextStyles.subheaderAccent.copyWith(
-                color: ReefColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: ReefSpacing.sm),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: ReefSpacing.md,
-                vertical: ReefSpacing.xs,
-              ),
-              decoration: BoxDecoration(
-                color: statusColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(ReefRadius.md),
-              ),
-              child: Text(
-                statusLabel,
-                style: ReefTextStyles.caption1Accent.copyWith(
-                  color: statusColor,
-                ),
-              ),
-            ),
-            if (chips.isNotEmpty) ...[
-              const SizedBox(height: ReefSpacing.md),
-              Wrap(
-                spacing: ReefSpacing.sm,
-                runSpacing: ReefSpacing.sm,
-                children: chips,
-              ),
             ],
-          ],
+          ),
         ),
-      ),
-    );
-  }
-
-  LedSceneSummary? _activeScene() {
-    for (final scene in controller.scenes) {
-      if (scene.isActive) {
-        return scene;
-      }
-    }
-    return null;
-  }
-
-  String _statusLabel(AppLocalizations l10n) {
-    if (controller.ledStatus == LedStatus.applying) {
-      return l10n.ledRuntimeApplying;
-    }
-    if (controller.activeScheduleId != null) {
-      return l10n.ledRuntimeScheduleActive;
-    }
-    if (controller.activeSceneId != null) {
-      return l10n.ledRuntimePreview;
-    }
-    return l10n.ledRuntimeIdle;
-  }
-
-  Color _statusColor() {
-    if (controller.ledStatus == LedStatus.applying) {
-      return ReefColors.warning;
-    }
-    if (controller.activeScheduleId != null) {
-      return ReefColors.success;
-    }
-    if (controller.activeSceneId != null) {
-      return ReefColors.info;
-    }
-    return ReefColors.textSecondary;
-  }
-
-  String _scheduleRange(LedStateSchedule schedule, BuildContext context) {
-    final TimeOfDay start = _minutesToTime(
-      schedule.window.startMinutesFromMidnight,
-    );
-    final TimeOfDay end = _minutesToTime(
-      schedule.window.endMinutesFromMidnight,
-    );
-    final materialLocalizations = MaterialLocalizations.of(context);
-    return '${materialLocalizations.formatTimeOfDay(start)} – ${materialLocalizations.formatTimeOfDay(end)}';
-  }
-
-  String _scheduleTypeLabel(LedStateSchedule schedule, AppLocalizations l10n) {
-    final String recurrence = schedule.window.recurrenceLabel.toLowerCase();
-    if (recurrence.contains('daily')) {
-      return l10n.ledScheduleDaily;
-    }
-    if (recurrence.contains('window')) {
-      return l10n.ledScheduleWindow;
-    }
-
-    final int duration =
-        schedule.window.endMinutesFromMidnight -
-        schedule.window.startMinutesFromMidnight;
-    if (duration >= 12 * 60) {
-      return l10n.ledScheduleDaily;
-    }
-    return l10n.ledScheduleWindow;
-  }
-
-  String _sceneTypeLabel(LedSceneSummary scene, AppLocalizations l10n) {
-    return scene.isPreset ? l10n.ledScenePreset : l10n.ledSceneCustom;
-  }
-
-  TimeOfDay _minutesToTime(int minutes) {
-    final normalized = minutes.clamp(0, 23 * 60 + 59);
-    return TimeOfDay(hour: normalized ~/ 60, minute: normalized % 60);
-  }
-}
-
-class _RuntimeInfoChip extends StatelessWidget {
-  final Color color;
-  final String label;
-  final String value;
-  final String? detail;
-
-  const _RuntimeInfoChip({
-    required this.color,
-    required this.label,
-    required this.value,
-    this.detail,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(ReefSpacing.sm),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(ReefRadius.md),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label,
-            style: ReefTextStyles.caption1Accent.copyWith(color: color),
-          ),
-          const SizedBox(height: ReefSpacing.xs),
-          Text(
-            value,
-            style: ReefTextStyles.caption1.copyWith(
-              color: ReefColors.textPrimary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          if (detail != null) ...[
-            const SizedBox(height: ReefSpacing.xs),
-            Text(
-              detail!,
-              style: ReefTextStyles.caption2.copyWith(
-                color: ReefColors.textSecondary,
-              ),
-            ),
-          ],
-        ],
-      ),
+      ],
     );
   }
 }
+
+// Removed unused _RuntimeStatusCard class and its helper methods
 
 class _FavoriteSceneSection extends StatelessWidget {
   final LedSceneListController controller;
@@ -697,6 +654,15 @@ class _FavoriteSceneSection extends StatelessWidget {
   }
 }
 
+/// Favorite scene card matching adapter_favorite_scene.xml layout.
+///
+/// PARITY: Mirrors reef-b-app's adapter_favorite_scene.xml structure:
+/// - MaterialButton (ElevatedButton style, but elevation=0)
+/// - cornerRadius: 8dp
+/// - padding: 8dp (start/end), 0dp (top/bottom)
+/// - icon: ic_none (or scene icon)
+/// - iconPadding: 8dp
+/// - textAppearance: body
 class _FavoriteSceneCard extends StatelessWidget {
   final LedSceneSummary scene;
   final AppLocalizations l10n;
@@ -714,46 +680,50 @@ class _FavoriteSceneCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isActive = scene.isActive;
     final String sceneName = LedSceneDisplayText.name(scene, l10n);
+    final bool isActive = scene.isActive;
+    final bool isEnabled = featuresEnabled && !isActive;
 
-    return GestureDetector(
-      onTap: featuresEnabled && !scene.isActive
-          ? () => controller.applyScene(scene.id)
-          : null,
-      child: Container(
-        width: 120,
-        padding: const EdgeInsets.all(ReefSpacing.md),
-        decoration: BoxDecoration(
-          color: isActive
+    // PARITY: adapter_favorite_scene.xml - MaterialButton with elevation=0
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: ReefSpacing.xs), // dp_8 marginStart/End
+      child: ElevatedButton.icon(
+        onPressed: isEnabled
+            ? () => controller.applyScene(scene.id)
+            : null,
+        style: ElevatedButton.styleFrom(
+          elevation: 0, // dp_0 (PARITY: app:elevation="@dimen/dp_0")
+          padding: EdgeInsets.symmetric(
+            horizontal: ReefSpacing.xs, // dp_8 paddingStart/End
+            vertical: 0, // dp_0 paddingTop/Bottom
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(ReefSpacing.xs), // dp_8 cornerRadius
+          ),
+          backgroundColor: isActive
               ? ReefColors.primary
               : ReefColors.surface,
-          borderRadius: BorderRadius.circular(ReefRadius.md),
-          border: Border.all(
-            color: isActive ? ReefColors.primary : ReefColors.outline,
-            width: isActive ? 2 : 1,
+          foregroundColor: isActive
+              ? ReefColors.onPrimary
+              : ReefColors.textPrimary,
+          disabledBackgroundColor: ReefColors.surface,
+          disabledForegroundColor: ReefColors.textSecondary,
+        ),
+        icon: Icon(
+          Icons.favorite, // TODO: Use scene icon (ic_none or scene-specific icon)
+          size: 20, // Approximate icon size
+        ),
+        label: Text(
+          sceneName.isEmpty ? l10n.ledSceneNoSetting : sceneName,
+          style: ReefTextStyles.body.copyWith(
+            color: isActive
+                ? ReefColors.onPrimary
+                : isEnabled
+                    ? ReefColors.textPrimary
+                    : ReefColors.textSecondary,
           ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.favorite,
-              color: isActive ? ReefColors.surface : ReefColors.error,
-              size: 24,
-            ),
-            const SizedBox(height: ReefSpacing.xs),
-            Text(
-              sceneName,
-              style: ReefTextStyles.caption1.copyWith(
-                color: isActive ? ReefColors.surface : ReefColors.textPrimary,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+        iconAlignment: IconAlignment.start,
       ),
     );
   }

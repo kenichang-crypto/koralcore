@@ -13,6 +13,7 @@ import '../../theme/reef_radius.dart';
 import '../../theme/reef_spacing.dart';
 import '../../theme/reef_text.dart';
 import '../../widgets/reef_backgrounds.dart';
+import '../../widgets/reef_app_bar.dart';
 import 'controllers/device_list_controller.dart';
 import 'widgets/device_card.dart';
 import 'pages/add_device_page.dart';
@@ -42,7 +43,7 @@ class _DevicePageState extends State<DevicePage> {
 
     final bool selectionMode = controller.selectionMode;
     return Scaffold(
-      appBar: AppBar(
+      appBar: ReefAppBar(
         backgroundColor: ReefColors.primary,
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
@@ -52,14 +53,16 @@ class _DevicePageState extends State<DevicePage> {
                 onPressed: controller.exitSelectionMode,
               )
             : null,
-        titleSpacing: ReefSpacing.lg,
-        title: Text(
-          selectionMode
-              ? l10n.deviceSelectionCount(controller.selectedIds.length)
-              : l10n.deviceHeader,
-          style: ReefTextStyles.title2.copyWith(
-            color: ReefColors.onPrimary,
-            fontWeight: FontWeight.w700,
+        title: Padding(
+          padding: EdgeInsets.only(left: ReefSpacing.lg),
+          child: Text(
+            selectionMode
+                ? l10n.deviceSelectionCount(controller.selectedIds.length)
+                : l10n.deviceHeader,
+            style: ReefTextStyles.title2.copyWith(
+              color: ReefColors.onPrimary,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
         actions: selectionMode

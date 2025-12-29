@@ -13,6 +13,7 @@ import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/pump_head_detail_controller.dart';
@@ -63,14 +64,16 @@ class _PumpHeadDetailView extends StatelessWidget {
 
         return Scaffold(
           backgroundColor: ReefColors.surfaceMuted,
-          appBar: AppBar(
+          appBar: ReefAppBar(
             backgroundColor: ReefColors.primary,
             foregroundColor: ReefColors.onPrimary,
             elevation: 0,
-            titleTextStyle: ReefTextStyles.title2.copyWith(
-              color: ReefColors.onPrimary,
+            title: Text(
+              l10n.dosingPumpHeadSummaryTitle(summary.headId),
+              style: ReefTextStyles.title2.copyWith(
+                color: ReefColors.onPrimary,
+              ),
             ),
-            title: Text(l10n.dosingPumpHeadSummaryTitle(summary.headId)),
             actions: [
               // Menu button (Edit settings)
               PopupMenuButton<String>(
@@ -110,7 +113,13 @@ class _PumpHeadDetailView extends StatelessWidget {
             onRefresh: controller.refresh,
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(ReefSpacing.xl),
+              // PARITY: General settings page layout - padding 16/12/16/40dp
+              padding: EdgeInsets.only(
+                left: ReefSpacing.md, // dp_16 paddingStart
+                top: ReefSpacing.sm, // dp_12 paddingTop
+                right: ReefSpacing.md, // dp_16 paddingEnd
+                bottom: 40, // dp_40 paddingBottom
+              ),
               children: [
                 if (!isConnected) ...[
                   const BleGuardBanner(),

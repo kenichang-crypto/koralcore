@@ -7,6 +7,7 @@ import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
+import '../../../widgets/reef_device_card.dart';
 
 class DeviceCard extends StatelessWidget {
   final DeviceSnapshot device;
@@ -45,16 +46,17 @@ class DeviceCard extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       curve: Curves.easeOut,
-      padding: const EdgeInsets.all(ReefSpacing.lg),
       decoration: BoxDecoration(
-        color: ReefColors.surface,
-        borderRadius: BorderRadius.circular(ReefRadius.lg),
         border: Border.all(color: borderColor, width: 1.5),
+        borderRadius: BorderRadius.circular(10.0), // dp_10
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: ReefDeviceCard(
+        backgroundColor: ReefColors.surface,
+        padding: const EdgeInsets.all(ReefSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -143,6 +145,7 @@ class DeviceCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
       ),
     );
   }

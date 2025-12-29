@@ -1468,6 +1468,54 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get weekdaySaturday => 'Saturday';
+
+  @override
+  String get group => '群組';
+
+  @override
+  String get led => 'LED';
+
+  @override
+  String get masterSlave => '主從';
+
+  @override
+  String get time => '時間點';
+
+  @override
+  String get record => '排程';
+
+  @override
+  String get ledScene => '場景';
+
+  @override
+  String get unassignedDevice => '未分配裝置';
+
+  @override
+  String get ledSceneNoSetting => '無設定';
+
+  @override
+  String get dosingAdjustListDate => '日期';
+
+  @override
+  String get dosingAdjustListVolume => '測量體積';
+
+  @override
+  String get homeSpinnerAllSink => '所有水槽';
+
+  @override
+  String get homeSpinnerFavorite => '喜愛裝置';
+
+  @override
+  String get homeSpinnerUnassigned => '未分配裝置';
+
+  @override
+  String get dosingPumpHeadNoType => '未設定';
+
+  @override
+  String get dosingPumpHeadModeScheduled => '已排程';
+
+  @override
+  String get dosingPumpHeadModeFree => '自由模式';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).

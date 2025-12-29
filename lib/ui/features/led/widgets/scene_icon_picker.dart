@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/reef_colors.dart';
-import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 
 /// SceneIconPicker
@@ -47,6 +46,12 @@ class SceneIconPicker extends StatelessWidget {
   }
 }
 
+/// Scene icon item matching adapter_scene_icon.xml layout.
+///
+/// PARITY: Mirrors reef-b-app's adapter_scene_icon.xml structure:
+/// - MaterialCardView: bg_aaa, cornerRadius 24dp, elevation 0
+/// - margin: 8dp (start/end)
+/// - ShapeableImageView: 40×40dp, padding 8dp
 class _IconItem extends StatelessWidget {
   const _IconItem({
     required this.iconId,
@@ -60,25 +65,25 @@ class _IconItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // PARITY: adapter_scene_icon.xml structure
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: ReefSpacing.xxxs),
-      child: GestureDetector(
+      padding: EdgeInsets.symmetric(horizontal: ReefSpacing.xs), // dp_8 marginStart/End
+      child: InkWell(
         onTap: onTap,
-        child: Container(
-          width: 64,
-          height: 64,
-          decoration: BoxDecoration(
-            color: isSelected
-                ? ReefColors.primary.withOpacity(0.1)
-                : ReefColors.surfaceMuted,
-            border: Border.all(
-              color: isSelected ? ReefColors.primary : ReefColors.textDisabled,
-              width: isSelected ? 2 : 1,
-            ),
-            borderRadius: BorderRadius.circular(ReefRadius.sm),
+        borderRadius: BorderRadius.circular(24), // dp_24 cornerRadius
+        child: Card(
+          color: ReefColors.surfaceMuted, // bg_aaa
+          elevation: 0, // dp_0
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24), // dp_24 cornerRadius
           ),
-          child: Center(
-            child: _getIconForId(iconId),
+          child: Padding(
+            padding: EdgeInsets.all(ReefSpacing.xs), // dp_8 padding
+            child: SizedBox(
+              width: 40, // dp_40
+              height: 40, // dp_40
+              child: _getIconForId(iconId),
+            ),
           ),
         ),
       ),

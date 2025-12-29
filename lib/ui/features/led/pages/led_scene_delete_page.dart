@@ -7,7 +7,10 @@ import '../../../../application/common/app_session.dart';
 import '../../../../application/led/delete_scene_usecase.dart';
 import '../../../components/ble_guard.dart';
 import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
+import '../../../theme/reef_text.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../../infrastructure/repositories/scene_repository_impl.dart';
 import '../controllers/led_scene_list_controller.dart';
 import '../models/led_scene_summary.dart';
@@ -63,11 +66,17 @@ class _LedSceneDeleteView extends StatelessWidget {
     final currentIsConnected = session.isBleConnected;
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: ReefAppBar(
         title: Text(l10n.ledSceneDeleteTitle),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(ReefSpacing.xl),
+        // PARITY: activity_led_scene_delete.xml rv_scene padding 16/12/16/12dp
+        padding: EdgeInsets.only(
+          left: ReefSpacing.md, // dp_16 paddingStart
+          top: ReefSpacing.sm, // dp_12 paddingTop
+          right: ReefSpacing.md, // dp_16 paddingEnd
+          bottom: ReefSpacing.sm, // dp_12 paddingBottom
+        ),
         children: [
           Text(
             l10n.ledSceneDeleteDescription,
@@ -204,6 +213,14 @@ class _LocalSceneInfo {
   });
 }
 
+/// Scene select card matching adapter_scene_select.xml layout.
+///
+/// PARITY: Mirrors reef-b-app's adapter_scene_select.xml structure:
+/// - MaterialCardView: marginTop 12dp, selectableItemBackground, bg_aaa background, cornerRadius 8dp, elevation 0dp
+/// - Padding: 8/6/12/6dp
+/// - img_icon: 24×24dp
+/// - tv_name: body, text_aaaa, marginStart 8dp
+/// - img_check: 20×20dp, visibility gone (for selection mode)
 class _SceneDeleteCard extends StatelessWidget {
   final _LocalSceneInfo scene;
   final String deviceId;
@@ -222,15 +239,62 @@ class _SceneDeleteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    
+    // PARITY: adapter_scene_select.xml structure
     return Card(
-      child: ListTile(
-        title: Text(scene.name),
-        subtitle: Text(l10n.ledSceneIdLabel(scene.sceneIdString)),
-        trailing: IconButton(
-          icon: Icon(Icons.delete, color: ReefColors.danger),
-          onPressed: isConnected
-              ? () => _confirmDelete(context, l10n)
-              : () => showBleGuardDialog(context),
+      margin: EdgeInsets.only(top: ReefSpacing.md), // dp_12 marginTop
+      color: ReefColors.surfaceMuted, // bg_aaa background
+      elevation: 0, // dp_0
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.sm), // dp_8 cornerRadius
+      ),
+      child: InkWell(
+        onTap: isConnected
+            ? () => _confirmDelete(context, l10n)
+            : () => showBleGuardDialog(context),
+        borderRadius: BorderRadius.circular(ReefRadius.sm),
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: ReefSpacing.xs, // dp_8 paddingStart
+            top: ReefSpacing.xxxs, // dp_6 paddingTop
+            right: ReefSpacing.md, // dp_12 paddingEnd
+            bottom: ReefSpacing.xxxs, // dp_6 paddingBottom
+          ),
+          child: Row(
+            children: [
+              // Scene icon (img_icon) - 24×24dp
+              Icon(
+                Icons.light_mode, // TODO: Use scene-specific icon based on scene.iconId
+                size: 24, // dp_24
+                color: ReefColors.textPrimary,
+              ),
+              SizedBox(width: ReefSpacing.xs), // dp_8 marginStart
+              // Scene name (tv_name) - body, text_aaaa
+              Expanded(
+                child: Text(
+                  scene.name.isEmpty ? l10n.ledSceneNoSetting : scene.name,
+                  style: ReefTextStyles.body.copyWith(
+                    color: ReefColors.textPrimary, // text_aaaa
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              // Delete button (replacing img_check)
+              IconButton(
+                icon: Icon(Icons.delete, color: ReefColors.danger),
+                iconSize: 20, // dp_20
+                onPressed: isConnected
+                    ? () => _confirmDelete(context, l10n)
+                    : () => showBleGuardDialog(context),
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints(
+                  minWidth: 20,
+                  minHeight: 20,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

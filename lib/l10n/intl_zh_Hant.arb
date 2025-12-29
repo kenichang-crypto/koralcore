@@ -317,5 +317,21 @@
   "dosingScheduleEditInvalidDose": "輸入大於零的劑量。",
   "dosingScheduleEditInvalidWindow": "結束時間必須晚於開始時間。",
   "dosingScheduleEditTemplateDaily": "使用日平均模板",
-  "dosingScheduleEditTemplateCustom": "使用自定義窗口模板"
+  "dosingScheduleEditTemplateCustom": "使用自定義窗口模板",
+  "group": "群組",
+  "led": "LED",
+  "masterSlave": "主從",
+  "time": "時間點",
+  "record": "排程",
+  "ledScene": "場景",
+  "unassignedDevice": "未分配裝置",
+  "ledSceneNoSetting": "無設定",
+  "dosingAdjustListDate": "日期",
+  "dosingAdjustListVolume": "測量體積",
+  "homeSpinnerAllSink": "所有水槽",
+  "homeSpinnerFavorite": "喜愛裝置",
+  "homeSpinnerUnassigned": "未分配裝置",
+  "dosingPumpHeadNoType": "未設定",
+  "dosingPumpHeadModeScheduled": "已排程",
+  "dosingPumpHeadModeFree": "自由模式"
 }

@@ -12,6 +12,7 @@ import '../../theme/reef_radius.dart';
 import '../../theme/reef_spacing.dart';
 import '../../theme/reef_text.dart';
 import '../../widgets/reef_backgrounds.dart';
+import '../../widgets/reef_app_bar.dart';
 import '../device/controllers/device_list_controller.dart';
 
 class BluetoothPage extends StatefulWidget {
@@ -66,7 +67,7 @@ class _BluetoothPageState extends State<BluetoothPage> {
     });
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: ReefAppBar(
         backgroundColor: ReefColors.primary,
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
@@ -180,7 +181,7 @@ class _DeviceSections extends StatelessWidget {
           const _SavedEmptyCard()
         else ...[
           for (int i = 0; i < savedDevices.length; i++) ...[
-            _BtDeviceTile(
+            _BtMyDeviceTile(
               device: savedDevices[i],
               onConnect: () => controller.connect(savedDevices[i].id),
               onDisconnect: () => controller.disconnect(savedDevices[i].id),
@@ -313,6 +314,14 @@ class _BleBlockedState extends StatelessWidget {
   }
 }
 
+/// Bluetooth device tile matching adapter_ble_scan.xml layout.
+///
+/// PARITY: Mirrors reef-b-app's adapter_ble_scan.xml structure:
+/// - Outer ConstraintLayout with selectableItemBackground
+/// - Inner ConstraintLayout with bg_aaaa background, padding 16/8dp
+/// - tv_ble_type: caption2_accent, text_aa
+/// - tv_ble_name: body_accent, text_aaaa
+/// - MaterialDivider: 1dp, bg_press
 class _BtDeviceTile extends StatelessWidget {
   final DeviceSnapshot device;
   final VoidCallback onConnect;
@@ -326,141 +335,235 @@ class _BtDeviceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final bool isConnected = device.isConnected;
-    final bool isConnecting = device.isConnecting;
-    final String statusLabel = isConnected
-        ? l10n.deviceStateConnected
-        : isConnecting
-        ? l10n.deviceStateConnecting
-        : l10n.deviceStateDisconnected;
-    final Color statusColor = isConnected
-        ? ReefColors.success
-        : isConnecting
-        ? ReefColors.warning
-        : ReefColors.textSecondary;
+    final _DeviceKind kind = _DeviceKindHelper.fromName(device.name);
+    final String deviceType = kind == _DeviceKind.led
+        ? 'LED' // TODO: Use l10n.led when available
+        : 'DROP'; // TODO: Use l10n.drop when available
 
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: ReefSpacing.lg,
-        vertical: ReefSpacing.md,
-      ),
-      decoration: BoxDecoration(
-        color: ReefColors.surface,
-        borderRadius: BorderRadius.circular(ReefRadius.lg),
-      ),
+    // PARITY: adapter_ble_scan.xml structure
+    return InkWell(
+      onTap: device.isConnected ? onDisconnect : onConnect,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            children: [
-              _DeviceIcon(device: device),
-              const SizedBox(width: ReefSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      device.name,
-                      style: ReefTextStyles.subheaderAccent.copyWith(
-                        color: ReefColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: ReefSpacing.xs),
-                    Text(
-                      statusLabel,
-                      style: ReefTextStyles.caption1.copyWith(
-                        color: statusColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              _DeviceActionButton(
-                isConnected: isConnected,
-                isConnecting: isConnecting,
-                onConnect: onConnect,
-                onDisconnect: onDisconnect,
-                l10n: l10n,
-              ),
-            ],
-          ),
-          if (device.rssi != null) ...[
-            const SizedBox(height: ReefSpacing.sm),
-            Text(
-              'RSSI ${device.rssi} dBm',
-              style: ReefTextStyles.caption1.copyWith(
-                color: ReefColors.textSecondary,
-              ),
+          // Inner container (bg_aaaa background)
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.only(
+              left: ReefSpacing.md, // dp_16
+              top: ReefSpacing.xs, // dp_8
+              right: ReefSpacing.md, // dp_16
+              bottom: ReefSpacing.xs, // dp_8
             ),
-          ],
+            decoration: BoxDecoration(
+              color: ReefColors.surface, // bg_aaaa
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Device type (tv_ble_type)
+                // PARITY: caption2_accent, text_aa
+                Text(
+                  deviceType,
+                  style: ReefTextStyles.caption2Accent.copyWith(
+                    color: ReefColors.textSecondary, // text_aa
+                  ),
+                ),
+                // Device name (tv_ble_name)
+                // PARITY: body_accent, text_aaaa
+                Text(
+                  device.name,
+                  style: ReefTextStyles.bodyAccent.copyWith(
+                    color: ReefColors.textPrimary, // text_aaaa
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          // Divider (MaterialDivider)
+          // PARITY: 1dp height, bg_press color
+          Divider(
+            height: 1, // dp_1
+            thickness: 1, // dp_1
+            color: ReefColors.surfacePressed, // bg_press
+          ),
         ],
       ),
     );
   }
 }
 
-class _DeviceIcon extends StatelessWidget {
+enum _DeviceKind { led, doser }
+
+/// BLE My Device tile matching adapter_ble_my_device.xml layout.
+///
+/// PARITY: Mirrors reef-b-app's adapter_ble_my_device.xml structure:
+/// - ConstraintLayout: selectableItemBackground
+/// - Inner: white background, padding 16/8/16/8dp
+/// - tv_ble_type: caption2_accent, text_aa
+/// - tv_name: body_accent, text_aa
+/// - tv_position: caption2, text_aa
+/// - tv_group: caption2, text_aa (visibility gone by default)
+/// - img_led_master: 12×12dp (ic_master)
+/// - img_ble: 48×32dp (ic_disconnect_background or ic_connect_background)
+/// - Divider: bg_press
+class _BtMyDeviceTile extends StatelessWidget {
   final DeviceSnapshot device;
-
-  const _DeviceIcon({required this.device});
-
-  @override
-  Widget build(BuildContext context) {
-    // parity: 優先用 type 判斷
-    final type = device.type?.toLowerCase();
-    final bool isLed =
-        type == 'led' ||
-        (type == null && device.name.toLowerCase().contains('led'));
-    return Container(
-      width: 52,
-      height: 52,
-      decoration: BoxDecoration(
-        color: ReefColors.primary.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(ReefRadius.lg),
-      ),
-      child: Center(
-        child: Image.asset(
-          isLed ? kDeviceLedIcon : kDeviceDoserIcon,
-          width: 30,
-          height: 30,
-        ),
-      ),
-    );
-  }
-}
-
-class _DeviceActionButton extends StatelessWidget {
-  final bool isConnected;
-  final bool isConnecting;
   final VoidCallback onConnect;
   final VoidCallback onDisconnect;
-  final AppLocalizations l10n;
 
-  const _DeviceActionButton({
-    required this.isConnected,
-    required this.isConnecting,
+  const _BtMyDeviceTile({
+    required this.device,
     required this.onConnect,
     required this.onDisconnect,
-    required this.l10n,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (isConnected) {
-      return OutlinedButton(
-        onPressed: onDisconnect,
-        child: Text(l10n.deviceActionDisconnect),
-      );
-    }
-    return FilledButton(
-      onPressed: isConnecting ? null : onConnect,
-      child: Text(
-        isConnecting ? l10n.deviceStateConnecting : l10n.bluetoothConnect,
+    final l10n = AppLocalizations.of(context);
+    final _DeviceKind kind = _DeviceKindHelper.fromName(device.name);
+    final String deviceType = kind == _DeviceKind.led
+        ? l10n.sectionLedTitle
+        : l10n.sectionDosingTitle;
+    
+    // TODO: Get position and group from DeviceSnapshot when available
+    final String? positionName = null; // TODO: Get from device.sinkId
+    final String? groupName = null; // TODO: Get from device.group
+    final bool isMaster = device.isMaster;
+    final bool isConnected = device.isConnected;
+
+    // PARITY: adapter_ble_my_device.xml structure
+    return InkWell(
+      onTap: isConnected ? onDisconnect : onConnect,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Inner container (white background)
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.only(
+              left: ReefSpacing.md, // dp_16 paddingStart
+              top: ReefSpacing.xs, // dp_8 paddingTop
+              right: ReefSpacing.md, // dp_16 paddingEnd
+              bottom: ReefSpacing.xs, // dp_8 paddingBottom
+            ),
+            decoration: BoxDecoration(
+              color: ReefColors.surface, // white background
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Left column (texts)
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Device type (tv_ble_type) - caption2_accent, text_aa
+                      Text(
+                        deviceType,
+                        style: ReefTextStyles.caption2Accent.copyWith(
+                          color: ReefColors.textSecondary, // text_aa
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      // Device name (tv_name) - body_accent, text_aa
+                      Text(
+                        device.name,
+                        style: ReefTextStyles.bodyAccent.copyWith(
+                          color: ReefColors.textSecondary, // text_aa
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      // Position and group row
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Position (tv_position) - caption2, text_aa
+                          if (positionName != null) ...[
+                            Text(
+                              positionName,
+                              style: ReefTextStyles.caption2.copyWith(
+                                color: ReefColors.textSecondary, // text_aa
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                          SizedBox(width: ReefSpacing.xs), // dp_4 marginStart
+                          // Group (tv_group) - caption2, text_aa (visibility gone by default)
+                          if (groupName != null) ...[
+                            Text(
+                              groupName,
+                              style: ReefTextStyles.caption2.copyWith(
+                                color: ReefColors.textSecondary, // text_aa
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            SizedBox(width: ReefSpacing.xs), // dp_4 marginStart
+                          ],
+                          // Master icon (img_led_master) - 12×12dp
+                          if (isMaster)
+                            Image.asset(
+                              'assets/icons/ic_master.png', // TODO: Add icon asset
+                              width: 12, // dp_12
+                              height: 12, // dp_12
+                              errorBuilder: (context, error, stackTrace) => Icon(
+                                Icons.star,
+                                size: 12,
+                                color: ReefColors.primary,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: ReefSpacing.xs), // dp_4 marginEnd
+                // BLE status icon (img_ble) - 48×32dp
+                Image.asset(
+                  isConnected
+                      ? 'assets/icons/ic_connect_background.png' // TODO: Add icon asset
+                      : 'assets/icons/ic_disconnect_background.png', // TODO: Add icon asset
+                  width: 48, // dp_48
+                  height: 32, // dp_32
+                  errorBuilder: (context, error, stackTrace) => Icon(
+                    isConnected ? Icons.bluetooth_connected : Icons.bluetooth_disabled,
+                    size: 32,
+                    color: isConnected ? ReefColors.success : ReefColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Divider (bg_press)
+          Divider(
+            height: 1, // dp_1
+            thickness: 1, // dp_1
+            color: ReefColors.surfacePressed, // bg_press
+          ),
+        ],
       ),
     );
   }
 }
+
+class _DeviceKindHelper {
+  static _DeviceKind fromName(String name) {
+    final String lower = name.toLowerCase();
+    if (lower.contains('led')) {
+      return _DeviceKind.led;
+    }
+    return _DeviceKind.doser;
+  }
+}
+
 
 class _SectionHeader extends StatelessWidget {
   final String title;

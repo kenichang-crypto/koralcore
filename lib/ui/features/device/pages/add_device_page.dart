@@ -6,8 +6,10 @@ import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../../sink/pages/sink_position_page.dart';
@@ -91,13 +93,10 @@ class _AddDeviceViewState extends State<_AddDeviceView> {
       },
       child: Scaffold(
         backgroundColor: ReefColors.surfaceMuted,
-        appBar: AppBar(
+        appBar: ReefAppBar(
           backgroundColor: ReefColors.primary,
           foregroundColor: ReefColors.onPrimary,
           elevation: 0,
-          titleTextStyle: ReefTextStyles.title2.copyWith(
-            color: ReefColors.onPrimary,
-          ),
           leading: TextButton(
             onPressed: () async {
               await controller.disconnect();
@@ -110,7 +109,12 @@ class _AddDeviceViewState extends State<_AddDeviceView> {
               style: TextStyle(color: ReefColors.onPrimary),
             ),
           ),
-          title: Text(l10n.addDeviceTitle),
+          title: Text(
+            l10n.addDeviceTitle,
+            style: ReefTextStyles.title2.copyWith(
+              color: ReefColors.onPrimary,
+            ),
+          ),
           actions: [
             TextButton(
               onPressed: controller.isLoading || !isConnected
@@ -125,17 +129,26 @@ class _AddDeviceViewState extends State<_AddDeviceView> {
         ),
         body: controller.isLoading
             ? const Center(child: CircularProgressIndicator())
-            : ListView(
-                padding: const EdgeInsets.all(ReefSpacing.lg),
-                children: [
-                  if (!isConnected) ...[
-                    const BleGuardBanner(),
-                    const SizedBox(height: ReefSpacing.lg),
+            : Padding(
+                // PARITY: activity_add_device.xml layout_add_device padding 16/12/16/12dp
+                padding: EdgeInsets.only(
+                  left: ReefSpacing.md, // dp_16 paddingStart
+                  top: ReefSpacing.md, // dp_12 paddingTop
+                  right: ReefSpacing.md, // dp_16 paddingEnd
+                  bottom: ReefSpacing.md, // dp_12 paddingBottom
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (!isConnected) ...[
+                      const BleGuardBanner(),
+                      SizedBox(height: ReefSpacing.md), // dp_16 marginTop
+                    ],
+                    _buildNameSection(context, controller, l10n),
+                    SizedBox(height: ReefSpacing.md), // dp_16 marginTop
+                    _buildSinkPositionSection(context, controller, l10n),
                   ],
-                  _buildNameSection(context, controller, l10n),
-                  const SizedBox(height: ReefSpacing.lg),
-                  _buildSinkPositionSection(context, controller, l10n),
-                ],
+                ),
               ),
       ),
     );
@@ -146,30 +159,52 @@ class _AddDeviceViewState extends State<_AddDeviceView> {
     AddDeviceController controller,
     AppLocalizations l10n,
   ) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(ReefSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.deviceName,
-              style: ReefTextStyles.title3,
-            ),
-            const SizedBox(height: ReefSpacing.sm),
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                hintText: l10n.deviceNameHint,
-                border: const OutlineInputBorder(),
-              ),
-              onChanged: (value) {
-                controller.setDeviceName(value);
-              },
-            ),
-          ],
+    // PARITY: activity_add_device.xml tv_device_name_title + layout_name
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // PARITY: tv_device_name_title - caption1, 0dp width (constrained)
+        Text(
+          l10n.deviceName,
+          style: ReefTextStyles.caption1.copyWith(
+            color: ReefColors.textSecondary,
+          ),
         ),
-      ),
+        // PARITY: layout_name - marginTop 4dp, TextInputLayout style
+        SizedBox(height: ReefSpacing.xs), // dp_4 marginTop
+        TextField(
+          controller: _nameController,
+          decoration: InputDecoration(
+            // PARITY: TextInputLayout style - bg_aaa, 4dp cornerRadius, no border
+            filled: true,
+            fillColor: ReefColors.surfaceMuted, // bg_aaa (#F7F7F7)
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(ReefRadius.xs), // dp_4
+              borderSide: BorderSide.none, // boxStrokeWidth 0dp
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(ReefRadius.xs),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(ReefRadius.xs),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: ReefSpacing.md,
+              vertical: ReefSpacing.sm,
+            ),
+          ),
+          // PARITY: edt_name - body textAppearance
+          style: ReefTextStyles.body.copyWith(
+            color: ReefColors.textPrimary,
+          ),
+          onChanged: (value) {
+            controller.setDeviceName(value);
+          },
+          maxLines: 1,
+        ),
+      ],
     );
   }
 
@@ -178,25 +213,74 @@ class _AddDeviceViewState extends State<_AddDeviceView> {
     AddDeviceController controller,
     AppLocalizations l10n,
   ) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(ReefSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    // PARITY: activity_add_device.xml tv_sink_position_title + layout_sink_position
+    // layout_sink_position uses TextInputLayout with endIcon (ic_next) and enabled="false"
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // PARITY: tv_sink_position_title - marginTop 16dp, caption1
+        Text(
+          l10n.sinkPosition,
+          style: ReefTextStyles.caption1.copyWith(
+            color: ReefColors.textSecondary,
+          ),
+        ),
+        // PARITY: layout_sink_position - marginTop 4dp, TextInputLayout style with endIcon
+        // view_sink_position - selectableItemBackground overlay
+        SizedBox(height: ReefSpacing.xs), // dp_4 marginTop
+        Stack(
           children: [
-            Text(
-              l10n.sinkPosition,
-              style: ReefTextStyles.title3,
+            TextField(
+              controller: TextEditingController(
+                text: _sinkName ?? l10n.sinkPositionNotSet,
+              ),
+              enabled: false, // enabled="false" in XML
+              decoration: InputDecoration(
+                // PARITY: TextInputLayout style - bg_aaa, 4dp cornerRadius, no border
+                filled: true,
+                fillColor: ReefColors.surfaceMuted, // bg_aaa (#F7F7F7)
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(ReefRadius.xs), // dp_4
+                  borderSide: BorderSide.none, // boxStrokeWidth 0dp
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(ReefRadius.xs),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(ReefRadius.xs),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: ReefSpacing.md,
+                  vertical: ReefSpacing.sm,
+                ),
+                // PARITY: endIcon (ic_next) - endIconMode="custom", endIconTint="text_aaa"
+                suffixIcon: Icon(
+                  Icons.chevron_right, // ic_next
+                  size: 20,
+                  color: ReefColors.textTertiary, // text_aaa
+                ),
+              ),
+              // PARITY: edt_sink_position - body textAppearance, textColor="text_aaaa"
+              style: ReefTextStyles.body.copyWith(
+                color: ReefColors.textPrimary, // text_aaaa
+              ),
+              maxLines: 1,
             ),
-            const SizedBox(height: ReefSpacing.sm),
-            ListTile(
-              title: Text(_sinkName ?? l10n.sinkPositionNotSet),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _selectSinkPosition(context, controller, l10n),
+            // PARITY: view_sink_position - selectableItemBackground overlay
+            Positioned.fill(
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => _selectSinkPosition(context, controller, l10n),
+                  borderRadius: BorderRadius.circular(ReefRadius.xs),
+                ),
+              ),
             ),
           ],
         ),
-      ),
+      ],
     );
   }
 

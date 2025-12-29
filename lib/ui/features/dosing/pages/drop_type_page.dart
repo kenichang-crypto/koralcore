@@ -9,6 +9,7 @@ import '../../../../domain/drop_type/drop_type.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/drop_type_controller.dart';
@@ -63,18 +64,20 @@ class _DropTypeViewState extends State<_DropTypeView> {
 
     return Scaffold(
       backgroundColor: ReefColors.surfaceMuted,
-      appBar: AppBar(
+      appBar: ReefAppBar(
         backgroundColor: ReefColors.primary,
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
-        titleTextStyle: ReefTextStyles.title2.copyWith(
-          color: ReefColors.onPrimary,
-        ),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(l10n.dropTypeTitle),
+        title: Text(
+          l10n.dropTypeTitle,
+          style: ReefTextStyles.title2.copyWith(
+            color: ReefColors.onPrimary,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -94,7 +97,9 @@ class _DropTypeViewState extends State<_DropTypeView> {
                 if (!isConnected) ...[const BleGuardBanner()],
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.all(ReefSpacing.lg),
+                    // PARITY: activity_drop_type.xml rv_drop_type
+                    // RecyclerView with no padding (adapter items handle their own spacing)
+                    padding: EdgeInsets.zero,
                     children: [
                       // Add "No" option
                       _buildDropTypeTile(
@@ -127,6 +132,14 @@ class _DropTypeViewState extends State<_DropTypeView> {
     );
   }
 
+  /// Drop type tile matching adapter_drop_type.xml layout.
+  ///
+  /// PARITY: Mirrors reef-b-app's adapter_drop_type.xml structure:
+  /// - ConstraintLayout: padding 16/0/16/0dp
+  /// - RadioButton
+  /// - tv_name: body, text_aaaa
+  /// - btn_edit: 24×24dp (optional)
+  /// - Divider: bg_press
   Widget _buildDropTypeTile(
     BuildContext context,
     DropTypeController controller,
@@ -135,37 +148,9 @@ class _DropTypeViewState extends State<_DropTypeView> {
     AppLocalizations l10n,
   ) {
     final int id = dropType?.id ?? 0;
-    final bool isSelected = _selectedId == id;
 
-    return ListTile(
-      title: Text(name),
-      selected: isSelected,
-      selectedTileColor: ReefColors.primary.withOpacity(0.1),
-      trailing: dropType != null
-          ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () => _showEditDropTypeDialog(
-                    context,
-                    controller,
-                    dropType,
-                    l10n,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => _showDeleteDropTypeDialog(
-                    context,
-                    controller,
-                    dropType,
-                    l10n,
-                  ),
-                ),
-              ],
-            )
-          : null,
+    // PARITY: adapter_drop_type.xml structure
+    return InkWell(
       onTap: () {
         setState(() {
           _selectedId = id;
@@ -174,6 +159,76 @@ class _DropTypeViewState extends State<_DropTypeView> {
       onLongPress: dropType != null
           ? () => _showDeleteDropTypeDialog(context, controller, dropType, l10n)
           : null,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(
+              horizontal: ReefSpacing.md, // dp_16 paddingStart/End
+            ),
+            child: Row(
+              children: [
+                // RadioButton
+                Radio<int>(
+                  value: id,
+                  groupValue: _selectedId,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedId = value;
+                    });
+                  },
+                ),
+                SizedBox(width: ReefSpacing.md), // dp_16 marginEnd
+                // Name (tv_name) - body, text_aaaa
+                Expanded(
+                  child: Text(
+                    name,
+                    style: ReefTextStyles.body.copyWith(
+                      color: ReefColors.textPrimary, // text_aaaa
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                // Edit button (btn_edit) - 24×24dp (optional)
+                if (dropType != null) ...[
+                  SizedBox(width: ReefSpacing.md), // dp_16 marginEnd
+                  IconButton(
+                    icon: Image.asset(
+                      'assets/icons/ic_edit.png', // TODO: Add icon asset
+                      width: 24, // dp_24
+                      height: 24, // dp_24
+                      errorBuilder: (context, error, stackTrace) => Icon(
+                        Icons.edit,
+                        size: 24,
+                        color: ReefColors.textPrimary,
+                      ),
+                    ),
+                    onPressed: () => _showEditDropTypeDialog(
+                      context,
+                      controller,
+                      dropType,
+                      l10n,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(
+                      minWidth: 24,
+                      minHeight: 24,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          // Divider (bg_press)
+          Divider(
+            height: 1, // dp_1
+            thickness: 1, // dp_1
+            color: ReefColors.surfacePressed, // bg_press
+          ),
+        ],
+      ),
     );
   }
 

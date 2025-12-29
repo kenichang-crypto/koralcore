@@ -6,7 +6,9 @@ import '../../../../application/common/app_context.dart';
 import '../../../../domain/sink/sink.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
+import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_backgrounds.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/error_state_widget.dart';
 import '../../../components/loading_state_widget.dart';
 import '../../../components/empty_state_widget.dart';
@@ -38,7 +40,7 @@ class _SinkManagerView extends StatelessWidget {
     return Consumer<SinkManagerController>(
       builder: (context, controller, _) {
         return Scaffold(
-          appBar: AppBar(
+          appBar: ReefAppBar(
             title: Text(l10n.sinkManagerTitle),
           ),
           floatingActionButton: FloatingActionButton(
@@ -81,8 +83,10 @@ class _SinkManagerView extends StatelessWidget {
       );
     }
 
+    // PARITY: activity_sink_manager.xml rv_sink_manager
+    // RecyclerView with marginTop 13dp, no padding (padding is handled by adapter items)
     return ListView.builder(
-      padding: const EdgeInsets.all(ReefSpacing.xl),
+      padding: EdgeInsets.zero, // No padding - adapter items handle their own spacing
       itemCount: controller.sinks.length,
       itemBuilder: (context, index) {
         final sink = controller.sinks[index];
@@ -216,6 +220,15 @@ class _SinkManagerView extends StatelessWidget {
   }
 }
 
+/// Sink card matching adapter_sink.xml layout.
+///
+/// PARITY: Mirrors reef-b-app's adapter_sink.xml structure:
+/// - ConstraintLayout: selectableItemBackground
+/// - Inner: white background, padding 16/8/16/8dp
+/// - tv_sink_name: caption1_accent
+/// - tv_device_amount: caption1, text_aa
+/// - btn_edit: 24×24dp
+/// - Two dividers: bg_aaa (full width) and bg_press (with 16dp margin)
 class _SinkCard extends StatelessWidget {
   final Sink sink;
   final VoidCallback? onTap;
@@ -230,27 +243,96 @@ class _SinkCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Card(
-      margin: const EdgeInsets.only(bottom: ReefSpacing.sm),
-      child: ListTile(
-        leading: Icon(
-          Icons.water_drop,
-          color: sink.type == SinkType.defaultSink
-              ? ReefColors.primary
-              : ReefColors.textSecondary,
-        ),
-        title: Text(sink.name),
-        subtitle: Text(
-          l10n.sinkDeviceCount(sink.deviceIds.length),
-        ),
-        trailing: sink.type == SinkType.defaultSink
-            ? Chip(
-                label: Text(l10n.sinkTypeDefault),
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-              )
-            : const Icon(Icons.chevron_right),
-        onTap: sink.type == SinkType.defaultSink ? null : onTap,
-        onLongPress: sink.type == SinkType.defaultSink ? null : onLongPress,
+    final String deviceCount = l10n.sinkDeviceCount(sink.deviceIds.length);
+
+    // PARITY: adapter_sink.xml structure
+    return InkWell(
+      onTap: sink.type == SinkType.defaultSink ? null : onTap,
+      onLongPress: sink.type == SinkType.defaultSink ? null : onLongPress,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Inner container (white background)
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.only(
+              left: ReefSpacing.md, // dp_16 paddingStart
+              top: ReefSpacing.xs, // dp_8 paddingTop
+              right: ReefSpacing.md, // dp_16 paddingEnd
+              bottom: ReefSpacing.xs, // dp_8 paddingBottom
+            ),
+            decoration: BoxDecoration(
+              color: ReefColors.surface, // white
+            ),
+            child: Row(
+              children: [
+                // Sink name (tv_sink_name) - caption1_accent
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        sink.name,
+                        style: ReefTextStyles.caption1Accent.copyWith(
+                          color: ReefColors.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: ReefSpacing.xs), // dp_8 marginTop (implicit)
+                      // Device amount (tv_device_amount) - caption1, text_aa
+                      Text(
+                        deviceCount,
+                        style: ReefTextStyles.caption1.copyWith(
+                          color: ReefColors.textSecondary, // text_aa
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: ReefSpacing.xs), // dp_4 marginEnd
+                // Edit button (btn_edit) - 24×24dp
+                if (sink.type != SinkType.defaultSink)
+                  IconButton(
+                    icon: Image.asset(
+                      'assets/icons/ic_edit.png', // TODO: Add icon asset
+                      width: 24, // dp_24
+                      height: 24, // dp_24
+                      errorBuilder: (context, error, stackTrace) => Icon(
+                        Icons.edit,
+                        size: 24,
+                        color: ReefColors.textPrimary,
+                      ),
+                    ),
+                    onPressed: onTap,
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(
+                      minWidth: 24,
+                      minHeight: 24,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          // First divider (bg_aaa, full width)
+          Divider(
+            height: 1, // dp_1
+            thickness: 1, // dp_1
+            color: ReefColors.surfaceMuted, // bg_aaa
+          ),
+          // Second divider (bg_press, with 16dp margin)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: ReefSpacing.md), // dp_16 marginStart/End
+            child: Divider(
+              height: 1, // dp_1
+              thickness: 1, // dp_1
+              color: ReefColors.surfacePressed, // bg_press
+            ),
+          ),
+        ],
       ),
     );
   }

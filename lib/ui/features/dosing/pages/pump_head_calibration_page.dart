@@ -9,6 +9,7 @@ import '../../../../application/common/app_error_code.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_radius.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/ble_guard.dart';
 import '../../../components/error_state_widget.dart';
 import '../../../components/loading_state_widget.dart';
@@ -61,7 +62,7 @@ class _PumpHeadCalibrationView extends StatelessWidget {
         }
 
         return Scaffold(
-          appBar: AppBar(
+          appBar: ReefAppBar(
             title: Text(l10n.dosingCalibrationHistoryTitle),
             actions: [
               IconButton(
@@ -81,7 +82,8 @@ class _PumpHeadCalibrationView extends StatelessWidget {
             onRefresh: controller.refresh,
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(ReefSpacing.xl),
+              // PARITY: activity_drop_head_adjust.xml padding 16dp
+              padding: EdgeInsets.all(ReefSpacing.md), // dp_16 padding
               children: [
                 Text(
                   l10n.dosingPumpHeadSummaryTitle(headId.toUpperCase()),

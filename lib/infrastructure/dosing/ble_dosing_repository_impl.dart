@@ -65,7 +65,11 @@ class BleDosingRepositoryImpl implements DosingRepository {
     BleWriteOptions? writeOptions,
   }) : _bleAdapter = bleAdapter,
        _commandBuilder = commandBuilder ?? const DosingCommandBuilder(),
-       _writeOptions = writeOptions ?? const BleWriteOptions() {
+       _writeOptions = writeOptions ??
+           const BleWriteOptions(
+             // PARITY: reef-b-app uses WRITE_TYPE_NO_RESPONSE
+             mode: BleWriteMode.withoutResponse,
+           ) {
     _notifySubscription = (notifyStream ?? BleNotifyBus.instance.stream).listen(
       _handlePacket,
       onError: _handleNotifyError,
@@ -167,6 +171,10 @@ class BleDosingRepositoryImpl implements DosingRepository {
     if (payload.isNotEmpty && payload[0] >= 0x60) {
       final _DeviceSession session = _ensureSession(deviceId);
       _ensureDoseCapabilityConfirmed(session);
+      
+      // PARITY: reef-b-app adds 200ms delay before sending Dosing commands (>= 0x60)
+      // See BLEManager.kt: if (value.first() >= 0x60) { delay(200) }
+      await Future<void>.delayed(const Duration(milliseconds: 200));
     }
 
     try {

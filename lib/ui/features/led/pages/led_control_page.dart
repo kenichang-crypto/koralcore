@@ -7,6 +7,7 @@ import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/error_state_widget.dart';
 import '../../../components/loading_state_widget.dart';
@@ -45,7 +46,7 @@ class _LedControlView extends StatelessWidget {
         final bool isConnected = session.isBleConnected;
 
         return Scaffold(
-          appBar: AppBar(title: Text(l10n.ledControlTitle)),
+          appBar: ReefAppBar(title: Text(l10n.ledControlTitle)),
           body: controller.isLoading
               ? const LoadingStateWidget.center()
               : ListView(

@@ -8,6 +8,7 @@ import '../../../../application/common/app_session.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/led_master_setting_controller.dart';
@@ -50,18 +51,20 @@ class _LedMasterSettingView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: ReefColors.surfaceMuted,
-      appBar: AppBar(
+      appBar: ReefAppBar(
         backgroundColor: ReefColors.primary,
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
-        titleTextStyle: ReefTextStyles.title2.copyWith(
-          color: ReefColors.onPrimary,
-        ),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(l10n.ledMasterSettingTitle),
+        title: Text(
+          l10n.ledMasterSettingTitle,
+          style: ReefTextStyles.title2.copyWith(
+            color: ReefColors.onPrimary,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -75,12 +78,28 @@ class _LedMasterSettingView extends StatelessWidget {
       body: controller.isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
-              padding: const EdgeInsets.all(ReefSpacing.lg),
+              // PARITY: activity_led_master_setting.xml ScrollView + ConstraintLayout
+              // layout_title has padding 16/8/16, RecyclerView has no padding
+              padding: EdgeInsets.zero,
               children: [
                 if (!isConnected) ...[
-                  const BleGuardBanner(),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: ReefSpacing.md),
+                    child: const BleGuardBanner(),
+                  ),
                   const SizedBox(height: ReefSpacing.lg),
                 ],
+                // PARITY: layout_title padding 16/8/16, marginTop 12dp
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: ReefSpacing.md, // dp_16 paddingStart
+                    top: ReefSpacing.sm, // dp_12 marginTop
+                    right: ReefSpacing.md, // dp_16 paddingEnd
+                    bottom: ReefSpacing.xs, // dp_8 paddingTop (from layout_title)
+                  ),
+                  child: _buildTitleSection(l10n),
+                ),
+                // PARITY: RecyclerView with no padding (adapter items handle spacing)
                 ...controller.groups.map(
                   (group) => _buildGroupSection(
                     context,
@@ -95,6 +114,41 @@ class _LedMasterSettingView extends StatelessWidget {
     );
   }
 
+  Widget _buildTitleSection(AppLocalizations l10n) {
+    // PARITY: layout_title structure with tv_group_title, tv_name_title, tv_master_title
+    return Row(
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: 10), // dp_10 paddingStart
+          child: Text(
+            l10n.group, // PARITY: @string/group
+            style: ReefTextStyles.caption1.copyWith(
+              color: ReefColors.textSecondary, // text_aaa
+            ),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(left: 10), // dp_10 paddingStart
+            child: Text(
+              l10n.led, // PARITY: @string/led
+              style: ReefTextStyles.caption1.copyWith(
+                color: ReefColors.textSecondary, // text_aaa
+              ),
+            ),
+          ),
+        ),
+        Text(
+          l10n.masterSlave, // PARITY: @string/master_slave
+          style: ReefTextStyles.caption1.copyWith(
+            color: ReefColors.textSecondary, // text_aaa
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
   Widget _buildGroupSection(
     BuildContext context,
     LedMasterSettingController controller,
@@ -106,28 +160,28 @@ class _LedMasterSettingView extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: ReefSpacing.md),
-      child: Padding(
-        padding: const EdgeInsets.all(ReefSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${l10n.ledMasterSettingGroup} $groupId',
-              style: ReefTextStyles.title2,
-            ),
-            const SizedBox(height: ReefSpacing.sm),
-            ...devices.map(
-              (device) =>
-                  _buildDeviceTile(context, controller, device, groupId, l10n),
-            ),
-          ],
+    // PARITY: RecyclerView with no padding (adapter items handle spacing)
+    // First group has no marginTop, subsequent groups have marginTop 16dp
+    return Column(
+      children: [
+        if (groupId != controller.groups.first.id)
+          SizedBox(height: ReefSpacing.md), // dp_16 marginTop for subsequent groups
+        ...devices.map(
+          (device) =>
+              _buildDeviceTile(context, controller, device, groupId, l10n),
         ),
-      ),
+      ],
     );
   }
 
+  /// Device tile matching adapter_master_setting.xml layout.
+  ///
+  /// PARITY: Mirrors reef-b-app's adapter_master_setting.xml structure:
+  /// - ConstraintLayout: white background, padding 16/8/16/8dp
+  /// - tv_group: body, text_aaa, marginStart 8dp
+  /// - tv_name: body, text_aaaa, marginStart 45dp
+  /// - img_master: 20×20dp, marginStart 45dp (ic_master_big)
+  /// - btn_more: 24×24dp, marginStart 45dp (ic_menu)
   Widget _buildDeviceTile(
     BuildContext context,
     LedMasterSettingController controller,
@@ -141,53 +195,132 @@ class _LedMasterSettingView extends StatelessWidget {
     final session = context.watch<AppSession>();
     final isConnected = session.isBleConnected;
 
-    return ListTile(
-      title: Text(name),
-      subtitle: Text(
-        isMaster
-            ? l10n.ledMasterSettingMaster
-            : l10n.ledMasterSettingSlave,
+    // PARITY: adapter_master_setting.xml structure
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.only(
+        left: ReefSpacing.md, // dp_16 paddingStart
+        top: ReefSpacing.xs, // dp_8 paddingTop
+        right: ReefSpacing.md, // dp_16 paddingEnd
+        bottom: ReefSpacing.xs, // dp_8 paddingBottom
       ),
-      trailing: PopupMenuButton<String>(
-        onSelected: (value) async {
-          if (!isConnected) {
-            showBleGuardDialog(context);
-            return;
-          }
-          switch (value) {
-            case 'set_master':
-              final success = await controller.setMaster(deviceId, groupId);
-              if (success && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      l10n.ledMasterSettingSetMasterSuccess,
-                    ),
-                  ),
-                );
-              }
-              break;
-            case 'move_group':
-              _showMoveGroupDialog(context, controller, deviceId, l10n);
-              break;
-          }
-        },
-        itemBuilder: (context) => [
-          PopupMenuItem(
-            value: 'set_master',
-            enabled: !isMaster && isConnected,
-            child: Text(l10n.ledMasterSettingSetMaster),
+      decoration: BoxDecoration(
+        color: ReefColors.surface, // white background
+      ),
+      child: Row(
+        children: [
+          // Group (tv_group) - body, text_aaa, marginStart 8dp
+          Padding(
+            padding: EdgeInsets.only(left: ReefSpacing.xs), // dp_8 marginStart
+            child: Text(
+              groupId,
+              style: ReefTextStyles.body.copyWith(
+                color: ReefColors.textTertiary, // text_aaa
+              ),
+            ),
           ),
-          PopupMenuItem(
-            value: 'move_group',
-            enabled: isConnected,
-            child: Text(l10n.ledMasterSettingMoveGroup),
+          SizedBox(width: 45), // dp_45 marginStart
+          // Name (tv_name) - body, text_aaaa
+          Expanded(
+            child: Text(
+              name,
+              style: ReefTextStyles.body.copyWith(
+                color: ReefColors.textPrimary, // text_aaaa
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          SizedBox(width: 45), // dp_45 marginStart
+          // Master icon (img_master) - 20×20dp
+          if (isMaster)
+            Image.asset(
+              'assets/icons/ic_master_big.png', // TODO: Add icon asset
+              width: 20, // dp_20
+              height: 20, // dp_20
+              errorBuilder: (context, error, stackTrace) => Icon(
+                Icons.star,
+                size: 20,
+                color: ReefColors.primary,
+              ),
+            ),
+          SizedBox(width: 45), // dp_45 marginStart
+          // More button (btn_more) - 24×24dp
+          IconButton(
+            icon: Image.asset(
+              'assets/icons/ic_menu.png', // TODO: Add icon asset
+              width: 24, // dp_24
+              height: 24, // dp_24
+              errorBuilder: (context, error, stackTrace) => Icon(
+                Icons.more_vert,
+                size: 24,
+                color: ReefColors.textPrimary,
+              ),
+            ),
+            onPressed: () => _showDeviceMenu(context, controller, deviceId, groupId, isMaster, isConnected, l10n),
+            padding: EdgeInsets.zero,
+            constraints: BoxConstraints(
+              minWidth: 24,
+              minHeight: 24,
+            ),
           ),
         ],
       ),
     );
   }
 
+  void _showDeviceMenu(
+    BuildContext context,
+    LedMasterSettingController controller,
+    String deviceId,
+    String groupId,
+    bool isMaster,
+    bool isConnected,
+    AppLocalizations l10n,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (!isMaster && isConnected)
+            ListTile(
+              leading: const Icon(Icons.star),
+              title: Text(l10n.ledMasterSettingSetMaster),
+              onTap: () async {
+                Navigator.pop(context);
+                final success = await controller.setMaster(deviceId, groupId);
+                if (success && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        l10n.ledMasterSettingSetMasterSuccess,
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
+          if (isConnected)
+            ListTile(
+              leading: const Icon(Icons.swap_horiz),
+              title: Text(l10n.ledMasterSettingMoveGroup),
+              onTap: () {
+                Navigator.pop(context);
+                _showMoveGroupDialog(context, controller, deviceId, l10n);
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// Group selection dialog matching adapter_choose_group.xml layout.
+  ///
+  /// PARITY: Mirrors reef-b-app's adapter_choose_group.xml structure:
+  /// - ConstraintLayout: selectableItemBackground, padding 4/0/4/0dp
+  /// - tv_group_name: body, text_aaaa (visibility gone by default)
+  /// - layout_state: check icon (24×24dp, invisible) or "群組已滿" text (body, text_aa, gone)
   Future<void> _showMoveGroupDialog(
     BuildContext context,
     LedMasterSettingController controller,
@@ -204,15 +337,43 @@ class _LedMasterSettingView extends StatelessWidget {
             final sizes = controller.getGroupSizes();
             final int index = ['A', 'B', 'C', 'D', 'E'].indexOf(group);
             final bool isFull = index < sizes.length && sizes[index] >= 4;
-            return ListTile(
-              title: Text('${l10n.ledMasterSettingGroup} $group'),
-              subtitle: Text(
-                isFull
-                    ? l10n.ledMasterSettingGroupFull
-                    : '${sizes[index]}/4',
+            // PARITY: adapter_choose_group.xml structure
+            return InkWell(
+              onTap: isFull ? null : () => Navigator.of(context).pop(group),
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(
+                  vertical: 4, // dp_4 paddingTop/Bottom
+                ),
+                child: Row(
+                  children: [
+                    // Group name (tv_group_name) - body, text_aaaa (visibility gone by default, but we show it)
+                    Expanded(
+                      child: Text(
+                        '${l10n.ledMasterSettingGroup} $group',
+                        style: ReefTextStyles.body.copyWith(
+                          color: ReefColors.textPrimary, // text_aaaa
+                        ),
+                      ),
+                    ),
+                    // State layout (layout_state)
+                    if (isFull)
+                      // "群組已滿" text (tv_is_full) - body, text_aa
+                      Text(
+                        l10n.ledMasterSettingGroupFull,
+                        style: ReefTextStyles.body.copyWith(
+                          color: ReefColors.textSecondary, // text_aa
+                        ),
+                      )
+                    else
+                      // Check icon (img_check) - 24×24dp, invisible by default
+                      SizedBox(
+                        width: 24, // dp_24
+                        height: 24, // dp_24
+                      ),
+                  ],
+                ),
               ),
-              enabled: !isFull,
-              onTap: () => Navigator.of(context).pop(group),
             );
           }).toList(),
         ),

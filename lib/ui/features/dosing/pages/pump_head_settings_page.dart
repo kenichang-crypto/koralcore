@@ -6,8 +6,10 @@ import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../theme/reef_colors.dart';
+import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/pump_head_settings_controller.dart';
@@ -192,7 +194,7 @@ class _PumpHeadSettingsViewState extends State<_PumpHeadSettingsView> {
             }
           },
           child: Scaffold(
-            appBar: AppBar(title: Text(l10n.dosingPumpHeadSettingsTitle)),
+            appBar: ReefAppBar(title: Text(l10n.dosingPumpHeadSettingsTitle)),
             body: Column(
               children: [
                 Expanded(
@@ -229,6 +231,51 @@ class _PumpHeadSettingsViewState extends State<_PumpHeadSettingsView> {
                       _TankPlaceholderCard(l10n: l10n),
                       const SizedBox(height: ReefSpacing.md),
                       _DropTypeCard(l10n: l10n),
+                      const SizedBox(height: ReefSpacing.md),
+                      // PARITY: activity_drop_head_setting.xml tv_rotating_speed_title + btn_rotating_speed
+                      // Rotating Speed Section (enabled="false" in XML)
+                      Text(
+                        l10n.dosingScheduleEditRotatingSpeedLabel, // init_rotating_speed
+                        style: ReefTextStyles.caption1.copyWith(
+                          color: ReefColors.textSecondary, // text_color_selector (disabled)
+                        ),
+                      ),
+                      const SizedBox(height: ReefSpacing.xs), // dp_4 marginTop
+                      MaterialButton(
+                        onPressed: null, // enabled="false" in XML
+                        // PARITY: BackgroundMaterialButton style
+                        color: ReefColors.surfaceMuted, // bg_aaa background
+                        elevation: 0, // elevation 0dp
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(ReefRadius.xs), // 4dp cornerRadius
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: ReefSpacing.md,
+                          vertical: ReefSpacing.sm,
+                        ),
+                        textColor: ReefColors.textSecondary, // text_color_selector (disabled)
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                l10n.dosingRotatingSpeedMedium, // TODO: Get actual rotating speed
+                                style: ReefTextStyles.body.copyWith(
+                                  color: ReefColors.textSecondary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.start,
+                              ),
+                            ),
+                            Icon(
+                              Icons.keyboard_arrow_down, // ic_down
+                              size: 20,
+                              color: ReefColors.textSecondary,
+                            ),
+                          ],
+                        ),
+                      ),
                       const SizedBox(height: ReefSpacing.md),
                       _DelayCard(
                         currentDelay: _selectedDelay,
@@ -372,28 +419,92 @@ class _DropTypeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        title: Text(
+    // PARITY: activity_drop_head_setting.xml tv_drop_type_title + btn_drop_type
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // PARITY: tv_drop_type_title - caption1, 0dp width (constrained)
+        Text(
           l10n.dropTypeTitle,
-          style: ReefTextStyles.subheader.copyWith(
-            color: ReefColors.textPrimary,
-          ),
-        ),
-        subtitle: Text(
-          l10n.dropTypeSubtitle,
           style: ReefTextStyles.caption1.copyWith(
             color: ReefColors.textSecondary,
           ),
         ),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const DropTypePage(),
-            ),
-          );
-        },
+        // PARITY: btn_drop_type - marginTop 4dp, BackgroundMaterialButton style
+        SizedBox(height: ReefSpacing.xs), // dp_4 marginTop
+        MaterialButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const DropTypePage(),
+              ),
+            );
+          },
+          // PARITY: BackgroundMaterialButton style
+          color: ReefColors.surfaceMuted, // bg_aaa background
+          elevation: 0, // elevation 0dp
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(ReefRadius.xs), // 4dp cornerRadius
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: ReefSpacing.md,
+            vertical: ReefSpacing.sm,
+          ),
+          textColor: ReefColors.textPrimary, // text_aaaa
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.dropTypeSubtitle, // TODO: Show actual drop type name
+                  style: ReefTextStyles.body.copyWith(
+                    color: ReefColors.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              Icon(
+                Icons.chevron_right, // ic_next
+                size: 20,
+                color: ReefColors.textPrimary,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Delay time tile matching adapter_delay_time.xml layout.
+///
+/// PARITY: Mirrors reef-b-app's adapter_delay_time.xml structure:
+/// - ConstraintLayout: selectableItemBackground
+/// - TextView: bg_aaa background, padding 12/8/12/8dp, body style, text_aaaa color
+class _DelayTimeTile extends StatelessWidget {
+  final String delayText;
+
+  const _DelayTimeTile({required this.delayText});
+
+  @override
+  Widget build(BuildContext context) {
+    // PARITY: adapter_delay_time.xml structure
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: ReefSpacing.md, // dp_12 paddingStart/End
+        vertical: ReefSpacing.xs, // dp_8 paddingTop/Bottom
+      ),
+      decoration: BoxDecoration(
+        color: ReefColors.surfaceMuted, // bg_aaa background
+      ),
+      child: Text(
+        delayText,
+        style: ReefTextStyles.body.copyWith(
+          color: ReefColors.textPrimary, // text_aaaa
+        ),
       ),
     );
   }
@@ -435,8 +546,8 @@ class _DelayCard extends StatelessWidget {
                   .map(
                     (value) => DropdownMenuItem(
                       value: value,
-                      child: Text(
-                        l10n.dosingPumpHeadSettingsDelayOption(value),
+                      child: _DelayTimeTile(
+                        delayText: l10n.dosingPumpHeadSettingsDelayOption(value),
                       ),
                     ),
                   )

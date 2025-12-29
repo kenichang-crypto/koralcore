@@ -9,6 +9,7 @@ import '../../../components/ble_guard.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../controllers/led_scene_edit_controller.dart';
 import '../widgets/led_spectrum_chart.dart';
 import '../widgets/scene_icon_picker.dart';
@@ -74,7 +75,7 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
     final isConnected = session.isBleConnected;
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: ReefAppBar(
         title: Text(l10n.ledSceneAddTitle),
         actions: [
           if (controller.isDimmingMode)
@@ -91,8 +92,14 @@ class _LedSceneAddViewState extends State<_LedSceneAddView> {
             ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(ReefSpacing.xl),
+      body            : ListView(
+                // PARITY: activity_led_scene_add.xml padding 16/12/16 (no explicit paddingBottom)
+                padding: EdgeInsets.only(
+                  left: ReefSpacing.md, // dp_16 paddingStart
+                  top: ReefSpacing.sm, // dp_12 paddingTop
+                  right: ReefSpacing.md, // dp_16 paddingEnd
+                  bottom: 40, // dp_40 paddingBottom (from sl_moon_light marginBottom)
+                ),
         children: [
           // Scene name input
           TextField(

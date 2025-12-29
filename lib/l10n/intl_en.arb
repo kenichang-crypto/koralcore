@@ -586,5 +586,21 @@
   "weekdayWednesday": "Wednesday",
   "weekdayThursday": "Thursday",
   "weekdayFriday": "Friday",
-  "weekdaySaturday": "Saturday"
+  "weekdaySaturday": "Saturday",
+  "group": "Group",
+  "led": "LED",
+  "masterSlave": "Master/Slave",
+  "time": "Time Point",
+  "record": "Schedule",
+  "ledScene": "Scene",
+  "unassignedDevice": "Unallocated Devices",
+  "ledSceneNoSetting": "No Setting",
+  "dosingAdjustListDate": "Calibration Date",
+  "dosingAdjustListVolume": "Measured Volume",
+  "homeSpinnerAllSink": "All Tanks",
+  "homeSpinnerFavorite": "Favorite devices",
+  "homeSpinnerUnassigned": "Unallocated Devices",
+  "dosingPumpHeadNoType": "No Type",
+  "dosingPumpHeadModeScheduled": "Scheduled",
+  "dosingPumpHeadModeFree": "Free Mode"
 }

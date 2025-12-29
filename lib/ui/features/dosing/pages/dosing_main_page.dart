@@ -12,6 +12,7 @@ import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_backgrounds.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../models/pump_head_summary.dart';
 import 'dosing_main_page_helpers.dart'
     show confirmDeleteDevice, confirmResetDevice, handlePlayDosing, handleConnect, handleDisconnect;
@@ -22,7 +23,6 @@ import 'pump_head_calibration_page.dart';
 import '../../device/pages/device_settings_page.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 
-const _dosingIconAsset = 'assets/icons/dosing/dosing_main.png';
 
 class DosingMainPage extends StatelessWidget {
   const DosingMainPage({super.key});
@@ -36,7 +36,7 @@ class DosingMainPage extends StatelessWidget {
     final deviceName = session.activeDeviceName ?? l10n.dosingHeader;
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: ReefAppBar(
         backgroundColor: ReefColors.primary,
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
@@ -217,9 +217,15 @@ class DosingMainPage extends StatelessWidget {
                   ? (headId) => handlePlayDosing(context, session, appContext, headId)
                   : null,
             ),
-            const SizedBox(height: ReefSpacing.xl),
-            _EntryTile(
-              title: l10n.dosingEntrySchedule,
+            // PARITY: Entry tiles (Schedule, Manual, Calibration, History)
+            // These are not in the XML, but are part of the Flutter implementation
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: ReefSpacing.md),
+              child: Column(
+                children: [
+                  const SizedBox(height: ReefSpacing.xl),
+                  _EntryTile(
+                    title: l10n.dosingEntrySchedule,
               subtitle: l10n.dosingScheduleOverviewSubtitle,
               enabled: isConnected,
               onTapWhenEnabled: () {
@@ -287,6 +293,9 @@ class DosingMainPage extends StatelessWidget {
                   );
                 }
               },
+            ),
+                ],
+              ),
             ),
             ],
           ),
@@ -361,6 +370,12 @@ class _PumpHeadList extends StatelessWidget {
 
 const List<String> _headOrder = ['A', 'B', 'C', 'D'];
 
+/// Drop head card matching adapter_drop_head.xml layout.
+///
+/// PARITY: Mirrors reef-b-app's adapter_drop_head.xml structure:
+/// - MaterialCardView: margin 16/5/16/5dp, cornerRadius 8dp, elevation 10dp
+/// - Title area: grey background, padding 8dp, pump head icon (80×20dp), drop type name
+/// - Main area: white background, padding 8/8/12/12dp, play button (60×60dp), mode, schedule info, progress bar
 class _DropHeadCard extends StatelessWidget {
   final PumpHeadSummary summary;
   final bool isConnected;
@@ -378,96 +393,234 @@ class _DropHeadCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(ReefRadius.lg),
-      child: Container(
-        height: 96,
-        padding: const EdgeInsets.symmetric(
-          horizontal: ReefSpacing.lg,
-          vertical: ReefSpacing.md,
-        ),
-        decoration: BoxDecoration(
-          color: ReefColors.surface,
-          borderRadius: BorderRadius.circular(ReefRadius.lg),
-        ),
-        child: Row(
+    // Calculate progress (todayDispensedMl / dailyTargetMl)
+    final double progress = summary.dailyTargetMl > 0
+        ? (summary.todayDispensedMl / summary.dailyTargetMl).clamp(0.0, 1.0)
+        : 0.0;
+    final String volumeText = '${summary.todayDispensedMl.toStringAsFixed(0)} / ${summary.dailyTargetMl.toStringAsFixed(0)} ml';
+    
+    // Mode name (simplified - TODO: Get from PumpHeadMode)
+    final String modeName = _getModeName(summary, l10n);
+    
+    // Time string (simplified - TODO: Get from PumpHeadMode.timeString)
+    final String? timeString = null; // TODO: Get from schedule
+    
+    // Weekday selection (simplified - TODO: Get from PumpHeadMode.runDay)
+    final List<bool> weekDays = [false, false, false, false, false, false, false]; // TODO: Get from schedule
+
+    // PARITY: adapter_drop_head.xml structure
+    return Card(
+      margin: EdgeInsets.only(
+        left: ReefSpacing.md, // dp_16 marginStart
+        top: 5, // dp_5 marginTop
+        right: ReefSpacing.md, // dp_16 marginEnd
+        bottom: 5, // dp_5 marginBottom
+      ),
+      elevation: 10, // dp_10
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ReefRadius.sm), // dp_8 cornerRadius
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(ReefRadius.sm),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
+            // Title area (layout_drop_head_title) - grey background
             Container(
-              width: 52,
-              height: 52,
+              width: double.infinity,
+              padding: EdgeInsets.all(ReefSpacing.xs), // dp_8 padding
               decoration: BoxDecoration(
-                color: ReefColors.primary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(ReefRadius.pill),
+                color: ReefColors.grey, // grey background
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(ReefRadius.sm),
+                  topRight: Radius.circular(ReefRadius.sm),
+                ),
               ),
-              child: Center(
-                child: Image.asset(_dosingIconAsset, width: 32, height: 32),
-              ),
-            ),
-            const SizedBox(width: ReefSpacing.lg),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  Text(
-                    summary.displayName,
-                    style: ReefTextStyles.subheaderAccent.copyWith(
-                      color: ReefColors.textPrimary,
+                  // Pump head icon (img_drop_head) - 80×20dp
+                  Image.asset(
+                    'assets/icons/dosing/img_drop_head_${summary.headId.toLowerCase()}.png', // TODO: Add icon asset
+                    width: 80, // dp_80
+                    height: 20, // dp_20
+                    fit: BoxFit.fitWidth,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 80,
+                      height: 20,
+                      color: ReefColors.surfaceMuted,
                     ),
                   ),
-                  const SizedBox(height: ReefSpacing.xs),
-                  Text(
-                    l10n.dosingPumpHeadDailyTarget,
-                    style: ReefTextStyles.caption1.copyWith(
-                      color: ReefColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: ReefSpacing.xs),
-                  Text(
-                    '${summary.dailyTargetMl.toStringAsFixed(1)} ml',
-                    style: ReefTextStyles.bodyAccent.copyWith(
-                      color: ReefColors.textPrimary,
+                  SizedBox(width: 32), // dp_32 marginStart
+                  // Drop type name (tv_drop_type_name) - body_accent
+                  Expanded(
+                    child: Text(
+                      summary.additiveName.isNotEmpty
+                          ? summary.additiveName
+                          : l10n.dosingPumpHeadNoType,
+                      style: ReefTextStyles.bodyAccent.copyWith(
+                        color: ReefColors.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  isConnected
-                      ? l10n.dosingPumpHeadStatusReady
-                      : l10n.dosingPumpHeadStatus,
-                  style: ReefTextStyles.caption1.copyWith(
-                    color: ReefColors.textSecondary,
-                  ),
+            // Main area (layout_drop_head_main) - white background
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.only(
+                left: ReefSpacing.xs, // dp_8 paddingStart
+                top: ReefSpacing.xs, // dp_8 paddingTop
+                right: ReefSpacing.md + ReefSpacing.xs, // dp_12 paddingEnd
+                bottom: ReefSpacing.md + ReefSpacing.xs, // dp_12 paddingBottom
+              ),
+              decoration: BoxDecoration(
+                color: ReefColors.surface, // white background
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(ReefRadius.sm),
+                  bottomRight: Radius.circular(ReefRadius.sm),
                 ),
-                const SizedBox(height: ReefSpacing.sm),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (onPlay != null)
-                      IconButton(
-                        icon: const Icon(Icons.play_arrow),
-                        color: ReefColors.primary,
-                        tooltip: l10n.actionPlay,
-                        onPressed: onPlay,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Play button (btn_play) - 60×60dp
+                  if (onPlay != null)
+                    IconButton(
+                      icon: Image.asset(
+                        'assets/icons/ic_play_enabled.png', // TODO: Add icon asset
+                        width: 60, // dp_60
+                        height: 60, // dp_60
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          Icons.play_arrow,
+                          size: 60,
+                          color: ReefColors.primary,
+                        ),
                       ),
-                    const Icon(
-                      Icons.chevron_right,
-                      color: ReefColors.textSecondary,
+                      onPressed: onPlay,
+                      padding: EdgeInsets.zero,
+                      constraints: BoxConstraints(
+                        minWidth: 60,
+                        minHeight: 60,
+                      ),
+                    )
+                  else
+                    SizedBox(width: 60, height: 60),
+                  SizedBox(width: ReefSpacing.md), // dp_12 marginStart
+                  // Mode and schedule info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Mode (tv_mode) - caption1, bg_secondary color
+                        Text(
+                          modeName,
+                          style: ReefTextStyles.caption1.copyWith(
+                            color: ReefColors.textSecondary, // bg_secondary (using textSecondary as fallback)
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: ReefSpacing.xs), // dp_8 marginTop
+                        // Schedule info (layout_mode)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Weekday icons (layout_weekday)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: List.generate(7, (index) {
+                                final bool isSelected = weekDays[index];
+                                return Padding(
+                                  padding: EdgeInsets.only(
+                                    left: index == 0 ? 0 : ReefSpacing.xs, // dp_4 marginStart (except first)
+                                    right: index < 6 ? ReefSpacing.xs : 0, // dp_4 marginEnd (except last)
+                                  ),
+                                  child: Image.asset(
+                                    _getWeekdayIconAsset(index, isSelected),
+                                    width: 20, // dp_20
+                                    height: 20, // dp_20
+                                    errorBuilder: (context, error, stackTrace) => Icon(
+                                      Icons.circle_outlined,
+                                      size: 20,
+                                      color: isSelected
+                                          ? ReefColors.primary
+                                          : ReefColors.textDisabled,
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ),
+                            // Time string (tv_time) - caption1_accent, text_aaaa
+                            if (timeString != null) ...[
+                              SizedBox(height: ReefSpacing.xs), // dp_8 marginTop
+                              Text(
+                                timeString,
+                                style: ReefTextStyles.caption1Accent.copyWith(
+                                  color: ReefColors.textPrimary, // text_aaaa
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                            // Progress bar and volume (pb_volume, tv_volume)
+                            SizedBox(height: ReefSpacing.xs), // dp_4 marginTop
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                // Progress bar
+                                LinearProgressIndicator(
+                                  value: progress,
+                                  minHeight: 20, // dp_20 trackThickness
+                                  backgroundColor: ReefColors.surfacePressed, // bg_press trackColor
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    ReefColors.grey, // grey indicatorColor
+                                  ),
+                                  borderRadius: BorderRadius.circular(10), // dp_10 trackCornerRadius
+                                ),
+                                // Volume text (tv_volume) - caption1, text_aaaa
+                                Text(
+                                  volumeText,
+                                  style: ReefTextStyles.caption1.copyWith(
+                                    color: ReefColors.textPrimary, // text_aaaa
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  String _getModeName(PumpHeadSummary summary, AppLocalizations l10n) {
+    // TODO: Get actual mode from PumpHeadMode
+    // For now, return a default mode name
+    if (summary.dailyTargetMl > 0) {
+      return l10n.dosingPumpHeadModeScheduled;
+    }
+    return l10n.dosingPumpHeadModeFree;
+  }
+
+  String _getWeekdayIconAsset(int index, bool isSelected) {
+    // Index: 0=Sunday, 1=Monday, ..., 6=Saturday
+    final List<String> weekdayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    final String state = isSelected ? 'select' : 'unselect';
+    return 'assets/icons/ic_${weekdayNames[index]}_$state.png';
   }
 }
 

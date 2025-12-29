@@ -9,6 +9,7 @@ import '../../../../domain/led_lighting/led_record.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/led_record_time_setting_controller.dart';
@@ -72,13 +73,10 @@ class _LedRecordTimeSettingViewState extends State<_LedRecordTimeSettingView> {
       },
       child: Scaffold(
         backgroundColor: ReefColors.surfaceMuted,
-        appBar: AppBar(
+        appBar: ReefAppBar(
           backgroundColor: ReefColors.primary,
           foregroundColor: ReefColors.onPrimary,
           elevation: 0,
-          titleTextStyle: ReefTextStyles.title2.copyWith(
-            color: ReefColors.onPrimary,
-          ),
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () async {
@@ -88,7 +86,12 @@ class _LedRecordTimeSettingViewState extends State<_LedRecordTimeSettingView> {
               }
             },
           ),
-          title: Text(l10n.ledRecordTimeSettingTitle),
+          title: Text(
+            l10n.ledRecordTimeSettingTitle,
+            style: ReefTextStyles.title2.copyWith(
+              color: ReefColors.onPrimary,
+            ),
+          ),
           actions: [
             TextButton(
               onPressed: controller.isLoading || !isConnected
@@ -104,16 +107,22 @@ class _LedRecordTimeSettingViewState extends State<_LedRecordTimeSettingView> {
         body: controller.isLoading
             ? const Center(child: CircularProgressIndicator())
             : ListView(
-                padding: const EdgeInsets.all(ReefSpacing.lg),
+                // PARITY: activity_led_record_time_setting.xml padding 16/12/16/40dp
+                padding: EdgeInsets.only(
+                  left: ReefSpacing.md, // dp_16 paddingStart
+                  top: ReefSpacing.sm, // dp_12 paddingTop
+                  right: ReefSpacing.md, // dp_16 paddingEnd
+                  bottom: 40, // dp_40 paddingBottom (not standard spacing)
+                ),
                 children: [
                   if (!isConnected) ...[
                     const BleGuardBanner(),
                     const SizedBox(height: ReefSpacing.lg),
                   ],
                   _buildTimeSection(context, controller, l10n),
-                  const SizedBox(height: ReefSpacing.lg),
+                  const SizedBox(height: 24), // dp_24 marginTop (from chart_spectrum)
                   _buildSpectrumChart(context, controller),
-                  const SizedBox(height: ReefSpacing.lg),
+                  const SizedBox(height: 24), // dp_24 marginTop (from tv_uv_light_title)
                   _buildChannelSliders(context, controller, l10n),
                 ],
               ),
@@ -126,28 +135,42 @@ class _LedRecordTimeSettingViewState extends State<_LedRecordTimeSettingView> {
     LedRecordTimeSettingController controller,
     AppLocalizations l10n,
   ) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(ReefSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.ledRecordTimeSettingTimeLabel,
-              style: ReefTextStyles.title3,
-            ),
-            const SizedBox(height: ReefSpacing.sm),
-            OutlinedButton(
-              onPressed: controller.isEditMode
-                  ? null
-                  : () => _selectTime(context, controller),
-              child: Text(
-                '${controller.timeHour.toString().padLeft(2, '0')}:${controller.timeMinute.toString().padLeft(2, '0')}',
-              ),
-            ),
-          ],
+    // PARITY: activity_led_record_time_setting.xml
+    // tv_time_title: caption1, text_aaaa
+    // btn_time: BackgroundMaterialButton, marginTop 4dp
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.time, // PARITY: @string/time
+          style: ReefTextStyles.caption1.copyWith(
+            color: ReefColors.textPrimary, // text_aaaa
+          ),
         ),
-      ),
+        const SizedBox(height: ReefSpacing.xxxs), // dp_4 marginTop
+        MaterialButton(
+          onPressed: controller.isEditMode
+              ? null
+              : () => _selectTime(context, controller),
+          // PARITY: BackgroundMaterialButton style
+          color: ReefColors.surfaceMuted, // bg_aaa background
+          textColor: ReefColors.textPrimary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4), // dp_4 cornerRadius
+          ),
+          elevation: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${controller.timeHour.toString().padLeft(2, '0')} : ${controller.timeMinute.toString().padLeft(2, '0')}',
+                textAlign: TextAlign.start,
+              ),
+              const Icon(Icons.keyboard_arrow_down),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

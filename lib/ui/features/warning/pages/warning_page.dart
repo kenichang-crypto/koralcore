@@ -10,6 +10,7 @@ import '../../../../domain/warning/warning.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/warning_controller.dart';
@@ -49,18 +50,20 @@ class _WarningView extends StatelessWidget {
     _maybeShowError(context, controller.lastErrorCode);
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: ReefAppBar(
         backgroundColor: ReefColors.primary,
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
-        titleTextStyle: ReefTextStyles.title2.copyWith(
-          color: ReefColors.onPrimary,
-        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(l10n.warningTitle),
+        title: Text(
+          l10n.warningTitle,
+          style: ReefTextStyles.title2.copyWith(
+            color: ReefColors.onPrimary,
+          ),
+        ),
         actions: [
           if (controller.warnings.isNotEmpty)
             IconButton(
@@ -83,7 +86,9 @@ class _WarningView extends StatelessWidget {
                       : RefreshIndicator(
                           onRefresh: controller.refresh,
                           child: ListView.builder(
-                            padding: const EdgeInsets.all(ReefSpacing.lg),
+                            // PARITY: activity_warning.xml rv_warning
+                            // RecyclerView with marginTop 13dp, no padding (padding is handled by adapter items)
+                            padding: EdgeInsets.zero, // No padding - adapter items handle their own spacing
                             itemCount: controller.warnings.length,
                             itemBuilder: (context, index) {
                               final warning = controller.warnings[index];
@@ -155,6 +160,16 @@ class _WarningView extends StatelessWidget {
   }
 }
 
+/// Warning card matching adapter_warning.xml layout.
+///
+/// PARITY: Mirrors reef-b-app's adapter_warning.xml structure:
+/// - ConstraintLayout: bg_aaaa
+/// - padding: 16/8/16/8dp
+/// - tv_warning_title: caption1_accent
+/// - tv_device_type: caption1
+/// - tv_device_name: caption1_accent
+/// - txt_clock: caption1, text_aa
+/// - Two dividers: bg_aaa (full width) and bg_press (with 16dp margin)
 class _WarningCard extends StatelessWidget {
   final Warning warning;
   final VoidCallback onDelete;
@@ -168,37 +183,115 @@ class _WarningCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: ReefSpacing.md),
-      child: ListTile(
-        leading: Icon(Icons.warning, color: ReefColors.error),
-        title: Text(
-          l10n.warningId(warning.warningId),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: ReefSpacing.xs),
-            Text(
-              DateFormat('yyyy-MM-dd HH:mm:ss').format(warning.time),
-              style: ReefTextStyles.body2.copyWith(color: ReefColors.grey),
+    final session = context.watch<AppSession>();
+    final String deviceName = warning.deviceId.isNotEmpty
+        ? (session.savedDevices
+                .where((d) => d.id == warning.deviceId)
+                .isNotEmpty
+                ? session.savedDevices
+                    .where((d) => d.id == warning.deviceId)
+                    .first
+                    .name
+                : null) ??
+            warning.deviceId
+        : '';
+    final String deviceType = _getDeviceType(warning.deviceId, session);
+    final String timeStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(warning.time);
+
+    // PARITY: adapter_warning.xml structure
+    return InkWell(
+      onTap: onDelete,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Inner container (bg_aaaa background)
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.only(
+              left: ReefSpacing.md, // dp_16 paddingStart
+              top: ReefSpacing.xs, // dp_8 paddingTop
+              right: ReefSpacing.md, // dp_16 paddingEnd
+              bottom: ReefSpacing.xs, // dp_8 paddingBottom
             ),
-            if (warning.deviceId.isNotEmpty) ...[
-              const SizedBox(height: ReefSpacing.xs),
-              Text(
-                'Device: ${warning.deviceId}',
-                style: ReefTextStyles.body2.copyWith(color: ReefColors.grey),
-              ),
-            ],
-          ],
-        ),
-        trailing: IconButton(
-          icon: const Icon(Icons.delete_outline),
-          onPressed: onDelete,
-          tooltip: l10n.actionDelete,
-        ),
+            decoration: BoxDecoration(
+              color: ReefColors.surface, // bg_aaaa
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Warning title (tv_warning_title) - caption1_accent
+                Text(
+                  l10n.warningId(warning.warningId),
+                  style: ReefTextStyles.caption1Accent.copyWith(
+                    color: ReefColors.textPrimary,
+                  ),
+                ),
+                SizedBox(height: ReefSpacing.xs), // dp_8 marginTop
+                // Device type and name row
+                Row(
+                  children: [
+                    // Device type (tv_device_type) - caption1
+                    Text(
+                      deviceType,
+                      style: ReefTextStyles.caption1.copyWith(
+                        color: ReefColors.textPrimary,
+                      ),
+                    ),
+                    SizedBox(width: ReefSpacing.xs), // dp_4 marginStart
+                    // Device name (tv_device_name) - caption1_accent
+                    Expanded(
+                      child: Text(
+                        deviceName,
+                        style: ReefTextStyles.caption1Accent.copyWith(
+                          color: ReefColors.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: ReefSpacing.xs), // dp_8 marginTop
+                // Clock (txt_clock) - caption1, text_aa
+                Text(
+                  timeStr,
+                  style: ReefTextStyles.caption1.copyWith(
+                    color: ReefColors.textSecondary, // text_aa
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // First divider (bg_aaa, full width)
+          Divider(
+            height: 1, // dp_1
+            thickness: 1, // dp_1
+            color: ReefColors.surfaceMuted, // bg_aaa
+          ),
+          // Second divider (bg_press, with 16dp margin)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: ReefSpacing.md), // dp_16 marginStart/End
+            child: Divider(
+              height: 1, // dp_1
+              thickness: 1, // dp_1
+              color: ReefColors.surfacePressed, // bg_press
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  String _getDeviceType(String deviceId, AppSession session) {
+    if (deviceId.isEmpty) return '';
+    final devices = session.savedDevices.where((d) => d.id == deviceId);
+    if (devices.isEmpty) return '';
+    final device = devices.first;
+    final name = device.name.toLowerCase();
+    if (name.contains('led')) return 'LED';
+    if (name.contains('dose') || name.contains('drop')) return 'DROP';
+    return '';
   }
 }
 

@@ -6,6 +6,7 @@ import '../../../../application/common/app_context.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../controllers/sink_manager_controller.dart';
 
 /// Sink position selection page.
@@ -58,18 +59,20 @@ class _SinkPositionViewState extends State<_SinkPositionView> {
 
     return Scaffold(
       backgroundColor: ReefColors.surfaceMuted,
-      appBar: AppBar(
+      appBar: ReefAppBar(
         backgroundColor: ReefColors.primary,
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
-        titleTextStyle: ReefTextStyles.title2.copyWith(
-          color: ReefColors.onPrimary,
-        ),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(l10n.sinkPositionTitle),
+        title: Text(
+          l10n.sinkPositionTitle,
+          style: ReefTextStyles.title2.copyWith(
+            color: ReefColors.onPrimary,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -85,25 +88,26 @@ class _SinkPositionViewState extends State<_SinkPositionView> {
       body: controller.isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
-              padding: const EdgeInsets.all(ReefSpacing.lg),
+              // PARITY: activity_sink_position.xml rv_sink
+              // RecyclerView with no padding (adapter items handle their own spacing)
+              padding: EdgeInsets.zero,
               children: [
-                // "No" option
-                ListTile(
-                  title: Text(l10n.sinkPositionNotSet),
-                  selected: _selectedSinkId == null || _selectedSinkId == '',
-                  selectedTileColor: ReefColors.primary.withOpacity(0.1),
+                // "No" option - PARITY: adapter_sink_select.xml
+                _buildSinkSelectTile(
+                  context: context,
+                  name: l10n.sinkPositionNotSet,
+                  isSelected: _selectedSinkId == null || _selectedSinkId == '',
                   onTap: () {
                     setState(() {
                       _selectedSinkId = '';
                     });
                   },
                 ),
-                const Divider(),
-                // Sink list
-                ...controller.sinks.map((sink) => ListTile(
-                      title: Text(sink.name),
-                      selected: _selectedSinkId == sink.id,
-                      selectedTileColor: ReefColors.primary.withOpacity(0.1),
+                // Sink list - PARITY: adapter_sink_select.xml
+                ...controller.sinks.map((sink) => _buildSinkSelectTile(
+                      context: context,
+                      name: sink.name,
+                      isSelected: _selectedSinkId == sink.id,
                       onTap: () {
                         setState(() {
                           _selectedSinkId = sink.id;
@@ -172,6 +176,63 @@ class _SinkPositionViewState extends State<_SinkPositionView> {
         }
       }
     }
+  }
+
+  /// Sink select tile matching adapter_sink_select.xml layout.
+  ///
+  /// PARITY: Mirrors reef-b-app's adapter_sink_select.xml structure:
+  /// - ConstraintLayout: padding 16/0/16/0dp
+  /// - RadioButton
+  /// - tv_name: body, text_aaaa
+  /// - Divider: bg_press
+  Widget _buildSinkSelectTile({
+    required BuildContext context,
+    required String name,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(
+              horizontal: ReefSpacing.md, // dp_16 paddingStart/End
+            ),
+            child: Row(
+              children: [
+                // RadioButton
+                Radio<bool>(
+                  value: true,
+                  groupValue: isSelected,
+                  onChanged: (_) => onTap(),
+                ),
+                SizedBox(width: ReefSpacing.md), // dp_16 marginEnd
+                // Name (tv_name) - body, text_aaaa
+                Expanded(
+                  child: Text(
+                    name,
+                    style: ReefTextStyles.body.copyWith(
+                      color: ReefColors.textPrimary, // text_aaaa
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Divider (bg_press)
+          Divider(
+            height: 1, // dp_1
+            thickness: 1, // dp_1
+            color: ReefColors.surfacePressed, // bg_press
+          ),
+        ],
+      ),
+    );
   }
 }
 

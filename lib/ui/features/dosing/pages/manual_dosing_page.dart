@@ -6,6 +6,7 @@ import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/manual_dosing_controller.dart';
@@ -66,12 +67,18 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
         final PumpHeadSummary summary = PumpHeadSummary.demo(_selectedHead);
 
         return Scaffold(
-          appBar: AppBar(title: Text(l10n.dosingEntryManual)),
+          appBar: ReefAppBar(title: Text(l10n.dosingEntryManual)),
           body: Column(
             children: [
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.all(ReefSpacing.xl),
+                  // PARITY: General settings page layout - padding 16/12/16/40dp
+                  padding: EdgeInsets.only(
+                    left: ReefSpacing.md, // dp_16 paddingStart
+                    top: ReefSpacing.sm, // dp_12 paddingTop
+                    right: ReefSpacing.md, // dp_16 paddingEnd
+                    bottom: 40, // dp_40 paddingBottom
+                  ),
                   children: [
                     Text(
                       l10n.dosingManualPageSubtitle,

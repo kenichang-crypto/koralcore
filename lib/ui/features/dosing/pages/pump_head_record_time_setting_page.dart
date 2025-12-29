@@ -8,6 +8,7 @@ import '../../../../domain/doser_dosing/pump_head_record_detail.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
+import '../../../widgets/reef_app_bar.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/pump_head_record_time_setting_controller.dart';
@@ -71,13 +72,10 @@ class _PumpHeadRecordTimeSettingViewState
 
     return Scaffold(
       backgroundColor: ReefColors.surfaceMuted,
-      appBar: AppBar(
+      appBar: ReefAppBar(
         backgroundColor: ReefColors.primary,
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
-        titleTextStyle: ReefTextStyles.title2.copyWith(
-          color: ReefColors.onPrimary,
-        ),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
@@ -100,7 +98,13 @@ class _PumpHeadRecordTimeSettingViewState
       body: controller.isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
-              padding: const EdgeInsets.all(ReefSpacing.lg),
+              // PARITY: activity_drop_head_record_time_setting.xml padding 16/12/16/12dp
+              padding: EdgeInsets.only(
+                left: ReefSpacing.md, // dp_16 paddingStart
+                top: ReefSpacing.sm, // dp_12 paddingTop
+                right: ReefSpacing.md, // dp_16 paddingEnd
+                bottom: ReefSpacing.sm, // dp_12 paddingBottom
+              ),
               children: [
                 if (!isConnected) ...[
                   const BleGuardBanner(),

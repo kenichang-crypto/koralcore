@@ -53,7 +53,11 @@ class BleLedRepositoryImpl extends LedRepository
     BleWriteOptions? writeOptions,
   }) : _bleAdapter = bleAdapter,
        _commandBuilder = commandBuilder ?? const LedCommandBuilder(),
-       _writeOptions = writeOptions ?? const BleWriteOptions() {
+       _writeOptions = writeOptions ??
+           const BleWriteOptions(
+             // PARITY: reef-b-app uses WRITE_TYPE_NO_RESPONSE
+             mode: BleWriteMode.withoutResponse,
+           ) {
     _notifySubscription = (notifyStream ?? BleNotifyBus.instance.stream).listen(
       _handlePacket,
       onError: _handleNotifyError,

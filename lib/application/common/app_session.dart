@@ -65,6 +65,7 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
     return List.unmodifiable(ordered);
   }
 
+  List<DeviceSnapshot> get savedDevices => List.unmodifiable(_savedDevices);
   List<PumpHead> get pumpHeads => List.unmodifiable(_pumpHeads);
   LedState? get ledState => _ledState;
 

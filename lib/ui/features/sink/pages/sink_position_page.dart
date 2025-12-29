@@ -7,6 +7,7 @@ import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_app_bar.dart';
+import '../../../assets/common_icon_helper.dart';
 import '../controllers/sink_manager_controller.dart';
 
 /// Sink position selection page.
@@ -64,7 +65,7 @@ class _SinkPositionViewState extends State<_SinkPositionView> {
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: CommonIconHelper.getCloseIcon(size: 24),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -118,7 +119,7 @@ class _SinkPositionViewState extends State<_SinkPositionView> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddSinkDialog(context, controller, l10n),
-        child: const Icon(Icons.add),
+        child: CommonIconHelper.getAddIcon(size: 24),
       ),
     );
   }

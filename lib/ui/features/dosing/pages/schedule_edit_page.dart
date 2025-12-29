@@ -12,6 +12,7 @@ import '../../../../domain/doser_dosing/schedule_weekday.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../widgets/reef_app_bar.dart';
+import '../../../assets/common_icon_helper.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/pump_head_schedule_controller.dart';
@@ -686,11 +687,11 @@ class _NumberStepper extends StatelessWidget {
         ),
         IconButton(
           onPressed: value > min ? () => onChanged(value - 1) : null,
-          icon: const Icon(Icons.remove_circle_outline),
+          icon: CommonIconHelper.getMinusIcon(size: 24),
         ),
         IconButton(
           onPressed: value < max ? () => onChanged(value + 1) : null,
-          icon: const Icon(Icons.add_circle_outline),
+          icon: CommonIconHelper.getAddIcon(size: 24),
         ),
       ],
     );
@@ -715,7 +716,7 @@ class _TimePickerTile extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       title: Text(label, style: theme.textTheme.titleSmall),
       subtitle: Text(value, style: theme.textTheme.titleMedium),
-      trailing: const Icon(Icons.schedule),
+      trailing: CommonIconHelper.getCalendarIcon(size: 24),
       onTap: onTap,
     );
   }

@@ -317,4 +317,58 @@
   "dosingScheduleEditInvalidWindow": "Время окончания должно быть после времени начала.",
   "dosingScheduleEditTemplateDaily": "Использовать шаблон среднего дневного значения",
   "dosingScheduleEditTemplateCustom": "Использовать собственный шаблон окна"
+,
+  "ledSceneIcon": "Иконка сцены",
+  "lightUv": "УФ-свет",
+  "lightPurple": "Фиолетовый свет",
+  "lightBlue": "Синий свет",
+  "lightRoyalBlue": "Королевский синий свет",
+  "lightGreen": "Зеленый свет",
+  "lightRed": "Красный свет",
+  "lightColdWhite": "Холодный белый свет",
+  "lightWarmWhite": "Теплый белый свет",
+  "lightMoon": "Лунный свет",
+  "toastNameIsEmpty": "Имя не может быть пустым.",
+  "toastSettingSuccessful": "Настройки успешно применены.",
+  "toastSceneNameIsExist": "Название сцены уже существует.",
+  "toastDeleteNowScene": "Невозможно удалить текущую используемую сцену.",
+  "ledRecordsSnackRecordsFull": "Максимальное количество временных точек - 24.",
+  "ledRecordsSnackTimeExists": "Этот временной период уже установлен.",
+  "ledRecordsSnackTimeError": "Временные точки должны различаться как минимум на 10 минут.",
+  "dosingPumpHeadNoType": "Нет типа",
+  "dosingPumpHeadModeScheduled": "Запланировано",
+  "dosingPumpHeadModeFree": "Свободный режим",
+  "dosingManualStarted": "Дозирование начато для головки {headId}",
+  "@dosingManualStarted": {
+    "placeholders": {
+      "headId": {
+        "type": "String"
+      }
+    }
+  },
+  "dosingVolumeFormat": "{dispensed} / {target} ml",
+  "@dosingVolumeFormat": {
+    "placeholders": {
+      "dispensed": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "channelPercentageFormat": "{label} {percentage}%",
+  "@channelPercentageFormat": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "timeRangeSeparator": "~",
+  "dosingVolumeHint": "Введите объем",
+  "noRecords": "Нет запланированных задач"
 }

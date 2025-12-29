@@ -317,4 +317,58 @@
   "dosingScheduleEditInvalidWindow": "終了時刻は開始時刻より後である必要があります。",
   "dosingScheduleEditTemplateDaily": "日次平均テンプレートを使用する",
   "dosingScheduleEditTemplateCustom": "カスタムウィンドウテンプレートを使用する"
+,
+  "ledSceneIcon": "シーンアイコン",
+  "lightUv": "UVライト",
+  "lightPurple": "紫色の光",
+  "lightBlue": "青い光",
+  "lightRoyalBlue": "ロイヤルブルーの光",
+  "lightGreen": "緑の光",
+  "lightRed": "赤い光",
+  "lightColdWhite": "クールホワイトの光",
+  "lightWarmWhite": "ウォームホワイトの光",
+  "lightMoon": "月光",
+  "toastNameIsEmpty": "名前は空にできません。",
+  "toastSettingSuccessful": "設定が正常に保存されました",
+  "toastSceneNameIsExist": "シーン名が既に存在します。",
+  "toastDeleteNowScene": "現在使用中のシーンを削除できません。",
+  "ledRecordsSnackRecordsFull": "最大24の時間ポイントを設定できます。",
+  "ledRecordsSnackTimeExists": "この時間帯はすでに設定されています。",
+  "ledRecordsSnackTimeError": "時間ポイントは最低でも10分離れている必要があります。",
+  "dosingPumpHeadNoType": "タイプなし",
+  "dosingPumpHeadModeScheduled": "スケジュール済み",
+  "dosingPumpHeadModeFree": "フリーモード",
+  "dosingManualStarted": "ヘッド {headId} のドージングを開始しました",
+  "@dosingManualStarted": {
+    "placeholders": {
+      "headId": {
+        "type": "String"
+      }
+    }
+  },
+  "dosingVolumeFormat": "{dispensed} / {target} ml",
+  "@dosingVolumeFormat": {
+    "placeholders": {
+      "dispensed": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "channelPercentageFormat": "{label} {percentage}%",
+  "@channelPercentageFormat": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "timeRangeSeparator": "~",
+  "dosingVolumeHint": "容量を入力",
+  "noRecords": "スケジュールされたタスクがありません"
 }

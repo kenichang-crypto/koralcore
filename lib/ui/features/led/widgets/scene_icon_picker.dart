@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
+import '../support/scene_icon_helper.dart';
 
 /// SceneIconPicker
 ///
@@ -19,11 +21,12 @@ class SceneIconPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Scene Icon',
+          l10n.ledSceneIcon,
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: ReefSpacing.sm),
@@ -91,50 +94,12 @@ class _IconItem extends StatelessWidget {
   }
 
   Widget _getIconForId(int id) {
-    // Map icon IDs to Material Icons
-    // This is a placeholder - in full version, should use custom icon assets
-    final IconData iconData;
-    switch (id) {
-      case 0:
-        iconData = Icons.flash_on; // Thunder
-        break;
-      case 1:
-        iconData = Icons.wb_cloudy; // Cloudy
-        break;
-      case 2:
-        iconData = Icons.wb_sunny; // Sunny
-        break;
-      case 3:
-        iconData = Icons.water_drop; // Water
-        break;
-      case 4:
-        iconData = Icons.nightlight; // Moonlight
-        break;
-      case 5:
-        iconData = Icons.circle_outlined; // None
-        break;
-      case 6:
-        iconData = Icons.palette; // Palette
-        break;
-      case 7:
-        iconData = Icons.color_lens; // Color lens
-        break;
-      case 8:
-        iconData = Icons.auto_awesome; // Auto
-        break;
-      case 9:
-        iconData = Icons.star; // Star
-        break;
-      case 10:
-        iconData = Icons.favorite; // Favorite
-        break;
-      default:
-        iconData = Icons.circle_outlined;
-    }
-
-    return Icon(
-      iconData,
-      size: 32,
+    // PARITY: Use SceneIconHelper to get scene icons from SVG assets
+    // This matches reef-b-app's getSceneIconById() behavior
+    return SceneIconHelper.getSceneIcon(
+      iconId: id,
+      width: 32,
+      height: 32,
       color: isSelected ? ReefColors.primary : ReefColors.textSecondary,
     );
   }

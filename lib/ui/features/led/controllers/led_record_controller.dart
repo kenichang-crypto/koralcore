@@ -56,16 +56,19 @@ class LedRecordController extends ChangeNotifier {
   AppErrorCode? get lastErrorCode => _lastErrorCode;
   String get selectedTimeLabel =>
       _formatMinutes(_selectedMinutes ?? _nowMinutes());
+  int? get selectedMinutes => _selectedMinutes;
   bool get hasSelection => selectedRecord != null;
   LedRecord? get selectedRecord =>
       _recordMatching((record) => record.id == _selectedRecordId) ??
       _recordMatching(
         (record) => record.minutesFromMidnight == _selectedMinutes,
       );
-  bool get canDeleteSelected => selectedRecord != null && !isBusy;
-  bool get canNavigate => records.length >= 2 && !isBusy;
+  bool get canDeleteSelected => selectedRecord != null && !isBusy && !isPreviewing;
+  bool get canNavigate => records.length >= 2 && !isBusy && !isPreviewing;
   bool get canPreview => records.isNotEmpty && !isBusy;
-  bool get canClear => records.isNotEmpty && !isBusy;
+  bool get canClear => records.isNotEmpty && !isBusy && !isPreviewing;
+  bool get canAdd => _canAddRecord(_selectedMinutes ?? _nowMinutes()) && !isBusy && !isPreviewing;
+  bool get canAddTime => records.length < 24 && !isBusy && !isPreviewing;
 
   LedRecordEvent? consumeEvent() {
     final LedRecordEvent? event = _pendingEvent;
@@ -78,6 +81,7 @@ class LedRecordController extends ChangeNotifier {
       return;
     }
     _initialized = true;
+    // PARITY: reef-b-app sets initial time to current time
     _selectedMinutes ??= _nowMinutes();
 
     final String? deviceId = session.activeDeviceId;
@@ -388,7 +392,48 @@ class LedRecordController extends ChangeNotifier {
     final int safe = minutes.clamp(0, 1439);
     final int hour = safe ~/ 60;
     final int minute = safe % 60;
-    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+    // PARITY: reef-b-app format "HH : mm" (with spaces around colon)
+    return '${hour.toString().padLeft(2, '0')} : ${minute.toString().padLeft(2, '0')}';
+  }
+
+  /// Check if a record can be added at the specified minutes.
+  ///
+  /// PARITY: Mirrors reef-b-app's canAddRecord() function.
+  /// Rules:
+  /// 1. Cannot add if time already exists
+  /// 2. Must be at least 10 minutes away from existing records
+  bool _canAddRecord(int minutes) {
+    if (records.isEmpty) {
+      return true;
+    }
+    final List<LedRecord> ordered = _sortedRecords();
+    for (int i = 0; i < ordered.length; i++) {
+      final LedRecord current = ordered[i];
+      final int currentTime = current.minutesFromMidnight;
+      final int nextTime = i == ordered.length - 1 ? 1440 : ordered[i + 1].minutesFromMidnight;
+
+      // Check if time already exists
+      if (minutes == currentTime) {
+        return false;
+      }
+
+      // Check if time is in the interval between current and next
+      if (minutes > currentTime && minutes < nextTime) {
+        // Must be at least 10 minutes away from both boundaries
+        if (minutes < currentTime + 10 || minutes > nextTime - 10) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  /// Get the hour and minute from selected minutes.
+  (int hour, int minute) get selectedHourMinute {
+    final int minutes = _selectedMinutes ?? _nowMinutes();
+    final int hour = minutes ~/ 60;
+    final int minute = minutes % 60;
+    return (hour == 24 ? 0 : hour, minute);
   }
 }
 

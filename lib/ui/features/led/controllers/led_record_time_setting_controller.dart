@@ -12,11 +12,15 @@ class LedRecordTimeSettingController extends ChangeNotifier {
   final AppSession session;
   final LedRecordRepository ledRecordRepository;
   final LedRecord? initialRecord;
+  final int? initialHour;
+  final int? initialMinute;
 
   LedRecordTimeSettingController({
     required this.session,
     required this.ledRecordRepository,
     this.initialRecord,
+    this.initialHour,
+    this.initialMinute,
   }) {
     // Initialize from initialRecord if provided
     if (initialRecord != null) {
@@ -26,6 +30,10 @@ class LedRecordTimeSettingController extends ChangeNotifier {
 
       // Set channel levels from initial record
       _channelLevels = Map<String, int>.from(initialRecord!.channelLevels);
+    } else if (initialHour != null && initialMinute != null) {
+      // Initialize from initialHour/Minute if provided
+      _timeHour = initialHour!;
+      _timeMinute = initialMinute!;
     }
   }
 

@@ -110,16 +110,23 @@ class DeviceRepositoryImpl extends DeviceRepository {
 
   @override
   Future<List<Map<String, dynamic>>> scanDevices({Duration? timeout}) async {
+    // TODO: This is a mock implementation. Real BLE scanning needs to be implemented via platform channels.
     await Future<void>.delayed(timeout ?? const Duration(seconds: 2));
     _discoveredRecords
       ..clear()
       ..addAll(_generateDiscovered());
     
+    // TODO: Temporarily disabled name filtering for development
     // PARITY: Filter devices by name (matches reef-b-app's scanResult filtering)
     // Only include devices with names matching "koralDOSE", "coralDOSE", "koralLED", "coralLED"
-    _discoveredRecords.removeWhere((record) {
-      return !_matchesDeviceNameFilter(record.name);
-    });
+    // _discoveredRecords.removeWhere((record) {
+    //   return !_matchesDeviceNameFilter(record.name);
+    // });
+    
+    print('[DeviceRepository] Generated ${_discoveredRecords.length} test devices for scanning');
+    for (final record in _discoveredRecords) {
+      print('[DeviceRepository] Test device: id=${record.id}, name="${record.name}", rssi=${record.rssi}');
+    }
     
     _emitDiscovered();
     return _discoveredRecords
@@ -132,6 +139,9 @@ class DeviceRepositoryImpl extends DeviceRepository {
   /// PARITY: Matches reef-b-app's BluetoothViewModel.scanResult() logic:
   /// - Returns false if name is null or empty
   /// - Returns true if name contains "koralDOSE", "coralDOSE", "koralLED", or "coralLED" (case-insensitive)
+  /// 
+  /// TODO: Currently unused - name filtering is disabled for development
+  // ignore: unused_element
   bool _matchesDeviceNameFilter(String? deviceName) {
     if (deviceName == null || deviceName.isEmpty) {
       return false;
@@ -198,11 +208,29 @@ class DeviceRepositoryImpl extends DeviceRepository {
     }
 
     final _DeviceRecord record = _savedRecords[index];
-    if (record.isMaster) {
-      throw const AppError(
-        code: AppErrorCode.invalidParam,
-        message: 'Cannot remove a master device from the registry.',
-      );
+    
+    // PARITY: reef-b-app's canDeleteDevice() logic
+    // Only check LED devices for master deletion restriction
+    // DROP devices can always be deleted
+    if (record.type == 'LED' && record.isMaster) {
+      // Check if device is in a group with other devices
+      if (record.sinkId != null && record.group != null) {
+        final List<Map<String, dynamic>> groupDevices =
+            await getDevicesBySinkIdAndGroup(record.sinkId!, record.group!);
+        
+        // If group has more than 1 device, master cannot be deleted
+        if (groupDevices.length > 1) {
+          throw const AppError(
+            code: AppErrorCode.invalidParam,
+            message: 'Cannot remove a master LED device when group has other devices.',
+          );
+        }
+        // If group has only 1 device (this device), master can be deleted
+      } else if (record.sinkId == null) {
+        // Unassigned device, master can be deleted
+      } else {
+        // Has sinkId but no group, master can be deleted
+      }
     }
 
     _savedRecords.removeAt(index);
@@ -224,7 +252,25 @@ class DeviceRepositoryImpl extends DeviceRepository {
   @override
   Future<void> connect(String deviceId) async {
     await _initialize();
-    final int index = _indexOf(deviceId);
+    
+    // If device is not in saved records, try to find it in discovered records and add it
+    int index = _savedRecords.indexWhere((record) => record.id == deviceId);
+    if (index == -1) {
+      // Device not saved yet, check discovered records
+      final discoveredIndex = _discoveredRecords.indexWhere((record) => record.id == deviceId);
+      if (discoveredIndex != -1) {
+        // Add discovered device to saved records
+        final discoveredRecord = _discoveredRecords[discoveredIndex];
+        await addSavedDevice(discoveredRecord.toMap());
+        index = _savedRecords.indexWhere((record) => record.id == deviceId);
+      } else {
+        throw AppError(
+          code: AppErrorCode.invalidParam,
+          message: 'Unknown device id $deviceId',
+        );
+      }
+    }
+    
     final _DeviceRecord record = _savedRecords[index];
     if (record.state == 'connecting') {
       throw const AppError(
@@ -269,7 +315,30 @@ class DeviceRepositoryImpl extends DeviceRepository {
   @override
   Future<void> updateDeviceState(String deviceId, String state) async {
     await _initialize();
-    final int index = _indexOf(deviceId);
+    
+    // If device is not in saved records, try to find it in discovered records and add it
+    int index = _savedRecords.indexWhere((record) => record.id == deviceId);
+    if (index == -1) {
+      print('[DeviceRepository] Device $deviceId not in saved records, checking discovered records...');
+      // Device not saved yet, check discovered records
+      final discoveredIndex = _discoveredRecords.indexWhere((record) => record.id == deviceId);
+      if (discoveredIndex != -1) {
+        print('[DeviceRepository] Found device $deviceId in discovered records, adding to saved records...');
+        // Add discovered device to saved records
+        final discoveredRecord = _discoveredRecords[discoveredIndex];
+        await addSavedDevice(discoveredRecord.toMap());
+        index = _savedRecords.indexWhere((record) => record.id == deviceId);
+        print('[DeviceRepository] Device $deviceId added to saved records, index: $index');
+      } else {
+        print('[DeviceRepository] Device $deviceId not found in discovered records either');
+        throw AppError(
+          code: AppErrorCode.invalidParam,
+          message: 'Unknown device id $deviceId',
+        );
+      }
+    }
+    
+    print('[DeviceRepository] Updating device $deviceId state to: $state');
     final updated = _savedRecords[index].copyWith(state: state);
     _savedRecords[index] = updated;
     await _updateDeviceInDatabase(updated);
@@ -363,15 +432,26 @@ class DeviceRepositoryImpl extends DeviceRepository {
 
   List<_DeviceRecord> _generateDiscovered() {
     final List<_DeviceRecord> generated = <_DeviceRecord>[];
-    for (int i = 0; i < 3; i++) {
+    // Generate test devices with various names (no name filtering during development)
+    // TODO: Replace with real BLE scan results from platform
+    final List<Map<String, dynamic>> testDevices = [
+      {'name': 'koralDOSE 4H', 'type': 'DROP'},
+      {'name': 'coralDOSE 2H', 'type': 'DROP'},
+      {'name': 'koralLED EX', 'type': 'LED'},
+      {'name': 'Test Device 1', 'type': null},
+    ];
+    
+    for (int i = 0; i < testDevices.length; i++) {
+      final device = testDevices[i];
       generated.add(
         _DeviceRecord(
-          id: 'reef-discovered-${DateTime.now().millisecondsSinceEpoch + i}',
-          name: 'Nearby Device ${_random.nextInt(90) + 10}',
+          id: 'test-device-${DateTime.now().millisecondsSinceEpoch + i}',
+          name: device['name'] as String, // record.name is the device name variable
           rssi: (-45 - _random.nextInt(35)),
           state: 'disconnected',
           provisioned: false,
           isMaster: false,
+          type: device['type'] as String?,
         ).withRandomizedRssi(_random),
       );
     }
@@ -401,6 +481,42 @@ class DeviceRepositoryImpl extends DeviceRepository {
       );
     }
     return index;
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getDevicesBySinkIdAndGroup(
+    String sinkId,
+    String group,
+  ) async {
+    await _initialize();
+    return _savedRecords
+        .where((record) =>
+            record.sinkId == sinkId &&
+            record.group == group &&
+            record.type == 'LED')
+        .map((record) => record.toMap())
+        .toList();
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getDevicesBySinkId(String sinkId) async {
+    await _initialize();
+    return _savedRecords
+        .where((record) => record.sinkId == sinkId)
+        .map((record) => record.toMap())
+        .toList();
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getDropDevicesBySinkId(
+    String sinkId,
+  ) async {
+    await _initialize();
+    return _savedRecords
+        .where((record) =>
+            record.sinkId == sinkId && record.type == 'DROP')
+        .map((record) => record.toMap())
+        .toList();
   }
 }
 

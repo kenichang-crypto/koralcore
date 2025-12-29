@@ -317,4 +317,58 @@
   "dosingScheduleEditInvalidWindow": "O horário de término deve ser posterior ao horário de início.",
   "dosingScheduleEditTemplateDaily": "Use modelo de média diária",
   "dosingScheduleEditTemplateCustom": "Use modelo de janela personalizado"
+,
+  "ledSceneIcon": "Ícone da Cena",
+  "lightUv": "Luz UV",
+  "lightPurple": "Luz Roxa",
+  "lightBlue": "Luz Azul",
+  "lightRoyalBlue": "Luz Azul Royal",
+  "lightGreen": "Luz Verde",
+  "lightRed": "Luz Vermelha",
+  "lightColdWhite": "Luz Branca Fria",
+  "lightWarmWhite": "Luz Branca Quente",
+  "lightMoon": "Luz da Lua",
+  "toastNameIsEmpty": "O nome não pode estar vazio.",
+  "toastSettingSuccessful": "Configurações bem-sucedidas.",
+  "toastSceneNameIsExist": "O nome da cena já existe.",
+  "toastDeleteNowScene": "Não é possível excluir a cena atualmente em uso.",
+  "ledRecordsSnackRecordsFull": "Máximo de 24 pontos de tempo podem ser definidos.",
+  "ledRecordsSnackTimeExists": "Este período de tempo já foi definido.",
+  "ledRecordsSnackTimeError": "Os pontos de tempo devem estar separados por pelo menos 10 minutos.",
+  "dosingPumpHeadNoType": "Sem tipo",
+  "dosingPumpHeadModeScheduled": "Agendado",
+  "dosingPumpHeadModeFree": "Modo livre",
+  "dosingManualStarted": "Dosagem iniciada para cabeça {headId}",
+  "@dosingManualStarted": {
+    "placeholders": {
+      "headId": {
+        "type": "String"
+      }
+    }
+  },
+  "dosingVolumeFormat": "{dispensed} / {target} ml",
+  "@dosingVolumeFormat": {
+    "placeholders": {
+      "dispensed": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "channelPercentageFormat": "{label} {percentage}%",
+  "@channelPercentageFormat": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "timeRangeSeparator": "~",
+  "dosingVolumeHint": "Digite o volume",
+  "noRecords": "Nenhuma tarefa agendada"
 }

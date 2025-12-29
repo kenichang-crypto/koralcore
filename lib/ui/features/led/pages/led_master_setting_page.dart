@@ -11,6 +11,7 @@ import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_app_bar.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
+import '../../../assets/common_icon_helper.dart';
 import '../controllers/led_master_setting_controller.dart';
 
 /// LED master setting page.
@@ -56,7 +57,7 @@ class _LedMasterSettingView extends StatelessWidget {
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: CommonIconHelper.getCloseIcon(size: 24),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -238,8 +239,7 @@ class _LedMasterSettingView extends StatelessWidget {
               'assets/icons/ic_master_big.png', // TODO: Add icon asset
               width: 20, // dp_20
               height: 20, // dp_20
-              errorBuilder: (context, error, stackTrace) => Icon(
-                Icons.star,
+              errorBuilder: (context, error, stackTrace) => CommonIconHelper.getMasterIcon(
                 size: 20,
                 color: ReefColors.primary,
               ),
@@ -251,8 +251,7 @@ class _LedMasterSettingView extends StatelessWidget {
               'assets/icons/ic_menu.png', // TODO: Add icon asset
               width: 24, // dp_24
               height: 24, // dp_24
-              errorBuilder: (context, error, stackTrace) => Icon(
-                Icons.more_vert,
+              errorBuilder: (context, error, stackTrace) => CommonIconHelper.getMenuIcon(
                 size: 24,
                 color: ReefColors.textPrimary,
               ),
@@ -285,7 +284,7 @@ class _LedMasterSettingView extends StatelessWidget {
         children: [
           if (!isMaster && isConnected)
             ListTile(
-              leading: const Icon(Icons.star),
+              leading: CommonIconHelper.getMasterIcon(size: 24),
               title: Text(l10n.ledMasterSettingSetMaster),
               onTap: () async {
                 Navigator.pop(context);
@@ -303,7 +302,7 @@ class _LedMasterSettingView extends StatelessWidget {
             ),
           if (isConnected)
             ListTile(
-              leading: const Icon(Icons.swap_horiz),
+              leading: CommonIconHelper.getResetIcon(size: 24), // Using reset icon as placeholder for swap
               title: Text(l10n.ledMasterSettingMoveGroup),
               onTap: () {
                 Navigator.pop(context);

@@ -11,6 +11,7 @@ import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_app_bar.dart';
+import '../../../assets/common_icon_helper.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/warning_controller.dart';
@@ -55,7 +56,7 @@ class _WarningView extends StatelessWidget {
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: CommonIconHelper.getBackIcon(size: 24),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -67,7 +68,7 @@ class _WarningView extends StatelessWidget {
         actions: [
           if (controller.warnings.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.delete_sweep),
+              icon: CommonIconHelper.getDeleteIcon(size: 24),
               tooltip: l10n.warningClearAll,
               onPressed: controller.isLoading
                   ? null
@@ -306,7 +307,7 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.check_circle_outline, size: 64, color: ReefColors.success),
+          CommonIconHelper.getCheckIcon(size: 64, color: ReefColors.success),
           const SizedBox(height: ReefSpacing.md),
           Text(
             l10n.warningEmptyTitle,

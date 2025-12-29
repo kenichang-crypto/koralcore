@@ -316,5 +316,58 @@
   "dosingScheduleEditInvalidDose": "أدخل جرعة أكبر من الصفر.",
   "dosingScheduleEditInvalidWindow": "يجب أن يكون وقت الانتهاء بعد وقت البدء.",
   "dosingScheduleEditTemplateDaily": "استخدم قالب المتوسط ​​اليومي",
-  "dosingScheduleEditTemplateCustom": "استخدم قالب النافذة المخصص"
+  "dosingScheduleEditTemplateCustom": "استخدم قالب النافذة المخصص",
+  "ledSceneIcon": "أيقونة المشهد",
+  "lightUv": "ضوء UV",
+  "lightPurple": "ضوء أرجواني",
+  "lightBlue": "ضوء أزرق",
+  "lightRoyalBlue": "ضوء أزرق ملكي",
+  "lightGreen": "ضوء أخضر",
+  "lightRed": "ضوء أحمر",
+  "lightColdWhite": "ضوء أبيض بارد",
+  "lightWarmWhite": "ضوء أبيض دافئ",
+  "lightMoon": "ضوء القمر",
+  "toastNameIsEmpty": "لا يمكن ترك اسم الخزان فارغًا.",
+  "toastSettingSuccessful": "نجاح الإعدادات.",
+  "toastSceneNameIsExist": "اسم المشهد موجود بالفعل.",
+  "toastDeleteNowScene": "لا يمكن حذف المشهد الحالي المستخدم حاليًا.",
+  "ledRecordsSnackRecordsFull": "يمكن تعيين ما يصل إلى 24 نقطة زمنية كحد أقصى.",
+  "ledRecordsSnackTimeExists": "تم تعيين هذه الفترة بالفعل.",
+  "ledRecordsSnackTimeError": "يجب أن تكون نقاط الوقت على بعد 10 دقائق على الأقل.",
+  "dosingPumpHeadNoType": "لا يوجد نوع",
+  "dosingPumpHeadModeScheduled": "مجدول",
+  "dosingPumpHeadModeFree": "وضع حر",
+  "dosingManualStarted": "بدأ الجرعة للرأس {headId}",
+  "@dosingManualStarted": {
+    "placeholders": {
+      "headId": {
+        "type": "String"
+      }
+    }
+  },
+  "dosingVolumeFormat": "{dispensed} / {target} ml",
+  "@dosingVolumeFormat": {
+    "placeholders": {
+      "dispensed": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "channelPercentageFormat": "{label} {percentage}%",
+  "@channelPercentageFormat": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "timeRangeSeparator": "~",
+  "dosingVolumeHint": "أدخل الحجم",
+  "noRecords": "لا توجد مهام مجدولة"
 }

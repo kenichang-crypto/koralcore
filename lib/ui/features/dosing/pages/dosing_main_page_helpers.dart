@@ -157,8 +157,9 @@ Future<void> handlePlayDosing(
     );
 
     if (context.mounted) {
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Dosing started for head $headId')),
+        SnackBar(content: Text(l10n.dosingManualStarted(headId))),
       );
     }
   } on AppError catch (error) {

@@ -206,6 +206,57 @@ class BleLedRepositoryImpl extends LedRepository
   }
 
   @override
+  Future<LedRecordState> setRecord({
+    required String deviceId,
+    required int hour,
+    required int minute,
+    required Map<String, int> channelLevels,
+  }) async {
+    final _DeviceSession session = _ensureSession(deviceId);
+    session.cache.recordStatus = LedRecordStatus.applying;
+    emitRecordState(session);
+    
+    // Convert channel levels to ordered list
+    final List<int> orderedChannels = <int>[
+      channelLevels['coldWhite'] ?? 0,
+      channelLevels['royalBlue'] ?? 0,
+      channelLevels['blue'] ?? 0,
+      channelLevels['red'] ?? 0,
+      channelLevels['green'] ?? 0,
+      channelLevels['purple'] ?? 0,
+      channelLevels['uv'] ?? 0,
+      channelLevels['warmWhite'] ?? 0,
+      channelLevels['moonLight'] ?? channelLevels['moon'] ?? 0,
+    ];
+    
+    // Store pending record data for ACK handling
+    final int minutesFromMidnight = hour * 60 + minute;
+    session.cache.pendingRecordData = _PendingRecordData(
+      minutesFromMidnight: minutesFromMidnight,
+      channelLevels: Map<String, int>.from(channelLevels),
+    );
+    
+    final Future<void> mutationFuture =
+        session.beginRecordMutation(_setRecordErrorMessage);
+    try {
+      await sendCommand(
+        deviceId,
+        _commandBuilder.setRecord(
+          hour: hour,
+          minute: minute,
+          channels: orderedChannels,
+        ),
+      );
+    } catch (error) {
+      session.failRecordMutation();
+      session.cache.pendingRecordData = null;
+      rethrow;
+    }
+    await mutationFuture;
+    return session.cache.snapshotRecords();
+  }
+
+  @override
   Future<LedRecordState> deleteRecord({
     required String deviceId,
     required String recordId,
@@ -1429,6 +1480,7 @@ String _recordIdForMinutes(int minutes) {
 }
 
 const String _derivedScheduleRecurrence = 'daily';
+const String _setRecordErrorMessage = 'Failed to set LED record.';
 const String _deleteRecordErrorMessage = 'Failed to delete LED record.';
 const String _clearRecordsErrorMessage = 'Failed to clear LED records.';
 

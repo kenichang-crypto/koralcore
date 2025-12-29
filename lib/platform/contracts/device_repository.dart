@@ -74,4 +74,17 @@ abstract class DeviceRepository {
 
   /// Check if a device is favorite
   Future<bool> isDeviceFavorite(String deviceId);
+
+  /// Get devices by sink ID and group (for LED master deletion check)
+  /// Returns a list of devices in the same sink and group
+  Future<List<Map<String, dynamic>>> getDevicesBySinkIdAndGroup(
+    String sinkId,
+    String group,
+  );
+
+  /// Get all devices in a sink (for capacity checks)
+  Future<List<Map<String, dynamic>>> getDevicesBySinkId(String sinkId);
+
+  /// Get DROP devices in a sink (for DROP capacity check, max 4 per sink)
+  Future<List<Map<String, dynamic>>> getDropDevicesBySinkId(String sinkId);
 }

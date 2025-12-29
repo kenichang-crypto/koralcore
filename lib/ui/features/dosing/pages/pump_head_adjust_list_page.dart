@@ -11,6 +11,7 @@ import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_app_bar.dart';
+import '../../../assets/common_icon_helper.dart';
 import '../../../components/ble_guard.dart';
 import '../../../components/error_state_widget.dart';
 import '../../../components/loading_state_widget.dart';
@@ -63,7 +64,7 @@ class _PumpHeadAdjustListView extends StatelessWidget {
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: CommonIconHelper.getBackIcon(size: 24),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -71,7 +72,7 @@ class _PumpHeadAdjustListView extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: CommonIconHelper.getResetIcon(size: 24),
             onPressed: controller.isLoading ? null : controller.refresh,
             tooltip: l10n.actionRefresh,
           ),

@@ -40,6 +40,7 @@ dependencies:
   permission_handler: ^11.3.0
   flutter_blue_plus: ^1.34.4
   app_settings: ^5.1.1
+  wakelock_plus: ^1.2.8
   
   # Chart library for LED record visualization
   fl_chart: ^0.69.0
@@ -82,6 +83,10 @@ flutter:
     - assets/icons/dosing/
     - assets/icons/led/
     - assets/icons/bluetooth/
+    - assets/icons/scene/
+    - assets/icons/action/
+        - assets/icons/led_record/
+        - assets/icons/common/
     - assets/images/
     - assets/images/splash/
     - docs/reef_b_app_res/

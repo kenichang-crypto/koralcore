@@ -3,6 +3,7 @@ library;
 import 'dart:async';
 
 import '../../domain/led_lighting/led_state.dart';
+import '../../domain/led_lighting/scene_catalog.dart';
 import '../../platform/contracts/led_repository.dart';
 
 class ReadLedSceneSnapshot {
@@ -38,9 +39,29 @@ class ReadLedScenesUseCase {
 
   Future<List<ReadLedSceneSnapshot>> execute({required String deviceId}) async {
     final LedState? state = await ledRepository.getLedState(deviceId);
+    
+    // PARITY: reef-b-app's getAllScene() returns all scenes from database
+    // If BLE state is null or empty, fallback to SceneCatalog preset scenes
     if (state == null || state.scenes.isEmpty) {
-      return const <ReadLedSceneSnapshot>[];
+      // Return preset scenes from SceneCatalog (matching reef-b-app's getPresetScene)
+      return SceneCatalog.presetScenes.values
+          .map(
+            (scene) => ReadLedSceneSnapshot(
+              id: scene.sceneId,
+              name: scene.name,
+              description: scene.name,
+              palette: _buildPalette(scene),
+              isEnabled: true,
+              isPreset: true,
+              isDynamic: scene.isDynamic,
+              iconKey: scene.iconKey,
+              presetCode: scene.presetCode,
+              channelLevels: Map<String, int>.unmodifiable(scene.channelLevels),
+            ),
+          )
+          .toList(growable: false);
     }
+    
     return state.scenes
         .map(
           (scene) => ReadLedSceneSnapshot(

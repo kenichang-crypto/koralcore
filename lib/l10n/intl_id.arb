@@ -317,4 +317,58 @@
   "dosingScheduleEditInvalidWindow": "Waktu berakhir harus setelah waktu mulai.",
   "dosingScheduleEditTemplateDaily": "Gunakan templat rata-rata harian",
   "dosingScheduleEditTemplateCustom": "Gunakan templat jendela khusus"
+,
+  "ledSceneIcon": "Ikon Adegan",
+  "lightUv": "Cahaya UV",
+  "lightPurple": "Cahaya ungu",
+  "lightBlue": "Cahaya biru",
+  "lightRoyalBlue": "Cahaya biru kerajaan",
+  "lightGreen": "Cahaya hijau",
+  "lightRed": "Cahaya merah",
+  "lightColdWhite": "Cahaya putih keren",
+  "lightWarmWhite": "Cahaya putih hangat",
+  "lightMoon": "Cahaya bulan",
+  "toastNameIsEmpty": "Nama tidak boleh kosong.",
+  "toastSettingSuccessful": "Pengaturan berhasil.",
+  "toastSceneNameIsExist": "Nama adegan sudah ada.",
+  "toastDeleteNowScene": "Tidak dapat menghapus adegan yang sedang digunakan saat ini.",
+  "ledRecordsSnackRecordsFull": "Maksimal 24 titik waktu dapat diatur.",
+  "ledRecordsSnackTimeExists": "Periode waktu ini sudah diatur.",
+  "ledRecordsSnackTimeError": "Titik waktu harus terpisah setidaknya 10 menit.",
+  "dosingPumpHeadNoType": "Tidak ada tipe",
+  "dosingPumpHeadModeScheduled": "Terjadwal",
+  "dosingPumpHeadModeFree": "Mode bebas",
+  "dosingManualStarted": "Dosis dimulai untuk kepala {headId}",
+  "@dosingManualStarted": {
+    "placeholders": {
+      "headId": {
+        "type": "String"
+      }
+    }
+  },
+  "dosingVolumeFormat": "{dispensed} / {target} ml",
+  "@dosingVolumeFormat": {
+    "placeholders": {
+      "dispensed": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "channelPercentageFormat": "{label} {percentage}%",
+  "@channelPercentageFormat": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "timeRangeSeparator": "~",
+  "dosingVolumeHint": "Masukkan volume",
+  "noRecords": "Tidak ada tugas terjadwal"
 }

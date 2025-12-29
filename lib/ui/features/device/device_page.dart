@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../application/common/app_error_code.dart';
 import '../../../application/system/ble_readiness_controller.dart';
+import '../../components/app_error_presenter.dart';
 import '../../components/ble_guard.dart';
 import '../../components/error_state_widget.dart';
 import '../../components/empty_state_widget.dart';
@@ -14,6 +15,7 @@ import '../../theme/reef_spacing.dart';
 import '../../theme/reef_text.dart';
 import '../../widgets/reef_backgrounds.dart';
 import '../../widgets/reef_app_bar.dart';
+import '../../assets/common_icon_helper.dart';
 import 'controllers/device_list_controller.dart';
 import 'widgets/device_card.dart';
 import 'pages/add_device_page.dart';
@@ -25,14 +27,32 @@ class DevicePage extends StatefulWidget {
   State<DevicePage> createState() => _DevicePageState();
 }
 
-class _DevicePageState extends State<DevicePage> {
+class _DevicePageState extends State<DevicePage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      // Refresh BLE status and device list when page opens
+      context.read<BleReadinessController>().refresh();
       context.read<DeviceListController>().refresh();
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // Refresh BLE status when app resumes (e.g., returning from settings)
+    if (state == AppLifecycleState.resumed && mounted) {
+      context.read<BleReadinessController>().refresh();
+    }
   }
 
   @override
@@ -49,7 +69,10 @@ class _DevicePageState extends State<DevicePage> {
         elevation: 0,
         leading: selectionMode
             ? IconButton(
-                icon: const Icon(Icons.close, color: ReefColors.surface),
+                icon: CommonIconHelper.getCloseIcon(
+                  size: 24,
+                  color: ReefColors.surface,
+                ),
                 onPressed: controller.exitSelectionMode,
               )
             : null,
@@ -84,161 +107,176 @@ class _DevicePageState extends State<DevicePage> {
       body: ReefMainBackground(
         child: SafeArea(
           child: RefreshIndicator(
-          onRefresh: () => controller.refresh(),
-          child: CustomScrollView(
-            physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics(),
-            ),
-            slivers: [
-              SliverToBoxAdapter(
-                child: Consumer<BleReadinessController>(
-                  builder: (context, bleController, _) {
-                    if (bleController.snapshot.isReady) {
-                      return const SizedBox.shrink();
-                    }
-                    return const Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        ReefSpacing.xl,
-                        ReefSpacing.lg,
-                        ReefSpacing.xl,
-                        ReefSpacing.lg,
-                      ),
-                      child: BleGuardBanner(),
-                    );
-                  },
-                ),
+            onRefresh: () => controller.refresh(),
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
               ),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: ReefSpacing.xl),
-                sliver: SliverToBoxAdapter(
-                  child: _ActionsBar(controller: controller, l10n: l10n),
-                ),
-              ),
-              const SliverToBoxAdapter(child: SizedBox(height: ReefSpacing.lg)),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: ReefSpacing.xl),
-                sliver: SliverToBoxAdapter(
-                  child: _SectionHeader(title: l10n.deviceHeader),
-                ),
-              ),
-              if (controller.savedDevices.isEmpty)
+              slivers: [
                 SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: ReefSpacing.xl,
-                    ),
-                    child: _EmptyState(
-                      l10n: l10n,
-                      onScan: () => controller.refresh(),
-                    ),
-                  ),
-                )
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: ReefSpacing.xl,
-                  ),
-                  sliver: SliverGrid(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: ReefSpacing.lg,
-                          crossAxisSpacing: ReefSpacing.lg,
-                          childAspectRatio: .95,
+                  child: Consumer<BleReadinessController>(
+                    builder: (context, bleController, _) {
+                      if (bleController.snapshot.isReady) {
+                        return const SizedBox.shrink();
+                      }
+                      return const Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          ReefSpacing.xl,
+                          ReefSpacing.lg,
+                          ReefSpacing.xl,
+                          ReefSpacing.lg,
                         ),
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final device = controller.savedDevices[index];
-                      final isSelected = controller.selectedIds.contains(
-                        device.id,
-                      );
-                      return DeviceCard(
-                        device: device,
-                        selectionMode: controller.selectionMode,
-                        isSelected: isSelected,
-                        onSelect: () => controller.toggleSelection(device.id),
-                        onConnect: () => controller.connect(device.id),
-                        onDisconnect: () => controller.disconnect(device.id),
-                      );
-                    }, childCount: controller.savedDevices.length),
-                  ),
-                ),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: ReefSpacing.xl),
-                sliver: SliverToBoxAdapter(
-                  child: _SectionHeader(title: l10n.bluetoothHeader),
-                ),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: ReefSpacing.xl),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    childCount: controller.discoveredDevices.length,
-                    (context, index) {
-                      final device = controller.discoveredDevices[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: ReefSpacing.md),
-                        child: DeviceCard(
-                          device: device,
-                          selectionMode: false,
-                          isSelected: false,
-                          onSelect: null,
-                          onConnect: () => controller.connect(device.id),
-                          onDisconnect: () => controller.disconnect(device.id),
-                        ),
+                        child: BleGuardBanner(),
                       );
                     },
                   ),
                 ),
-              ),
-              if (controller.discoveredDevices.isEmpty)
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: ReefSpacing.xl,
                   ),
                   sliver: SliverToBoxAdapter(
+                    child: _ActionsBar(controller: controller, l10n: l10n),
+                  ),
+                ),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: ReefSpacing.lg),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: ReefSpacing.xl,
+                  ),
+                  sliver: SliverToBoxAdapter(
+                    child: _SectionHeader(title: l10n.deviceHeader),
+                  ),
+                ),
+                if (controller.savedDevices.isEmpty)
+                  SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: ReefSpacing.xxl),
-                      child: Container(
-                        padding: const EdgeInsets.all(ReefSpacing.lg),
-                        decoration: BoxDecoration(
-                          color: ReefColors.surface.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(ReefRadius.lg),
-                        ),
-                        child: Row(
-                          children: [
-                            Image.asset(kBluetoothIcon, width: 32, height: 32),
-                            const SizedBox(width: ReefSpacing.md),
-                            Expanded(
-                              child: Text(
-                                l10n.bluetoothEmptyState,
-                                style: ReefTextStyles.body.copyWith(
-                                  color: ReefColors.textPrimary,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: ReefSpacing.xl,
+                      ),
+                      child: _EmptyState(
+                        l10n: l10n,
+                        onScan: () => controller.refresh(),
+                      ),
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: ReefSpacing.xl,
+                    ),
+                    sliver: SliverGrid(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: ReefSpacing.lg,
+                            crossAxisSpacing: ReefSpacing.lg,
+                            childAspectRatio: .95,
+                          ),
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final device = controller.savedDevices[index];
+                        final isSelected = controller.selectedIds.contains(
+                          device.id,
+                        );
+                        return DeviceCard(
+                          device: device,
+                          selectionMode: controller.selectionMode,
+                          isSelected: isSelected,
+                          onSelect: () => controller.toggleSelection(device.id),
+                          onConnect: () => controller.connect(device.id),
+                          onDisconnect: () => controller.disconnect(device.id),
+                        );
+                      }, childCount: controller.savedDevices.length),
+                    ),
+                  ),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: ReefSpacing.xl,
+                  ),
+                  sliver: SliverToBoxAdapter(
+                    child: _SectionHeader(title: l10n.bluetoothHeader),
+                  ),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: ReefSpacing.xl,
+                  ),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      childCount: controller.discoveredDevices.length,
+                      (context, index) {
+                        final device = controller.discoveredDevices[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(
+                            bottom: ReefSpacing.md,
+                          ),
+                          child: DeviceCard(
+                            device: device,
+                            selectionMode: false,
+                            isSelected: false,
+                            onSelect: null,
+                            onConnect: () => controller.connect(device.id),
+                            onDisconnect: () =>
+                                controller.disconnect(device.id),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                if (controller.discoveredDevices.isEmpty)
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: ReefSpacing.xl,
+                    ),
+                    sliver: SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: ReefSpacing.xxl),
+                        child: Container(
+                          padding: const EdgeInsets.all(ReefSpacing.lg),
+                          decoration: BoxDecoration(
+                            color: ReefColors.surface.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(ReefRadius.lg),
+                          ),
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                kBluetoothIcon,
+                                width: 32,
+                                height: 32,
+                              ),
+                              const SizedBox(width: ReefSpacing.md),
+                              Expanded(
+                                child: Text(
+                                  l10n.bluetoothEmptyState,
+                                  style: ReefTextStyles.body.copyWith(
+                                    color: ReefColors.textPrimary,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: ReefSpacing.xxl),
                 ),
-              const SliverToBoxAdapter(
-                child: SizedBox(height: ReefSpacing.xxl),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-          ),
-        ),
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const AddDevicePage(),
-            ),
-          );
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const AddDevicePage()));
         },
-        icon: const Icon(Icons.add),
+        icon: CommonIconHelper.getAddIcon(size: 24),
         label: Text(l10n.deviceActionAdd),
       ),
     );
@@ -272,9 +310,21 @@ class _DevicePageState extends State<DevicePage> {
     if (confirmed == true) {
       await controller.removeSelected();
       if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.snackbarDeviceRemoved)));
+
+      // Check if there was an error
+      final AppErrorCode? errorCode = controller.lastErrorCode;
+      if (errorCode != null) {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(describeAppError(l10n, errorCode))),
+        );
+        controller.clearError();
+      } else {
+        // Show success message
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.snackbarDeviceRemoved)));
+      }
     }
   }
 
@@ -307,6 +357,7 @@ class _ActionsBar extends StatelessWidget {
           onPressed: controller.isScanning
               ? null
               : () {
+                  print('[DevicePage] Scan button pressed');
                   controller.refresh();
                 },
           icon: controller.isScanning
@@ -315,7 +366,7 @@ class _ActionsBar extends StatelessWidget {
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Icon(Icons.sync),
+              : CommonIconHelper.getResetIcon(size: 16),
           label: Text(
             controller.isScanning
                 ? l10n.bluetoothScanning

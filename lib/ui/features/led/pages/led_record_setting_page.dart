@@ -13,6 +13,8 @@ import '../../../widgets/semi_circle_dashboard.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/led_record_setting_controller.dart';
+import '../support/led_record_icon_helper.dart';
+import '../../../assets/common_icon_helper.dart';
 import 'led_record_page.dart';
 
 /// LED record setting page.
@@ -29,15 +31,43 @@ class LedRecordSettingPage extends StatelessWidget {
       create: (_) => LedRecordSettingController(
         session: session,
         ledRecordRepository: appContext.ledRecordRepository,
-        startLedRecordUseCase: appContext.startLedRecordUseCase,
+        initLedRecordUseCase: appContext.initLedRecordUseCase,
       ),
       child: const _LedRecordSettingView(),
     );
   }
 }
 
-class _LedRecordSettingView extends StatelessWidget {
+class _LedRecordSettingView extends StatefulWidget {
   const _LedRecordSettingView();
+
+  @override
+  State<_LedRecordSettingView> createState() => _LedRecordSettingViewState();
+}
+
+class _LedRecordSettingViewState extends State<_LedRecordSettingView> {
+  bool _previousBleConnected = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    
+    // PARITY: reef-b-app disconnectLiveData.observe() → finish()
+    // Monitor BLE connection state and close page on disconnect
+    final session = context.watch<AppSession>();
+    final isBleConnected = session.isBleConnected;
+    
+    // If BLE was connected but now disconnected, close page
+    if (_previousBleConnected && !isBleConnected) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      });
+    }
+    
+    _previousBleConnected = isBleConnected;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +85,7 @@ class _LedRecordSettingView extends StatelessWidget {
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: CommonIconHelper.getCloseIcon(size: 24),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -113,10 +143,9 @@ class _LedRecordSettingView extends StatelessWidget {
         // Title with sun icon
         Row(
           children: [
-            Icon(
-              Icons.wb_sunny,
-              size: 20, // dp_20
-              color: ReefColors.textPrimary,
+            LedRecordIconHelper.getSunIcon(
+              width: 20,
+              height: 20,
             ),
             const SizedBox(width: 4), // dp_4
             Text(
@@ -134,17 +163,26 @@ class _LedRecordSettingView extends StatelessWidget {
         ),
         const SizedBox(height: 8), // dp_8
         // Slider
-        Slider(
-          value: controller.initStrength.toDouble(),
-          min: 0,
-          max: 100,
-          divisions: 100,
-          label: '${controller.initStrength}%',
-          activeColor: ReefColors.dashboardProgress, // dashboard_progress
-          inactiveColor: ReefColors.textTertiary, // text_aa
-          onChanged: (value) {
-            controller.setInitStrength(value.toInt());
-          },
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            trackHeight: 2.0, // dp_2
+            thumbShape: const RoundSliderThumbShape(
+              enabledThumbRadius: 8.0, // dp_8 (16dp / 2)
+            ),
+            thumbColor: const Color(0xFF5599FF), // Strength thumb color from SVG
+          ),
+          child: Slider(
+            value: controller.initStrength.toDouble(),
+            min: 0,
+            max: 100,
+            divisions: 100,
+            label: '${controller.initStrength}%',
+            activeColor: ReefColors.dashboardProgress, // dashboard_progress
+            inactiveColor: ReefColors.textTertiary, // text_aa
+            onChanged: (value) {
+              controller.setInitStrength(value.toInt());
+            },
+          ),
         ),
       ],
     );
@@ -169,10 +207,9 @@ class _LedRecordSettingView extends StatelessWidget {
           // Sunrise row
           Row(
             children: [
-              Icon(
-                Icons.wb_twilight, // ic_sunrise
-                size: 20, // dp_20
-                color: ReefColors.textPrimary,
+              LedRecordIconHelper.getSunriseIcon(
+                width: 20,
+                height: 20,
               ),
               const SizedBox(width: 4), // dp_4
               Expanded(
@@ -191,7 +228,10 @@ class _LedRecordSettingView extends StatelessWidget {
                   controller.sunriseMinute,
                   (hour, minute) => controller.setSunrise(hour, minute),
                 ),
-                icon: const Icon(Icons.keyboard_arrow_down, size: 20),
+                icon: LedRecordIconHelper.getDownIcon(
+                  width: 20,
+                  height: 20,
+                ),
                 label: Text(
                   '${controller.sunriseHour.toString().padLeft(2, '0')} : ${controller.sunriseMinute.toString().padLeft(2, '0')}',
                 ),
@@ -210,10 +250,9 @@ class _LedRecordSettingView extends StatelessWidget {
           // Sunset row
           Row(
             children: [
-              Icon(
-                Icons.wb_twilight, // ic_sunset (using same icon for now)
-                size: 20, // dp_20
-                color: ReefColors.textPrimary,
+              LedRecordIconHelper.getSunsetIcon(
+                width: 20,
+                height: 20,
               ),
               const SizedBox(width: 4), // dp_4
               Expanded(
@@ -232,7 +271,10 @@ class _LedRecordSettingView extends StatelessWidget {
                   controller.sunsetMinute,
                   (hour, minute) => controller.setSunset(hour, minute),
                 ),
-                icon: const Icon(Icons.keyboard_arrow_down, size: 20),
+                icon: LedRecordIconHelper.getDownIcon(
+                  width: 20,
+                  height: 20,
+                ),
                 label: Text(
                   '${controller.sunsetHour.toString().padLeft(2, '0')} : ${controller.sunsetMinute.toString().padLeft(2, '0')}',
                 ),
@@ -273,10 +315,9 @@ class _LedRecordSettingView extends StatelessWidget {
           // Soft Start section
           Row(
             children: [
-              Icon(
-                Icons.timer_outlined, // ic_slow_start
-                size: 20, // dp_20
-                color: ReefColors.textPrimary,
+              LedRecordIconHelper.getSlowStartIcon(
+                width: 20,
+                height: 20,
               ),
               const SizedBox(width: 4), // dp_4
               Expanded(
@@ -297,19 +338,28 @@ class _LedRecordSettingView extends StatelessWidget {
           ),
           const SizedBox(height: 8), // dp_8
           // Slider (10-60, step 10)
-          Slider(
-            value: controller.slowStart.clamp(10, 60).toDouble(),
-            min: 10,
-            max: 60,
-            divisions: 5, // (60-10)/10 = 5 steps
-            label: '${controller.slowStart} ${l10n.minute}',
-            activeColor: ReefColors.primary, // bg_primary
-            inactiveColor: ReefColors.surfacePressed, // bg_press
-            onChanged: (value) {
-              // Round to nearest 10
-              final rounded = ((value / 10).round() * 10).toInt();
-              controller.setSlowStart(rounded.clamp(10, 60));
-            },
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 2.0, // dp_2
+              thumbShape: const RoundSliderThumbShape(
+                enabledThumbRadius: 8.0, // dp_8 (16dp / 2)
+              ),
+              thumbColor: const Color(0xFF6F916F), // Default thumb color from SVG
+            ),
+            child: Slider(
+              value: controller.slowStart.clamp(10, 60).toDouble(),
+              min: 10,
+              max: 60,
+              divisions: 5, // (60-10)/10 = 5 steps
+              label: '${controller.slowStart} ${l10n.minute}',
+              activeColor: ReefColors.primary, // bg_primary
+              inactiveColor: ReefColors.surfacePressed, // bg_press
+              onChanged: (value) {
+                // Round to nearest 10
+                final rounded = ((value / 10).round() * 10).toInt();
+                controller.setSlowStart(rounded.clamp(10, 60));
+              },
+            ),
           ),
           // Scale labels (10, 20, 30, 40, 50, 60)
           Row(
@@ -357,10 +407,9 @@ class _LedRecordSettingView extends StatelessWidget {
           // Moonlight section
           Row(
             children: [
-              Icon(
-                Icons.nightlight_round, // ic_moon_round
-                size: 20, // dp_20
-                color: ReefColors.textPrimary,
+              LedRecordIconHelper.getMoonLightIcon(
+                width: 20,
+                height: 20,
               ),
               const SizedBox(width: 6), // dp_6
               Expanded(
@@ -381,17 +430,26 @@ class _LedRecordSettingView extends StatelessWidget {
           ),
           const SizedBox(height: 8), // dp_8
           // Moonlight slider (0-100)
-          Slider(
-            value: controller.moonlight.toDouble(),
-            min: 0,
-            max: 100,
-            divisions: 100,
-            label: '${controller.moonlight}%',
-            activeColor: ReefColors.moonLight, // moon_light_color
-            inactiveColor: ReefColors.surfacePressed, // bg_press
-            onChanged: (value) {
-              controller.setMoonlight(value.toInt());
-            },
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 2.0, // dp_2
+              thumbShape: const RoundSliderThumbShape(
+                enabledThumbRadius: 8.0, // dp_8 (16dp / 2)
+              ),
+              thumbColor: const Color(0xFFFF9955), // Moon light thumb color from SVG
+            ),
+            child: Slider(
+              value: controller.moonlight.toDouble(),
+              min: 0,
+              max: 100,
+              divisions: 100,
+              label: '${controller.moonlight}%',
+              activeColor: ReefColors.moonLight, // moon_light_color
+              inactiveColor: ReefColors.surfacePressed, // bg_press
+              onChanged: (value) {
+                controller.setMoonlight(value.toInt());
+              },
+            ),
           ),
           // Scale labels (0, 100)
           Row(

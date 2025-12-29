@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
-import '../../../../application/led/start_led_record_usecase.dart';
+import '../../../../application/led/init_led_record_usecase.dart';
 import '../../../../platform/contracts/led_record_repository.dart';
 
 /// Controller for LED record setting page.
@@ -11,12 +11,12 @@ import '../../../../platform/contracts/led_record_repository.dart';
 class LedRecordSettingController extends ChangeNotifier {
   final AppSession session;
   final LedRecordRepository ledRecordRepository;
-  final StartLedRecordUseCase startLedRecordUseCase;
+  final InitLedRecordUseCase initLedRecordUseCase;
 
   LedRecordSettingController({
     required this.session,
     required this.ledRecordRepository,
-    required this.startLedRecordUseCase,
+    required this.initLedRecordUseCase,
   });
 
   // State
@@ -97,30 +97,18 @@ class LedRecordSettingController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Calculate time points (for future BLE command implementation)
-      // ignore: unused_local_variable
-      final int sunriseStart = sunriseMinutes;
-      // ignore: unused_local_variable
-      final int sunriseEnd = sunriseMinutes + _slowStart;
-      // ignore: unused_local_variable
-      final int sunsetStart = sunsetMinutes - _slowStart;
-      // ignore: unused_local_variable
-      final int sunsetEnd = sunsetMinutes;
-
-      // TODO: Send BLE commands to set records
-      // This should send multiple SET_RECORD commands:
-      // 1. Midnight record (all 0, moonlight)
-      // 2. Sunrise start (all 0, moonlight)
-      // 3. Sunrise end (initStrength for all channels, 0 moonlight)
-      // 4. Sunset start (initStrength for all channels, 0 moonlight)
-      // 5. Sunset end (all 0, moonlight)
-      // Then start record mode
-
-      // For now, simulate with delay
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      // Start record mode
-      await startLedRecordUseCase.execute(deviceId: deviceId);
+      // PARITY: reef-b-app's initLedRecord() sends 5 SET_RECORD commands
+      // and then starts record mode if current mode is not CUSTOM_SCENE or PRESET_SCENE
+      await initLedRecordUseCase.execute(
+        deviceId: deviceId,
+        initStrength: _initStrength,
+        sunriseHour: _sunriseHour,
+        sunriseMinute: _sunriseMinute,
+        sunsetHour: _sunsetHour,
+        sunsetMinute: _sunsetMinute,
+        slowStart: _slowStart,
+        moonlight: _moonlight,
+      );
 
       _clearError();
       return true;

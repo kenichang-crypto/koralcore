@@ -38,6 +38,7 @@ import '../device/remove_device_usecase.dart';
 import '../device/scan_devices_usecase.dart';
 import '../device/toggle_favorite_device_usecase.dart';
 import '../device/update_device_name_usecase.dart';
+import '../device/update_device_sink_usecase.dart';
 import '../doser/apply_schedule_usecase.dart';
 import '../doser/observe_dosing_state_usecase.dart';
 import '../doser/read_calibration_history.dart';
@@ -71,6 +72,7 @@ import '../led/save_led_schedule_usecase.dart';
 import '../led/set_channel_intensity.dart';
 import '../led/start_led_preview_usecase.dart';
 import '../led/start_led_record_usecase.dart';
+import '../led/init_led_record_usecase.dart';
 import '../led/stop_led_preview_usecase.dart';
 import '../led/add_scene_usecase.dart';
 import '../led/update_scene_usecase.dart';
@@ -98,6 +100,7 @@ class AppContext {
   final RemoveDeviceUseCase removeDeviceUseCase;
   final ToggleFavoriteDeviceUseCase toggleFavoriteDeviceUseCase;
   final UpdateDeviceNameUseCase updateDeviceNameUseCase;
+  final UpdateDeviceSinkUseCase updateDeviceSinkUseCase;
   final ReadScheduleUseCase readScheduleUseCase;
   final ReadTodayTotalUseCase readTodayTotalUseCase;
   final ReadDosingScheduleSummaryUseCase readDosingScheduleSummaryUseCase;
@@ -128,6 +131,7 @@ class AppContext {
   final StartLedPreviewUseCase startLedPreviewUseCase;
   final StopLedPreviewUseCase stopLedPreviewUseCase;
   final StartLedRecordUseCase startLedRecordUseCase;
+  final InitLedRecordUseCase initLedRecordUseCase;
   final AddSceneUseCase addSceneUseCase;
   final UpdateSceneUseCase updateSceneUseCase;
   final DeleteSceneUseCase deleteSceneUseCase;
@@ -151,6 +155,7 @@ class AppContext {
     required this.removeDeviceUseCase,
     required this.toggleFavoriteDeviceUseCase,
     required this.updateDeviceNameUseCase,
+    required this.updateDeviceSinkUseCase,
     required this.readScheduleUseCase,
     required this.readTodayTotalUseCase,
     required this.readDosingScheduleSummaryUseCase,
@@ -179,6 +184,7 @@ class AppContext {
     required this.startLedPreviewUseCase,
     required this.stopLedPreviewUseCase,
     required this.startLedRecordUseCase,
+    required this.initLedRecordUseCase,
     required this.addSceneUseCase,
     required this.updateSceneUseCase,
     required this.deleteSceneUseCase,
@@ -279,11 +285,20 @@ class AppContext {
       removeDeviceUseCase: RemoveDeviceUseCase(
         deviceRepository: deviceRepository,
         currentDeviceSession: currentDeviceSession,
+        disconnectDeviceUseCase: DisconnectDeviceUseCase(
+          deviceRepository: deviceRepository,
+          currentDeviceSession: currentDeviceSession,
+          pumpHeadRepository: pumpHeadRepository,
+          ledRepository: ledRepository,
+        ),
       ),
       toggleFavoriteDeviceUseCase: ToggleFavoriteDeviceUseCase(
         deviceRepository: deviceRepository,
       ),
       updateDeviceNameUseCase: UpdateDeviceNameUseCase(
+        deviceRepository: deviceRepository,
+      ),
+      updateDeviceSinkUseCase: UpdateDeviceSinkUseCase(
         deviceRepository: deviceRepository,
       ),
       readScheduleUseCase: const ReadScheduleUseCase(),
@@ -380,6 +395,10 @@ class AppContext {
       ),
       startLedRecordUseCase: StartLedRecordUseCase(
         repository: ledRepository,
+      ),
+      initLedRecordUseCase: InitLedRecordUseCase(
+        ledRecordRepository: ledRecordRepository,
+        ledRepository: ledRepository,
       ),
       addSceneUseCase: AddSceneUseCase(
         ledRepository: ledRepository,

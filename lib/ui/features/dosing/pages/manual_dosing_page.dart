@@ -7,6 +7,7 @@ import '../../../../application/common/app_session.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../widgets/reef_app_bar.dart';
+import '../../../assets/common_icon_helper.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/manual_dosing_controller.dart';
@@ -218,7 +219,7 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
               children: [
                 IconButton(
                   onPressed: _decrementDose,
-                  icon: const Icon(Icons.remove_circle_outline),
+                  icon: CommonIconHelper.getMinusIcon(size: 24),
                 ),
                 const SizedBox(width: ReefSpacing.xs),
                 Expanded(
@@ -247,7 +248,7 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
                 const SizedBox(width: ReefSpacing.xs),
                 IconButton(
                   onPressed: _incrementDose,
-                  icon: const Icon(Icons.add_circle_outline),
+                  icon: CommonIconHelper.getAddIcon(size: 24),
                 ),
               ],
             ),

@@ -6,6 +6,7 @@ import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
+import '../../../../domain/sink/sink.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../sink/pages/sink_position_page.dart';
 import '../../../theme/reef_colors.dart';
@@ -13,6 +14,7 @@ import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_app_bar.dart';
+import '../../../assets/common_icon_helper.dart';
 
 /// LedSettingPage
 ///
@@ -31,21 +33,96 @@ class LedSettingPage extends StatefulWidget {
 class _LedSettingPageState extends State<LedSettingPage> {
   late TextEditingController _nameController;
   bool _isLoading = false;
-  // ignore: unused_field
-  AppErrorCode? _lastErrorCode;
+  String? _currentSinkId;
+  String? _currentSinkName;
+  String? _selectedSinkId;
+  String? _deviceType;
+  String? _currentGroup;
+  bool? _currentMaster;
 
   @override
   void initState() {
     super.initState();
+    _loadDeviceData();
+  }
+
+  Future<void> _loadDeviceData() async {
+    final appContext = context.read<AppContext>();
     final session = context.read<AppSession>();
-    final deviceName = session.activeDeviceName ?? '';
-    _nameController = TextEditingController(text: deviceName);
+    final deviceId = session.activeDeviceId;
+    if (deviceId == null) return;
+
+    final device = await appContext.deviceRepository.getDevice(deviceId);
+    if (device != null) {
+      final deviceName = device['name']?.toString() ?? session.activeDeviceName ?? '';
+      _nameController = TextEditingController(text: deviceName);
+      
+      _currentSinkId = device['sinkId']?.toString();
+      _selectedSinkId = _currentSinkId;
+      _deviceType = device['type']?.toString();
+      _currentGroup = device['group']?.toString();
+      _currentMaster = device['isMaster'] == true;
+
+      // Load sink name
+      if (_currentSinkId != null && _currentSinkId!.isNotEmpty) {
+        final sinks = appContext.sinkRepository.getCurrentSinks();
+        final sink = sinks.firstWhere(
+          (s) => s.id == _currentSinkId,
+          orElse: () => const Sink(
+            id: '',
+            name: '',
+            type: SinkType.custom,
+            deviceIds: [],
+          ),
+        );
+        if (sink.id.isNotEmpty) {
+          _currentSinkName = sink.name;
+        }
+      }
+    } else {
+      final deviceName = session.activeDeviceName ?? '';
+      _nameController = TextEditingController(text: deviceName);
+    }
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     super.dispose();
+  }
+
+  /// Check if device can be moved to another sink.
+  ///
+  /// PARITY: Matches reef-b-app's LedSettingViewModel.canMoveDevice().
+  /// - Unassigned devices can always be moved
+  /// - If group has only 1 device, master can be moved
+  /// - If group has more than 1 device, master cannot be moved
+  Future<bool> _canMoveDevice() async {
+    if (_currentSinkId == null || _currentGroup == null) {
+      // Unassigned device, can be moved
+      return true;
+    }
+
+    if (_currentMaster != true) {
+      // Not master, can be moved
+      return true;
+    }
+
+    // Check if group has other devices
+    final appContext = context.read<AppContext>();
+    final session = context.read<AppSession>();
+    final deviceId = session.activeDeviceId;
+    if (deviceId == null) return false;
+
+    final List<Map<String, dynamic>> groupDevices =
+        await appContext.deviceRepository.getDevicesBySinkIdAndGroup(
+      _currentSinkId!,
+      _currentGroup!,
+    );
+
+    // If group has only 1 device (this device), master can be moved
+    return groupDevices.length <= 1;
   }
 
   Future<void> _saveSettings() async {
@@ -55,13 +132,16 @@ class _LedSettingPageState extends State<LedSettingPage> {
     final l10n = AppLocalizations.of(context);
 
     if (deviceId == null) {
-      _setError(AppErrorCode.noActiveDevice);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(describeAppError(l10n, AppErrorCode.noActiveDevice))),
+        );
+      }
       return;
     }
 
     final newName = _nameController.text.trim();
     if (newName.isEmpty) {
-      _setError(AppErrorCode.invalidParam);
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(l10n.deviceNameEmpty)));
@@ -70,14 +150,52 @@ class _LedSettingPageState extends State<LedSettingPage> {
 
     setState(() {
       _isLoading = true;
-      _lastErrorCode = null;
     });
 
     try {
+      // Update device name
       await appContext.updateDeviceNameUseCase.execute(
         deviceId: deviceId,
         name: newName,
       );
+
+      // Update sink assignment if changed
+      if (_selectedSinkId != _currentSinkId) {
+        // Check if device can be moved (master restriction)
+        final bool canMove = await _canMoveDevice();
+        if (!canMove) {
+          // Show error dialog (PARITY: reef-b-app's createLedMoveMasterDialog)
+          if (mounted) {
+            await showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text(l10n.masterSetting),
+                content: Text(l10n.errorLedMasterCannotMove),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(l10n.actionConfirm),
+                  ),
+                ],
+              ),
+            );
+          }
+          setState(() {
+            _isLoading = false;
+          });
+          return;
+        }
+
+        // Update sink assignment
+        await appContext.updateDeviceSinkUseCase.execute(
+          deviceId: deviceId,
+          newSinkId: _selectedSinkId,
+          currentSinkId: _currentSinkId,
+          deviceType: _deviceType ?? 'LED',
+          currentGroup: _currentGroup,
+          currentMaster: _currentMaster,
+        );
+      }
 
       if (mounted) {
         Navigator.of(context).pop(true);
@@ -111,9 +229,7 @@ class _LedSettingPageState extends State<LedSettingPage> {
   }
 
   void _setError(AppErrorCode code) {
-    setState(() {
-      _lastErrorCode = code;
-    });
+    // Error is displayed via SnackBar in catch blocks
   }
 
   @override
@@ -230,33 +346,59 @@ class _LedSettingPageState extends State<LedSettingPage> {
             MaterialButton(
               onPressed: !_isLoading && session.isBleConnected
                   ? () async {
-                      final appContext = context.read<AppContext>();
-                      final String? activeDeviceId = session.activeDeviceId;
-                      String? currentSinkId;
-                      if (activeDeviceId != null) {
-                        final device = await appContext.deviceRepository
-                            .getDevice(activeDeviceId);
-                        currentSinkId = device?['sinkId']?.toString();
+                      // Check if device can be moved (master restriction)
+                      final bool canMove = await _canMoveDevice();
+                      if (!canMove) {
+                        // Show error dialog (PARITY: reef-b-app's createLedMoveMasterDialog)
+                        if (mounted) {
+                          await showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text(l10n.masterSetting),
+                              content: Text(l10n.errorLedMasterCannotMove),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: Text(l10n.actionConfirm),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                        return;
                       }
+
                       final String? selectedSinkId = await Navigator.of(context)
                           .push<String>(
                             MaterialPageRoute(
                               builder: (_) => SinkPositionPage(
-                                initialSinkId: currentSinkId,
+                                initialSinkId: _currentSinkId,
                               ),
                             ),
                           );
-                      // TODO: Update device sink_id if selectedSinkId is not null
-                      if (selectedSinkId != null && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              selectedSinkId.isEmpty
-                                  ? l10n.sinkPositionNotSet
-                                  : l10n.sinkPositionSet,
-                            ),
-                          ),
-                        );
+                      
+                      if (selectedSinkId != null && mounted) {
+                        setState(() {
+                          _selectedSinkId = selectedSinkId.isEmpty ? null : selectedSinkId;
+                          
+                          // Update sink name display
+                          if (_selectedSinkId == null || _selectedSinkId!.isEmpty) {
+                            _currentSinkName = null;
+                          } else {
+                            final appContext = context.read<AppContext>();
+                            final sinks = appContext.sinkRepository.getCurrentSinks();
+                            final sink = sinks.firstWhere(
+                              (s) => s.id == _selectedSinkId,
+                              orElse: () => const Sink(
+                                id: '',
+                                name: '',
+                                type: SinkType.custom,
+                                deviceIds: [],
+                              ),
+                            );
+                            _currentSinkName = sink.id.isNotEmpty ? sink.name : null;
+                          }
+                        });
                       }
                     }
                   : null,
@@ -279,7 +421,7 @@ class _LedSettingPageState extends State<LedSettingPage> {
                 children: [
                   Expanded(
                     child: Text(
-                      l10n.sinkPositionNotSet, // TODO: Show actual sink name
+                      _currentSinkName ?? l10n.sinkPositionNotSet,
                       style: ReefTextStyles.body.copyWith(
                         color: ReefColors.textPrimary,
                       ),
@@ -288,8 +430,7 @@ class _LedSettingPageState extends State<LedSettingPage> {
                       textAlign: TextAlign.start,
                     ),
                   ),
-                  Icon(
-                    Icons.chevron_right, // ic_next
+                  CommonIconHelper.getNextIcon(
                     size: 20,
                     color: ReefColors.textPrimary,
                   ),

@@ -42,6 +42,32 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
   bool get isBleConnected => _activeDeviceId != null;
   String? get activeDeviceId => _activeDeviceId;
   String? get activeDeviceName => _activeDeviceName;
+
+  /// Set the active device manually.
+  ///
+  /// PARITY: Matches reef-b-app's Intent.putExtra("device_id", ...) behavior.
+  /// This allows setting the active device when navigating to a device page
+  /// even if the device is not currently connected via BLE.
+  void setActiveDevice(String deviceId) {
+    // Find device name from saved devices
+    String? deviceName;
+    for (final device in _savedDevices) {
+      if (device.id == deviceId) {
+        deviceName = device.name;
+        break;
+      }
+    }
+
+    if (_activeDeviceId == deviceId && _activeDeviceName == deviceName) {
+      return;
+    }
+
+    _activeDeviceId = deviceId;
+    _activeDeviceName = deviceName;
+    _resubscribePumpHeads(_activeDeviceId);
+    _resubscribeLedState(_activeDeviceId);
+    notifyListeners();
+  }
   Sink get defaultSink =>
       _defaultSink ??
       Sink.defaultSink(

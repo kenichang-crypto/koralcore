@@ -10,6 +10,7 @@ import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_app_bar.dart';
+import '../../../assets/common_icon_helper.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../../sink/pages/sink_position_page.dart';
@@ -31,6 +32,7 @@ class AddDevicePage extends StatelessWidget {
         deviceRepository: appContext.deviceRepository,
         pumpHeadRepository: appContext.pumpHeadRepository,
         sinkRepository: appContext.sinkRepository,
+        disconnectDeviceUseCase: appContext.disconnectDeviceUseCase,
       ),
       child: const _AddDeviceView(),
     );
@@ -256,8 +258,7 @@ class _AddDeviceViewState extends State<_AddDeviceView> {
                   vertical: ReefSpacing.sm,
                 ),
                 // PARITY: endIcon (ic_next) - endIconMode="custom", endIconTint="text_aaa"
-                suffixIcon: Icon(
-                  Icons.chevron_right, // ic_next
+                suffixIcon: CommonIconHelper.getNextIcon(
                   size: 20,
                   color: ReefColors.textTertiary, // text_aaa
                 ),

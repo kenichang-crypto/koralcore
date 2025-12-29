@@ -8,6 +8,7 @@ import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_device_card.dart';
+import '../../../assets/common_icon_helper.dart';
 
 class DeviceCard extends StatelessWidget {
   final DeviceSnapshot device;
@@ -88,12 +89,15 @@ class DeviceCard extends StatelessWidget {
               if (selectionMode)
                 IconButton(
                   onPressed: onSelect,
-                  icon: Icon(
-                    isSelected ? Icons.check_circle : Icons.circle_outlined,
-                    color: isSelected
-                        ? ReefColors.info
-                        : ReefColors.textSecondary,
-                  ),
+                  icon: isSelected
+                      ? CommonIconHelper.getCheckIcon(
+                          size: 24,
+                          color: ReefColors.info,
+                        )
+                      : Icon(
+                          Icons.circle_outlined,
+                          color: ReefColors.textSecondary,
+                        ),
                 ),
             ],
           ),
@@ -101,12 +105,9 @@ class DeviceCard extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                isConnected
-                    ? Icons.bluetooth_connected
-                    : Icons.bluetooth_disabled,
-                color: statusColor,
+              CommonIconHelper.getBluetoothIcon(
                 size: 18,
+                color: statusColor,
               ),
               const SizedBox(width: ReefSpacing.sm),
               Text(
@@ -130,12 +131,22 @@ class DeviceCard extends StatelessWidget {
             children: [
               if (isConnected)
                 OutlinedButton(
-                  onPressed: selectionMode ? null : onDisconnect,
+                  onPressed: selectionMode
+                      ? null
+                      : () {
+                          print('[DeviceCard] Disconnect button pressed for device: ${device.id}');
+                          onDisconnect?.call();
+                        },
                   child: Text(l10n.deviceActionDisconnect),
                 )
               else
                 FilledButton(
-                  onPressed: selectionMode || isConnecting ? null : onConnect,
+                  onPressed: selectionMode || isConnecting
+                      ? null
+                      : () {
+                          print('[DeviceCard] Connect button pressed for device: ${device.id}');
+                          onConnect?.call();
+                        },
                   child: Text(
                     isConnecting
                         ? l10n.deviceStateConnecting

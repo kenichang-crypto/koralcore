@@ -27,6 +27,10 @@ class DeviceListController extends ChangeNotifier {
   final Set<String> _selection = <String>{};
   AppErrorCode? _lastErrorCode;
 
+  /// Callback for when a new device is connected (device doesn't exist in saved devices).
+  /// PARITY: Matches reef-b-app's startAddDeviceLiveData mechanism.
+  VoidCallback? onNewDeviceConnected;
+
   DeviceListController({required this.context})
     : _scanDevicesUseCase = context.scanDevicesUseCase,
       _connectDeviceUseCase = context.connectDeviceUseCase,
@@ -55,12 +59,19 @@ class DeviceListController extends ChangeNotifier {
   AppErrorCode? get lastErrorCode => _lastErrorCode;
 
   Future<void> refresh() async {
-    if (_isScanning) return;
+    print('[DeviceListController] refresh called');
+    if (_isScanning) {
+      print('[DeviceListController] Already scanning, skipping');
+      return;
+    }
     _isScanning = true;
     notifyListeners();
     try {
+      print('[DeviceListController] Starting scan...');
       await _scanDevicesUseCase.execute(timeout: const Duration(seconds: 2));
+      print('[DeviceListController] Scan completed');
     } on AppError catch (error) {
+      print('[DeviceListController] Scan error: ${error.code}');
       _setError(error.code);
     } finally {
       _isScanning = false;
@@ -68,10 +79,39 @@ class DeviceListController extends ChangeNotifier {
     }
   }
 
+  /// Connect to a device.
+  ///
+  /// PARITY: Matches reef-b-app's BluetoothViewModel.connectBle() behavior.
+  /// - Checks connection limit (max 1 device) before connecting
+  /// - After successful connection, checks if device exists in saved devices
+  /// - If device doesn't exist, triggers onNewDeviceConnected callback
+  /// - This callback should navigate to AddDevicePage (similar to startAddDeviceLiveData)
   Future<void> connect(String deviceId) async {
+    print('[DeviceListController] connect called for device: $deviceId');
+
+    // Check connection limit (PARITY: reef-b-app's alreadyConnect4Device callback)
+    // reef-b-app: Maximum 1 device can be connected simultaneously
+    final bool hasConnectedDevice = _savedDevices.any((d) => d.isConnected);
+    if (hasConnectedDevice) {
+      print('[DeviceListController] Connection limit reached, another device is already connected');
+      _setError(AppErrorCode.connectLimit);
+      return;
+    }
+
     try {
       await _connectDeviceUseCase.execute(deviceId: deviceId);
+      print('[DeviceListController] connect succeeded for device: $deviceId');
+
+      // Check if device exists in saved devices (PARITY: reef-b-app)
+      // reef-b-app: viewModel.deviceIsExist() -> if false, startAddDeviceLiveData.value = Unit
+      final bool deviceExists = _savedDevices.any((d) => d.id == deviceId);
+      if (!deviceExists && onNewDeviceConnected != null) {
+        print('[DeviceListController] Device $deviceId is new, triggering navigation');
+        // Device doesn't exist, trigger navigation to AddDevicePage
+        onNewDeviceConnected!();
+      }
     } on AppError catch (error) {
+      print('[DeviceListController] connect failed for device: $deviceId, error: ${error.code}');
       _setError(error.code);
     }
   }
@@ -84,8 +124,70 @@ class DeviceListController extends ChangeNotifier {
     }
   }
 
+  /// Check if a device can be deleted.
+  ///
+  /// PARITY: Matches reef-b-app's DeviceViewModel.canDeleteDevice() logic.
+  /// - Only checks LED devices for master deletion restriction
+  /// - DROP devices can always be deleted
+  /// - Unassigned devices (no sinkId) can always be deleted
+  /// - If group has only 1 device, master can be deleted
+  /// - If group has more than 1 device, master cannot be deleted
+  Future<bool> canDeleteDevice(String deviceId) async {
+    final DeviceSnapshot device =
+        _savedDevices.firstWhere((d) => d.id == deviceId, orElse: () => throw StateError('Device not found'));
+    
+    // DROP devices can always be deleted
+    if (device.type != 'LED') {
+      return true;
+    }
+
+    // Unassigned devices can always be deleted
+    final deviceData = await context.deviceRepository.getDevice(deviceId);
+    if (deviceData == null) {
+      return true;
+    }
+
+    final String? sinkId = deviceData['sinkId']?.toString();
+    final String? group = deviceData['group']?.toString();
+
+    if (sinkId == null) {
+      // Unassigned device
+      return true;
+    }
+
+    if (group == null) {
+      // Has sinkId but no group
+      return true;
+    }
+
+    // Check if group has other devices
+    final List<Map<String, dynamic>> groupDevices =
+        await context.deviceRepository.getDevicesBySinkIdAndGroup(sinkId, group);
+
+    if (groupDevices.length <= 1) {
+      // Group has only this device (or empty), master can be deleted
+      return true;
+    }
+
+    // Group has more than 1 device, check if this device is master
+    return !device.isMaster;
+  }
+
   Future<void> removeSelected() async {
     final targets = List<String>.from(_selection);
+    
+    // PARITY: reef-b-app checks LED master deletion restriction before deleting
+    // reef-b-app: tmpList.forEach { if (it.type == DeviceType.LED && !viewModel.canDeleteDevice(it)) { createDeleteLedMasterDialog(); return } }
+    for (final id in targets) {
+      final bool canDelete = await canDeleteDevice(id);
+      if (!canDelete) {
+        // LED master device in a group with other devices cannot be deleted
+        _setError(AppErrorCode.ledMasterCannotDelete);
+        return;
+      }
+    }
+
+    // All devices can be deleted, proceed with deletion
     for (final id in targets) {
       try {
         await _removeDeviceUseCase.execute(deviceId: id);

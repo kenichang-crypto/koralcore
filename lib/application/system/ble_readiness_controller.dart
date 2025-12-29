@@ -28,7 +28,9 @@ class BleReadinessController extends ChangeNotifier {
   }
 
   Future<void> refresh() async {
+    print('[BleReadinessController] Refreshing BLE status...');
     await _loadStatus(requestPermissions: false);
+    print('[BleReadinessController] BLE status refreshed: isReady=${_snapshot.isReady}, permissionsGranted=${_snapshot.permissionsGranted}, radioState=${_snapshot.radioState}');
   }
 
   Future<void> requestPermissions() async {
@@ -51,7 +53,9 @@ class BleReadinessController extends ChangeNotifier {
   }
 
   Future<void> _loadStatus({required bool requestPermissions}) async {
+    print('[BleReadinessController] _loadStatus called, requestPermissions: $requestPermissions');
     if (!_systemAccess.platformChecksSupported) {
+      print('[BleReadinessController] Platform checks not supported, setting all permissions as granted');
       _updateSnapshot(
         _snapshot.copyWith(
           bluetoothPermission: BlePermissionState.granted,
@@ -66,10 +70,12 @@ class BleReadinessController extends ChangeNotifier {
     }
 
     try {
+      print('[BleReadinessController] Reading system status...');
       final BleSystemAccessResult result = await _systemAccess.readStatus(
         requestPermissions: requestPermissions,
       );
       final BleRadioState radioState = await _systemAccess.currentRadioState();
+      print('[BleReadinessController] System status: bluetoothPermission=${result.bluetoothPermission}, locationPermission=${result.locationPermission}, radioState=$radioState');
       _updateSnapshot(
         _snapshot.copyWith(
           bluetoothPermission: result.bluetoothPermission,
@@ -80,7 +86,9 @@ class BleReadinessController extends ChangeNotifier {
           lastUpdated: DateTime.now(),
         ),
       );
-    } catch (_) {
+      print('[BleReadinessController] Snapshot updated: isReady=${_snapshot.isReady}');
+    } catch (e) {
+      print('[BleReadinessController] Error loading status: $e');
       _updateSnapshot(_snapshot.copyWith(isRequesting: false));
     }
   }

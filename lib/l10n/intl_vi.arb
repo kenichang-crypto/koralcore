@@ -317,4 +317,58 @@
   "dosingScheduleEditInvalidWindow": "Thời gian kết thúc phải sau thời gian bắt đầu.",
   "dosingScheduleEditTemplateDaily": "Sử dụng mẫu trung bình hàng ngày",
   "dosingScheduleEditTemplateCustom": "Sử dụng mẫu cửa sổ tùy chỉnh"
+,
+  "ledSceneIcon": "Biểu tượng Cảnh",
+  "lightUv": "Ánh UV",
+  "lightPurple": "Ánh tím",
+  "lightBlue": "Ánh xanh",
+  "lightRoyalBlue": "Ánh xanh dương hoàng gia",
+  "lightGreen": "Ánh xanh lá cây",
+  "lightRed": "Ánh đỏ",
+  "lightColdWhite": "Ánh trắng lạnh",
+  "lightWarmWhite": "Ánh trắng ấm",
+  "lightMoon": "Ánh trăng",
+  "toastNameIsEmpty": "Tên không thể để trống.",
+  "toastSettingSuccessful": "Cài đặt thành công.",
+  "toastSceneNameIsExist": "Tên cảnh đã tồn tại.",
+  "toastDeleteNowScene": "Không thể xóa cảnh hiện đang sử dụng.",
+  "ledRecordsSnackRecordsFull": "Tối đa 24 điểm thời gian có thể thiết lập.",
+  "ledRecordsSnackTimeExists": "Phạm vi thời gian này đã được thiết lập.",
+  "ledRecordsSnackTimeError": "Thời điểm phải cách nhau ít nhất 10 phút.",
+  "dosingPumpHeadNoType": "Không có loại",
+  "dosingPumpHeadModeScheduled": "Đã lên lịch",
+  "dosingPumpHeadModeFree": "Chế độ tự do",
+  "dosingManualStarted": "Bắt đầu định liều cho đầu {headId}",
+  "@dosingManualStarted": {
+    "placeholders": {
+      "headId": {
+        "type": "String"
+      }
+    }
+  },
+  "dosingVolumeFormat": "{dispensed} / {target} ml",
+  "@dosingVolumeFormat": {
+    "placeholders": {
+      "dispensed": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "channelPercentageFormat": "{label} {percentage}%",
+  "@channelPercentageFormat": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "timeRangeSeparator": "~",
+  "dosingVolumeHint": "Nhập thể tích",
+  "noRecords": "Không có nhiệm vụ được lên lịch"
 }

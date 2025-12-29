@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../assets/common_icon_helper.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
@@ -84,8 +85,7 @@ class LedScheduleTimeline extends StatelessWidget {
                 if (previewMinutes != null)
                   Positioned(
                     left: width * (previewMinutes!.clamp(0, 1439) / 1440.0) - 8,
-                    child: Icon(
-                      Icons.visibility,
+                    child: CommonIconHelper.getPreviewIcon(
                       size: 16,
                       color: ReefColors.info,
                     ),

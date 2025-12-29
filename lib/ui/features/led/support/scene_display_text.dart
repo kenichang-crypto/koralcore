@@ -62,8 +62,9 @@ class LedSceneDisplayText {
         return 'Low glow for nighttime viewing.';
       case 0x05:
         return 'Dynamic lightning-style flashes.';
+      default:
+        return 'Reef B preset scene.';
     }
-    return 'Reef B preset scene.';
   }
 }
 

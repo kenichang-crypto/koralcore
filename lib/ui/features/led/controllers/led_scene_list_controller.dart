@@ -110,6 +110,18 @@ class LedSceneListController extends ChangeNotifier {
     _subscribeToRecordState();
   }
 
+  /// Refresh all data (LED state, record state, and scenes).
+  ///
+  /// PARITY: Matches reef-b-app's onResume() behavior:
+  /// - getAllLedInfo() → _bootstrapLedState()
+  /// - getNowRecords() → _bootstrapRecordState()
+  /// - getAllFavoriteScene() → refresh() (includes favorite scenes)
+  Future<void> refreshAll() async {
+    await _bootstrapLedState();
+    await _bootstrapRecordState();
+    await refresh();
+  }
+
   Future<void> refresh() async {
     _isLoading = true;
     notifyListeners();
@@ -245,6 +257,16 @@ class LedSceneListController extends ChangeNotifier {
 
   @override
   void dispose() {
+    // PARITY: reef-b-app onStop() - stop preview if active
+    // Stop preview when controller is disposed (e.g., when leaving the page)
+    if (isPreviewing) {
+      final String? deviceId = session.activeDeviceId;
+      if (deviceId != null) {
+        // Use unawaited to avoid blocking dispose, but ensure preview is stopped
+        unawaited(_stopPreview(deviceId));
+      }
+    }
+    
     _stateSubscription?.cancel();
     _recordSubscription?.cancel();
     super.dispose();
@@ -396,6 +418,18 @@ class LedSceneListController extends ChangeNotifier {
 
   void _handleRecordStateError(Object error) {
     // Ignore record state errors in main page
+  }
+
+  /// Stop preview if active.
+  ///
+  /// PARITY: Matches reef-b-app's bleStopPreview() behavior.
+  /// This method is called before performing actions that require stopping preview.
+  Future<void> stopPreview() async {
+    final String? deviceId = session.activeDeviceId;
+    if (deviceId == null) {
+      return;
+    }
+    await _stopPreview(deviceId);
   }
 
   Future<void> _stopPreview(String deviceId) async {

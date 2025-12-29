@@ -6,12 +6,16 @@ import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
+import '../../../../domain/sink/sink.dart';
 import '../../../components/app_error_presenter.dart';
+import '../../sink/pages/sink_position_page.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_app_bar.dart';
+import '../../../assets/common_icon_helper.dart';
+import '../../led/support/led_record_icon_helper.dart';
 
 /// DropSettingPage
 ///
@@ -31,15 +35,61 @@ class _DropSettingPageState extends State<DropSettingPage> {
   late TextEditingController _nameController;
   bool _isLoading = false;
   int _selectedDelayTime = 60; // Default: 1 minute
+  String? _currentSinkId;
+  String? _currentSinkName;
+  String? _selectedSinkId;
+  String? _deviceType;
 
   final List<int> _delayTimeOptions = [15, 30, 60, 120, 180, 240, 300]; // seconds
 
   @override
   void initState() {
     super.initState();
+    _loadDeviceData();
+  }
+
+  Future<void> _loadDeviceData() async {
+    final appContext = context.read<AppContext>();
     final session = context.read<AppSession>();
-    final deviceName = session.activeDeviceName ?? '';
-    _nameController = TextEditingController(text: deviceName);
+    final deviceId = session.activeDeviceId;
+    if (deviceId == null) return;
+
+    final device = await appContext.deviceRepository.getDevice(deviceId);
+    if (device != null) {
+      final deviceName = device['name']?.toString() ?? session.activeDeviceName ?? '';
+      _nameController = TextEditingController(text: deviceName);
+      
+      _currentSinkId = device['sinkId']?.toString();
+      _selectedSinkId = _currentSinkId;
+      _deviceType = device['type']?.toString();
+      
+      // Load delay time
+      final delayTime = device['delayTime'];
+      if (delayTime != null) {
+        _selectedDelayTime = delayTime is num ? delayTime.toInt() : 60;
+      }
+
+      // Load sink name
+      if (_currentSinkId != null && _currentSinkId!.isNotEmpty) {
+        final sinks = appContext.sinkRepository.getCurrentSinks();
+        final sink = sinks.firstWhere(
+          (s) => s.id == _currentSinkId,
+          orElse: () => const Sink(
+            id: '',
+            name: '',
+            type: SinkType.custom,
+            deviceIds: [],
+          ),
+        );
+        if (sink.id.isNotEmpty) {
+          _currentSinkName = sink.name;
+        }
+      }
+    } else {
+      final deviceName = session.activeDeviceName ?? '';
+      _nameController = TextEditingController(text: deviceName);
+    }
+    if (mounted) setState(() {});
   }
 
   @override
@@ -80,12 +130,26 @@ class _DropSettingPageState extends State<DropSettingPage> {
     });
 
     try {
+      // Update device name
       await appContext.updateDeviceNameUseCase.execute(
         deviceId: deviceId,
         name: newName,
       );
 
+      // Update sink assignment if changed
+      if (_selectedSinkId != _currentSinkId) {
+        await appContext.updateDeviceSinkUseCase.execute(
+          deviceId: deviceId,
+          newSinkId: _selectedSinkId,
+          currentSinkId: _currentSinkId,
+          deviceType: _deviceType ?? 'DROP',
+          currentGroup: null, // DROP devices don't have groups
+          currentMaster: null, // DROP devices don't have master
+        );
+      }
+
       // TODO: Set delay time via BLE if connected
+      // Note: reef-b-app sets delay time after device update succeeds
       // if (session.isBleConnected) {
       //   await appContext.setDosingDelayTimeUseCase.execute(
       //     deviceId: deviceId,
@@ -151,7 +215,7 @@ class _DropSettingPageState extends State<DropSettingPage> {
                 return ListTile(
                   title: Text(_formatDelayTime(delayTime)),
                   trailing: isSelected
-                      ? const Icon(Icons.check, color: ReefColors.primary)
+                      ? CommonIconHelper.getCheckIcon(size: 24, color: ReefColors.primary)
                       : null,
                   onTap: () {
                     setState(() {
@@ -279,13 +343,39 @@ class _DropSettingPageState extends State<DropSettingPage> {
             SizedBox(height: ReefSpacing.xs), // dp_4 marginTop
             MaterialButton(
               onPressed: !_isLoading && isConnected
-                  ? () {
-                      // TODO: Navigate to SinkPositionPage
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(l10n.sinkPositionFeatureComingSoon),
-                        ),
-                      );
+                  ? () async {
+                      final String? selectedSinkId = await Navigator.of(context)
+                          .push<String>(
+                            MaterialPageRoute(
+                              builder: (_) => SinkPositionPage(
+                                initialSinkId: _currentSinkId,
+                              ),
+                            ),
+                          );
+                      
+                      if (selectedSinkId != null && mounted) {
+                        setState(() {
+                          _selectedSinkId = selectedSinkId.isEmpty ? null : selectedSinkId;
+                          
+                          // Update sink name display
+                          if (_selectedSinkId == null || _selectedSinkId!.isEmpty) {
+                            _currentSinkName = null;
+                          } else {
+                            final appContext = context.read<AppContext>();
+                            final sinks = appContext.sinkRepository.getCurrentSinks();
+                            final sink = sinks.firstWhere(
+                              (s) => s.id == _selectedSinkId,
+                              orElse: () => const Sink(
+                                id: '',
+                                name: '',
+                                type: SinkType.custom,
+                                deviceIds: [],
+                              ),
+                            );
+                            _currentSinkName = sink.id.isNotEmpty ? sink.name : null;
+                          }
+                        });
+                      }
                     }
                   : null,
               // PARITY: BackgroundMaterialButton style
@@ -304,7 +394,7 @@ class _DropSettingPageState extends State<DropSettingPage> {
                 children: [
                   Expanded(
                     child: Text(
-                      l10n.sinkPositionNotSet, // TODO: Show actual sink name
+                      _currentSinkName ?? l10n.sinkPositionNotSet,
                       style: ReefTextStyles.body.copyWith(
                         color: ReefColors.textPrimary,
                       ),
@@ -313,8 +403,7 @@ class _DropSettingPageState extends State<DropSettingPage> {
                       textAlign: TextAlign.start,
                     ),
                   ),
-                  Icon(
-                    Icons.chevron_right, // ic_next
+                  CommonIconHelper.getNextIcon(
                     size: 20,
                     color: ReefColors.textPrimary,
                   ),
@@ -360,9 +449,9 @@ class _DropSettingPageState extends State<DropSettingPage> {
                       textAlign: TextAlign.start,
                     ),
                   ),
-                  Icon(
-                    Icons.keyboard_arrow_down, // ic_down
-                    size: 20,
+                  LedRecordIconHelper.getDownIcon(
+                    width: 20,
+                    height: 20,
                     color: ReefColors.textPrimary,
                   ),
                 ],

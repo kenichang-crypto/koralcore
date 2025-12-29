@@ -13,7 +13,9 @@ import '../../theme/reef_spacing.dart';
 import '../../theme/reef_text.dart';
 import '../../widgets/reef_backgrounds.dart';
 import '../../widgets/reef_app_bar.dart';
+import '../../assets/common_icon_helper.dart';
 import '../device/controllers/device_list_controller.dart';
+import '../device/pages/add_device_page.dart';
 
 class BluetoothPage extends StatefulWidget {
   const BluetoothPage({super.key});
@@ -24,6 +26,7 @@ class BluetoothPage extends StatefulWidget {
 
 class _BluetoothPageState extends State<BluetoothPage> {
   BleReadinessController? _bleController;
+  DeviceListController? _deviceListController;
   bool _wasReady = false;
 
   @override
@@ -33,6 +36,19 @@ class _BluetoothPageState extends State<BluetoothPage> {
       _bleController = context.read<BleReadinessController>();
       _wasReady = _bleController!.snapshot.isReady;
       _bleController!.addListener(_handleBleState);
+    }
+    if (_deviceListController == null) {
+      _deviceListController = context.read<DeviceListController>();
+      // Set up callback for new device connection (PARITY: reef-b-app's startAddDeviceLiveData)
+      _deviceListController!.onNewDeviceConnected = () {
+        if (mounted) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const AddDevicePage(),
+            ),
+          );
+        }
+      };
     }
   }
 
@@ -47,6 +63,8 @@ class _BluetoothPageState extends State<BluetoothPage> {
   @override
   void dispose() {
     _bleController?.removeListener(_handleBleState);
+    // Clear callback to prevent memory leaks
+    _deviceListController?.onNewDeviceConnected = null;
     super.dispose();
   }
 
@@ -131,7 +149,7 @@ class _ScanButton extends StatelessWidget {
     if (!bleReady) {
       return FilledButton.icon(
         onPressed: () => showBleOnboardingSheet(context),
-        icon: const Icon(Icons.lock_outline),
+        icon: CommonIconHelper.getWarningIcon(size: 20),
         label: Text(l10n.bleOnboardingPermissionCta),
       );
     }
@@ -152,7 +170,7 @@ class _ScanButton extends StatelessWidget {
               height: 18,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-          : const Icon(Icons.bluetooth_searching),
+          : CommonIconHelper.getBluetoothIcon(size: 18),
       label: Text(
         controller.isScanning ? l10n.bluetoothScanning : l10n.bluetoothScanCta,
       ),
@@ -514,8 +532,7 @@ class _BtMyDeviceTile extends StatelessWidget {
                               'assets/icons/ic_master.png', // TODO: Add icon asset
                               width: 12, // dp_12
                               height: 12, // dp_12
-                              errorBuilder: (context, error, stackTrace) => Icon(
-                                Icons.star,
+                              errorBuilder: (context, error, stackTrace) => CommonIconHelper.getFavoriteSelectIcon(
                                 size: 12,
                                 color: ReefColors.primary,
                               ),
@@ -533,8 +550,7 @@ class _BtMyDeviceTile extends StatelessWidget {
                       : 'assets/icons/ic_disconnect_background.png', // TODO: Add icon asset
                   width: 48, // dp_48
                   height: 32, // dp_32
-                  errorBuilder: (context, error, stackTrace) => Icon(
-                    isConnected ? Icons.bluetooth_connected : Icons.bluetooth_disabled,
+                  errorBuilder: (context, error, stackTrace) => CommonIconHelper.getBluetoothIcon(
                     size: 32,
                     color: isConnected ? ReefColors.success : ReefColors.textSecondary,
                   ),

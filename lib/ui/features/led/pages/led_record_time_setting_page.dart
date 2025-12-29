@@ -14,14 +14,23 @@ import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/led_record_time_setting_controller.dart';
 import '../widgets/led_spectrum_chart.dart';
+import '../support/led_record_icon_helper.dart';
+import '../../../assets/common_icon_helper.dart';
 
 /// LED record time setting page.
 ///
 /// PARITY: Mirrors reef-b-app's LedRecordTimeSettingActivity.
 class LedRecordTimeSettingPage extends StatelessWidget {
   final LedRecord? initialRecord;
+  final int? initialHour;
+  final int? initialMinute;
 
-  const LedRecordTimeSettingPage({super.key, this.initialRecord});
+  const LedRecordTimeSettingPage({
+    super.key,
+    this.initialRecord,
+    this.initialHour,
+    this.initialMinute,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +41,8 @@ class LedRecordTimeSettingPage extends StatelessWidget {
         session: session,
         ledRecordRepository: appContext.ledRecordRepository,
         initialRecord: initialRecord,
+        initialHour: initialHour,
+        initialMinute: initialMinute,
       )..enterDimmingMode(),
       child: _LedRecordTimeSettingView(),
     );
@@ -78,7 +89,7 @@ class _LedRecordTimeSettingViewState extends State<_LedRecordTimeSettingView> {
           foregroundColor: ReefColors.onPrimary,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.close),
+            icon: CommonIconHelper.getCloseIcon(size: 24),
             onPressed: () async {
               await controller.exitDimmingMode();
               if (context.mounted) {
@@ -166,7 +177,7 @@ class _LedRecordTimeSettingViewState extends State<_LedRecordTimeSettingView> {
                 '${controller.timeHour.toString().padLeft(2, '0')} : ${controller.timeMinute.toString().padLeft(2, '0')}',
                 textAlign: TextAlign.start,
               ),
-              const Icon(Icons.keyboard_arrow_down),
+              LedRecordIconHelper.getDownIcon(),
             ],
           ),
         ),

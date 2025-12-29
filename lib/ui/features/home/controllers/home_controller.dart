@@ -40,6 +40,7 @@ class HomeController extends ChangeNotifier {
   bool _useGridLayout = false; // false = ListView, true = GridView
   StreamSubscription<List<Sink>>? _sinkSubscription;
   int _selectedSinkIndex = 0;
+  bool _isFiltering = false;
 
   List<Sink> get sinks => List.unmodifiable(_sinks);
   SinkSelectionType get selectionType => _selectionType;
@@ -68,8 +69,9 @@ class HomeController extends ChangeNotifier {
     // Observe sinks
     _sinkSubscription = sinkRepository.observeSinks().listen((sinks) {
       _sinks = sinks;
-      _updateFilteredDevices();
-      notifyListeners();
+      _updateFilteredDevices().then((_) {
+        notifyListeners();
+      });
     });
 
     // Observe devices from DeviceListController
@@ -79,8 +81,9 @@ class HomeController extends ChangeNotifier {
 
   void _onDevicesChanged() {
     _allDevices = deviceListController.savedDevices;
-    _updateFilteredDevices();
-    notifyListeners();
+    _updateFilteredDevices().then((_) {
+      notifyListeners();
+    });
   }
 
   @override
@@ -101,7 +104,7 @@ class HomeController extends ChangeNotifier {
       // 所有 Sink
       _selectionType = SinkSelectionType.allSinks;
       _selectedSinkId = null;
-      _useGridLayout = false; // LinearLayoutManager
+      _useGridLayout = true; // GridLayoutManager(2) - 所有模式都使用 GridView
     } else if (index == 1) {
       // 喜愛裝置
       _selectionType = SinkSelectionType.favorite;
@@ -124,36 +127,55 @@ class HomeController extends ChangeNotifier {
       }
     }
 
-    _updateFilteredDevices();
-    notifyListeners();
+    _updateFilteredDevices().then((_) {
+      notifyListeners();
+    });
   }
 
-  void _updateFilteredDevices() {
-    switch (_selectionType) {
-      case SinkSelectionType.allSinks:
-        // PARITY: Show all sinks with their devices (SinkWithDevicesAdapter)
-        // For now, show all devices (will be grouped by sink later)
-        _filteredDevices = _allDevices.where((d) {
-          // Only show devices that have a sinkId (assigned to a sink)
-          // Need to check device's sinkId from repository
-          return true; // TODO: Filter by sinkId
-        }).toList();
-        break;
-      case SinkSelectionType.favorite:
-        // PARITY: Show only favorite devices
-        // TODO: Implement favorite filtering when DeviceSnapshot includes favorite field
-        _filteredDevices = _allDevices; // Placeholder: show all for now
-        break;
-      case SinkSelectionType.specificSink:
-        // PARITY: Show devices in specific sink
-        // TODO: Implement sinkId filtering when DeviceSnapshot includes sinkId field
-        _filteredDevices = _allDevices; // Placeholder: show all for now
-        break;
-      case SinkSelectionType.unassigned:
-        // PARITY: Show unassigned devices (sinkId is null)
-        // TODO: Implement unassigned filtering when DeviceSnapshot includes sinkId field
-        _filteredDevices = _allDevices; // Placeholder: show all for now
-        break;
+  Future<void> _updateFilteredDevices() async {
+    if (_isFiltering) return; // Prevent concurrent filtering
+    _isFiltering = true;
+
+    try {
+      List<DeviceSnapshot> filtered = [];
+
+      for (final device in _allDevices) {
+        // Get device details from repository
+        final deviceMap = await deviceRepository.getDevice(device.id);
+        if (deviceMap == null) continue;
+
+        final String? sinkId = deviceMap['sink_id'] as String?;
+        final bool isFavorite = await deviceRepository.isDeviceFavorite(device.id);
+
+        // Filter based on selection type
+        bool shouldInclude = false;
+        switch (_selectionType) {
+          case SinkSelectionType.allSinks:
+            // PARITY: Show all devices that have a sinkId (assigned to a sink)
+            shouldInclude = sinkId != null;
+            break;
+          case SinkSelectionType.favorite:
+            // PARITY: Show only favorite devices
+            shouldInclude = isFavorite;
+            break;
+          case SinkSelectionType.specificSink:
+            // PARITY: Show devices in specific sink
+            shouldInclude = sinkId == _selectedSinkId;
+            break;
+          case SinkSelectionType.unassigned:
+            // PARITY: Show unassigned devices (sinkId is null)
+            shouldInclude = sinkId == null;
+            break;
+        }
+
+        if (shouldInclude) {
+          filtered.add(device);
+        }
+      }
+
+      _filteredDevices = filtered;
+    } finally {
+      _isFiltering = false;
     }
   }
 }

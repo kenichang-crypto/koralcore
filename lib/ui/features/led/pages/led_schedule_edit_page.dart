@@ -12,6 +12,7 @@ import '../../../../application/led/save_led_schedule_usecase.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../widgets/reef_app_bar.dart';
+import '../../../assets/common_icon_helper.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../models/led_schedule_summary.dart';
@@ -448,7 +449,7 @@ class _TimeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: onPressed,
-      icon: const Icon(Icons.access_time),
+      icon: CommonIconHelper.getCalendarIcon(size: 20),
       label: Text(label),
     );
   }

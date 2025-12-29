@@ -10,6 +10,13 @@ abstract class LedRecordRepository {
 
   Future<LedRecordState> refresh(String deviceId);
 
+  Future<LedRecordState> setRecord({
+    required String deviceId,
+    required int hour,
+    required int minute,
+    required Map<String, int> channelLevels,
+  });
+
   Future<LedRecordState> deleteRecord({
     required String deviceId,
     required String recordId,

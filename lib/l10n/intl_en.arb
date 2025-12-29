@@ -163,6 +163,11 @@
   "errorNotSupported": "This action is not supported on the connected device.",
   "errorInvalidParam": "Invalid parameters for this use case.",
   "errorTransport": "Bluetooth transport error. Check the signal and retry.",
+  "errorSinkFull": "Sink is full. Maximum 4 DROP devices per sink.",
+  "errorSinkGroupsFull": "All LED groups in this sink are full. Maximum 4 devices per group.",
+  "errorConnectLimit": "Maximum 1 device can be connected simultaneously.",
+  "errorLedMasterCannotDelete": "To delete the master light, please modify the master-slave settings and set other slave lights as the master.",
+  "errorDeleteFailed": "Failed to delete device.",
   "errorGeneric": "Something went wrong. Please retry.",
   "snackbarDeviceRemoved": "Devices removed.",
   "snackbarDeviceConnected": "Device connected.",
@@ -265,16 +270,22 @@
   "ledRecordsActionPreviewStart": "Preview",
   "ledRecordsActionPreviewStop": "Stop preview",
   "ledRecordsClearConfirmTitle": "Clear all records?",
-  "ledRecordsClearConfirmMessage": "This removes every recorded time point from the LED schedule.",
+  "ledRecordsClearConfirmMessage": "Do you want to clear the schedule?",
   "ledRecordsDeleteConfirmTitle": "Delete record?",
-  "ledRecordsDeleteConfirmMessage": "Remove the selected time point from the LED schedule?",
-  "ledRecordsSnackDeleted": "Record deleted.",
-  "ledRecordsSnackDeleteFailed": "Couldn't delete record.",
+  "ledRecordsDeleteConfirmMessage": "Do you want to delete this time point?",
+  "ledMoveMasterDialogTitle": "Master Setting",
+  "ledMoveMasterDialogContent": "To move this device to another tank, please first modify the master-slave settings and set other slave lights as the master light.",
+  "ledSceneDeleteConfirmMessage": "Do you want to delete the scene?",
+  "ledRecordsSnackDeleted": "Successfully deleted time point.",
+  "ledRecordsSnackDeleteFailed": "Failed to delete time point.",
   "ledRecordsSnackCleared": "Records cleared.",
   "ledRecordsSnackClearFailed": "Couldn't clear records.",
   "ledRecordsSnackMissingSelection": "Select a record first.",
-  "ledRecordsSnackPreviewStarted": "Preview started.",
-  "ledRecordsSnackPreviewStopped": "Preview stopped.",
+  "ledRecordsSnackPreviewStarted": "One-minute quick preview started.",
+  "ledRecordsSnackPreviewStopped": "One-minute quick preview ended.",
+  "ledRecordsSnackRecordsFull": "Maximum 24 time points can be set.",
+  "ledRecordsSnackTimeExists": "This time period has already been set.",
+  "ledRecordsSnackTimeError": "Time points must be at least 10 minutes apart.",
   "ledScheduleTypeDaily": "Daily program",
   "ledScheduleTypeCustom": "Custom window",
   "ledScheduleTypeScene": "Scene-based",
@@ -397,7 +408,7 @@
   "ledSceneAddTitle": "Add Scene",
   "ledSceneEditTitle": "Edit Scene",
   "ledSceneDeleteTitle": "Delete Scene",
-  "ledMasterSettingTitle": "Master Settings",
+  "ledMasterSettingTitle": "Master-Slave Pairing",
   "ledRecordTimeSettingTimeLabel": "Time",
   "ledRecordTimeSettingSpectrumLabel": "Spectrum",
   "ledRecordTimeSettingChannelsLabel": "Channels",
@@ -406,12 +417,25 @@
   "ledRecordTimeSettingSuccess": "Record saved",
   "ledSceneNameLabel": "Scene Name",
   "ledSceneNameHint": "Enter scene name",
-  "ledSceneEditSuccess": "Scene updated",
-  "ledSceneAddSuccess": "Scene added",
+  "ledSceneIcon": "Scene Icon",
+  "lightUv": "UV Light",
+  "lightPurple": "Purple Light",
+  "lightBlue": "Blue Light",
+  "lightRoyalBlue": "Royal Blue Light",
+  "lightGreen": "Green Light",
+  "lightRed": "Red Light",
+  "lightColdWhite": "Cool White Light",
+  "lightWarmWhite": "Warm White Light",
+  "lightMoon": "Moonlight",
+  "ledSceneAddSuccess": "Successfully added scene.",
+  "toastNameIsEmpty": "Name cannot be empty.",
+  "toastSettingSuccessful": "Settings successful.",
+  "toastSceneNameIsExist": "Scene name already exists.",
+  "ledSceneNameIsExist": "Scene name already exists.",
   "ledSceneDeleteDescription": "Select scenes to delete",
   "ledSceneDeleteEmpty": "No scenes to delete",
   "ledSceneDeleteConfirmTitle": "Delete Scene?",
-  "ledSceneDeleteConfirmMessage": "Are you sure you want to delete \"{name}\"?",
+  "ledSceneDeleteConfirmMessage": "Do you want to delete the scene?",
   "@ledSceneDeleteConfirmMessage": {
     "placeholders": {
       "name": {
@@ -427,7 +451,8 @@
       }
     }
   },
-  "ledSceneDeleteError": "Failed to delete scene",
+  "ledSceneDeleteError": "Failed to delete scene.",
+  "toastDeleteNowScene": "Cannot delete the currently in-use scene.",
   "ledSceneDeleteLocalScenesTitle": "Local Scenes",
   "ledSceneDeleteDeviceScenesTitle": "Device Scenes (Read-only)",
   "ledSceneDeleteCannotDeleteDeviceScenes": "Cannot delete device scenes",
@@ -439,7 +464,7 @@
       }
     }
   },
-  "ledSceneLimitReached": "Maximum scenes reached",
+  "ledSceneLimitReached": "Maximum 5 custom scenes can be set.",
   "ledMasterSettingGroup": "Group",
   "ledMasterSettingMaster": "Master",
   "ledMasterSettingSlave": "Slave",
@@ -455,7 +480,7 @@
   "ledRecordSettingSunset": "Sunset",
   "ledRecordSettingSlowStart": "Slow Start",
   "ledRecordSettingMoonlight": "Moonlight",
-  "ledRecordSettingErrorSunTime": "Invalid sunrise/sunset time",
+  "ledRecordSettingErrorSunTime": "Sunrise and sunset time settings are incorrect.",
   "ledRecordSettingSuccess": "Settings saved",
   "minute": "minute",
   "ledScenesActionEdit": "Edit",
@@ -480,6 +505,8 @@
   "sinkPosition": "Sink Position",
   "sinkPositionTitle": "Sink Position",
   "sinkPositionNotSet": "Not Set",
+  "errorLedMasterCannotMove": "To move this device to another tank, please first modify the master-slave settings and set other slave lights as the master light.",
+  "masterSetting": "Master Setting",
   "sinkPositionSet": "Set",
   "sinkAddTitle": "Add Sink",
   "sinkNameLabel": "Sink Name",
@@ -522,6 +549,7 @@
   "addDeviceTitle": "Add Device",
   "addDeviceSuccess": "Device added",
   "addDeviceFailed": "Failed to add device",
+  "errorSinkFull": "Tank is full.",
   "dosingScheduleEditTitle": "Edit Schedule",
   "dosingScheduleTypeLabel": "Schedule Type",
   "dosingScheduleTypeNone": "No Schedule",
@@ -602,5 +630,38 @@
   "homeSpinnerUnassigned": "Unallocated Devices",
   "dosingPumpHeadNoType": "No Type",
   "dosingPumpHeadModeScheduled": "Scheduled",
-  "dosingPumpHeadModeFree": "Free Mode"
+  "dosingPumpHeadModeFree": "Free Mode",
+  "dosingVolumeHint": "Enter volume",
+  "noRecords": "No scheduled tasks",
+  "dosingManualStarted": "Dosing started for head {headId}",
+  "@dosingManualStarted": {
+    "placeholders": {
+      "headId": {
+        "type": "String"
+      }
+    }
+  },
+  "dosingVolumeFormat": "{dispensed} / {target} ml",
+  "@dosingVolumeFormat": {
+    "placeholders": {
+      "dispensed": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "channelPercentageFormat": "{label} {percentage}%",
+  "@channelPercentageFormat": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "timeRangeSeparator": "~"
 }

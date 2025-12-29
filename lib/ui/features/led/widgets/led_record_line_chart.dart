@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import '../../../../domain/led_lighting/led_record.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
@@ -31,12 +32,13 @@ class LedRecordLineChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     if (records.isEmpty) {
       return SizedBox(
         height: height,
         child: Center(
           child: Text(
-            'No records',
+            l10n.noRecords,
             style: ReefTextStyles.caption1.copyWith(
               color: ReefColors.textSecondary,
             ),

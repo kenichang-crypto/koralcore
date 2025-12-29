@@ -10,6 +10,7 @@ import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_radius.dart';
 import '../../../widgets/reef_app_bar.dart';
+import '../../../assets/common_icon_helper.dart';
 import '../../../components/ble_guard.dart';
 import '../../../components/error_state_widget.dart';
 import '../../../components/loading_state_widget.dart';
@@ -103,7 +104,7 @@ class _PumpHeadScheduleView extends StatelessWidget {
                           );
                         }
                       : null,
-                  icon: const Icon(Icons.add),
+                  icon: CommonIconHelper.getAddIcon(size: 24),
                   label: Text(l10n.dosingScheduleAddButton),
                 ),
                 const SizedBox(height: ReefSpacing.xs),
@@ -257,7 +258,7 @@ class _ScheduleEntryCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  const Icon(Icons.chevron_right),
+                  CommonIconHelper.getNextIcon(size: 24),
                 ],
               ),
               const SizedBox(height: ReefSpacing.sm),

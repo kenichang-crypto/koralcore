@@ -317,4 +317,58 @@
   "dosingScheduleEditInvalidWindow": "종료 시간은 시작 시간 이후여야 합니다.",
   "dosingScheduleEditTemplateDaily": "일일 평균 템플릿 사용",
   "dosingScheduleEditTemplateCustom": "사용자 정의 창 템플릿 사용"
+,
+  "ledSceneIcon": "장면 아이콘",
+  "lightUv": "자외선 빛",
+  "lightPurple": "보라색 빛",
+  "lightBlue": "파랑 빛",
+  "lightRoyalBlue": "로열 블루 빛",
+  "lightGreen": "녹색 빛",
+  "lightRed": "빨강 빛",
+  "lightColdWhite": "쿨 화이트 빛",
+  "lightWarmWhite": "웜 화이트 빛",
+  "lightMoon": "달빛",
+  "toastNameIsEmpty": "이름은 비워 둘 수 없습니다.",
+  "toastSettingSuccessful": "설정이 성공적으로 되었습니다.",
+  "toastSceneNameIsExist": "장면 이름이 이미 존재합니다.",
+  "toastDeleteNowScene": "현재 사용 중인 장면을 삭제할 수 없습니다.",
+  "ledRecordsSnackRecordsFull": "최대 24개의 시간 포인트를 설정할 수 있습니다.",
+  "ledRecordsSnackTimeExists": "이 시간 대는 이미 설정되어 있습니다.",
+  "ledRecordsSnackTimeError": "시간 간격은 최소 10분이어야 합니다.",
+  "dosingPumpHeadNoType": "유형 없음",
+  "dosingPumpHeadModeScheduled": "예약됨",
+  "dosingPumpHeadModeFree": "자유 모드",
+  "dosingManualStarted": "헤드 {headId}에 대한 도징이 시작되었습니다",
+  "@dosingManualStarted": {
+    "placeholders": {
+      "headId": {
+        "type": "String"
+      }
+    }
+  },
+  "dosingVolumeFormat": "{dispensed} / {target} ml",
+  "@dosingVolumeFormat": {
+    "placeholders": {
+      "dispensed": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "channelPercentageFormat": "{label} {percentage}%",
+  "@channelPercentageFormat": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "timeRangeSeparator": "~",
+  "dosingVolumeHint": "용량 입력",
+  "noRecords": "예약된 작업 없음"
 }

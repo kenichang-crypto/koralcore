@@ -457,6 +457,24 @@ class AppLocalizationsZh extends AppLocalizations {
       'Bluetooth transport error. Check the signal and retry.';
 
   @override
+  String get errorSinkFull => 'Tank is full.';
+
+  @override
+  String get errorSinkGroupsFull =>
+      'All LED groups in this sink are full. Maximum 4 devices per group.';
+
+  @override
+  String get errorConnectLimit =>
+      'Maximum 1 device can be connected simultaneously.';
+
+  @override
+  String get errorLedMasterCannotDelete =>
+      'To delete the master light, please modify the master-slave settings and set other slave lights as the master.';
+
+  @override
+  String get errorDeleteFailed => 'Failed to delete device.';
+
+  @override
   String get errorGeneric => 'Something went wrong. Please retry.';
 
   @override
@@ -720,20 +738,32 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get ledRecordsClearConfirmMessage =>
-      'This removes every recorded time point from the LED schedule.';
+      'Do you want to clear the schedule?';
 
   @override
   String get ledRecordsDeleteConfirmTitle => 'Delete record?';
 
   @override
   String get ledRecordsDeleteConfirmMessage =>
-      'Remove the selected time point from the LED schedule?';
+      'Do you want to delete this time point?';
 
   @override
-  String get ledRecordsSnackDeleted => 'Record deleted.';
+  String get ledMoveMasterDialogTitle => 'Master Setting';
 
   @override
-  String get ledRecordsSnackDeleteFailed => 'Couldn\'t delete record.';
+  String get ledMoveMasterDialogContent =>
+      'To move this device to another tank, please first modify the master-slave settings and set other slave lights as the master light.';
+
+  @override
+  String ledSceneDeleteConfirmMessage(String name) {
+    return 'Do you want to delete the scene?';
+  }
+
+  @override
+  String get ledRecordsSnackDeleted => 'Successfully deleted time point.';
+
+  @override
+  String get ledRecordsSnackDeleteFailed => 'Failed to delete time point.';
 
   @override
   String get ledRecordsSnackCleared => 'Records cleared.';
@@ -745,10 +775,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ledRecordsSnackMissingSelection => 'Select a record first.';
 
   @override
-  String get ledRecordsSnackPreviewStarted => 'Preview started.';
+  String get ledRecordsSnackPreviewStarted =>
+      'One-minute quick preview started.';
 
   @override
-  String get ledRecordsSnackPreviewStopped => 'Preview stopped.';
+  String get ledRecordsSnackPreviewStopped => 'One-minute quick preview ended.';
+
+  @override
+  String get ledRecordsSnackRecordsFull => 'Maximum 24 time points can be set.';
+
+  @override
+  String get ledRecordsSnackTimeExists =>
+      'This time period has already been set.';
+
+  @override
+  String get ledRecordsSnackTimeError =>
+      'Time points must be at least 10 minutes apart.';
 
   @override
   String get ledScheduleTypeDaily => 'Daily program';
@@ -992,7 +1034,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ledSceneDeleteTitle => 'Delete Scene';
 
   @override
-  String get ledMasterSettingTitle => 'Master Settings';
+  String get ledMasterSettingTitle => 'Master-Slave Pairing';
 
   @override
   String get ledRecordTimeSettingTimeLabel => 'Time';
@@ -1019,10 +1061,49 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ledSceneNameHint => 'Enter scene name';
 
   @override
-  String get ledSceneEditSuccess => 'Scene updated';
+  String get ledSceneIcon => 'Scene Icon';
 
   @override
-  String get ledSceneAddSuccess => 'Scene added';
+  String get lightUv => 'UV Light';
+
+  @override
+  String get lightPurple => 'Purple Light';
+
+  @override
+  String get lightBlue => 'Blue Light';
+
+  @override
+  String get lightRoyalBlue => 'Royal Blue Light';
+
+  @override
+  String get lightGreen => 'Green Light';
+
+  @override
+  String get lightRed => 'Red Light';
+
+  @override
+  String get lightColdWhite => 'Cool White Light';
+
+  @override
+  String get lightWarmWhite => 'Warm White Light';
+
+  @override
+  String get lightMoon => 'Moonlight';
+
+  @override
+  String get ledSceneAddSuccess => 'Successfully added scene.';
+
+  @override
+  String get toastNameIsEmpty => 'Name cannot be empty.';
+
+  @override
+  String get toastSettingSuccessful => 'Settings successful.';
+
+  @override
+  String get toastSceneNameIsExist => 'Scene name already exists.';
+
+  @override
+  String get ledSceneNameIsExist => 'Scene name already exists.';
 
   @override
   String get ledSceneDeleteDescription => 'Select scenes to delete';
@@ -1034,17 +1115,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ledSceneDeleteConfirmTitle => 'Delete Scene?';
 
   @override
-  String ledSceneDeleteConfirmMessage(String name) {
-    return 'Are you sure you want to delete \"$name\"?';
-  }
-
-  @override
   String ledSceneDeleteSuccess(String name) {
     return 'Scene \"$name\" deleted';
   }
 
   @override
-  String get ledSceneDeleteError => 'Failed to delete scene';
+  String get ledSceneDeleteError => 'Failed to delete scene.';
+
+  @override
+  String get toastDeleteNowScene => 'Cannot delete the currently in-use scene.';
 
   @override
   String get ledSceneDeleteLocalScenesTitle => 'Local Scenes';
@@ -1062,7 +1141,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get ledSceneLimitReached => 'Maximum scenes reached';
+  String get ledSceneLimitReached => 'Maximum 5 custom scenes can be set.';
 
   @override
   String get ledMasterSettingGroup => 'Group';
@@ -1110,7 +1189,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ledRecordSettingMoonlight => 'Moonlight';
 
   @override
-  String get ledRecordSettingErrorSunTime => 'Invalid sunrise/sunset time';
+  String get ledRecordSettingErrorSunTime =>
+      'Sunrise and sunset time settings are incorrect.';
 
   @override
   String get ledRecordSettingSuccess => 'Settings saved';
@@ -1180,6 +1260,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get sinkPositionNotSet => 'Not Set';
+
+  @override
+  String get errorLedMasterCannotMove =>
+      'To move this device to another tank, please first modify the master-slave settings and set other slave lights as the master light.';
+
+  @override
+  String get masterSetting => 'Master Setting';
 
   @override
   String get sinkPositionSet => 'Set';
@@ -1470,52 +1557,76 @@ class AppLocalizationsZh extends AppLocalizations {
   String get weekdaySaturday => 'Saturday';
 
   @override
-  String get group => '群組';
+  String get group => 'Group';
 
   @override
   String get led => 'LED';
 
   @override
-  String get masterSlave => '主從';
+  String get masterSlave => 'Master/Slave';
 
   @override
-  String get time => '時間點';
+  String get time => 'Time Point';
 
   @override
-  String get record => '排程';
+  String get record => 'Schedule';
 
   @override
-  String get ledScene => '場景';
+  String get ledScene => 'Scene';
 
   @override
-  String get unassignedDevice => '未分配裝置';
+  String get unassignedDevice => 'Unallocated Devices';
 
   @override
-  String get ledSceneNoSetting => '無設定';
+  String get ledSceneNoSetting => 'No Setting';
 
   @override
-  String get dosingAdjustListDate => '日期';
+  String get dosingAdjustListDate => 'Calibration Date';
 
   @override
-  String get dosingAdjustListVolume => '測量體積';
+  String get dosingAdjustListVolume => 'Measured Volume';
 
   @override
-  String get homeSpinnerAllSink => '所有水槽';
+  String get homeSpinnerAllSink => 'All Tanks';
 
   @override
-  String get homeSpinnerFavorite => '喜愛裝置';
+  String get homeSpinnerFavorite => 'Favorite devices';
 
   @override
-  String get homeSpinnerUnassigned => '未分配裝置';
+  String get homeSpinnerUnassigned => 'Unallocated Devices';
 
   @override
-  String get dosingPumpHeadNoType => '未設定';
+  String get dosingPumpHeadNoType => 'No Type';
 
   @override
-  String get dosingPumpHeadModeScheduled => '已排程';
+  String get dosingPumpHeadModeScheduled => 'Scheduled';
 
   @override
-  String get dosingPumpHeadModeFree => '自由模式';
+  String get dosingPumpHeadModeFree => 'Free Mode';
+
+  @override
+  String get dosingVolumeHint => 'Enter volume';
+
+  @override
+  String get noRecords => 'No scheduled tasks';
+
+  @override
+  String dosingManualStarted(String headId) {
+    return 'Dosing started for head $headId';
+  }
+
+  @override
+  String dosingVolumeFormat(String dispensed, String target) {
+    return '$dispensed / $target ml';
+  }
+
+  @override
+  String channelPercentageFormat(String label, int percentage) {
+    return '$label $percentage%';
+  }
+
+  @override
+  String get timeRangeSeparator => '~';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -1943,6 +2054,18 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
       'Bluetooth transport error. Check the signal and retry.';
 
   @override
+  String get errorSinkFull => '水槽已滿';
+
+  @override
+  String get errorConnectLimit => '最多可1個裝置同時連線';
+
+  @override
+  String get errorLedMasterCannotDelete => '欲刪除主燈，請先修改主從設定，將其他副燈設定為主燈';
+
+  @override
+  String get errorDeleteFailed => '刪除設備失敗';
+
+  @override
   String get errorGeneric => 'Something went wrong. Please retry.';
 
   @override
@@ -2158,6 +2281,101 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get ledScheduleDerivedLabel => '來源：LED 排程紀錄';
 
   @override
+  String get ledRecordsTitle => 'LED 記錄';
+
+  @override
+  String get ledRecordsSubtitle => '管理 24 小時照明時間軸中的每個時間點。';
+
+  @override
+  String get ledRecordsEmptyTitle => '沒有可用記錄';
+
+  @override
+  String get ledRecordsEmptySubtitle => '在 Reef B 應用程式中建立記錄以在此查看。';
+
+  @override
+  String get ledRecordsSelectedTimeLabel => '選定時間';
+
+  @override
+  String get ledRecordsStatusIdle => '就緒';
+
+  @override
+  String get ledRecordsStatusApplying => '同步中...';
+
+  @override
+  String get ledRecordsStatusPreview => '預覽中';
+
+  @override
+  String get ledRecordsActionPrev => '上一個';
+
+  @override
+  String get ledRecordsActionNext => '下一個';
+
+  @override
+  String get ledRecordsActionDelete => '刪除';
+
+  @override
+  String get ledRecordsActionClear => '清除全部';
+
+  @override
+  String get ledRecordsActionPreviewStart => '預覽';
+
+  @override
+  String get ledRecordsActionPreviewStop => '停止預覽';
+
+  @override
+  String get ledRecordsClearConfirmTitle => '清除所有記錄？';
+
+  @override
+  String get ledRecordsClearConfirmMessage => '是否要清除排程？';
+
+  @override
+  String get ledRecordsDeleteConfirmTitle => '刪除記錄？';
+
+  @override
+  String get ledRecordsDeleteConfirmMessage => '從 LED 排程中移除選定的時間點？';
+
+  @override
+  String get ledMoveMasterDialogTitle => '主從設定';
+
+  @override
+  String get ledMoveMasterDialogContent => '欲移動此裝置至其他水槽，請先修改主從設定，將其他副燈設定為主燈。';
+
+  @override
+  String ledSceneDeleteConfirmMessage(String name) {
+    return '是否要刪除場景？';
+  }
+
+  @override
+  String get ledRecordsSnackDeleted => '刪除時間點成功。';
+
+  @override
+  String get ledRecordsSnackDeleteFailed => '刪除時間點失敗。';
+
+  @override
+  String get ledRecordsSnackCleared => '記錄已清除。';
+
+  @override
+  String get ledRecordsSnackClearFailed => '無法清除記錄。';
+
+  @override
+  String get ledRecordsSnackMissingSelection => '請先選擇記錄。';
+
+  @override
+  String get ledRecordsSnackPreviewStarted => '一分鐘快速預覽開始';
+
+  @override
+  String get ledRecordsSnackPreviewStopped => '一分鐘快速預覽結束';
+
+  @override
+  String get ledRecordsSnackRecordsFull => '最多可設定 24 個時間點。';
+
+  @override
+  String get ledRecordsSnackTimeExists => '此時間區段已重複設定。';
+
+  @override
+  String get ledRecordsSnackTimeError => '時間點需間隔大於10分鐘。';
+
+  @override
   String get ledScheduleTypeDaily => 'Daily program';
 
   @override
@@ -2281,4 +2499,159 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get ledScheduleStatusDisabled => 'Disabled';
+
+  @override
+  String get ledSceneNameLabel => '場景名稱';
+
+  @override
+  String get ledSceneNameHint => '輸入場景名稱';
+
+  @override
+  String get ledSceneIcon => '場景圖標';
+
+  @override
+  String get lightUv => 'UV 燈';
+
+  @override
+  String get lightPurple => '紫光';
+
+  @override
+  String get lightBlue => '藍光';
+
+  @override
+  String get lightRoyalBlue => '皇家藍光';
+
+  @override
+  String get lightGreen => '綠光';
+
+  @override
+  String get lightRed => '紅光';
+
+  @override
+  String get lightColdWhite => '冷白光';
+
+  @override
+  String get lightWarmWhite => '暖白光';
+
+  @override
+  String get lightMoon => '月光';
+
+  @override
+  String get ledSceneAddSuccess => '添加場景成功。';
+
+  @override
+  String get toastNameIsEmpty => '名稱不得為空';
+
+  @override
+  String get toastSettingSuccessful => '設定成功';
+
+  @override
+  String get toastSceneNameIsExist => '場景名稱重複';
+
+  @override
+  String get ledSceneNameIsExist => '場景名稱重複';
+
+  @override
+  String get ledSceneDeleteConfirmTitle => '刪除場景？';
+
+  @override
+  String ledSceneDeleteSuccess(String name) {
+    return '刪除場景成功。';
+  }
+
+  @override
+  String get ledSceneDeleteError => '刪除場景失敗。';
+
+  @override
+  String get toastDeleteNowScene => '不可刪除目前使用的場景';
+
+  @override
+  String get ledRecordSettingInitStrength => '起始強度';
+
+  @override
+  String get ledRecordSettingSunrise => '日出';
+
+  @override
+  String get ledRecordSettingSunset => '日落';
+
+  @override
+  String get ledRecordSettingSlowStart => '緩啟動';
+
+  @override
+  String get ledRecordSettingMoonlight => '月光';
+
+  @override
+  String get ledRecordSettingErrorSunTime => '日出時間、日落時間設定錯誤。';
+
+  @override
+  String get group => '群組';
+
+  @override
+  String get led => 'LED';
+
+  @override
+  String get masterSlave => '主從';
+
+  @override
+  String get time => '時間點';
+
+  @override
+  String get record => '排程';
+
+  @override
+  String get ledScene => '場景';
+
+  @override
+  String get unassignedDevice => '未分配裝置';
+
+  @override
+  String get ledSceneNoSetting => '無設定';
+
+  @override
+  String get dosingAdjustListDate => '日期';
+
+  @override
+  String get dosingAdjustListVolume => '測量體積';
+
+  @override
+  String get homeSpinnerAllSink => '所有水槽';
+
+  @override
+  String get homeSpinnerFavorite => '喜愛裝置';
+
+  @override
+  String get homeSpinnerUnassigned => '未分配裝置';
+
+  @override
+  String get dosingPumpHeadNoType => '無種類';
+
+  @override
+  String get dosingPumpHeadModeScheduled => '排程模式';
+
+  @override
+  String get dosingPumpHeadModeFree => '自由模式';
+
+  @override
+  String get dosingVolumeHint => '請輸入滴液量';
+
+  @override
+  String get noRecords => '無排程任務';
+
+  @override
+  String dosingManualStarted(String headId) {
+    return '泵頭 $headId 已開始滴液';
+  }
+
+  @override
+  String dosingVolumeFormat(String dispensed, String target) {
+    return '$dispensed / $target ml';
+  }
+
+  @override
+  String channelPercentageFormat(String label, int percentage) {
+    return '$label $percentage%';
+  }
+
+  @override
+  String get timeRangeSeparator => '~';
 }

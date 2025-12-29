@@ -9,6 +9,7 @@ import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_app_bar.dart';
+import '../../../assets/common_icon_helper.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/pump_head_record_time_setting_controller.dart';
@@ -77,7 +78,7 @@ class _PumpHeadRecordTimeSettingViewState
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: CommonIconHelper.getCloseIcon(size: 24),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -151,7 +152,7 @@ class _PumpHeadRecordTimeSettingViewState
                   ),
                 ),
                 const SizedBox(width: ReefSpacing.sm),
-                const Text('~'),
+                Text(l10n.timeRangeSeparator),
                 const SizedBox(width: ReefSpacing.sm),
                 Expanded(
                   child: OutlinedButton(
@@ -224,8 +225,8 @@ class _PumpHeadRecordTimeSettingViewState
             TextField(
               controller: _dropVolumeController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                hintText: 'Enter volume',
+              decoration: InputDecoration(
+                hintText: l10n.dosingVolumeHint,
                 suffixText: 'ml',
               ),
               onChanged: (value) {

@@ -273,6 +273,39 @@
   "@ledScheduleStatusDisabled": {
     "description": "Label shown when an LED lighting schedule is disabled."
   },
+  "ledRecordsTitle": "LED 記錄",
+  "ledRecordsSubtitle": "管理 24 小時照明時間軸中的每個時間點。",
+  "ledRecordsEmptyTitle": "沒有可用記錄",
+  "ledRecordsEmptySubtitle": "在 Reef B 應用程式中建立記錄以在此查看。",
+  "ledRecordsSelectedTimeLabel": "選定時間",
+  "ledRecordsStatusIdle": "就緒",
+  "ledRecordsStatusApplying": "同步中...",
+  "ledRecordsStatusPreview": "預覽中",
+  "ledRecordsActionPrev": "上一個",
+  "ledRecordsActionNext": "下一個",
+  "ledRecordsActionDelete": "刪除",
+  "ledRecordsActionClear": "清除全部",
+  "ledRecordsActionPreviewStart": "預覽",
+  "ledRecordsActionPreviewStop": "停止預覽",
+  "ledRecordsClearConfirmTitle": "清除所有記錄？",
+  "ledRecordsClearConfirmMessage": "是否要清除排程？",
+  "ledRecordsDeleteConfirmTitle": "刪除記錄？",
+  "ledRecordsDeleteConfirmMessage": "從 LED 排程中移除選定的時間點？",
+  "ledMoveMasterDialogTitle": "主從設定",
+  "ledMoveMasterDialogContent": "欲移動此裝置至其他水槽，請先修改主從設定，將其他副燈設定為主燈。",
+  "ledSceneDeleteConfirmTitle": "刪除場景？",
+  "ledSceneDeleteConfirmMessage": "是否要刪除場景？",
+  "ledRecordsSnackDeleted": "刪除時間點成功。",
+  "ledRecordsSnackDeleteFailed": "刪除時間點失敗。",
+  "ledRecordsSnackCleared": "記錄已清除。",
+  "ledRecordsSnackClearFailed": "無法清除記錄。",
+  "ledRecordsSnackMissingSelection": "請先選擇記錄。",
+  "ledRecordsSnackPreviewStarted": "一分鐘快速預覽開始",
+  "ledRecordsSnackPreviewStopped": "一分鐘快速預覽結束",
+  "ledRecordsSnackRecordsFull": "最多可設定 24 個時間點。",
+  "ledRecordsSnackTimeExists": "此時間區段已重複設定。",
+  "ledRecordsSnackTimeError": "時間點需間隔大於10分鐘。",
+  "ledRecordsSnackTimeAlreadyExist": "此時間區段已重複設定。",
   "bleOnboardingPermissionTitle": "啟用藍牙訪問",
   "bleOnboardingPermissionCopy": "我們使用藍牙來發現和控制您附近的 Koral 硬件。",
   "bleOnboardingPermissionCta": "允許訪問",
@@ -333,5 +366,73 @@
   "homeSpinnerUnassigned": "未分配裝置",
   "dosingPumpHeadNoType": "未設定",
   "dosingPumpHeadModeScheduled": "已排程",
-  "dosingPumpHeadModeFree": "自由模式"
+  "dosingPumpHeadModeFree": "自由模式",
+  "errorSinkFull": "水槽已滿",
+  "errorConnectLimit": "最多可1個裝置同時連線",
+  "errorLedMasterCannotDelete": "欲刪除主燈，請先修改主從設定，將其他副燈設定為主燈",
+  "errorDeleteFailed": "刪除設備失敗",
+  "ledSceneNameLabel": "場景名稱",
+  "ledSceneNameHint": "輸入場景名稱",
+  "ledSceneIcon": "場景圖標",
+  "lightUv": "UV 燈",
+  "lightPurple": "紫光",
+  "lightBlue": "藍光",
+  "lightRoyalBlue": "皇家藍光",
+  "lightGreen": "綠光",
+  "lightRed": "紅光",
+  "lightColdWhite": "冷白光",
+  "lightWarmWhite": "暖白光",
+  "lightMoon": "月光",
+  "toastNameIsEmpty": "名稱不得為空",
+  "toastSettingSuccessful": "設定成功",
+  "toastSceneNameIsExist": "場景名稱重複",
+  "toastDeleteNowScene": "不可刪除目前使用的場景",
+  "ledSceneNameIsExist": "場景名稱重複",
+  "ledSceneAddSuccess": "添加場景成功。",
+  "ledSceneDeleteSuccess": "刪除場景成功。",
+  "ledSceneDeleteError": "刪除場景失敗。",
+  "ledRecordSettingErrorSunTime": "日出時間、日落時間設定錯誤。",
+  "ledRecordSettingInitStrength": "起始強度",
+  "ledRecordSettingSunrise": "日出",
+  "ledRecordSettingSunset": "日落",
+  "ledRecordSettingSlowStart": "緩啟動",
+  "ledRecordSettingMoonlight": "月光",
+  "ledMasterSettingMoveGroupTitle": "主從設定",
+  "ledMasterSettingMoveGroupContent": "欲移動此裝置至其他水槽，請先修改主從設定，將其他副燈設定為主燈。",
+  "dosingPumpHeadNoType": "無種類",
+  "dosingPumpHeadModeScheduled": "排程模式",
+  "dosingPumpHeadModeFree": "自由模式",
+  "dosingManualStarted": "泵頭 {headId} 已開始滴液",
+  "@dosingManualStarted": {
+    "placeholders": {
+      "headId": {
+        "type": "String"
+      }
+    }
+  },
+  "dosingVolumeFormat": "{dispensed} / {target} ml",
+  "@dosingVolumeFormat": {
+    "placeholders": {
+      "dispensed": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "channelPercentageFormat": "{label} {percentage}%",
+  "@channelPercentageFormat": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "timeRangeSeparator": "~",
+  "dosingVolumeHint": "請輸入滴液量",
+  "noRecords": "無排程任務"
 }

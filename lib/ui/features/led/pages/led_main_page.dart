@@ -2,32 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../../../application/common/app_context.dart';
 import '../../../../application/common/app_error.dart';
 import '../../../../application/common/app_error_code.dart';
 import '../../../../application/common/app_session.dart';
+import '../../../../domain/sink/sink.dart';
 import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_backgrounds.dart';
 import '../../../widgets/reef_app_bar.dart';
-import '../../../components/ble_guard.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/error_state_widget.dart';
-import '../../../components/loading_state_widget.dart';
 import '../controllers/led_scene_list_controller.dart';
 import '../models/led_scene_summary.dart';
-import '../support/scene_channel_helper.dart';
 import '../support/scene_display_text.dart';
+import '../support/scene_icon_helper.dart';
 import '../widgets/led_record_line_chart.dart';
-import '../widgets/led_spectrum_chart.dart';
-import 'led_control_page.dart';
 import 'led_record_page.dart';
+import 'led_record_setting_page.dart';
 import 'led_scene_list_page.dart';
-import 'led_schedule_list_page.dart';
 import '../../device/pages/device_settings_page.dart';
+import '../../../assets/common_icon_helper.dart';
 
 
 class LedMainPage extends StatelessWidget {
@@ -63,17 +62,44 @@ class _LedMainScaffold extends StatefulWidget {
   State<_LedMainScaffold> createState() => _LedMainScaffoldState();
 }
 
-class _LedMainScaffoldState extends State<_LedMainScaffold> {
+class _LedMainScaffoldState extends State<_LedMainScaffold> with WidgetsBindingObserver {
   bool _isLandscape = false;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    // PARITY: reef-b-app FLAG_KEEP_SCREEN_ON
+    // Keep screen on while on LED main page
+    WakelockPlus.enable();
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    // Disable wakelock when leaving page
+    WakelockPlus.disable();
     // Reset to portrait when leaving page
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // PARITY: reef-b-app onResume() - refresh data when page becomes visible
+    if (state == AppLifecycleState.resumed) {
+      final controller = context.read<LedSceneListController>();
+      // Refresh all data to ensure it's up to date
+      // PARITY: reef-b-app onResume() calls:
+      // - setDeviceById() → already handled by AppSession.setActiveDevice()
+      // - getAllLedInfo() → _bootstrapLedState()
+      // - getNowRecords() → _bootstrapRecordState()
+      // - getAllFavoriteScene() → refresh() (includes favorite scenes)
+      controller.refreshAll();
+    }
   }
 
   void _toggleOrientation() {
@@ -105,15 +131,58 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
         final bool writeLocked = controller.isWriteLocked;
         final bool featuresEnabled = isConnected && !writeLocked;
 
-        return Scaffold(
-          appBar: ReefAppBar(
-            backgroundColor: ReefColors.primary,
-            foregroundColor: ReefColors.onPrimary,
-            elevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: ReefColors.onPrimary),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
+        return PopScope(
+          canPop: !controller.isPreviewing,
+          onPopInvoked: (didPop) async {
+            if (!didPop && controller.isPreviewing) {
+              // PARITY: reef-b-app clickBtnBack() - stop preview if active
+              await controller.stopPreview();
+              // After stopping preview, allow pop
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
+            } else if (!didPop && _isLandscape) {
+              // PARITY: reef-b-app onBackPressed - if landscape, switch to portrait first
+              setState(() {
+                _isLandscape = false;
+              });
+              SystemChrome.setPreferredOrientations([
+                DeviceOrientation.portraitUp,
+                DeviceOrientation.portraitDown,
+              ]);
+            }
+          },
+          child: Scaffold(
+            appBar: ReefAppBar(
+              backgroundColor: ReefColors.primary,
+              foregroundColor: ReefColors.onPrimary,
+              elevation: 0,
+              leading: IconButton(
+                icon: CommonIconHelper.getBackIcon(
+                  size: 24,
+                  color: ReefColors.onPrimary,
+                ),
+                onPressed: () async {
+                  // PARITY: reef-b-app clickBtnBack() - stop preview if active
+                  if (controller.isPreviewing) {
+                    await controller.stopPreview();
+                  }
+                  // If landscape, switch to portrait first
+                  if (_isLandscape) {
+                    setState(() {
+                      _isLandscape = false;
+                    });
+                    SystemChrome.setPreferredOrientations([
+                      DeviceOrientation.portraitUp,
+                      DeviceOrientation.portraitDown,
+                    ]);
+                  } else {
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  }
+                },
+              ),
             title: Text(
               deviceName,
               style: ReefTextStyles.title2.copyWith(
@@ -134,15 +203,22 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
                       final isFavorite = snapshot.data ?? false;
                       final deviceId = session.activeDeviceId;
                       return IconButton(
-                        icon: Icon(
-                          isFavorite ? Icons.favorite : Icons.favorite_border,
-                          color: isFavorite
-                              ? ReefColors.error
-                              : ReefColors.onPrimary.withValues(alpha: 0.7),
-                        ),
+                        icon: isFavorite
+                            ? CommonIconHelper.getFavoriteSelectIcon(
+                                size: 24,
+                                color: ReefColors.error,
+                              )
+                            : CommonIconHelper.getFavoriteUnselectIcon(
+                                size: 24,
+                                color: ReefColors.onPrimary.withValues(alpha: 0.7),
+                              ),
                         tooltip: isFavorite ? l10n.deviceActionUnfavorite : l10n.deviceActionFavorite,
-                        onPressed: featuresEnabled && !controller.isPreviewing && deviceId != null
+                        onPressed: featuresEnabled && deviceId != null
                             ? () async {
+                                // PARITY: reef-b-app clickBtnFavorite() - stop preview if active
+                                if (controller.isPreviewing) {
+                                  await controller.stopPreview();
+                                }
                                 try {
                                   await appContext.toggleFavoriteDeviceUseCase.execute(
                                     deviceId: deviceId,
@@ -172,14 +248,21 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
                 },
               ),
               // Expand button (landscape/portrait toggle)
+              // PARITY: reef-b-app uses ic_zoom_in for btnExpand
               IconButton(
-                icon: Icon(
-                  _isLandscape ? Icons.fullscreen_exit : Icons.fullscreen,
+                icon: CommonIconHelper.getZoomInIcon(
+                  size: 24,
                   color: ReefColors.onPrimary,
                 ),
                 tooltip: _isLandscape ? l10n.ledOrientationPortrait : l10n.ledOrientationLandscape,
-                onPressed: featuresEnabled && !controller.isPreviewing
-                    ? _toggleOrientation
+                onPressed: featuresEnabled
+                    ? () async {
+                        // PARITY: reef-b-app clickBtnExpand() - stop preview if active
+                        if (controller.isPreviewing) {
+                          await controller.stopPreview();
+                        }
+                        _toggleOrientation();
+                      }
                     : null,
               ),
               // Menu button
@@ -187,9 +270,16 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
                 builder: (context) {
                   final appContext = context.read<AppContext>();
                   return PopupMenuButton<String>(
-                    icon: Icon(Icons.more_vert, color: ReefColors.onPrimary),
-                    enabled: featuresEnabled && !controller.isPreviewing,
-                    onSelected: (value) {
+                    icon: CommonIconHelper.getMenuIcon(
+                      size: 24,
+                      color: ReefColors.onPrimary,
+                    ),
+                    enabled: featuresEnabled,
+                    onSelected: (value) async {
+                      // PARITY: reef-b-app clickBtnMenu() - stop preview if active
+                      if (controller.isPreviewing) {
+                        await controller.stopPreview();
+                      }
                       switch (value) {
                         case 'edit':
                           Navigator.of(context).push(
@@ -217,7 +307,7 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
                         value: 'edit',
                         child: Row(
                           children: [
-                            const Icon(Icons.edit, size: 20),
+                            CommonIconHelper.getEditIcon(size: 20),
                             const SizedBox(width: ReefSpacing.sm),
                             Text(l10n.deviceActionEdit),
                           ],
@@ -227,7 +317,10 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
                     value: 'delete',
                     child: Row(
                       children: [
-                        const Icon(Icons.delete, size: 20, color: ReefColors.error),
+                        CommonIconHelper.getDeleteIcon(
+                          size: 20,
+                          color: ReefColors.error,
+                        ),
                         const SizedBox(width: ReefSpacing.sm),
                         Text(
                           l10n.deviceActionDelete,
@@ -240,7 +333,7 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
                     value: 'reset',
                     child: Row(
                       children: [
-                        const Icon(Icons.refresh, size: 20),
+                        CommonIconHelper.getResetIcon(size: 20),
                         const SizedBox(width: ReefSpacing.sm),
                         Text(l10n.ledResetDevice),
                       ],
@@ -288,15 +381,36 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
                         style: ReefTextStyles.bodyAccent,
                       ),
                       IconButton(
-                        icon: const Icon(Icons.more_horiz),
+                        // PARITY: reef-b-app uses ic_more_enable / ic_more_disable
+                        icon: CommonIconHelper.getMoreEnableIcon(
+                          size: 24,
+                          color: featuresEnabled
+                              ? ReefColors.textPrimary
+                              : ReefColors.textPrimary.withValues(alpha: 0.5),
+                        ),
                         iconSize: 24,
                         onPressed: featuresEnabled
-                            ? () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => const LedRecordPage(),
-                                  ),
-                                );
+                            ? () async {
+                                // PARITY: reef-b-app clickBtnRecordMore() - stop preview if active
+                                if (controller.isPreviewing) {
+                                  await controller.stopPreview();
+                                }
+                                // PARITY: reef-b-app logic
+                                // If records are empty, navigate to record setting page
+                                // Otherwise, navigate to record list page
+                                if (controller.hasRecords) {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const LedRecordPage(),
+                                    ),
+                                  );
+                                } else {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const LedRecordSettingPage(),
+                                    ),
+                                  );
+                                }
                               }
                             : null,
                       ),
@@ -316,6 +430,8 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
                       isConnected: isConnected,
                       featuresEnabled: featuresEnabled,
                       l10n: l10n,
+                      onToggleOrientation: _toggleOrientation,
+                      isLandscape: _isLandscape,
                     ),
                   )
                 else
@@ -354,10 +470,20 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
                         style: ReefTextStyles.bodyAccent,
                       ),
                       IconButton(
-                        icon: const Icon(Icons.more_horiz),
+                        // PARITY: reef-b-app uses ic_more_enable / ic_more_disable
+                        icon: CommonIconHelper.getMoreEnableIcon(
+                          size: 24,
+                          color: featuresEnabled
+                              ? ReefColors.textPrimary
+                              : ReefColors.textPrimary.withValues(alpha: 0.5),
+                        ),
                         iconSize: 24,
                         onPressed: featuresEnabled
-                            ? () {
+                            ? () async {
+                                // PARITY: reef-b-app clickBtnSceneMore() - stop preview if active
+                                if (controller.isPreviewing) {
+                                  await controller.stopPreview();
+                                }
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (_) => const LedSceneListPage(),
@@ -370,6 +496,7 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
                   ),
                 ),
                 // PARITY: rv_favorite_scene marginTop 4dp, paddingStart/End 8dp
+                // PARITY: constraintTop=tv_scene_title.bottom, constraintStart/End=parent
                 Padding(
                   padding: EdgeInsets.only(
                     top: ReefSpacing.xxxs, // dp_4 marginTop
@@ -383,79 +510,11 @@ class _LedMainScaffoldState extends State<_LedMainScaffold> {
                     l10n: l10n,
                   ),
                 ),
-                // Entry tiles (not in XML, but part of Flutter implementation)
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: ReefSpacing.md),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: ReefSpacing.xl),
-                      _SceneListSection(l10n: l10n, controller: controller),
-                      const SizedBox(height: ReefSpacing.xl),
-                      _EntryTile(
-                        title: l10n.ledEntryIntensity,
-                        subtitle: l10n.ledIntensityEntrySubtitle,
-                        enabled: featuresEnabled,
-                        onTapWhenEnabled: () {
-                          final messenger = ScaffoldMessenger.of(context);
-                          Navigator.of(context)
-                              .push<bool>(
-                                MaterialPageRoute(
-                                  builder: (_) => const LedControlPage(),
-                                ),
-                              )
-                              .then((result) {
-                                if (result != true) {
-                                  return;
-                                }
-                                messenger.showSnackBar(
-                                  SnackBar(
-                                    content: Text(l10n.ledControlApplySuccess),
-                                  ),
-                                );
-                              });
-                        },
-                      ),
-                      _EntryTile(
-                        title: l10n.ledEntryScenes,
-                        subtitle: l10n.ledScenesListSubtitle,
-                        enabled: featuresEnabled,
-                        onTapWhenEnabled: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const LedSceneListPage(),
-                            ),
-                          );
-                        },
-                      ),
-                      _EntryTile(
-                        title: l10n.ledEntryRecords,
-                        subtitle: l10n.ledEntryRecordsSubtitle,
-                        enabled: featuresEnabled,
-                        onTapWhenEnabled: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const LedRecordPage()),
-                          );
-                        },
-                      ),
-                      _EntryTile(
-                        title: l10n.ledEntrySchedule,
-                        subtitle: l10n.ledScheduleListSubtitle,
-                        enabled: featuresEnabled,
-                        onTapWhenEnabled: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const LedScheduleListPage(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
             ),
           ),
+        ),
         );
       },
     );
@@ -487,116 +546,291 @@ class _DeviceInfoSection extends StatelessWidget {
     final deviceId = session.activeDeviceId;
     
     // Get device info from repository
-    String? positionName;
-    String? groupName;
-    
-    // TODO: When DeviceSnapshot is extended to include sinkId and group,
-    // retrieve them from the device repository here
-    // For now, we'll use placeholders
-    if (deviceId != null) {
-      // Future: Get device from repository and extract sinkId/group
-      // final device = await appContext.deviceRepository.getDevice(deviceId);
-      // if (device != null && device['sink_id'] != null) {
-      //   final sink = await appContext.sinkRepository.getSinkById(device['sink_id']);
-      //   positionName = sink?.name;
-      //   groupName = device['device_group'];
-      // }
-      positionName = null; // Placeholder until DeviceSnapshot includes sinkId
-      groupName = null; // Placeholder until DeviceSnapshot includes group
+    return FutureBuilder<Map<String, String?>>(
+      future: _loadDeviceInfo(context, deviceId),
+      builder: (context, snapshot) {
+        final positionName = snapshot.data?['positionName'];
+        final groupName = snapshot.data?['groupName'];
+        
+        final appContext = context.read<AppContext>();
+        final controller = context.read<LedSceneListController>();
+        return _buildDeviceInfo(
+          context,
+          appContext,
+          controller,
+          positionName,
+          groupName,
+        );
+      },
+    );
+  }
+
+  /// Load device info from repository.
+  ///
+  /// PARITY: Matches reef-b-app's LedMainActivity.setObserver() logic:
+  /// - Gets sinkId from device, then gets sink name from sinkRepository
+  /// - Gets group from device and formats as "群組${group}"
+  Future<Map<String, String?>> _loadDeviceInfo(
+    BuildContext context,
+    String? deviceId,
+  ) async {
+    if (deviceId == null) {
+      return {'positionName': null, 'groupName': null};
     }
 
-    // PARITY: activity_led_main.xml layout structure
+    final appContext = context.read<AppContext>();
+    final device = await appContext.deviceRepository.getDevice(deviceId);
+    
+    String? positionName;
+    String? groupName;
+
+    if (device != null) {
+      // Get position name from sink
+      final String? sinkId = device['sinkId']?.toString();
+      if (sinkId != null && sinkId.isNotEmpty) {
+        final sinks = appContext.sinkRepository.getCurrentSinks();
+        final sink = sinks.firstWhere(
+          (s) => s.id == sinkId,
+          orElse: () => const Sink(
+            id: '',
+            name: '',
+            type: SinkType.custom,
+            deviceIds: [],
+          ),
+        );
+        if (sink.id.isNotEmpty) {
+          positionName = sink.name;
+        }
+      }
+
+      // Get group name
+      final String? group = device['group']?.toString();
+      if (group != null && group.isNotEmpty) {
+        // PARITY: reef-b-app format: "群組${group}"
+        groupName = '${l10n.group}$group';
+      }
+    }
+
+    return {
+      'positionName': positionName,
+      'groupName': groupName,
+    };
+  }
+
+  Widget _buildDeviceInfo(
+    BuildContext context,
+    AppContext appContext,
+    LedSceneListController controller,
+    String? positionName,
+    String? groupName,
+  ) {
+    // PARITY: activity_led_main.xml ConstraintLayout structure
+    // Key constraints:
+    // - btn_ble: constraintTop=tv_name.top, constraintBottom=tv_position.bottom (垂直居中於 tv_name 和 tv_position 之間)
+    // - tv_group: constraintTop=tv_position.top, constraintBottom=tv_position.bottom (與 tv_position 垂直居中)
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Device name row (tv_name + btn_ble)
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        // Device name and BLE icon row (tv_name + btn_ble)
+        // PARITY: btn_ble 與 tv_name 和 tv_position 垂直居中
+        // 使用 Stack 來實現 btn_ble 跨越 tv_name 和 tv_position 的垂直居中
+        Stack(
           children: [
             // Device name (tv_name)
-            // PARITY: marginStart=16dp, marginTop=8dp, textAppearance=body_accent, textColor=text_aaaa
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: ReefSpacing.md, // dp_16
-                  top: ReefSpacing.xs, // dp_8
-                ),
-                child: Text(
-                  deviceName,
-                  style: ReefTextStyles.subheaderAccent.copyWith(
-                    color: isConnected 
-                        ? ReefColors.textPrimary // text_aaaa when connected
-                        : ReefColors.textSecondary, // text_aa when disconnected
+            // PARITY: marginStart=16dp, marginTop=8dp, marginEnd=4dp, constraintEnd=btn_ble.start
+            Padding(
+              padding: EdgeInsets.only(
+                left: ReefSpacing.md, // dp_16 marginStart
+                top: ReefSpacing.xs, // dp_8 marginTop
+                right: 4, // dp_4 marginEnd (not standard spacing)
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    deviceName,
+                    style: ReefTextStyles.subheaderAccent.copyWith(
+                      color: isConnected 
+                          ? ReefColors.textPrimary // text_aaaa when connected
+                          : ReefColors.textSecondary, // text_aa when disconnected
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                  // Position and Group row (tv_position + tv_group)
+                  // PARITY: constraintTop=tv_name.bottom, constraintStart=tv_name.start
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: ReefSpacing.xs, // dp_8 (spacing between name and position)
+                    ),
+                    child: Row(
+                      children: [
+                        // Position (tv_position)
+                        // PARITY: caption2, text_aaa, constraintStart=tv_name.start
+                        if (positionName != null)
+                          Flexible(
+                            child: Text(
+                              positionName,
+                              style: ReefTextStyles.caption2.copyWith(
+                                color: ReefColors.textTertiary, // text_aaa
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          )
+                        else
+                          Text(
+                            l10n.unassignedDevice,
+                            style: ReefTextStyles.caption2.copyWith(
+                              color: ReefColors.textTertiary, // text_aaa
+                            ),
+                          ),
+                        // Group (tv_group)
+                        // PARITY: caption2, text_aa, marginStart=4dp, constraintTop/Bottom=tv_position.top/bottom
+                        if (groupName != null) ...[
+                          SizedBox(width: ReefSpacing.xs), // dp_4 marginStart
+                          Text(
+                            '｜$groupName', // PARITY: "｜群組 A" format
+                            style: ReefTextStyles.caption2.copyWith(
+                              color: ReefColors.textSecondary, // text_aa
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
             // BLE state icon (btn_ble)
             // PARITY: 48×32dp, marginEnd=16dp
-            Padding(
-              padding: EdgeInsets.only(
-                right: ReefSpacing.md, // dp_16
-                top: ReefSpacing.xs, // dp_8
-              ),
-              child: SizedBox(
-                width: 48, // dp_48
-                height: 32, // dp_32
-                child: Image.asset(
-                  isConnected
-                      ? 'assets/icons/bluetooth/ic_connect_background.png' // ic_connect_background
-                      : 'assets/icons/bluetooth/ic_disconnect_background.png', // ic_disconnect_background
-                  fit: BoxFit.contain,
+            // PARITY: constraintTop=tv_name.top, constraintBottom=tv_position.bottom (垂直居中於 tv_name 和 tv_position 之間)
+            // PARITY: reef-b-app clickBtnBle() - toggles connect/disconnect
+            // 使用 Align 來實現垂直居中，因為 btn_ble 應該從 tv_name 頂部延伸到 tv_position 底部
+            Positioned(
+              right: ReefSpacing.md, // dp_16 marginEnd
+              top: ReefSpacing.xs, // dp_8 (與 tv_name 頂部對齊)
+              bottom: 0, // 與 tv_position 底部對齊（因為 tv_position 在 Column 的底部）
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () => _handleBleIconTap(context, appContext, controller),
+                  child: SizedBox(
+                    width: 48, // dp_48
+                    height: 32, // dp_32
+                    child: _buildBleStateIcon(isConnected),
+                  ),
                 ),
               ),
             ),
           ],
         ),
-        // Position and Group row (tv_position + tv_group)
-        Padding(
-          padding: EdgeInsets.only(
-            left: ReefSpacing.md, // dp_16
-            top: ReefSpacing.xs, // dp_8 (spacing between name and position)
-          ),
-          child: Row(
-            children: [
-              // Position (tv_position)
-              // PARITY: caption2, text_aaa
-              if (positionName != null)
-                Flexible(
-                  child: Text(
-                    positionName,
-                    style: ReefTextStyles.caption2.copyWith(
-                      color: ReefColors.textTertiary, // text_aaa
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                )
-              else
-                Text(
-                  l10n.unassignedDevice,
-                  style: ReefTextStyles.caption2.copyWith(
-                    color: ReefColors.textTertiary, // text_aaa
-                  ),
-                ),
-              // Group (tv_group)
-              // PARITY: caption2, text_aa, marginStart=4dp, visibility=gone if no group
-              if (groupName != null) ...[
-                SizedBox(width: ReefSpacing.xs), // dp_4
-                Text(
-                  '｜$groupName', // PARITY: "｜群組 A" format
-                  style: ReefTextStyles.caption2.copyWith(
-                    color: ReefColors.textSecondary, // text_aa
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
       ],
     );
+  }
+
+  /// Build BLE state icon.
+  ///
+  /// PARITY: reef-b-app uses ic_connect_background (green) / ic_disconnect_background (grey).
+  /// Falls back to Material Icons if custom icons don't exist.
+  Widget _buildBleStateIcon(bool isConnected) {
+    // Try to load custom icons first
+    try {
+      return Image.asset(
+        isConnected
+            ? 'assets/icons/bluetooth/ic_connect_background.png'
+            : 'assets/icons/bluetooth/ic_disconnect_background.png',
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          // Fallback to Material Icons if custom icons don't exist
+          return _buildMaterialBleIcon(isConnected);
+        },
+      );
+    } catch (e) {
+      // Fallback to Material Icons if asset path is invalid
+      return _buildMaterialBleIcon(isConnected);
+    }
+  }
+
+  /// Build BLE state icon using Material Icons as fallback.
+  Widget _buildMaterialBleIcon(bool isConnected) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isConnected
+            ? ReefColors.primary // #6F916F (green) when connected
+            : ReefColors.surfaceMuted, // #F7F7F7 (grey) when disconnected
+        borderRadius: BorderRadius.circular(16), // 16dp corner radius (48dp width / 3)
+      ),
+      child: Center(
+        child: CommonIconHelper.getBluetoothIcon(
+          size: 24,
+          color: isConnected
+              ? ReefColors.onPrimary // white when connected
+              : ReefColors.textPrimary, // black when disconnected
+        ),
+      ),
+    );
+  }
+
+  /// Handle BLE icon tap.
+  ///
+  /// PARITY: Matches reef-b-app's LedMainViewModel.clickBtnBle() logic:
+  /// - If previewing, stop preview first
+  /// - If connected, disconnect the device
+  /// - If disconnected, connect to the device
+  Future<void> _handleBleIconTap(
+    BuildContext context,
+    AppContext appContext,
+    LedSceneListController controller,
+  ) async {
+    final deviceId = session.activeDeviceId;
+    if (deviceId == null) {
+      return;
+    }
+
+    // PARITY: reef-b-app clickBtnBle() - stop preview if active
+    if (controller.isPreviewing) {
+      await controller.stopPreview();
+    }
+
+    final l10n = AppLocalizations.of(context);
+
+    try {
+      if (isConnected) {
+        // Disconnect device
+        await appContext.disconnectDeviceUseCase.execute(deviceId: deviceId);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.snackbarDeviceDisconnected)),
+          );
+        }
+      } else {
+        // Connect device
+        // PARITY: reef-b-app checks BLE permission before connecting
+        await appContext.connectDeviceUseCase.execute(deviceId: deviceId);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.snackbarDeviceConnected)),
+          );
+        }
+      }
+    } on AppError catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(describeAppError(l10n, error.code)),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(describeAppError(l10n, AppErrorCode.unknownError)),
+          ),
+        );
+      }
+    }
   }
 }
 
@@ -709,10 +943,19 @@ class _FavoriteSceneCard extends StatelessWidget {
           disabledBackgroundColor: ReefColors.surface,
           disabledForegroundColor: ReefColors.textSecondary,
         ),
-        icon: Icon(
-          Icons.favorite, // TODO: Use scene icon (ic_none or scene-specific icon)
-          size: 20, // Approximate icon size
-        ),
+        // PARITY: reef-b-app uses ic_none or scene-specific icon
+        // Use SceneIconHelper to get the actual scene icon
+        icon: scene.iconKey != null
+            ? SceneIconHelper.getSceneIconByKey(
+                iconKey: scene.iconKey,
+                width: 20,
+                height: 20,
+              )
+            : SceneIconHelper.getSceneIcon(
+                iconId: 5, // ic_none
+                width: 20,
+                height: 20,
+              ),
         label: Text(
           sceneName.isEmpty ? l10n.ledSceneNoSetting : sceneName,
           style: ReefTextStyles.body.copyWith(
@@ -729,388 +972,7 @@ class _FavoriteSceneCard extends StatelessWidget {
   }
 }
 
-class _SceneListSection extends StatelessWidget {
-  final AppLocalizations l10n;
-  final LedSceneListController controller;
-
-  const _SceneListSection({required this.l10n, required this.controller});
-
-  Widget? _buildInlineErrorMessage(
-    BuildContext context,
-    AppErrorCode? errorCode,
-  ) {
-    if (errorCode == null) {
-      return null;
-    }
-    final l10n = AppLocalizations.of(context);
-    final message = describeAppError(l10n, errorCode);
-    return InlineErrorMessage(
-      message: message,
-      onDismiss: () => controller.clearError(),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final List<Widget> content = [];
-    final Widget? error = _buildInlineErrorMessage(
-      context,
-      controller.lastErrorCode,
-    );
-    if (error != null) {
-      content.add(error);
-      content.add(const SizedBox(height: ReefSpacing.sm));
-      controller.clearError();
-    }
-
-    if (controller.currentChannelLevels.isNotEmpty) {
-      content.add(
-        LedSpectrumChart.fromChannelMap(
-          controller.currentChannelLevels,
-          height: 80,
-          emptyLabel: l10n.ledControlEmptyState,
-        ),
-      );
-      content.add(const SizedBox(height: ReefSpacing.md));
-    }
-
-    if (controller.isLoading) {
-      content.add(const LoadingStateWidget.center());
-    } else {
-      final scenes = controller.scenes;
-      if (scenes.isEmpty) {
-        content.add(_SceneCarouselEmptyCard(l10n: l10n));
-      } else {
-        final int channelCount = controller.currentChannelLevels.length;
-        content.add(
-          Column(
-            children: [
-              for (int i = 0; i < scenes.length; i++) ...[
-                _SceneListTile(
-                  scene: scenes[i],
-                  l10n: l10n,
-                  channelCount: channelCount,
-                ),
-                if (i != scenes.length - 1)
-                  const SizedBox(height: ReefSpacing.md),
-              ],
-            ],
-          ),
-        );
-      }
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SectionHeader(
-          title: l10n.ledScenesPlaceholderTitle,
-          subtitle: l10n.ledScenesPlaceholderSubtitle,
-        ),
-        const SizedBox(height: ReefSpacing.md),
-        ...content,
-      ],
-    );
-  }
-}
-
-class _SceneListTile extends StatelessWidget {
-  final LedSceneSummary scene;
-  final AppLocalizations l10n;
-  final int channelCount;
-
-  const _SceneListTile({
-    required this.scene,
-    required this.l10n,
-    required this.channelCount,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final bool isActive = scene.isActive;
-    final String sceneName = LedSceneDisplayText.name(scene, l10n);
-    final String sceneDescription = LedSceneDisplayText.description(
-      scene,
-      l10n,
-    );
-    final String statusLabel;
-    final Color statusColor;
-    if (isActive) {
-      statusLabel = l10n.ledSceneStatusActive;
-      statusColor = ReefColors.success;
-    } else if (scene.isEnabled) {
-      statusLabel = l10n.ledSceneStatusEnabled;
-      statusColor = ReefColors.primary;
-    } else {
-      statusLabel = l10n.ledSceneStatusDisabled;
-      statusColor = ReefColors.warning;
-    }
-
-    final Color cardColor = isActive
-        ? ReefColors.primary.withValues(alpha: 0.2)
-        : ReefColors.surface;
-    final Color nameColor = isActive
-        ? ReefColors.surface
-        : ReefColors.textPrimary;
-    final Color descriptionColor = isActive
-        ? ReefColors.surface.withValues(alpha: 0.85)
-        : ReefColors.textSecondary;
-    final Color badgeTextColor = isActive ? ReefColors.surface : statusColor;
-    final Color badgeBackground = isActive
-        ? ReefColors.surface.withValues(alpha: 0.25)
-        : statusColor.withValues(alpha: 0.15);
-    final String typeLabel = scene.isPreset
-        ? l10n.ledScenePreset
-        : l10n.ledSceneCustom;
-    final String channelLabel = l10n.ledSceneChannelCount(channelCount);
-    final List<SceneChannelStat> channelStats = buildSceneChannelStats(
-      scene,
-      l10n,
-    );
-    final List<Color> palette = scene.palette.isNotEmpty
-        ? scene.palette
-        : <Color>[
-            ReefColors.primary,
-            ReefColors.primary.withValues(alpha: 0.65),
-          ];
-
-    return Container(
-      padding: const EdgeInsets.all(ReefSpacing.lg),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(ReefRadius.lg),
-        border: Border.all(
-          color: isActive ? ReefColors.primary : ReefColors.surface,
-          width: isActive ? 1.5 : 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: palette,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(ReefRadius.md),
-            ),
-          ),
-          const SizedBox(width: ReefSpacing.lg),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  sceneName,
-                  style: ReefTextStyles.subheaderAccent.copyWith(
-                    color: nameColor,
-                  ),
-                ),
-                const SizedBox(height: ReefSpacing.xs),
-                Text(
-                  sceneDescription,
-                  style: ReefTextStyles.caption1.copyWith(
-                    color: descriptionColor,
-                  ),
-                ),
-                const SizedBox(height: ReefSpacing.sm),
-                Wrap(
-                  spacing: ReefSpacing.sm,
-                  runSpacing: ReefSpacing.xs,
-                  children: [
-                    Text(
-                      typeLabel,
-                      style: ReefTextStyles.caption1.copyWith(
-                        color: descriptionColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      channelLabel,
-                      style: ReefTextStyles.caption1.copyWith(
-                        color: descriptionColor,
-                      ),
-                    ),
-                  ],
-                ),
-                if (channelStats.isNotEmpty) ...[
-                  const SizedBox(height: ReefSpacing.xs),
-                  _SceneChannelBadges(
-                    stats: channelStats,
-                    textColor: descriptionColor,
-                    backgroundColor: isActive
-                        ? ReefColors.surface.withValues(alpha: 0.2)
-                        : ReefColors.surface,
-                    borderColor: isActive
-                        ? ReefColors.surface.withValues(alpha: 0.4)
-                        : ReefColors.greyLight,
-                  ),
-                ],
-                if (isActive) ...[
-                  const SizedBox(height: ReefSpacing.sm),
-                  Text(
-                    l10n.ledSceneCurrentlyRunning,
-                    style: ReefTextStyles.caption1.copyWith(
-                      color: ReefColors.success,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: ReefSpacing.md,
-              vertical: ReefSpacing.xs,
-            ),
-            decoration: BoxDecoration(
-              color: badgeBackground,
-              borderRadius: BorderRadius.circular(ReefRadius.pill),
-            ),
-            child: Text(
-              statusLabel,
-              style: ReefTextStyles.caption1.copyWith(color: badgeTextColor),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SceneChannelBadges extends StatelessWidget {
-  final List<SceneChannelStat> stats;
-  final Color textColor;
-  final Color backgroundColor;
-  final Color borderColor;
-
-  const _SceneChannelBadges({
-    required this.stats,
-    required this.textColor,
-    required this.backgroundColor,
-    required this.borderColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: ReefSpacing.sm,
-      runSpacing: ReefSpacing.xs,
-      children: stats
-          .map(
-            (stat) => Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: ReefSpacing.sm,
-                vertical: ReefSpacing.xs,
-              ),
-              decoration: BoxDecoration(
-                color: backgroundColor,
-                borderRadius: BorderRadius.circular(ReefRadius.sm),
-                border: Border.all(color: borderColor, width: 0.5),
-              ),
-              child: Text(
-                '${stat.label} ${stat.value}%',
-                style: ReefTextStyles.caption2.copyWith(
-                  color: textColor,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          )
-          .toList(growable: false),
-    );
-  }
-}
-
-class _SceneCarouselEmptyCard extends StatelessWidget {
-  final AppLocalizations l10n;
-
-  const _SceneCarouselEmptyCard({required this.l10n});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: ReefColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(ReefRadius.md),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(ReefSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              l10n.ledScenesEmptyTitle,
-              style: ReefTextStyles.subheaderAccent.copyWith(
-                color: ReefColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: ReefSpacing.xs),
-            Text(
-              l10n.ledScenesEmptySubtitle,
-              style: ReefTextStyles.caption1.copyWith(
-                color: ReefColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EntryTile extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final bool enabled;
-  final VoidCallback? onTapWhenEnabled;
-
-  const _EntryTile({
-    required this.title,
-    required this.subtitle,
-    required this.enabled,
-    this.onTapWhenEnabled,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final Color titleColor = enabled
-        ? ReefColors.textPrimary
-        : ReefColors.textSecondary;
-    final Color subtitleColor = enabled
-        ? ReefColors.textSecondary
-        : ReefColors.textSecondary.withValues(alpha: 0.6);
-
-    return Card(
-      color: ReefColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(ReefRadius.md),
-      ),
-      margin: const EdgeInsets.only(bottom: ReefSpacing.md),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: ReefSpacing.lg,
-          vertical: ReefSpacing.md,
-        ),
-        title: Text(
-          title,
-          style: ReefTextStyles.subheaderAccent.copyWith(color: titleColor),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: ReefTextStyles.caption1.copyWith(color: subtitleColor),
-        ),
-        trailing: Icon(Icons.chevron_right, color: titleColor),
-        onTap: enabled ? onTapWhenEnabled : () => showBleGuardDialog(context),
-      ),
-    );
-  }
-}
+// Removed _SceneListSection and _EntryTile - these components don't exist in reef-b-app's activity_led_main.xml
 
 void _confirmDeleteDevice(
   BuildContext context,
@@ -1217,12 +1079,16 @@ class _RecordChartSection extends StatelessWidget {
   final bool isConnected;
   final bool featuresEnabled;
   final AppLocalizations l10n;
+  final VoidCallback onToggleOrientation;
+  final bool isLandscape;
 
   const _RecordChartSection({
     required this.controller,
     required this.isConnected,
     required this.featuresEnabled,
     required this.l10n,
+    required this.onToggleOrientation,
+    required this.isLandscape,
   });
 
   @override
@@ -1249,12 +1115,27 @@ class _RecordChartSection extends StatelessWidget {
                 Row(
                   children: [
                     if (featuresEnabled && controller.hasRecords) ...[
+                      // PARITY: reef-b-app btn_expand uses ic_zoom_in
                       IconButton(
-                        icon: Icon(
-                          controller.isPreviewing
-                              ? Icons.stop
-                              : Icons.play_arrow,
-                        ),
+                        icon: CommonIconHelper.getZoomInIcon(size: 24),
+                        iconSize: 24,
+                        tooltip: isLandscape ? l10n.ledOrientationPortrait : l10n.ledOrientationLandscape,
+                        onPressed: featuresEnabled && !controller.isPreviewing
+                            ? () async {
+                                // PARITY: reef-b-app clickBtnExpand() - stop preview if active
+                                if (controller.isPreviewing) {
+                                  await controller.stopPreview();
+                                }
+                                // PARITY: reef-b-app btnExpand toggles landscape/portrait
+                                onToggleOrientation();
+                              }
+                            : null,
+                      ),
+                      // PARITY: reef-b-app btn_preview uses ic_preview / ic_stop
+                      IconButton(
+                        icon: controller.isPreviewing
+                            ? CommonIconHelper.getStopIcon(size: 24)
+                            : CommonIconHelper.getPreviewIcon(size: 24),
                         tooltip: controller.isPreviewing
                             ? l10n.ledRecordsActionPreviewStop
                             : l10n.ledRecordsActionPreviewStart,
@@ -1262,8 +1143,10 @@ class _RecordChartSection extends StatelessWidget {
                             ? null
                             : controller.togglePreview,
                       ),
+                      // PARITY: reef-b-app btn_continue_record - MaterialButton with text
+                      // Using IconButton for now, but should match the button style
                       IconButton(
-                        icon: const Icon(Icons.play_circle_outline),
+                        icon: CommonIconHelper.getPlayUnselectIcon(size: 24),
                         tooltip: l10n.ledContinueRecord,
                         onPressed: controller.isBusy || controller.isPreviewing
                             ? null
@@ -1271,14 +1154,33 @@ class _RecordChartSection extends StatelessWidget {
                       ),
                     ],
                     IconButton(
-                      icon: const Icon(Icons.chevron_right),
+                      // PARITY: reef-b-app uses ic_more_enable / ic_more_disable for btn_record_more
+                      icon: CommonIconHelper.getMoreEnableIcon(
+                        size: 24,
+                        color: featuresEnabled
+                            ? ReefColors.textPrimary
+                            : ReefColors.textPrimary.withValues(alpha: 0.5),
+                      ),
+                      iconSize: 24,
+                      tooltip: l10n.ledEntryRecords,
                       onPressed: featuresEnabled
                           ? () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const LedRecordPage(),
-                                ),
-                              );
+                              // PARITY: reef-b-app logic
+                              // If records are empty, navigate to record setting page
+                              // Otherwise, navigate to record list page
+                              if (controller.hasRecords) {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const LedRecordPage(),
+                                  ),
+                                );
+                              } else {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const LedRecordSettingPage(),
+                                  ),
+                                );
+                              }
                             }
                           : null,
                     ),

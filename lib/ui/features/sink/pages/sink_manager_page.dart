@@ -9,6 +9,7 @@ import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_backgrounds.dart';
 import '../../../widgets/reef_app_bar.dart';
+import '../../../assets/common_icon_helper.dart';
 import '../../../components/error_state_widget.dart';
 import '../../../components/loading_state_widget.dart';
 import '../../../components/empty_state_widget.dart';
@@ -45,7 +46,7 @@ class _SinkManagerView extends StatelessWidget {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () => _showAddSinkDialog(context, controller),
-            child: const Icon(Icons.add),
+            child: CommonIconHelper.getAddIcon(size: 24),
           ),
           body: ReefMainBackground(
             child: _buildBody(context, controller, l10n),
@@ -301,8 +302,7 @@ class _SinkCard extends StatelessWidget {
                       'assets/icons/ic_edit.png', // TODO: Add icon asset
                       width: 24, // dp_24
                       height: 24, // dp_24
-                      errorBuilder: (context, error, stackTrace) => Icon(
-                        Icons.edit,
+                      errorBuilder: (context, error, stackTrace) => CommonIconHelper.getEditIcon(
                         size: 24,
                         color: ReefColors.textPrimary,
                       ),

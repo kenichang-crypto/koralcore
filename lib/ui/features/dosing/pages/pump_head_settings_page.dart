@@ -10,8 +10,10 @@ import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_app_bar.dart';
+import '../../../assets/common_icon_helper.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
+import '../../led/support/led_record_icon_helper.dart';
 import '../controllers/pump_head_settings_controller.dart';
 import 'drop_type_page.dart';
 
@@ -268,9 +270,9 @@ class _PumpHeadSettingsViewState extends State<_PumpHeadSettingsView> {
                                 textAlign: TextAlign.start,
                               ),
                             ),
-                            Icon(
-                              Icons.keyboard_arrow_down, // ic_down
-                              size: 20,
+                            LedRecordIconHelper.getDownIcon(
+                              width: 20,
+                              height: 20,
                               color: ReefColors.textSecondary,
                             ),
                           ],
@@ -465,8 +467,7 @@ class _DropTypeCard extends StatelessWidget {
                   textAlign: TextAlign.start,
                 ),
               ),
-              Icon(
-                Icons.chevron_right, // ic_next
+              CommonIconHelper.getNextIcon(
                 size: 20,
                 color: ReefColors.textPrimary,
               ),

@@ -10,6 +10,7 @@ import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_radius.dart';
 import '../../../widgets/reef_app_bar.dart';
+import '../../../assets/common_icon_helper.dart';
 import '../../../components/ble_guard.dart';
 import '../../../components/error_state_widget.dart';
 import '../../../components/loading_state_widget.dart';
@@ -66,7 +67,7 @@ class _PumpHeadCalibrationView extends StatelessWidget {
             title: Text(l10n.dosingCalibrationHistoryTitle),
             actions: [
               IconButton(
-                icon: const Icon(Icons.history),
+                icon: CommonIconHelper.getResetIcon(size: 24),
                 tooltip: l10n.dosingCalibrationAdjustListTitle,
                 onPressed: () {
                   Navigator.of(context).push(

@@ -10,6 +10,7 @@ import '../../../theme/reef_colors.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_app_bar.dart';
+import '../../../assets/common_icon_helper.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/drop_type_controller.dart';
@@ -69,7 +70,7 @@ class _DropTypeViewState extends State<_DropTypeView> {
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: CommonIconHelper.getCloseIcon(size: 24),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -127,7 +128,7 @@ class _DropTypeViewState extends State<_DropTypeView> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddDropTypeDialog(context, controller, l10n),
-        child: const Icon(Icons.add),
+        child: CommonIconHelper.getAddIcon(size: 24),
       ),
     );
   }
@@ -199,8 +200,7 @@ class _DropTypeViewState extends State<_DropTypeView> {
                       'assets/icons/ic_edit.png', // TODO: Add icon asset
                       width: 24, // dp_24
                       height: 24, // dp_24
-                      errorBuilder: (context, error, stackTrace) => Icon(
-                        Icons.edit,
+                      errorBuilder: (context, error, stackTrace) => CommonIconHelper.getEditIcon(
                         size: 24,
                         color: ReefColors.textPrimary,
                       ),

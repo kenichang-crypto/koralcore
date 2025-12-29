@@ -18,7 +18,10 @@ import '../controllers/led_scene_list_controller.dart';
 import '../models/led_scene_summary.dart';
 import '../support/scene_channel_helper.dart';
 import '../support/scene_display_text.dart';
+import '../support/scene_icon_helper.dart';
 import '../widgets/led_spectrum_chart.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../../../assets/common_icon_helper.dart';
 import 'led_scene_add_page.dart';
 import 'led_scene_edit_page.dart';
 import 'led_scene_delete_page.dart';
@@ -50,8 +53,35 @@ class LedSceneListPage extends StatelessWidget {
   }
 }
 
-class _LedSceneListView extends StatelessWidget {
+class _LedSceneListView extends StatefulWidget {
   const _LedSceneListView();
+
+  @override
+  State<_LedSceneListView> createState() => _LedSceneListViewState();
+}
+
+class _LedSceneListViewState extends State<_LedSceneListView> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // PARITY: reef-b-app LedSceneActivity.onResume() - refresh data when page becomes visible
+    if (state == AppLifecycleState.resumed) {
+      final controller = context.read<LedSceneListController>();
+      // Refresh all data to ensure it's up to date
+      controller.refresh();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +99,7 @@ class _LedSceneListView extends StatelessWidget {
             actions: [
               // Edit button (進入刪除場景頁面)
               IconButton(
-                icon: const Icon(Icons.edit),
+                icon: CommonIconHelper.getEditIcon(size: 24),
                 tooltip: l10n.ledScenesActionEdit,
                 onPressed: isConnected && !controller.isBusy
                     ? () {
@@ -92,7 +122,7 @@ class _LedSceneListView extends StatelessWidget {
                       ),
                     );
                   },
-                  child: const Icon(Icons.add),
+                  child: CommonIconHelper.getAddIcon(size: 24, color: Colors.white),
                 )
               : null,
           body: ReefMainBackground(
@@ -164,7 +194,9 @@ class _LedSceneListView extends StatelessWidget {
                                       !scene.isActive
                                   ? () => controller.applyScene(scene.id)
                                   : null,
-                              onTap: isConnected && !controller.isBusy
+                              // PARITY: reef-b-app - preset scenes (sceneId != null) cannot be edited
+                              // Only custom scenes (sceneId == null) can be edited
+                              onTap: (isConnected && !controller.isBusy && !scene.isPreset)
                                   ? () {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
@@ -192,7 +224,7 @@ class _LedSceneListView extends StatelessWidget {
                             ),
                             if (isConnected && !controller.isBusy)
                               IconButton(
-                                icon: const Icon(Icons.add),
+                                icon: CommonIconHelper.getAddIcon(size: 24),
                                 tooltip: l10n.ledScenesActionAdd,
                                 onPressed: () {
                                   Navigator.of(context).push(
@@ -223,7 +255,9 @@ class _LedSceneListView extends StatelessWidget {
                                       !scene.isActive
                                   ? () => controller.applyScene(scene.id)
                                   : null,
-                              onTap: isConnected && !controller.isBusy
+                              // PARITY: reef-b-app - preset scenes (sceneId != null) cannot be edited
+                              // Only custom scenes (sceneId == null) can be edited
+                              onTap: (isConnected && !controller.isBusy && !scene.isPreset)
                                   ? () {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
@@ -330,7 +364,7 @@ class _SceneCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isActive = scene.isActive;
     final String sceneName = LedSceneDisplayText.name(scene, l10n);
-    final IconData sceneIcon = _sceneIcon(scene.iconKey, scene.isPreset);
+    final Widget sceneIcon = _sceneIcon(scene.iconKey, scene.isPreset);
 
     // PARITY: adapter_scene.xml structure
     // MaterialCardView: bg_aaa, cornerRadius 8dp, elevation 0
@@ -363,11 +397,7 @@ class _SceneCard extends StatelessWidget {
               SizedBox(
                 width: 24, // dp_24
                 height: 24, // dp_24
-                child: Icon(
-                  sceneIcon,
-                  size: 24,
-                  color: ReefColors.textPrimary,
-                ),
+                child: sceneIcon,
               ),
               SizedBox(width: ReefSpacing.xs), // dp_8 marginStart
               // Name (tv_name) - body, text_aaaa
@@ -383,18 +413,17 @@ class _SceneCard extends StatelessWidget {
               ),
               SizedBox(width: ReefSpacing.xs), // dp_8 marginStart
               // Play button (btn_play) - 20×20dp
+              // PARITY: reef-b-app ic_play_select / ic_play_unselect
               IconButton(
-                icon: Image.asset(
+                icon: SvgPicture.asset(
                   isActive
-                      ? 'assets/icons/ic_play_select.png' // TODO: Add icon asset
-                      : 'assets/icons/ic_play_unselect.png', // TODO: Add icon asset
+                      ? 'assets/icons/action/ic_play_select.svg'
+                      : 'assets/icons/action/ic_play_unselect.svg',
                   width: 20, // dp_20
                   height: 20, // dp_20
-                  errorBuilder: (context, error, stackTrace) => Icon(
-                    isActive ? Icons.play_arrow : Icons.play_arrow_outlined,
-                    size: 20,
-                    color: ReefColors.textPrimary,
-                  ),
+                  placeholderBuilder: (context) => isActive
+                      ? CommonIconHelper.getPlaySelectIcon(size: 20)
+                      : CommonIconHelper.getPlayUnselectIcon(size: 20),
                 ),
                 onPressed: onApply,
                 padding: EdgeInsets.zero,
@@ -405,21 +434,18 @@ class _SceneCard extends StatelessWidget {
               ),
               SizedBox(width: ReefSpacing.xs), // dp_8 marginStart
               // Favorite button (btn_favorite) - 20×20dp
+              // PARITY: reef-b-app ic_favorite_select / ic_favorite_unselect
               if (isConnected && !controller.isBusy)
                 IconButton(
-                  icon: Image.asset(
+                  icon: SvgPicture.asset(
                     scene.isFavorite
-                        ? 'assets/icons/ic_favorite_select.png' // TODO: Add icon asset
-                        : 'assets/icons/ic_favorite_unselect.png', // TODO: Add icon asset
+                        ? 'assets/icons/action/ic_favorite_select.svg'
+                        : 'assets/icons/action/ic_favorite_unselect.svg',
                     width: 20, // dp_20
                     height: 20, // dp_20
-                    errorBuilder: (context, error, stackTrace) => Icon(
-                      scene.isFavorite ? Icons.favorite : Icons.favorite_border,
-                      size: 20,
-                      color: scene.isFavorite
-                          ? ReefColors.danger
-                          : ReefColors.textTertiary,
-                    ),
+                    placeholderBuilder: (context) => scene.isFavorite
+                        ? CommonIconHelper.getFavoriteSelectIcon(size: 20)
+                        : CommonIconHelper.getFavoriteUnselectIcon(size: 20),
                   ),
                   onPressed: () => controller.toggleFavoriteScene(scene.id),
                   padding: EdgeInsets.zero,
@@ -435,9 +461,6 @@ class _SceneCard extends StatelessWidget {
     );
   }
 
-  String _sceneTypeLabel(LedSceneSummary scene) {
-    return scene.isPreset ? l10n.ledScenePreset : l10n.ledSceneCustom;
-  }
 }
 
 class _SceneSwatch extends StatelessWidget {
@@ -531,16 +554,19 @@ class _ChannelBadges extends StatelessWidget {
   }
 }
 
-IconData _sceneIcon(String? iconKey, bool isPreset) {
-  switch (iconKey) {
-    case 'ic_moon':
-      return Icons.nightlight_round;
-    case 'ic_thunder':
-      return Icons.bolt;
-    case 'ic_none':
-      return Icons.light_mode;
-    case 'ic_custom':
-      return Icons.tune;
+// PARITY: Use SceneIconHelper to get scene icons from SVG assets
+// This replaces the Material Icons mapping with actual SVG assets from reef-b-app
+Widget _sceneIcon(String? iconKey, bool isPreset) {
+  if (iconKey != null) {
+    return SceneIconHelper.getSceneIconByKey(
+      iconKey: iconKey,
+      width: 24,
+      height: 24,
+    );
   }
-  return isPreset ? Icons.auto_awesome_motion : Icons.pie_chart_outline;
+  // Fallback for preset or custom scenes without iconKey
+  return Icon(
+    isPreset ? Icons.auto_awesome_motion : Icons.pie_chart_outline,
+    size: 24,
+  );
 }

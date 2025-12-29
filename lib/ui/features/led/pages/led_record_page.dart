@@ -17,6 +17,8 @@ import '../../../components/loading_state_widget.dart';
 import '../controllers/led_record_controller.dart';
 import '../widgets/led_record_line_chart.dart';
 import 'led_record_time_setting_page.dart';
+import 'led_record_setting_page.dart';
+import '../../../assets/common_icon_helper.dart';
 
 class LedRecordPage extends StatelessWidget {
   const LedRecordPage({super.key});
@@ -67,7 +69,7 @@ class _LedRecordViewState extends State<_LedRecordView> {
             appBar: ReefAppBar(
               title: Text(l10n.ledRecordsTitle),
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
+                icon: CommonIconHelper.getBackIcon(size: 24),
                 onPressed: () async {
                   await controller.handleBackNavigation();
                   if (!context.mounted) {
@@ -78,12 +80,17 @@ class _LedRecordViewState extends State<_LedRecordView> {
               ),
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.refresh),
+                  icon: CommonIconHelper.getResetIcon(size: 24),
                   tooltip: l10n.actionRetry,
                   onPressed: controller.isBusy ? null : controller.refresh,
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_forever),
+                  icon: CommonIconHelper.getDeleteIcon(
+                    size: 24,
+                    color: !session.isBleConnected || !controller.canClear
+                        ? ReefColors.textTertiary
+                        : ReefColors.textPrimary,
+                  ),
                   tooltip: l10n.ledRecordsActionClear,
                   onPressed: !session.isBleConnected || !controller.canClear
                       ? null
@@ -181,6 +188,20 @@ class _LedRecordViewState extends State<_LedRecordView> {
       return;
     }
     final l10n = AppLocalizations.of(context);
+    
+    // PARITY: reef-b-app navigates to LedRecordSettingActivity on clear success
+    if (event.type == LedRecordEventType.clearSuccess) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) {
+          return;
+        }
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const LedRecordSettingPage()),
+        );
+      });
+      return;
+    }
+    
     final String? message = _messageForEvent(l10n, event);
     if (message == null) {
       return;
@@ -222,6 +243,112 @@ class _LedRecordViewState extends State<_LedRecordView> {
           l10n,
           event.errorCode ?? AppErrorCode.unknownError,
         );
+    }
+  }
+
+  static Future<void> _handleAddRecord(
+    BuildContext context,
+    LedRecordController controller,
+    AppSession session,
+    AppLocalizations l10n,
+  ) async {
+    // PARITY: reef-b-app checks preview state
+    if (controller.isPreviewing) {
+      await controller.togglePreview();
+    }
+    
+    // Check record count limit
+    if (controller.records.length >= 24) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.ledRecordsSnackRecordsFull),
+        ),
+      );
+      return;
+    }
+    
+    final (hour, minute) = controller.selectedHourMinute;
+    
+    // Check if can add at this time
+    if (!controller.canAdd) {
+      // Check if time already exists
+      try {
+        controller.records.firstWhere(
+          (r) => r.hour == hour && r.minute == minute,
+        );
+        // Time exists
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.ledRecordsSnackTimeExists),
+          ),
+        );
+      } catch (_) {
+        // Time error (too close to existing records)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.ledRecordsSnackTimeError),
+          ),
+        );
+      }
+      return;
+    }
+    
+    // Navigate to time setting page with pre-filled time
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => LedRecordTimeSettingPage(
+          initialHour: hour,
+          initialMinute: minute,
+        ),
+      ),
+    );
+  }
+
+  static Future<void> _handleDeleteSelectedRecord(
+    BuildContext context,
+    LedRecordController controller,
+    AppLocalizations l10n,
+  ) async {
+    final record = controller.selectedRecord;
+    if (record == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.ledRecordsSnackMissingSelection),
+        ),
+      );
+      return;
+    }
+    
+    await _confirmDeleteRecord(context, controller, record);
+  }
+
+  static Future<void> _confirmDeleteRecord(
+    BuildContext context,
+    LedRecordController controller,
+    LedRecord record,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(l10n.ledRecordsDeleteConfirmTitle),
+          content: Text(l10n.ledRecordsDeleteConfirmMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l10n.actionCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(l10n.ledRecordsActionDelete),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed == true) {
+      await controller.deleteRecord(record.id);
     }
   }
 
@@ -282,10 +409,11 @@ class _LedRecordChartSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // PARITY: tv_clock headline, text_aaaa
+          // Display selected time or current time
           Text(
-            '${DateTime.now().hour.toString().padLeft(2, '0')} : ${DateTime.now().minute.toString().padLeft(2, '0')}',
+            controller.selectedTimeLabel,
             style: ReefTextStyles.headline.copyWith(
-              color: ReefColors.textSecondary,
+              color: ReefColors.textPrimary, // text_aaaa
             ),
             textAlign: TextAlign.center,
           ),
@@ -295,13 +423,13 @@ class _LedRecordChartSection extends StatelessWidget {
             padding: EdgeInsets.all(ReefSpacing.xs), // dp_8 margin
             child: LedRecordLineChart(
               records: controller.records,
-              selectedMinutes: controller.selectedRecord?.minutesFromMidnight,
+              selectedMinutes: controller.selectedMinutes,
               onTap: (minutes) {
                 controller.selectTime(minutes);
               },
               height: 242, // dp_242 height
               showLegend: true,
-              interactive: session.isBleConnected && !controller.isBusy,
+              interactive: session.isBleConnected && !controller.isBusy && !controller.isPreviewing,
             ),
           ),
           // PARITY: layout_btn marginTop 16dp
@@ -317,19 +445,38 @@ class _LedRecordChartSection extends StatelessWidget {
                 // PARITY: btn_add, btn_minus, btn_prev, btn_next, btn_preview
                 // IconButton 24×24dp, marginEnd 12dp
                 IconButton(
-                  icon: const Icon(Icons.add),
+                  icon: CommonIconHelper.getAddIcon(
+                    size: 24,
+                    color: session.isBleConnected && controller.canAdd
+                        ? ReefColors.textPrimary
+                        : ReefColors.textTertiary,
+                  ),
                   iconSize: 24,
-                  onPressed: null, // TODO: Implement add functionality
+                  onPressed: session.isBleConnected && controller.canAdd
+                      ? () => _LedRecordViewState._handleAddRecord(context, controller, session, l10n)
+                      : null,
                 ),
                 SizedBox(width: ReefSpacing.sm), // dp_12 marginEnd
                 IconButton(
-                  icon: const Icon(Icons.remove),
+                  icon: CommonIconHelper.getMinusIcon(
+                    size: 24,
+                    color: session.isBleConnected && controller.canDeleteSelected
+                        ? ReefColors.textPrimary
+                        : ReefColors.textTertiary,
+                  ),
                   iconSize: 24,
-                  onPressed: null, // TODO: Implement minus functionality
+                  onPressed: session.isBleConnected && controller.canDeleteSelected
+                      ? () => _LedRecordViewState._handleDeleteSelectedRecord(context, controller, l10n)
+                      : null,
                 ),
                 SizedBox(width: ReefSpacing.sm), // dp_12 marginEnd
                 IconButton(
-                  icon: const Icon(Icons.chevron_left),
+                  icon: CommonIconHelper.getBackIcon(
+                    size: 24,
+                    color: session.isBleConnected && controller.canNavigate
+                        ? ReefColors.textPrimary
+                        : ReefColors.textTertiary,
+                  ),
                   iconSize: 24,
                   onPressed: session.isBleConnected && controller.canNavigate
                       ? controller.goToPreviousRecord
@@ -337,7 +484,12 @@ class _LedRecordChartSection extends StatelessWidget {
                 ),
                 SizedBox(width: ReefSpacing.sm), // dp_12 marginEnd
                 IconButton(
-                  icon: const Icon(Icons.chevron_right),
+                  icon: CommonIconHelper.getNextIcon(
+                    size: 24,
+                    color: session.isBleConnected && controller.canNavigate
+                        ? ReefColors.textPrimary
+                        : ReefColors.textTertiary,
+                  ),
                   iconSize: 24,
                   onPressed: session.isBleConnected && controller.canNavigate
                       ? controller.goToNextRecord
@@ -345,7 +497,9 @@ class _LedRecordChartSection extends StatelessWidget {
                 ),
                 SizedBox(width: ReefSpacing.sm), // dp_12 marginEnd
                 IconButton(
-                  icon: const Icon(Icons.play_arrow),
+                  icon: controller.isPreviewing
+                      ? CommonIconHelper.getStopIcon(size: 24)
+                      : CommonIconHelper.getPreviewIcon(size: 24),
                   iconSize: 24,
                   onPressed: session.isBleConnected && controller.canPreview
                       ? controller.togglePreview
@@ -385,7 +539,7 @@ class _LedRecordTimeSelector extends StatelessWidget {
           ),
         ),
         IconButton(
-          icon: const Icon(Icons.add),
+          icon: CommonIconHelper.getAddIcon(size: 24),
           iconSize: 24,
           onPressed: session.isBleConnected
               ? () {
@@ -454,6 +608,11 @@ class _LedRecordTile extends StatelessWidget {
       color: ReefColors.surface, // bg_aaaa
       child: InkWell(
         onTap: () {
+          // PARITY: reef-b-app checks preview state before navigation
+          if (controller.isPreviewing) {
+            controller.togglePreview();
+            return;
+          }
           controller.selectRecord(record.id);
           // Navigate to time setting page for editing
           if (session.isBleConnected && !controller.isBusy) {
@@ -464,7 +623,7 @@ class _LedRecordTile extends StatelessWidget {
             );
           }
         },
-        onLongPress: session.isBleConnected && !controller.isBusy
+        onLongPress: session.isBleConnected && !controller.isBusy && !controller.isPreviewing
             ? () => _confirmDeleteRecord(context, controller, record)
             : null,
         child: Padding(
@@ -491,8 +650,7 @@ class _LedRecordTile extends StatelessWidget {
                 'assets/icons/ic_more_enable.png', // TODO: Add icon asset
                 width: 24, // dp_24
                 height: 24, // dp_24
-                errorBuilder: (context, error, stackTrace) => Icon(
-                  Icons.chevron_right,
+                errorBuilder: (context, error, stackTrace) => CommonIconHelper.getNextIcon(
                   size: 24,
                   color: ReefColors.textTertiary,
                 ),
@@ -508,12 +666,11 @@ class _LedRecordTile extends StatelessWidget {
     final int safe = minutes.clamp(0, 1439);
     final int hour = safe ~/ 60;
     final int minute = safe % 60;
-    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+    // PARITY: reef-b-app format "HH : mm" (with spaces around colon)
+    return '${hour.toString().padLeft(2, '0')} : ${minute.toString().padLeft(2, '0')}';
   }
 
-// Removed unused _formatChannels method
-
-  Future<void> _confirmDeleteRecord(
+  static Future<void> _confirmDeleteRecord(
     BuildContext context,
     LedRecordController controller,
     LedRecord record,

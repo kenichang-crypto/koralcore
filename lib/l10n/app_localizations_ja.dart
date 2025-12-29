@@ -465,6 +465,24 @@ class AppLocalizationsJa extends AppLocalizations {
       'Bluetooth transport error. Check the signal and retry.';
 
   @override
+  String get errorSinkFull => 'Tank is full.';
+
+  @override
+  String get errorSinkGroupsFull =>
+      'All LED groups in this sink are full. Maximum 4 devices per group.';
+
+  @override
+  String get errorConnectLimit =>
+      'Maximum 1 device can be connected simultaneously.';
+
+  @override
+  String get errorLedMasterCannotDelete =>
+      'To delete the master light, please modify the master-slave settings and set other slave lights as the master.';
+
+  @override
+  String get errorDeleteFailed => 'Failed to delete device.';
+
+  @override
   String get errorGeneric => 'Something went wrong. Please retry.';
 
   @override
@@ -728,20 +746,32 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get ledRecordsClearConfirmMessage =>
-      'This removes every recorded time point from the LED schedule.';
+      'Do you want to clear the schedule?';
 
   @override
   String get ledRecordsDeleteConfirmTitle => 'Delete record?';
 
   @override
   String get ledRecordsDeleteConfirmMessage =>
-      'Remove the selected time point from the LED schedule?';
+      'Do you want to delete this time point?';
 
   @override
-  String get ledRecordsSnackDeleted => 'Record deleted.';
+  String get ledMoveMasterDialogTitle => 'Master Setting';
 
   @override
-  String get ledRecordsSnackDeleteFailed => 'Couldn\'t delete record.';
+  String get ledMoveMasterDialogContent =>
+      'To move this device to another tank, please first modify the master-slave settings and set other slave lights as the master light.';
+
+  @override
+  String ledSceneDeleteConfirmMessage(String name) {
+    return 'Do you want to delete the scene?';
+  }
+
+  @override
+  String get ledRecordsSnackDeleted => 'Successfully deleted time point.';
+
+  @override
+  String get ledRecordsSnackDeleteFailed => 'Failed to delete time point.';
 
   @override
   String get ledRecordsSnackCleared => 'Records cleared.';
@@ -753,10 +783,20 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ledRecordsSnackMissingSelection => 'Select a record first.';
 
   @override
-  String get ledRecordsSnackPreviewStarted => 'Preview started.';
+  String get ledRecordsSnackPreviewStarted =>
+      'One-minute quick preview started.';
 
   @override
-  String get ledRecordsSnackPreviewStopped => 'Preview stopped.';
+  String get ledRecordsSnackPreviewStopped => 'One-minute quick preview ended.';
+
+  @override
+  String get ledRecordsSnackRecordsFull => '最大24の時間ポイントを設定できます。';
+
+  @override
+  String get ledRecordsSnackTimeExists => 'この時間帯はすでに設定されています。';
+
+  @override
+  String get ledRecordsSnackTimeError => '時間ポイントは最低でも10分離れている必要があります。';
 
   @override
   String get ledScheduleTypeDaily => 'Daily program';
@@ -1000,7 +1040,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ledSceneDeleteTitle => 'Delete Scene';
 
   @override
-  String get ledMasterSettingTitle => 'Master Settings';
+  String get ledMasterSettingTitle => 'Master-Slave Pairing';
 
   @override
   String get ledRecordTimeSettingTimeLabel => 'Time';
@@ -1027,10 +1067,49 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ledSceneNameHint => 'Enter scene name';
 
   @override
-  String get ledSceneEditSuccess => 'Scene updated';
+  String get ledSceneIcon => 'シーンアイコン';
 
   @override
-  String get ledSceneAddSuccess => 'Scene added';
+  String get lightUv => 'UVライト';
+
+  @override
+  String get lightPurple => '紫色の光';
+
+  @override
+  String get lightBlue => '青い光';
+
+  @override
+  String get lightRoyalBlue => 'ロイヤルブルーの光';
+
+  @override
+  String get lightGreen => '緑の光';
+
+  @override
+  String get lightRed => '赤い光';
+
+  @override
+  String get lightColdWhite => 'クールホワイトの光';
+
+  @override
+  String get lightWarmWhite => 'ウォームホワイトの光';
+
+  @override
+  String get lightMoon => '月光';
+
+  @override
+  String get ledSceneAddSuccess => 'Successfully added scene.';
+
+  @override
+  String get toastNameIsEmpty => '名前は空にできません。';
+
+  @override
+  String get toastSettingSuccessful => '設定が正常に保存されました';
+
+  @override
+  String get toastSceneNameIsExist => 'シーン名が既に存在します。';
+
+  @override
+  String get ledSceneNameIsExist => 'Scene name already exists.';
 
   @override
   String get ledSceneDeleteDescription => 'Select scenes to delete';
@@ -1042,17 +1121,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ledSceneDeleteConfirmTitle => 'Delete Scene?';
 
   @override
-  String ledSceneDeleteConfirmMessage(String name) {
-    return 'Are you sure you want to delete \"$name\"?';
-  }
-
-  @override
   String ledSceneDeleteSuccess(String name) {
     return 'Scene \"$name\" deleted';
   }
 
   @override
-  String get ledSceneDeleteError => 'Failed to delete scene';
+  String get ledSceneDeleteError => 'Failed to delete scene.';
+
+  @override
+  String get toastDeleteNowScene => '現在使用中のシーンを削除できません。';
 
   @override
   String get ledSceneDeleteLocalScenesTitle => 'Local Scenes';
@@ -1070,7 +1147,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get ledSceneLimitReached => 'Maximum scenes reached';
+  String get ledSceneLimitReached => 'Maximum 5 custom scenes can be set.';
 
   @override
   String get ledMasterSettingGroup => 'Group';
@@ -1118,7 +1195,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ledRecordSettingMoonlight => 'Moonlight';
 
   @override
-  String get ledRecordSettingErrorSunTime => 'Invalid sunrise/sunset time';
+  String get ledRecordSettingErrorSunTime =>
+      'Sunrise and sunset time settings are incorrect.';
 
   @override
   String get ledRecordSettingSuccess => 'Settings saved';
@@ -1188,6 +1266,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get sinkPositionNotSet => 'Not Set';
+
+  @override
+  String get errorLedMasterCannotMove =>
+      'To move this device to another tank, please first modify the master-slave settings and set other slave lights as the master light.';
+
+  @override
+  String get masterSetting => 'Master Setting';
 
   @override
   String get sinkPositionSet => 'Set';
@@ -1476,4 +1561,76 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get weekdaySaturday => 'Saturday';
+
+  @override
+  String get group => 'Group';
+
+  @override
+  String get led => 'LED';
+
+  @override
+  String get masterSlave => 'Master/Slave';
+
+  @override
+  String get time => 'Time Point';
+
+  @override
+  String get record => 'Schedule';
+
+  @override
+  String get ledScene => 'Scene';
+
+  @override
+  String get unassignedDevice => 'Unallocated Devices';
+
+  @override
+  String get ledSceneNoSetting => 'No Setting';
+
+  @override
+  String get dosingAdjustListDate => 'Calibration Date';
+
+  @override
+  String get dosingAdjustListVolume => 'Measured Volume';
+
+  @override
+  String get homeSpinnerAllSink => 'All Tanks';
+
+  @override
+  String get homeSpinnerFavorite => 'Favorite devices';
+
+  @override
+  String get homeSpinnerUnassigned => 'Unallocated Devices';
+
+  @override
+  String get dosingPumpHeadNoType => 'タイプなし';
+
+  @override
+  String get dosingPumpHeadModeScheduled => 'スケジュール済み';
+
+  @override
+  String get dosingPumpHeadModeFree => 'フリーモード';
+
+  @override
+  String get dosingVolumeHint => '容量を入力';
+
+  @override
+  String get noRecords => 'スケジュールされたタスクがありません';
+
+  @override
+  String dosingManualStarted(String headId) {
+    return 'ヘッド $headId のドージングを開始しました';
+  }
+
+  @override
+  String dosingVolumeFormat(String dispensed, String target) {
+    return '$dispensed / $target ml';
+  }
+
+  @override
+  String channelPercentageFormat(String label, int percentage) {
+    return '$label $percentage%';
+  }
+
+  @override
+  String get timeRangeSeparator => '~';
 }

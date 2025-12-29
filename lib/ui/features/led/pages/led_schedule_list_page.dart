@@ -17,6 +17,7 @@ import '../controllers/led_schedule_list_controller.dart';
 import '../models/led_schedule_summary.dart';
 import '../widgets/led_schedule_timeline.dart';
 import '../widgets/led_spectrum_chart.dart';
+import '../../../assets/common_icon_helper.dart';
 
 const _ledIconAsset = 'assets/icons/led/led_main.png';
 
@@ -238,7 +239,12 @@ class _ScheduleCard extends StatelessWidget {
                 children: schedule.channels
                     .map(
                       (channel) => Chip(
-                        label: Text('${channel.label} ${channel.percentage}%'),
+                        label: Text(
+                          l10n.channelPercentageFormat(
+                            channel.label,
+                            channel.percentage,
+                          ),
+                        ),
                         backgroundColor: ReefColors.primary.withValues(
                           alpha: 0.08,
                         ),
@@ -251,7 +257,7 @@ class _ScheduleCard extends StatelessWidget {
               const SizedBox(height: ReefSpacing.xs),
               Chip(
                 label: Text(l10n.ledScheduleDerivedLabel),
-                avatar: const Icon(Icons.auto_mode, size: 16),
+                avatar: CommonIconHelper.getResetIcon(size: 16), // Using reset icon as placeholder for auto_mode
               ),
             ],
             const SizedBox(height: ReefSpacing.xs),
@@ -272,7 +278,9 @@ class _ScheduleCard extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: OutlinedButton.icon(
                 onPressed: onApply,
-                icon: Icon(schedule.isActive ? Icons.check : Icons.play_arrow),
+                icon: schedule.isActive
+                    ? CommonIconHelper.getCheckIcon(size: 20)
+                    : CommonIconHelper.getPlayIcon(size: 20),
                 label: Text(
                   schedule.isActive
                       ? l10n.ledScheduleStatusActive

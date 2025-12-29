@@ -316,5 +316,58 @@
   "dosingScheduleEditInvalidDose": "Entrez une dose supérieure à zéro.",
   "dosingScheduleEditInvalidWindow": "L'heure de fin doit être postérieure à l'heure de début.",
   "dosingScheduleEditTemplateDaily": "Utiliser le modèle de moyenne quotidienne",
-  "dosingScheduleEditTemplateCustom": "Utiliser un modèle de fenêtre personnalisé"
+  "dosingScheduleEditTemplateCustom": "Utiliser un modèle de fenêtre personnalisé",
+  "ledSceneIcon": "Icône de la scène",
+  "lightUv": "Lumière UV",
+  "lightPurple": "Lumière violette",
+  "lightBlue": "Lumière bleue",
+  "lightRoyalBlue": "Lumière bleue royale",
+  "lightGreen": "Lumière verte",
+  "lightRed": "Lumière rouge",
+  "lightColdWhite": "Lumière blanche froide",
+  "lightWarmWhite": "Lumière blanche chaude",
+  "lightMoon": "Lumière de lune",
+  "toastNameIsEmpty": "Le nom ne peut pas être vide.",
+  "toastSettingSuccessful": "Paramètres réussis.",
+  "toastSceneNameIsExist": "Le nom de la scène existe déjà.",
+  "toastDeleteNowScene": "Impossible de supprimer la scène actuellement utilisée.",
+  "ledRecordsSnackRecordsFull": "Maximum de 24 points de temps pouvant être définis.",
+  "ledRecordsSnackTimeExists": "Cette période a déjà été définie.",
+  "ledRecordsSnackTimeError": "Les points de temps doivent être espacés d'au moins 10 minutes.",
+  "dosingPumpHeadNoType": "Aucun type",
+  "dosingPumpHeadModeScheduled": "Planifié",
+  "dosingPumpHeadModeFree": "Mode libre",
+  "dosingManualStarted": "Dosage démarré pour la tête {headId}",
+  "@dosingManualStarted": {
+    "placeholders": {
+      "headId": {
+        "type": "String"
+      }
+    }
+  },
+  "dosingVolumeFormat": "{dispensed} / {target} ml",
+  "@dosingVolumeFormat": {
+    "placeholders": {
+      "dispensed": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "channelPercentageFormat": "{label} {percentage}%",
+  "@channelPercentageFormat": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "timeRangeSeparator": "~",
+  "dosingVolumeHint": "Entrez le volume",
+  "noRecords": "Aucune tâche planifiée"
 }

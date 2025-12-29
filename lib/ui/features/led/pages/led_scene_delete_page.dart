@@ -14,6 +14,8 @@ import '../../../widgets/reef_app_bar.dart';
 import '../../../../infrastructure/repositories/scene_repository_impl.dart';
 import '../controllers/led_scene_list_controller.dart';
 import '../models/led_scene_summary.dart';
+import '../support/scene_icon_helper.dart';
+import '../../../assets/common_icon_helper.dart';
 
 /// LedSceneDeletePage
 ///
@@ -49,7 +51,7 @@ class LedSceneDeletePage extends StatelessWidget {
   }
 }
 
-class _LedSceneDeleteView extends StatelessWidget {
+class _LedSceneDeleteView extends StatefulWidget {
   final bool isConnected;
   final DeleteSceneUseCase deleteSceneUseCase;
 
@@ -57,6 +59,32 @@ class _LedSceneDeleteView extends StatelessWidget {
     required this.isConnected,
     required this.deleteSceneUseCase,
   });
+
+  @override
+  State<_LedSceneDeleteView> createState() => _LedSceneDeleteViewState();
+}
+
+class _LedSceneDeleteViewState extends State<_LedSceneDeleteView> {
+  bool _previousBleConnected = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // PARITY: reef-b-app disconnectLiveData.observe() → finish()
+    // Monitor BLE connection state and close page on disconnect
+    final session = context.watch<AppSession>();
+    final isBleConnected = session.isBleConnected;
+    
+    // If BLE was connected but now disconnected, close page
+    if (_previousBleConnected && !isBleConnected) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      });
+    }
+    _previousBleConnected = isBleConnected;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -171,7 +199,8 @@ class _LedSceneDeleteView extends StatelessWidget {
               (scene) => _SceneDeleteCard(
                 scene: scene,
                 deviceId: deviceId,
-                deleteSceneUseCase: deleteSceneUseCase,
+                deleteSceneUseCase: widget.deleteSceneUseCase,
+                controller: controller,
                 isConnected: isConnected,
                 onDeleted: () {
                   // Refresh the scene list
@@ -225,6 +254,7 @@ class _SceneDeleteCard extends StatelessWidget {
   final _LocalSceneInfo scene;
   final String deviceId;
   final DeleteSceneUseCase deleteSceneUseCase;
+  final LedSceneListController controller;
   final bool isConnected;
   final VoidCallback onDeleted;
 
@@ -232,6 +262,7 @@ class _SceneDeleteCard extends StatelessWidget {
     required this.scene,
     required this.deviceId,
     required this.deleteSceneUseCase,
+    required this.controller,
     required this.isConnected,
     required this.onDeleted,
   });
@@ -263,9 +294,11 @@ class _SceneDeleteCard extends StatelessWidget {
           child: Row(
             children: [
               // Scene icon (img_icon) - 24×24dp
-              Icon(
-                Icons.light_mode, // TODO: Use scene-specific icon based on scene.iconId
-                size: 24, // dp_24
+              // PARITY: Use SceneIconHelper to get scene icons from SVG assets
+              SceneIconHelper.getSceneIcon(
+                iconId: scene.iconId,
+                width: 24, // dp_24
+                height: 24, // dp_24
                 color: ReefColors.textPrimary,
               ),
               SizedBox(width: ReefSpacing.xs), // dp_8 marginStart
@@ -282,7 +315,7 @@ class _SceneDeleteCard extends StatelessWidget {
               ),
               // Delete button (replacing img_check)
               IconButton(
-                icon: Icon(Icons.delete, color: ReefColors.danger),
+                icon: CommonIconHelper.getDeleteIcon(size: 24, color: ReefColors.danger),
                 iconSize: 20, // dp_20
                 onPressed: isConnected
                     ? () => _confirmDelete(context, l10n)
@@ -301,6 +334,20 @@ class _SceneDeleteCard extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context, AppLocalizations l10n) async {
+    // PARITY: reef-b-app checks if scene is currently in use
+    // Check if sceneIdString == controller.activeSceneId
+    final activeSceneId = controller.activeSceneId;
+    if (activeSceneId == scene.sceneIdString) {
+      // PARITY: reef-b-app shows toast_delete_now_scene
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.toastDeleteNowScene),
+          backgroundColor: ReefColors.warning,
+        ),
+      );
+      return;
+    }
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -374,7 +421,7 @@ class _SceneInfoCard extends StatelessWidget {
         subtitle: Text(scene.isPreset ? l10n.ledScenePreset : l10n.ledSceneCustom),
         trailing: canDelete
             ? IconButton(
-                icon: Icon(Icons.delete, color: ReefColors.danger),
+                icon: CommonIconHelper.getDeleteIcon(size: 24, color: ReefColors.danger),
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -384,7 +431,10 @@ class _SceneInfoCard extends StatelessWidget {
                   );
                 },
               )
-            : const Icon(Icons.info_outline, color: ReefColors.textSecondary),
+            : CommonIconHelper.getWarningIcon(
+                size: 24,
+                color: ReefColors.textSecondary,
+              ),
       ),
     );
   }

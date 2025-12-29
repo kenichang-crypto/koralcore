@@ -6,6 +6,7 @@ import '../theme/reef_colors.dart';
 import '../theme/reef_spacing.dart';
 import '../theme/reef_text.dart';
 import '../theme/reef_radius.dart';
+import '../assets/common_icon_helper.dart';
 import 'app_error_presenter.dart';
 
 /// 統一的錯誤狀態顯示組件
@@ -181,7 +182,7 @@ class InlineErrorMessage extends StatelessWidget {
           if (onDismiss != null) ...[
             const SizedBox(width: ReefSpacing.sm),
             IconButton(
-              icon: const Icon(Icons.close, size: 20),
+              icon: CommonIconHelper.getCloseIcon(size: 20),
               color: ReefColors.danger,
               onPressed: onDismiss,
               padding: EdgeInsets.zero,

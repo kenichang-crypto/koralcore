@@ -31,18 +31,27 @@ class ReefDeviceCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(10.0), // dp_10
       ),
       color: backgroundColor ?? ReefColors.surface,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(10.0),
-        onTap: onTap,
-        child: Padding(
-          padding: padding ??
-              const EdgeInsets.symmetric(
-                horizontal: 12.0, // dp_12
-                vertical: 10.0, // dp_10
+      child: onTap != null
+          ? InkWell(
+              borderRadius: BorderRadius.circular(10.0),
+              onTap: onTap,
+              child: Padding(
+                padding: padding ??
+                    const EdgeInsets.symmetric(
+                      horizontal: 12.0, // dp_12
+                      vertical: 10.0, // dp_10
+                    ),
+                child: child,
               ),
-          child: child,
-        ),
-      ),
+            )
+          : Padding(
+              padding: padding ??
+                  const EdgeInsets.symmetric(
+                    horizontal: 12.0, // dp_12
+                    vertical: 10.0, // dp_10
+                  ),
+              child: child,
+            ),
     );
   }
 }

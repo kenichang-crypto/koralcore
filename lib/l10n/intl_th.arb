@@ -317,4 +317,58 @@
   "dosingScheduleEditInvalidWindow": "เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่มต้น",
   "dosingScheduleEditTemplateDaily": "ใช้เทมเพลตเฉลี่ยรายวัน",
   "dosingScheduleEditTemplateCustom": "ใช้เทมเพลตหน้าต่างแบบกำหนดเอง"
+,
+  "ledSceneIcon": "ไอคอนฉาก",
+  "lightUv": "แสง UV",
+  "lightPurple": "แสงม่วง",
+  "lightBlue": "แสงน้ำเงิน",
+  "lightRoyalBlue": "แสงน้ำเงินเข้ม",
+  "lightGreen": "แสงเขียว",
+  "lightRed": "แสงแดง",
+  "lightColdWhite": "แสงขาวเย็น",
+  "lightWarmWhite": "แสงขาวอบอุ่น",
+  "lightMoon": "แสงจันทร์",
+  "toastNameIsEmpty": "ชื่อต้องไม่ว่างเปล่า",
+  "toastSettingSuccessful": "การตั้งค่าสำเร็จ",
+  "toastSceneNameIsExist": "ชื่อฉากนี้มีอยู่แล้ว",
+  "toastDeleteNowScene": "ไม่สามารถลบฉากที่กำลังใช้งานอยู่ได้",
+  "ledRecordsSnackRecordsFull": "สามารถตั้งได้สูงสุด 24 จุดเวลา",
+  "ledRecordsSnackTimeExists": "ช่วงเวลานี้ถูกตั้งไว้แล้ว",
+  "ledRecordsSnackTimeError": "จุดเวลาต้องห่างกันอย่างน้อย 10 นาที",
+  "dosingPumpHeadNoType": "ไม่มีประเภท",
+  "dosingPumpHeadModeScheduled": "ตามกำหนดการ",
+  "dosingPumpHeadModeFree": "โหมดอิสระ",
+  "dosingManualStarted": "เริ่มการให้ยาแล้วสำหรับหัว {headId}",
+  "@dosingManualStarted": {
+    "placeholders": {
+      "headId": {
+        "type": "String"
+      }
+    }
+  },
+  "dosingVolumeFormat": "{dispensed} / {target} ml",
+  "@dosingVolumeFormat": {
+    "placeholders": {
+      "dispensed": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "channelPercentageFormat": "{label} {percentage}%",
+  "@channelPercentageFormat": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "timeRangeSeparator": "~",
+  "dosingVolumeHint": "ป้อนปริมาณ",
+  "noRecords": "ไม่มีงานที่กำหนดไว้"
 }

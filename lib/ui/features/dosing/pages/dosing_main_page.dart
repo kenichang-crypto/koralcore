@@ -13,6 +13,7 @@ import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_backgrounds.dart';
 import '../../../widgets/reef_app_bar.dart';
+import '../../../assets/common_icon_helper.dart';
 import '../models/pump_head_summary.dart';
 import 'dosing_main_page_helpers.dart'
     show confirmDeleteDevice, confirmResetDevice, handlePlayDosing, handleConnect, handleDisconnect;
@@ -41,7 +42,10 @@ class DosingMainPage extends StatelessWidget {
         foregroundColor: ReefColors.onPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: ReefColors.onPrimary),
+          icon: CommonIconHelper.getBackIcon(
+            size: 24,
+            color: ReefColors.onPrimary,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -61,12 +65,15 @@ class DosingMainPage extends StatelessWidget {
               final isFavorite = snapshot.data ?? false;
               final deviceId = session.activeDeviceId;
               return IconButton(
-                icon: Icon(
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite
-                      ? ReefColors.error
-                      : ReefColors.onPrimary.withValues(alpha: 0.7),
-                ),
+                icon: isFavorite
+                    ? CommonIconHelper.getFavoriteSelectIcon(
+                        size: 24,
+                        color: ReefColors.error,
+                      )
+                    : CommonIconHelper.getFavoriteUnselectIcon(
+                        size: 24,
+                        color: ReefColors.onPrimary.withValues(alpha: 0.7),
+                      ),
                 tooltip: isFavorite ? l10n.deviceActionUnfavorite : l10n.deviceActionFavorite,
                 onPressed: isConnected && deviceId != null
                     ? () async {
@@ -101,7 +108,10 @@ class DosingMainPage extends StatelessWidget {
           ),
           // Menu button
           PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert, color: ReefColors.onPrimary),
+            icon: CommonIconHelper.getMenuIcon(
+              size: 24,
+              color: ReefColors.onPrimary,
+            ),
             enabled: isConnected,
             onSelected: (value) {
               switch (value) {
@@ -131,7 +141,7 @@ class DosingMainPage extends StatelessWidget {
                 value: 'edit',
                 child: Row(
                   children: [
-                    const Icon(Icons.edit, size: 20),
+                    CommonIconHelper.getEditIcon(size: 20),
                     const SizedBox(width: ReefSpacing.sm),
                     Text(l10n.deviceActionEdit),
                   ],
@@ -141,7 +151,10 @@ class DosingMainPage extends StatelessWidget {
                 value: 'delete',
                 child: Row(
                   children: [
-                    const Icon(Icons.delete, size: 20, color: ReefColors.error),
+                    CommonIconHelper.getDeleteIcon(
+                      size: 20,
+                      color: ReefColors.error,
+                    ),
                     const SizedBox(width: ReefSpacing.sm),
                     Text(
                       l10n.deviceActionDelete,
@@ -154,7 +167,7 @@ class DosingMainPage extends StatelessWidget {
                 value: 'reset',
                 child: Row(
                   children: [
-                    const Icon(Icons.refresh, size: 20),
+                    CommonIconHelper.getResetIcon(size: 20),
                     const SizedBox(width: ReefSpacing.sm),
                     Text(l10n.dosingResetDevice),
                   ],
@@ -164,8 +177,8 @@ class DosingMainPage extends StatelessWidget {
           ),
           // BLE connection button
           IconButton(
-            icon: Icon(
-              isConnected ? Icons.bluetooth_connected : Icons.bluetooth_disabled,
+            icon: CommonIconHelper.getBluetoothIcon(
+              size: 24,
               color: ReefColors.onPrimary,
             ),
             tooltip: isConnected ? l10n.deviceActionDisconnect : l10n.deviceActionConnect,
@@ -397,7 +410,10 @@ class _DropHeadCard extends StatelessWidget {
     final double progress = summary.dailyTargetMl > 0
         ? (summary.todayDispensedMl / summary.dailyTargetMl).clamp(0.0, 1.0)
         : 0.0;
-    final String volumeText = '${summary.todayDispensedMl.toStringAsFixed(0)} / ${summary.dailyTargetMl.toStringAsFixed(0)} ml';
+    final String volumeText = l10n.dosingVolumeFormat(
+      summary.todayDispensedMl.toStringAsFixed(0),
+      summary.dailyTargetMl.toStringAsFixed(0),
+    );
     
     // Mode name (simplified - TODO: Get from PumpHeadMode)
     final String modeName = _getModeName(summary, l10n);
@@ -494,8 +510,7 @@ class _DropHeadCard extends StatelessWidget {
                         'assets/icons/ic_play_enabled.png', // TODO: Add icon asset
                         width: 60, // dp_60
                         height: 60, // dp_60
-                        errorBuilder: (context, error, stackTrace) => Icon(
-                          Icons.play_arrow,
+                        errorBuilder: (context, error, stackTrace) => CommonIconHelper.getPlayIcon(
                           size: 60,
                           color: ReefColors.primary,
                         ),
@@ -684,10 +699,9 @@ class _EntryTile extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(
-                Icons.arrow_forward_ios,
-                color: ReefColors.surface,
+              CommonIconHelper.getNextIcon(
                 size: 16,
+                color: ReefColors.surface,
               ),
             ],
           ),

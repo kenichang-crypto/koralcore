@@ -316,5 +316,58 @@
   "dosingScheduleEditInvalidDose": "Geben Sie eine Dosis größer als Null ein.",
   "dosingScheduleEditInvalidWindow": "Die Endzeit muss nach der Startzeit liegen.",
   "dosingScheduleEditTemplateDaily": "Verwenden Sie die Vorlage für den Tagesdurchschnitt",
-  "dosingScheduleEditTemplateCustom": "Verwenden Sie eine benutzerdefinierte Fenstervorlage"
+  "dosingScheduleEditTemplateCustom": "Verwenden Sie eine benutzerdefinierte Fenstervorlage",
+  "ledSceneIcon": "Szene-Symbol",
+  "lightUv": "UV-Licht",
+  "lightPurple": "Lila Licht",
+  "lightBlue": "Blaues Licht",
+  "lightRoyalBlue": "Königsblaues Licht",
+  "lightGreen": "Grünes Licht",
+  "lightRed": "Rotes Licht",
+  "lightColdWhite": "Kühlweißes Licht",
+  "lightWarmWhite": "Warmweißes Licht",
+  "lightMoon": "Mondlicht",
+  "toastNameIsEmpty": "Name darf nicht leer sein.",
+  "toastSettingSuccessful": "Einstellungen erfolgreich.",
+  "toastSceneNameIsExist": "Szene existiert bereits.",
+  "toastDeleteNowScene": "Aktuell verwendete Szene kann nicht gelöscht werden.",
+  "ledRecordsSnackRecordsFull": "Maximal 24 Zeitpunkte können eingestellt werden.",
+  "ledRecordsSnackTimeExists": "Dieser Zeitraum wurde bereits festgelegt.",
+  "ledRecordsSnackTimeError": "Zeitpunkte müssen mindestens 10 Minuten auseinander liegen.",
+  "dosingPumpHeadNoType": "Kein Typ",
+  "dosingPumpHeadModeScheduled": "Geplant",
+  "dosingPumpHeadModeFree": "Freier Modus",
+  "dosingManualStarted": "Dosierung für Kopf {headId} gestartet",
+  "@dosingManualStarted": {
+    "placeholders": {
+      "headId": {
+        "type": "String"
+      }
+    }
+  },
+  "dosingVolumeFormat": "{dispensed} / {target} ml",
+  "@dosingVolumeFormat": {
+    "placeholders": {
+      "dispensed": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "channelPercentageFormat": "{label} {percentage}%",
+  "@channelPercentageFormat": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "timeRangeSeparator": "~",
+  "dosingVolumeHint": "Volumen eingeben",
+  "noRecords": "Keine geplanten Aufgaben"
 }

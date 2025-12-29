@@ -5,6 +5,7 @@ import '../theme/reef_colors.dart';
 import '../theme/reef_radius.dart';
 import '../theme/reef_spacing.dart';
 import '../theme/reef_text.dart';
+import '../assets/common_icon_helper.dart';
 
 class FeatureEntryCard extends StatelessWidget {
   final String title;
@@ -74,7 +75,7 @@ class FeatureEntryCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right, color: ReefColors.textTertiary),
+                CommonIconHelper.getNextIcon(size: 24, color: ReefColors.textTertiary),
               ],
             ),
           ),

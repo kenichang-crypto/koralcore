@@ -973,6 +973,36 @@ abstract class AppLocalizations {
   /// **'Bluetooth transport error. Check the signal and retry.'**
   String get errorTransport;
 
+  /// No description provided for @errorSinkFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Tank is full.'**
+  String get errorSinkFull;
+
+  /// No description provided for @errorSinkGroupsFull.
+  ///
+  /// In en, this message translates to:
+  /// **'All LED groups in this sink are full. Maximum 4 devices per group.'**
+  String get errorSinkGroupsFull;
+
+  /// No description provided for @errorConnectLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum 1 device can be connected simultaneously.'**
+  String get errorConnectLimit;
+
+  /// No description provided for @errorLedMasterCannotDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'To delete the master light, please modify the master-slave settings and set other slave lights as the master.'**
+  String get errorLedMasterCannotDelete;
+
+  /// No description provided for @errorDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete device.'**
+  String get errorDeleteFailed;
+
   /// No description provided for @errorGeneric.
   ///
   /// In en, this message translates to:
@@ -1462,7 +1492,7 @@ abstract class AppLocalizations {
   /// No description provided for @ledRecordsClearConfirmMessage.
   ///
   /// In en, this message translates to:
-  /// **'This removes every recorded time point from the LED schedule.'**
+  /// **'Do you want to clear the schedule?'**
   String get ledRecordsClearConfirmMessage;
 
   /// No description provided for @ledRecordsDeleteConfirmTitle.
@@ -1474,19 +1504,37 @@ abstract class AppLocalizations {
   /// No description provided for @ledRecordsDeleteConfirmMessage.
   ///
   /// In en, this message translates to:
-  /// **'Remove the selected time point from the LED schedule?'**
+  /// **'Do you want to delete this time point?'**
   String get ledRecordsDeleteConfirmMessage;
+
+  /// No description provided for @ledMoveMasterDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Master Setting'**
+  String get ledMoveMasterDialogTitle;
+
+  /// No description provided for @ledMoveMasterDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'To move this device to another tank, please first modify the master-slave settings and set other slave lights as the master light.'**
+  String get ledMoveMasterDialogContent;
+
+  /// No description provided for @ledSceneDeleteConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to delete the scene?'**
+  String ledSceneDeleteConfirmMessage(String name);
 
   /// No description provided for @ledRecordsSnackDeleted.
   ///
   /// In en, this message translates to:
-  /// **'Record deleted.'**
+  /// **'Successfully deleted time point.'**
   String get ledRecordsSnackDeleted;
 
   /// No description provided for @ledRecordsSnackDeleteFailed.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t delete record.'**
+  /// **'Failed to delete time point.'**
   String get ledRecordsSnackDeleteFailed;
 
   /// No description provided for @ledRecordsSnackCleared.
@@ -1510,14 +1558,32 @@ abstract class AppLocalizations {
   /// No description provided for @ledRecordsSnackPreviewStarted.
   ///
   /// In en, this message translates to:
-  /// **'Preview started.'**
+  /// **'One-minute quick preview started.'**
   String get ledRecordsSnackPreviewStarted;
 
   /// No description provided for @ledRecordsSnackPreviewStopped.
   ///
   /// In en, this message translates to:
-  /// **'Preview stopped.'**
+  /// **'One-minute quick preview ended.'**
   String get ledRecordsSnackPreviewStopped;
+
+  /// No description provided for @ledRecordsSnackRecordsFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum 24 time points can be set.'**
+  String get ledRecordsSnackRecordsFull;
+
+  /// No description provided for @ledRecordsSnackTimeExists.
+  ///
+  /// In en, this message translates to:
+  /// **'This time period has already been set.'**
+  String get ledRecordsSnackTimeExists;
+
+  /// No description provided for @ledRecordsSnackTimeError.
+  ///
+  /// In en, this message translates to:
+  /// **'Time points must be at least 10 minutes apart.'**
+  String get ledRecordsSnackTimeError;
 
   /// No description provided for @ledScheduleTypeDaily.
   ///
@@ -1972,7 +2038,7 @@ abstract class AppLocalizations {
   /// No description provided for @ledMasterSettingTitle.
   ///
   /// In en, this message translates to:
-  /// **'Master Settings'**
+  /// **'Master-Slave Pairing'**
   String get ledMasterSettingTitle;
 
   /// No description provided for @ledRecordTimeSettingTimeLabel.
@@ -2023,17 +2089,95 @@ abstract class AppLocalizations {
   /// **'Enter scene name'**
   String get ledSceneNameHint;
 
-  /// No description provided for @ledSceneEditSuccess.
+  /// No description provided for @ledSceneIcon.
   ///
   /// In en, this message translates to:
-  /// **'Scene updated'**
-  String get ledSceneEditSuccess;
+  /// **'Scene Icon'**
+  String get ledSceneIcon;
+
+  /// No description provided for @lightUv.
+  ///
+  /// In en, this message translates to:
+  /// **'UV Light'**
+  String get lightUv;
+
+  /// No description provided for @lightPurple.
+  ///
+  /// In en, this message translates to:
+  /// **'Purple Light'**
+  String get lightPurple;
+
+  /// No description provided for @lightBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue Light'**
+  String get lightBlue;
+
+  /// No description provided for @lightRoyalBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Royal Blue Light'**
+  String get lightRoyalBlue;
+
+  /// No description provided for @lightGreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Green Light'**
+  String get lightGreen;
+
+  /// No description provided for @lightRed.
+  ///
+  /// In en, this message translates to:
+  /// **'Red Light'**
+  String get lightRed;
+
+  /// No description provided for @lightColdWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'Cool White Light'**
+  String get lightColdWhite;
+
+  /// No description provided for @lightWarmWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm White Light'**
+  String get lightWarmWhite;
+
+  /// No description provided for @lightMoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Moonlight'**
+  String get lightMoon;
 
   /// No description provided for @ledSceneAddSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Scene added'**
+  /// **'Successfully added scene.'**
   String get ledSceneAddSuccess;
+
+  /// No description provided for @toastNameIsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Name cannot be empty.'**
+  String get toastNameIsEmpty;
+
+  /// No description provided for @toastSettingSuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings successful.'**
+  String get toastSettingSuccessful;
+
+  /// No description provided for @toastSceneNameIsExist.
+  ///
+  /// In en, this message translates to:
+  /// **'Scene name already exists.'**
+  String get toastSceneNameIsExist;
+
+  /// No description provided for @ledSceneNameIsExist.
+  ///
+  /// In en, this message translates to:
+  /// **'Scene name already exists.'**
+  String get ledSceneNameIsExist;
 
   /// No description provided for @ledSceneDeleteDescription.
   ///
@@ -2053,12 +2197,6 @@ abstract class AppLocalizations {
   /// **'Delete Scene?'**
   String get ledSceneDeleteConfirmTitle;
 
-  /// No description provided for @ledSceneDeleteConfirmMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Are you sure you want to delete \"{name}\"?'**
-  String ledSceneDeleteConfirmMessage(String name);
-
   /// No description provided for @ledSceneDeleteSuccess.
   ///
   /// In en, this message translates to:
@@ -2068,8 +2206,14 @@ abstract class AppLocalizations {
   /// No description provided for @ledSceneDeleteError.
   ///
   /// In en, this message translates to:
-  /// **'Failed to delete scene'**
+  /// **'Failed to delete scene.'**
   String get ledSceneDeleteError;
+
+  /// No description provided for @toastDeleteNowScene.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot delete the currently in-use scene.'**
+  String get toastDeleteNowScene;
 
   /// No description provided for @ledSceneDeleteLocalScenesTitle.
   ///
@@ -2098,7 +2242,7 @@ abstract class AppLocalizations {
   /// No description provided for @ledSceneLimitReached.
   ///
   /// In en, this message translates to:
-  /// **'Maximum scenes reached'**
+  /// **'Maximum 5 custom scenes can be set.'**
   String get ledSceneLimitReached;
 
   /// No description provided for @ledMasterSettingGroup.
@@ -2194,7 +2338,7 @@ abstract class AppLocalizations {
   /// No description provided for @ledRecordSettingErrorSunTime.
   ///
   /// In en, this message translates to:
-  /// **'Invalid sunrise/sunset time'**
+  /// **'Sunrise and sunset time settings are incorrect.'**
   String get ledRecordSettingErrorSunTime;
 
   /// No description provided for @ledRecordSettingSuccess.
@@ -2334,6 +2478,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not Set'**
   String get sinkPositionNotSet;
+
+  /// No description provided for @errorLedMasterCannotMove.
+  ///
+  /// In en, this message translates to:
+  /// **'To move this device to another tank, please first modify the master-slave settings and set other slave lights as the master light.'**
+  String get errorLedMasterCannotMove;
+
+  /// No description provided for @masterSetting.
+  ///
+  /// In en, this message translates to:
+  /// **'Master Setting'**
+  String get masterSetting;
 
   /// No description provided for @sinkPositionSet.
   ///
@@ -2893,37 +3049,137 @@ abstract class AppLocalizations {
   /// **'Saturday'**
   String get weekdaySaturday;
 
+  /// No description provided for @group.
+  ///
+  /// In en, this message translates to:
+  /// **'Group'**
   String get group;
 
+  /// No description provided for @led.
+  ///
+  /// In en, this message translates to:
+  /// **'LED'**
   String get led;
 
+  /// No description provided for @masterSlave.
+  ///
+  /// In en, this message translates to:
+  /// **'Master/Slave'**
   String get masterSlave;
 
+  /// No description provided for @time.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Point'**
   String get time;
 
+  /// No description provided for @record.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
   String get record;
 
+  /// No description provided for @ledScene.
+  ///
+  /// In en, this message translates to:
+  /// **'Scene'**
   String get ledScene;
 
+  /// No description provided for @unassignedDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Unallocated Devices'**
   String get unassignedDevice;
 
+  /// No description provided for @ledSceneNoSetting.
+  ///
+  /// In en, this message translates to:
+  /// **'No Setting'**
   String get ledSceneNoSetting;
 
+  /// No description provided for @dosingAdjustListDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Calibration Date'**
   String get dosingAdjustListDate;
 
+  /// No description provided for @dosingAdjustListVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Measured Volume'**
   String get dosingAdjustListVolume;
 
+  /// No description provided for @homeSpinnerAllSink.
+  ///
+  /// In en, this message translates to:
+  /// **'All Tanks'**
   String get homeSpinnerAllSink;
 
+  /// No description provided for @homeSpinnerFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite devices'**
   String get homeSpinnerFavorite;
 
+  /// No description provided for @homeSpinnerUnassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Unallocated Devices'**
   String get homeSpinnerUnassigned;
 
+  /// No description provided for @dosingPumpHeadNoType.
+  ///
+  /// In en, this message translates to:
+  /// **'No Type'**
   String get dosingPumpHeadNoType;
 
+  /// No description provided for @dosingPumpHeadModeScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
   String get dosingPumpHeadModeScheduled;
 
+  /// No description provided for @dosingPumpHeadModeFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Mode'**
   String get dosingPumpHeadModeFree;
+
+  /// No description provided for @dosingVolumeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter volume'**
+  String get dosingVolumeHint;
+
+  /// No description provided for @noRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'No scheduled tasks'**
+  String get noRecords;
+
+  /// No description provided for @dosingManualStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Dosing started for head {headId}'**
+  String dosingManualStarted(String headId);
+
+  /// No description provided for @dosingVolumeFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'{dispensed} / {target} ml'**
+  String dosingVolumeFormat(String dispensed, String target);
+
+  /// No description provided for @channelPercentageFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} {percentage}%'**
+  String channelPercentageFormat(String label, int percentage);
+
+  /// No description provided for @timeRangeSeparator.
+  ///
+  /// In en, this message translates to:
+  /// **'~'**
+  String get timeRangeSeparator;
 }
 
 class _AppLocalizationsDelegate

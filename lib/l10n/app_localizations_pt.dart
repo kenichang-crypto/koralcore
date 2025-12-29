@@ -472,6 +472,24 @@ class AppLocalizationsPt extends AppLocalizations {
       'Bluetooth transport error. Check the signal and retry.';
 
   @override
+  String get errorSinkFull => 'Tank is full.';
+
+  @override
+  String get errorSinkGroupsFull =>
+      'All LED groups in this sink are full. Maximum 4 devices per group.';
+
+  @override
+  String get errorConnectLimit =>
+      'Maximum 1 device can be connected simultaneously.';
+
+  @override
+  String get errorLedMasterCannotDelete =>
+      'To delete the master light, please modify the master-slave settings and set other slave lights as the master.';
+
+  @override
+  String get errorDeleteFailed => 'Failed to delete device.';
+
+  @override
   String get errorGeneric => 'Something went wrong. Please retry.';
 
   @override
@@ -735,20 +753,32 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get ledRecordsClearConfirmMessage =>
-      'This removes every recorded time point from the LED schedule.';
+      'Do you want to clear the schedule?';
 
   @override
   String get ledRecordsDeleteConfirmTitle => 'Delete record?';
 
   @override
   String get ledRecordsDeleteConfirmMessage =>
-      'Remove the selected time point from the LED schedule?';
+      'Do you want to delete this time point?';
 
   @override
-  String get ledRecordsSnackDeleted => 'Record deleted.';
+  String get ledMoveMasterDialogTitle => 'Master Setting';
 
   @override
-  String get ledRecordsSnackDeleteFailed => 'Couldn\'t delete record.';
+  String get ledMoveMasterDialogContent =>
+      'To move this device to another tank, please first modify the master-slave settings and set other slave lights as the master light.';
+
+  @override
+  String ledSceneDeleteConfirmMessage(String name) {
+    return 'Do you want to delete the scene?';
+  }
+
+  @override
+  String get ledRecordsSnackDeleted => 'Successfully deleted time point.';
+
+  @override
+  String get ledRecordsSnackDeleteFailed => 'Failed to delete time point.';
 
   @override
   String get ledRecordsSnackCleared => 'Records cleared.';
@@ -760,10 +790,23 @@ class AppLocalizationsPt extends AppLocalizations {
   String get ledRecordsSnackMissingSelection => 'Select a record first.';
 
   @override
-  String get ledRecordsSnackPreviewStarted => 'Preview started.';
+  String get ledRecordsSnackPreviewStarted =>
+      'One-minute quick preview started.';
 
   @override
-  String get ledRecordsSnackPreviewStopped => 'Preview stopped.';
+  String get ledRecordsSnackPreviewStopped => 'One-minute quick preview ended.';
+
+  @override
+  String get ledRecordsSnackRecordsFull =>
+      'Máximo de 24 pontos de tempo podem ser definidos.';
+
+  @override
+  String get ledRecordsSnackTimeExists =>
+      'Este período de tempo já foi definido.';
+
+  @override
+  String get ledRecordsSnackTimeError =>
+      'Os pontos de tempo devem estar separados por pelo menos 10 minutos.';
 
   @override
   String get ledScheduleTypeDaily => 'Daily program';
@@ -1007,7 +1050,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get ledSceneDeleteTitle => 'Delete Scene';
 
   @override
-  String get ledMasterSettingTitle => 'Master Settings';
+  String get ledMasterSettingTitle => 'Master-Slave Pairing';
 
   @override
   String get ledRecordTimeSettingTimeLabel => 'Time';
@@ -1034,10 +1077,49 @@ class AppLocalizationsPt extends AppLocalizations {
   String get ledSceneNameHint => 'Enter scene name';
 
   @override
-  String get ledSceneEditSuccess => 'Scene updated';
+  String get ledSceneIcon => 'Ícone da Cena';
 
   @override
-  String get ledSceneAddSuccess => 'Scene added';
+  String get lightUv => 'Luz UV';
+
+  @override
+  String get lightPurple => 'Luz Roxa';
+
+  @override
+  String get lightBlue => 'Luz Azul';
+
+  @override
+  String get lightRoyalBlue => 'Luz Azul Royal';
+
+  @override
+  String get lightGreen => 'Luz Verde';
+
+  @override
+  String get lightRed => 'Luz Vermelha';
+
+  @override
+  String get lightColdWhite => 'Luz Branca Fria';
+
+  @override
+  String get lightWarmWhite => 'Luz Branca Quente';
+
+  @override
+  String get lightMoon => 'Luz da Lua';
+
+  @override
+  String get ledSceneAddSuccess => 'Successfully added scene.';
+
+  @override
+  String get toastNameIsEmpty => 'O nome não pode estar vazio.';
+
+  @override
+  String get toastSettingSuccessful => 'Configurações bem-sucedidas.';
+
+  @override
+  String get toastSceneNameIsExist => 'O nome da cena já existe.';
+
+  @override
+  String get ledSceneNameIsExist => 'Scene name already exists.';
 
   @override
   String get ledSceneDeleteDescription => 'Select scenes to delete';
@@ -1049,17 +1131,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get ledSceneDeleteConfirmTitle => 'Delete Scene?';
 
   @override
-  String ledSceneDeleteConfirmMessage(String name) {
-    return 'Are you sure you want to delete \"$name\"?';
-  }
-
-  @override
   String ledSceneDeleteSuccess(String name) {
     return 'Scene \"$name\" deleted';
   }
 
   @override
-  String get ledSceneDeleteError => 'Failed to delete scene';
+  String get ledSceneDeleteError => 'Failed to delete scene.';
+
+  @override
+  String get toastDeleteNowScene =>
+      'Não é possível excluir a cena atualmente em uso.';
 
   @override
   String get ledSceneDeleteLocalScenesTitle => 'Local Scenes';
@@ -1077,7 +1158,7 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get ledSceneLimitReached => 'Maximum scenes reached';
+  String get ledSceneLimitReached => 'Maximum 5 custom scenes can be set.';
 
   @override
   String get ledMasterSettingGroup => 'Group';
@@ -1125,7 +1206,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get ledRecordSettingMoonlight => 'Moonlight';
 
   @override
-  String get ledRecordSettingErrorSunTime => 'Invalid sunrise/sunset time';
+  String get ledRecordSettingErrorSunTime =>
+      'Sunrise and sunset time settings are incorrect.';
 
   @override
   String get ledRecordSettingSuccess => 'Settings saved';
@@ -1195,6 +1277,13 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get sinkPositionNotSet => 'Not Set';
+
+  @override
+  String get errorLedMasterCannotMove =>
+      'To move this device to another tank, please first modify the master-slave settings and set other slave lights as the master light.';
+
+  @override
+  String get masterSetting => 'Master Setting';
 
   @override
   String get sinkPositionSet => 'Set';
@@ -1483,4 +1572,76 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get weekdaySaturday => 'Saturday';
+
+  @override
+  String get group => 'Group';
+
+  @override
+  String get led => 'LED';
+
+  @override
+  String get masterSlave => 'Master/Slave';
+
+  @override
+  String get time => 'Time Point';
+
+  @override
+  String get record => 'Schedule';
+
+  @override
+  String get ledScene => 'Scene';
+
+  @override
+  String get unassignedDevice => 'Unallocated Devices';
+
+  @override
+  String get ledSceneNoSetting => 'No Setting';
+
+  @override
+  String get dosingAdjustListDate => 'Calibration Date';
+
+  @override
+  String get dosingAdjustListVolume => 'Measured Volume';
+
+  @override
+  String get homeSpinnerAllSink => 'All Tanks';
+
+  @override
+  String get homeSpinnerFavorite => 'Favorite devices';
+
+  @override
+  String get homeSpinnerUnassigned => 'Unallocated Devices';
+
+  @override
+  String get dosingPumpHeadNoType => 'Sem tipo';
+
+  @override
+  String get dosingPumpHeadModeScheduled => 'Agendado';
+
+  @override
+  String get dosingPumpHeadModeFree => 'Modo livre';
+
+  @override
+  String get dosingVolumeHint => 'Digite o volume';
+
+  @override
+  String get noRecords => 'Nenhuma tarefa agendada';
+
+  @override
+  String dosingManualStarted(String headId) {
+    return 'Dosagem iniciada para cabeça $headId';
+  }
+
+  @override
+  String dosingVolumeFormat(String dispensed, String target) {
+    return '$dispensed / $target ml';
+  }
+
+  @override
+  String channelPercentageFormat(String label, int percentage) {
+    return '$label $percentage%';
+  }
+
+  @override
+  String get timeRangeSeparator => '~';
 }

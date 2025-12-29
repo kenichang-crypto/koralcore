@@ -14,6 +14,7 @@ import '../../../theme/reef_radius.dart';
 import '../../../theme/reef_spacing.dart';
 import '../../../theme/reef_text.dart';
 import '../../../widgets/reef_app_bar.dart';
+import '../../../assets/common_icon_helper.dart';
 import '../../../components/app_error_presenter.dart';
 import '../../../components/ble_guard.dart';
 import '../controllers/pump_head_detail_controller.dart';
@@ -77,7 +78,10 @@ class _PumpHeadDetailView extends StatelessWidget {
             actions: [
               // Menu button (Edit settings)
               PopupMenuButton<String>(
-                icon: Icon(Icons.more_vert, color: ReefColors.onPrimary),
+                icon: CommonIconHelper.getMenuIcon(
+                  size: 24,
+                  color: ReefColors.onPrimary,
+                ),
                 enabled: isConnected,
                 onSelected: (value) {
                   switch (value) {
@@ -99,7 +103,7 @@ class _PumpHeadDetailView extends StatelessWidget {
                     value: 'edit',
                     child: Row(
                       children: [
-                        const Icon(Icons.edit, size: 20),
+                        CommonIconHelper.getEditIcon(size: 20),
                         const SizedBox(width: ReefSpacing.sm),
                         Text(l10n.dosingPumpHeadSettingsTitle),
                       ],
@@ -672,8 +676,8 @@ class _ScheduleOverviewTile extends StatelessWidget {
             color: ReefColors.textSecondary,
           ),
         ),
-        trailing: const Icon(
-          Icons.chevron_right,
+        trailing: CommonIconHelper.getNextIcon(
+          size: 24,
           color: ReefColors.textSecondary,
         ),
         onTap: () {
@@ -727,8 +731,8 @@ class _CalibrationHistoryTile extends StatelessWidget {
             color: ReefColors.textSecondary,
           ),
         ),
-        trailing: const Icon(
-          Icons.chevron_right,
+        trailing: CommonIconHelper.getNextIcon(
+          size: 24,
           color: ReefColors.textSecondary,
         ),
         onTap: () {
@@ -786,8 +790,8 @@ class _SettingsTile extends StatelessWidget {
             color: ReefColors.textSecondary,
           ),
         ),
-        trailing: const Icon(
-          Icons.chevron_right,
+        trailing: CommonIconHelper.getNextIcon(
+          size: 24,
           color: ReefColors.textSecondary,
         ),
         onTap: () {

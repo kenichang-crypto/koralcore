@@ -37,12 +37,17 @@
   "deviceActionDisconnect": "Desconectar",
   "deviceDeleteMode": "Eliminar",
   "deviceSelectMode": "Seleccionar",
-  "deviceDeleteConfirmTitle": "¿Eliminar dispositivos?",
-  "deviceDeleteConfirmMessage": "Los dispositivos seleccionados se quitarán de este teléfono. No reinicia el hardware.",
+  "deviceDeleteConfirmTitle": "",
+  "deviceDeleteConfirmMessage": "¿Eliminar el dispositivo seleccionado?",
   "deviceDeleteConfirmPrimary": "Eliminar",
-  "deviceDeleteConfirmSecondary": "Conservar",
+  "deviceDeleteConfirmSecondary": "Cancelar",
+  "deviceDeleteLedMasterTitle": "Configuraciones Maestro-Esclavo",
+  "deviceDeleteLedMasterContent": "Para eliminar la luz maestra, modifica primero los ajustes de maestro-esclavo y establece otras luces esclavas como maestras.",
+  "deviceDeleteLedMasterPositive": "Entendido",
   "deviceActionDelete": "Eliminar seleccionados",
   "deviceSelectionCount": "{count} seleccionados",
+  "toastDeleteDeviceSuccessful": "Dispositivo eliminado exitosamente.",
+  "toastDeleteDeviceFailed": "Error al eliminar el dispositivo.",
   "@deviceSelectionCount": {
     "placeholders": {
       "count": {

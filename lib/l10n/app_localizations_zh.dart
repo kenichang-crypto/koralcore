@@ -12,21 +12,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appTitle => 'KoralCore';
 
   @override
-  String get tabHome => 'Home';
+  String get tabHome => '首頁';
 
   @override
-  String get tabBluetooth => 'Bluetooth';
+  String get tabBluetooth => '藍芽';
 
   @override
-  String get tabDevice => 'Devices';
+  String get tabDevice => '裝置';
 
   @override
   String homeStatusConnected(String device) {
-    return 'Connected to $device';
+    return '已連線至 $device';
   }
 
   @override
-  String get homeStatusDisconnected => 'No active device';
+  String get homeStatusDisconnected => '目前尚無裝置';
 
   @override
   String get homeConnectedCopy =>
@@ -59,148 +59,188 @@ class AppLocalizationsZh extends AppLocalizations {
   String get bleGuardDialogButton => 'Got it';
 
   @override
-  String get bleOnboardingPermissionTitle => '启用蓝牙访问';
+  String get bleOnboardingPermissionTitle => '啟用藍牙訪問';
 
   @override
-  String get bleOnboardingPermissionCopy => '我们使用蓝牙来发现和控制您附近的 Koral 硬件。';
+  String get bleOnboardingPermissionCopy => '我們使用藍牙來發現和控制您附近的 Koral 硬件。';
 
   @override
-  String get bleOnboardingPermissionCta => '允许访问';
+  String get bleOnboardingPermissionCta => '允許訪問';
 
   @override
-  String get bleOnboardingSettingsTitle => '设置中需要权限';
+  String get bleOnboardingSettingsTitle => '設置中需要權限';
 
   @override
-  String get bleOnboardingSettingsCopy => '蓝牙访问之前被拒绝。打开系统设置以启用它。';
+  String get bleOnboardingSettingsCopy => '藍牙訪問之前被拒絕。打開系統設置以啟用它。';
 
   @override
-  String get bleOnboardingSettingsCta => '打开设置';
+  String get bleOnboardingSettingsCta => '打開設置';
 
   @override
-  String get bleOnboardingLocationTitle => '允许位置访问';
+  String get bleOnboardingLocationTitle => '允許位置訪問';
 
   @override
-  String get bleOnboardingLocationCopy => 'Android 需要旧版本上的位置访问权限才能扫描蓝牙设备。';
+  String get bleOnboardingLocationCopy => 'Android 需要舊版本上的位置訪問權限才能掃描藍牙設備。';
 
   @override
-  String get bleOnboardingBluetoothOffTitle => '打开蓝牙';
+  String get bleOnboardingBluetoothOffTitle => '打開藍牙';
 
   @override
-  String get bleOnboardingBluetoothOffCopy => '蓝牙必须保持打开状态才能继续扫描和控制您的设备。';
+  String get bleOnboardingBluetoothOffCopy => '藍牙必須保持打開狀態才能繼續掃描和控制您的設備。';
 
   @override
-  String get bleOnboardingBluetoothCta => '打开蓝牙设置';
+  String get bleOnboardingBluetoothCta => '打開藍牙設置';
 
   @override
-  String get bleOnboardingUnavailableTitle => '蓝牙不可用';
+  String get bleOnboardingUnavailableTitle => '藍牙不可用';
 
   @override
-  String get bleOnboardingUnavailableCopy => '此设备不公开 KoralCore 可以使用的蓝牙无线电。';
+  String get bleOnboardingUnavailableCopy => '此設備不公開 KoralCore 可以使用的藍牙無線電。';
 
   @override
-  String get bleOnboardingRetryCta => '重试';
+  String get bleOnboardingRetryCta => '重試';
 
   @override
   String get bleOnboardingLearnMore => '了解更多';
 
   @override
-  String get bleOnboardingSheetTitle => '为什么 KoralCore 需要蓝牙';
+  String get bleOnboardingSheetTitle => '為什麼 KoralCore 需要藍牙';
 
   @override
   String get bleOnboardingSheetDescription =>
-      '蓝牙支持发现和控制您的剂量和照明硬件。以下是您授予访问权限后会发生的情况。';
+      '藍牙支持發現和控制您的劑量和照明硬件。以下是您授予訪問權限後會發生的情況。';
 
   @override
-  String get bleOnboardingSheetSearchTitle => '查找附近的设备';
+  String get bleOnboardingSheetSearchTitle => '查找附近的設備';
 
   @override
   String get bleOnboardingSheetSearchCopy =>
-      '扫描水族箱周围的 Reef Dose、Reef LED 和其他 Koral 设备。';
+      '掃描水族箱周圍的 Reef Dose、Reef LED 和其他 Koral 設備。';
 
   @override
-  String get bleOnboardingSheetControlTitle => '控制剂量和照明';
+  String get bleOnboardingSheetControlTitle => '控製劑量和照明';
 
   @override
-  String get bleOnboardingSheetControlCopy => '通过安全的 BLE 链路同步计划、发送命令并保持固件最新。';
+  String get bleOnboardingSheetControlCopy => '通過安全的 BLE 鏈路同步計劃、發送命令並保持固件最新。';
 
   @override
-  String get bleOnboardingSheetFooter => '一旦蓝牙准备就绪，我们就会自动恢复扫描。';
+  String get bleOnboardingSheetFooter => '一旦藍牙準備就緒，我們就會自動恢復掃描。';
 
   @override
-  String get bleOnboardingDisabledHint => '授予蓝牙访问权限以开始扫描。';
+  String get bleOnboardingDisabledHint => '授予藍牙訪問權限以開始掃描。';
 
   @override
-  String get bleOnboardingBlockedEmptyTitle => '需要蓝牙设置';
+  String get bleOnboardingBlockedEmptyTitle => '需要藍牙設置';
 
   @override
-  String get bleOnboardingBlockedEmptyCopy => '允许蓝牙访问或将其打开以发现您的珊瑚礁硬件。';
+  String get bleOnboardingBlockedEmptyCopy => '允許藍牙訪問或將其打開以發現您的珊瑚礁硬件。';
 
   @override
-  String get bluetoothHeader => 'Nearby devices';
+  String get bluetoothHeader => '藍芽連線';
 
   @override
-  String get bluetoothScanCta => 'Scan for devices';
+  String get bluetoothScanCta => '掃描裝置';
 
   @override
-  String get bluetoothScanning => 'Scanning...';
+  String get bluetoothScanning => '掃描中...';
 
   @override
-  String get bluetoothEmptyState => 'No devices found yet.';
+  String get bluetoothEmptyState => '尚未找到裝置。';
 
   @override
-  String get bluetoothConnect => 'Connect';
+  String get bluetoothConnect => '連線';
 
   @override
-  String get deviceHeader => 'My devices';
+  String get bluetoothRearrangement => '重新整理';
 
   @override
-  String get deviceEmptyTitle => 'No devices yet';
+  String get bluetoothOtherDevice => '其他裝置';
 
   @override
-  String get deviceEmptySubtitle =>
-      'Use the Bluetooth tab to discover hardware.';
+  String get bluetoothNoOtherDeviceTitle => '未發現裝置';
 
   @override
-  String get deviceStateConnected => 'Connected';
+  String get bluetoothNoOtherDeviceContent => '點擊右上重新掃描附近裝置';
 
   @override
-  String get deviceStateDisconnected => 'Disconnected';
+  String get bluetoothDisconnectDialogContent => '是否中斷藍芽連線?';
 
   @override
-  String get deviceStateConnecting => 'Connecting';
+  String get bluetoothDisconnectDialogPositive => '確定';
 
   @override
-  String get deviceActionConnect => 'Connect';
+  String get bluetoothDisconnectDialogNegative => '取消';
 
   @override
-  String get deviceActionDisconnect => 'Disconnect';
+  String get deviceHeader => '裝置';
 
   @override
-  String get deviceDeleteMode => 'Delete';
+  String get deviceEmptyTitle => '目前尚無裝置';
 
   @override
-  String get deviceSelectMode => 'Select';
+  String get deviceEmptySubtitle => '使用藍芽標籤頁來發現硬體。';
 
   @override
-  String get deviceDeleteConfirmTitle => 'Remove devices?';
+  String get deviceInSinkEmptyTitle => '水槽目前沒有裝置';
 
   @override
-  String get deviceDeleteConfirmMessage =>
-      'The selected devices will be removed from this phone. This does not reset the hardware.';
+  String get deviceInSinkEmptyContent => '下方切換藍芽列表新增裝置';
 
   @override
-  String get deviceDeleteConfirmPrimary => 'Remove';
+  String get deviceStateConnected => '已連線';
 
   @override
-  String get deviceDeleteConfirmSecondary => 'Keep';
+  String get deviceStateDisconnected => '未連線';
 
   @override
-  String get deviceActionDelete => 'Delete selected';
+  String get deviceStateConnecting => '連線中';
+
+  @override
+  String get deviceActionConnect => '連線';
+
+  @override
+  String get deviceActionDisconnect => '斷線';
+
+  @override
+  String get deviceDeleteMode => '刪除';
+
+  @override
+  String get deviceSelectMode => '選取';
+
+  @override
+  String get deviceDeleteConfirmTitle => '';
+
+  @override
+  String get deviceDeleteConfirmMessage => '是否刪除所選設備?';
+
+  @override
+  String get deviceDeleteConfirmPrimary => '刪除';
+
+  @override
+  String get deviceDeleteConfirmSecondary => '取消';
+
+  @override
+  String get deviceDeleteLedMasterTitle => '主從設定';
+
+  @override
+  String get deviceDeleteLedMasterContent => '欲刪除主燈，請先修改主從設定，將其他副燈設定為主燈';
+
+  @override
+  String get deviceDeleteLedMasterPositive => '我瞭解了';
+
+  @override
+  String get deviceActionDelete => '刪除所選';
 
   @override
   String deviceSelectionCount(int count) {
-    return '$count selected';
+    return '已選 $count 個';
   }
+
+  @override
+  String get toastDeleteDeviceSuccessful => '刪除設備成功';
+
+  @override
+  String get toastDeleteDeviceFailed => '刪除設備失敗';
 
   @override
   String get dosingHeader => 'Dosing';
@@ -224,61 +264,61 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dosingScheduleAddButton => '添加日程';
 
   @override
-  String get dosingScheduleEditTitleNew => '新时间表';
+  String get dosingScheduleEditTitleNew => '新時間表';
 
   @override
-  String get dosingScheduleEditTitleEdit => '编辑日程';
+  String get dosingScheduleEditTitleEdit => '編輯日程';
 
   @override
-  String get dosingScheduleEditDescription => '为此泵头配置计量窗口。';
+  String get dosingScheduleEditDescription => '為此泵頭配置計量窗口。';
 
   @override
-  String get dosingScheduleEditTypeLabel => '日程类型';
+  String get dosingScheduleEditTypeLabel => '日程類型';
 
   @override
-  String get dosingScheduleEditDoseLabel => '每次事件的剂量';
+  String get dosingScheduleEditDoseLabel => '每次事件的劑量';
 
   @override
-  String get dosingScheduleEditDoseHint => '输入以毫升为单位的量。';
+  String get dosingScheduleEditDoseHint => '輸入以毫升為單位的量。';
 
   @override
-  String get dosingScheduleEditEventsLabel => '每天的活动';
+  String get dosingScheduleEditEventsLabel => '每天的活動';
 
   @override
-  String get dosingScheduleEditStartTimeLabel => '第一剂';
+  String get dosingScheduleEditStartTimeLabel => '第一劑';
 
   @override
-  String get dosingScheduleEditWindowStartLabel => '窗口启动';
+  String get dosingScheduleEditWindowStartLabel => '窗口啟動';
 
   @override
   String get dosingScheduleEditWindowEndLabel => '窗端';
 
   @override
-  String get dosingScheduleEditWindowEventsLabel => '每个窗口的事件';
+  String get dosingScheduleEditWindowEventsLabel => '每個窗口的事件';
 
   @override
-  String get dosingScheduleEditRecurrenceLabel => '复发';
+  String get dosingScheduleEditRecurrenceLabel => '復發';
 
   @override
-  String get dosingScheduleEditEnabledToggle => '启用时间表';
+  String get dosingScheduleEditEnabledToggle => '啟用時間表';
 
   @override
   String get dosingScheduleEditSave => '保存日程';
 
   @override
-  String get dosingScheduleEditSuccess => '时间表已保存。';
+  String get dosingScheduleEditSuccess => '時間表已保存。';
 
   @override
-  String get dosingScheduleEditInvalidDose => '输入大于零的剂量。';
+  String get dosingScheduleEditInvalidDose => '輸入大於零的劑量。';
 
   @override
-  String get dosingScheduleEditInvalidWindow => '结束时间必须晚于开始时间。';
+  String get dosingScheduleEditInvalidWindow => '結束時間必須晚於開始時間。';
 
   @override
   String get dosingScheduleEditTemplateDaily => '使用日平均模板';
 
   @override
-  String get dosingScheduleEditTemplateCustom => '使用自定义窗口模板';
+  String get dosingScheduleEditTemplateCustom => '使用自定義窗口模板';
 
   @override
   String get dosingManualPageSubtitle =>
@@ -431,10 +471,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get actionApply => 'Apply';
 
   @override
-  String get actionCancel => 'Cancel';
+  String get actionCancel => '取消';
 
   @override
-  String get actionConfirm => 'Confirm';
+  String get actionConfirm => '確定';
 
   @override
   String get actionRetry => 'Retry';
@@ -457,22 +497,20 @@ class AppLocalizationsZh extends AppLocalizations {
       'Bluetooth transport error. Check the signal and retry.';
 
   @override
-  String get errorSinkFull => 'Tank is full.';
+  String get errorSinkFull => '水槽已滿';
 
   @override
   String get errorSinkGroupsFull =>
       'All LED groups in this sink are full. Maximum 4 devices per group.';
 
   @override
-  String get errorConnectLimit =>
-      'Maximum 1 device can be connected simultaneously.';
+  String get errorConnectLimit => '最多可1個裝置同時連線';
 
   @override
-  String get errorLedMasterCannotDelete =>
-      'To delete the master light, please modify the master-slave settings and set other slave lights as the master.';
+  String get errorLedMasterCannotDelete => '欲刪除主燈，請先修改主從設定，將其他副燈設定為主燈';
 
   @override
-  String get errorDeleteFailed => 'Failed to delete device.';
+  String get errorDeleteFailed => '刪除設備失敗';
 
   @override
   String get errorGeneric => 'Something went wrong. Please retry.';
@@ -687,110 +725,102 @@ class AppLocalizationsZh extends AppLocalizations {
       'Create schedules in the Reef B app to view them here.';
 
   @override
-  String get ledScheduleDerivedLabel => 'From LED record';
+  String get ledScheduleDerivedLabel => '來源：LED 排程紀錄';
 
   @override
-  String get ledRecordsTitle => 'LED records';
+  String get ledRecordsTitle => 'LED 記錄';
 
   @override
-  String get ledRecordsSubtitle =>
-      'Manage every point in the 24-hour lighting timeline.';
+  String get ledRecordsSubtitle => '管理 24 小時照明時間軸中的每個時間點。';
 
   @override
-  String get ledRecordsEmptyTitle => 'No records available';
+  String get ledRecordsEmptyTitle => '沒有可用記錄';
 
   @override
-  String get ledRecordsEmptySubtitle =>
-      'Create records in the Reef B app to see them here.';
+  String get ledRecordsEmptySubtitle => '在 Reef B 應用程式中建立記錄以在此查看。';
 
   @override
-  String get ledRecordsSelectedTimeLabel => 'Selected time';
+  String get ledRecordsSelectedTimeLabel => '選定時間';
 
   @override
-  String get ledRecordsStatusIdle => 'Ready';
+  String get ledRecordsStatusIdle => '就緒';
 
   @override
-  String get ledRecordsStatusApplying => 'Syncing...';
+  String get ledRecordsStatusApplying => '同步中...';
 
   @override
-  String get ledRecordsStatusPreview => 'Previewing';
+  String get ledRecordsStatusPreview => '預覽中';
 
   @override
-  String get ledRecordsActionPrev => 'Previous';
+  String get ledRecordsActionPrev => '上一個';
 
   @override
-  String get ledRecordsActionNext => 'Next';
+  String get ledRecordsActionNext => '下一個';
 
   @override
-  String get ledRecordsActionDelete => 'Delete';
+  String get ledRecordsActionDelete => '刪除';
 
   @override
-  String get ledRecordsActionClear => 'Clear all';
+  String get ledRecordsActionClear => '清除全部';
 
   @override
-  String get ledRecordsActionPreviewStart => 'Preview';
+  String get ledRecordsActionPreviewStart => '預覽';
 
   @override
-  String get ledRecordsActionPreviewStop => 'Stop preview';
+  String get ledRecordsActionPreviewStop => '停止預覽';
 
   @override
-  String get ledRecordsClearConfirmTitle => 'Clear all records?';
+  String get ledRecordsClearConfirmTitle => '清除所有記錄？';
 
   @override
-  String get ledRecordsClearConfirmMessage =>
-      'Do you want to clear the schedule?';
+  String get ledRecordsClearConfirmMessage => '是否要清除排程？';
 
   @override
-  String get ledRecordsDeleteConfirmTitle => 'Delete record?';
+  String get ledRecordsDeleteConfirmTitle => '刪除記錄？';
 
   @override
-  String get ledRecordsDeleteConfirmMessage =>
-      'Do you want to delete this time point?';
+  String get ledRecordsDeleteConfirmMessage => '從 LED 排程中移除選定的時間點？';
 
   @override
-  String get ledMoveMasterDialogTitle => 'Master Setting';
+  String get ledMoveMasterDialogTitle => '主從設定';
 
   @override
-  String get ledMoveMasterDialogContent =>
-      'To move this device to another tank, please first modify the master-slave settings and set other slave lights as the master light.';
+  String get ledMoveMasterDialogContent => '欲移動此裝置至其他水槽，請先修改主從設定，將其他副燈設定為主燈。';
 
   @override
   String ledSceneDeleteConfirmMessage(String name) {
-    return 'Do you want to delete the scene?';
+    return '是否要刪除場景？';
   }
 
   @override
-  String get ledRecordsSnackDeleted => 'Successfully deleted time point.';
+  String get ledRecordsSnackDeleted => '刪除時間點成功。';
 
   @override
-  String get ledRecordsSnackDeleteFailed => 'Failed to delete time point.';
+  String get ledRecordsSnackDeleteFailed => '刪除時間點失敗。';
 
   @override
-  String get ledRecordsSnackCleared => 'Records cleared.';
+  String get ledRecordsSnackCleared => '記錄已清除。';
 
   @override
-  String get ledRecordsSnackClearFailed => 'Couldn\'t clear records.';
+  String get ledRecordsSnackClearFailed => '無法清除記錄。';
 
   @override
-  String get ledRecordsSnackMissingSelection => 'Select a record first.';
+  String get ledRecordsSnackMissingSelection => '請先選擇記錄。';
 
   @override
-  String get ledRecordsSnackPreviewStarted =>
-      'One-minute quick preview started.';
+  String get ledRecordsSnackPreviewStarted => '一分鐘快速預覽開始';
 
   @override
-  String get ledRecordsSnackPreviewStopped => 'One-minute quick preview ended.';
+  String get ledRecordsSnackPreviewStopped => '一分鐘快速預覽結束';
 
   @override
-  String get ledRecordsSnackRecordsFull => 'Maximum 24 time points can be set.';
+  String get ledRecordsSnackRecordsFull => '最多可設定 24 個時間點。';
 
   @override
-  String get ledRecordsSnackTimeExists =>
-      'This time period has already been set.';
+  String get ledRecordsSnackTimeExists => '此時間區段已重複設定。';
 
   @override
-  String get ledRecordsSnackTimeError =>
-      'Time points must be at least 10 minutes apart.';
+  String get ledRecordsSnackTimeError => '時間點需間隔大於10分鐘。';
 
   @override
   String get ledScheduleTypeDaily => 'Daily program';
@@ -986,6 +1016,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get actionClear => 'Clear';
 
   @override
+  String get actionNext => 'Next';
+
+  @override
   String get deviceName => 'Device Name';
 
   @override
@@ -1055,55 +1088,55 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ledRecordTimeSettingSuccess => 'Record saved';
 
   @override
-  String get ledSceneNameLabel => 'Scene Name';
+  String get ledSceneNameLabel => '場景名稱';
 
   @override
-  String get ledSceneNameHint => 'Enter scene name';
+  String get ledSceneNameHint => '輸入場景名稱';
 
   @override
-  String get ledSceneIcon => 'Scene Icon';
+  String get ledSceneIcon => '場景圖標';
 
   @override
-  String get lightUv => 'UV Light';
+  String get lightUv => 'UV 燈';
 
   @override
-  String get lightPurple => 'Purple Light';
+  String get lightPurple => '紫光';
 
   @override
-  String get lightBlue => 'Blue Light';
+  String get lightBlue => '藍光';
 
   @override
-  String get lightRoyalBlue => 'Royal Blue Light';
+  String get lightRoyalBlue => '皇家藍光';
 
   @override
-  String get lightGreen => 'Green Light';
+  String get lightGreen => '綠光';
 
   @override
-  String get lightRed => 'Red Light';
+  String get lightRed => '紅光';
 
   @override
-  String get lightColdWhite => 'Cool White Light';
+  String get lightColdWhite => '冷白光';
 
   @override
-  String get lightWarmWhite => 'Warm White Light';
+  String get lightWarmWhite => '暖白光';
 
   @override
-  String get lightMoon => 'Moonlight';
+  String get lightMoon => '月光';
 
   @override
-  String get ledSceneAddSuccess => 'Successfully added scene.';
+  String get ledSceneAddSuccess => '添加場景成功。';
 
   @override
-  String get toastNameIsEmpty => 'Name cannot be empty.';
+  String get toastNameIsEmpty => '名稱不得為空';
 
   @override
-  String get toastSettingSuccessful => 'Settings successful.';
+  String get toastSettingSuccessful => '設定成功';
 
   @override
-  String get toastSceneNameIsExist => 'Scene name already exists.';
+  String get toastSceneNameIsExist => '場景名稱重複';
 
   @override
-  String get ledSceneNameIsExist => 'Scene name already exists.';
+  String get ledSceneNameIsExist => '場景名稱重複';
 
   @override
   String get ledSceneDeleteDescription => 'Select scenes to delete';
@@ -1112,18 +1145,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ledSceneDeleteEmpty => 'No scenes to delete';
 
   @override
-  String get ledSceneDeleteConfirmTitle => 'Delete Scene?';
+  String get ledSceneDeleteConfirmTitle => '刪除場景？';
 
   @override
   String ledSceneDeleteSuccess(String name) {
-    return 'Scene \"$name\" deleted';
+    return '刪除場景成功。';
   }
 
   @override
-  String get ledSceneDeleteError => 'Failed to delete scene.';
+  String get ledSceneDeleteError => '刪除場景失敗。';
 
   @override
-  String get toastDeleteNowScene => 'Cannot delete the currently in-use scene.';
+  String get toastDeleteNowScene => '不可刪除目前使用的場景';
 
   @override
   String get ledSceneDeleteLocalScenesTitle => 'Local Scenes';
@@ -1174,23 +1207,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ledMasterSettingMoveGroupFailed => 'Failed to move group';
 
   @override
-  String get ledRecordSettingInitStrength => 'Initial Strength';
+  String get ledRecordSettingInitStrength => '起始強度';
 
   @override
-  String get ledRecordSettingSunrise => 'Sunrise';
+  String get ledRecordSettingSunrise => '日出';
 
   @override
-  String get ledRecordSettingSunset => 'Sunset';
+  String get ledRecordSettingSunset => '日落';
 
   @override
-  String get ledRecordSettingSlowStart => 'Slow Start';
+  String get ledRecordSettingSlowStart => '緩啟動';
 
   @override
-  String get ledRecordSettingMoonlight => 'Moonlight';
+  String get ledRecordSettingMoonlight => '月光';
 
   @override
-  String get ledRecordSettingErrorSunTime =>
-      'Sunrise and sunset time settings are incorrect.';
+  String get ledRecordSettingErrorSunTime => '日出時間、日落時間設定錯誤。';
 
   @override
   String get ledRecordSettingSuccess => 'Settings saved';
@@ -1557,62 +1589,99 @@ class AppLocalizationsZh extends AppLocalizations {
   String get weekdaySaturday => 'Saturday';
 
   @override
-  String get group => 'Group';
+  String get group => '群組';
 
   @override
   String get led => 'LED';
 
   @override
-  String get masterSlave => 'Master/Slave';
+  String get masterSlave => '主從';
 
   @override
-  String get time => 'Time Point';
+  String get time => '時間點';
 
   @override
-  String get record => 'Schedule';
+  String get record => '排程';
 
   @override
-  String get ledScene => 'Scene';
+  String get ledScene => '場景';
 
   @override
-  String get unassignedDevice => 'Unallocated Devices';
+  String get unassignedDevice => '未分配裝置';
 
   @override
-  String get ledSceneNoSetting => 'No Setting';
+  String get ledSceneNoSetting => '無設定';
 
   @override
-  String get dosingAdjustListDate => 'Calibration Date';
+  String get dosingAdjustListDate => '日期';
 
   @override
-  String get dosingAdjustListVolume => 'Measured Volume';
+  String get dosingAdjustListVolume => '測量體積';
 
   @override
-  String get homeSpinnerAllSink => 'All Tanks';
+  String get dosingAdjustTitle => 'Calibration';
 
   @override
-  String get homeSpinnerFavorite => 'Favorite devices';
+  String get dosingAdjustDescription => 'Calibration Instructions';
 
   @override
-  String get homeSpinnerUnassigned => 'Unallocated Devices';
+  String get dosingAdjustStep =>
+      '1. Prepare the included measuring cup and some tubes\n2. Start manual operation to fill the tubes with liquid\n3. Select the speed for calibration';
 
   @override
-  String get dosingPumpHeadNoType => 'No Type';
+  String get dosingRotatingSpeedTitle => 'Rotating Speed';
 
   @override
-  String get dosingPumpHeadModeScheduled => 'Scheduled';
+  String get dosingDropVolume => 'Drop Volume';
 
   @override
-  String get dosingPumpHeadModeFree => 'Free Mode';
+  String get dosingAdjustVolumeHint => 'Enter actual drop volume';
 
   @override
-  String get dosingVolumeHint => 'Enter volume';
+  String get dosingCompleteAdjust => 'Complete Calibration';
 
   @override
-  String get noRecords => 'No scheduled tasks';
+  String get dosingAdjusting => 'Calibrating';
+
+  @override
+  String get dosingAdjustVolumeEmpty => 'Drop volume cannot be empty';
+
+  @override
+  String get dosingStartAdjustFailed => 'Failed to start calibration';
+
+  @override
+  String get dosingAdjustSuccessful => 'Calibration successful';
+
+  @override
+  String get dosingAdjustFailed => 'Calibration failed';
+
+  @override
+  String get homeSpinnerAllSink => '所有水槽';
+
+  @override
+  String get homeSpinnerFavorite => '喜愛裝置';
+
+  @override
+  String get homeSpinnerUnassigned => '未分配設備';
+
+  @override
+  String get dosingPumpHeadNoType => '無種類';
+
+  @override
+  String get dosingPumpHeadModeScheduled => '排程模式';
+
+  @override
+  String get dosingPumpHeadModeFree => '自由模式';
+
+  @override
+  String get dosingVolumeHint => '請輸入滴液量';
+
+  @override
+  String get noRecords => '無排程任務';
 
   @override
   String dosingManualStarted(String headId) {
-    return 'Dosing started for head $headId';
+    return '泵頭 $headId 已開始滴液';
   }
 
   @override
@@ -1637,21 +1706,21 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get appTitle => 'KoralCore';
 
   @override
-  String get tabHome => 'Home';
+  String get tabHome => '首頁';
 
   @override
-  String get tabBluetooth => 'Bluetooth';
+  String get tabBluetooth => '藍芽';
 
   @override
-  String get tabDevice => 'Devices';
+  String get tabDevice => '裝置';
 
   @override
   String homeStatusConnected(String device) {
-    return 'Connected to $device';
+    return '已連線至 $device';
   }
 
   @override
-  String get homeStatusDisconnected => 'No active device';
+  String get homeStatusDisconnected => '目前尚無裝置';
 
   @override
   String get homeConnectedCopy =>
@@ -1761,71 +1830,111 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get bleOnboardingBlockedEmptyCopy => '允許藍牙訪問或將其打開以發現您的珊瑚礁硬件。';
 
   @override
-  String get bluetoothHeader => 'Nearby devices';
+  String get bluetoothHeader => '藍芽連線';
 
   @override
-  String get bluetoothScanCta => 'Scan for devices';
+  String get bluetoothScanCta => '掃描裝置';
 
   @override
-  String get bluetoothScanning => 'Scanning...';
+  String get bluetoothScanning => '掃描中...';
 
   @override
-  String get bluetoothEmptyState => 'No devices found yet.';
+  String get bluetoothEmptyState => '尚未找到裝置。';
 
   @override
-  String get bluetoothConnect => 'Connect';
+  String get bluetoothConnect => '連線';
 
   @override
-  String get deviceHeader => 'My devices';
+  String get bluetoothRearrangement => '重新整理';
 
   @override
-  String get deviceEmptyTitle => 'No devices yet';
+  String get bluetoothOtherDevice => '其他裝置';
 
   @override
-  String get deviceEmptySubtitle =>
-      'Use the Bluetooth tab to discover hardware.';
+  String get bluetoothNoOtherDeviceTitle => '未發現裝置';
 
   @override
-  String get deviceStateConnected => 'Connected';
+  String get bluetoothNoOtherDeviceContent => '點擊右上重新掃描附近裝置';
 
   @override
-  String get deviceStateDisconnected => 'Disconnected';
+  String get bluetoothDisconnectDialogContent => '是否中斷藍芽連線?';
 
   @override
-  String get deviceStateConnecting => 'Connecting';
+  String get bluetoothDisconnectDialogPositive => '確定';
 
   @override
-  String get deviceActionConnect => 'Connect';
+  String get bluetoothDisconnectDialogNegative => '取消';
 
   @override
-  String get deviceActionDisconnect => 'Disconnect';
+  String get deviceHeader => '裝置';
 
   @override
-  String get deviceDeleteMode => 'Delete';
+  String get deviceEmptyTitle => '目前尚無裝置';
 
   @override
-  String get deviceSelectMode => 'Select';
+  String get deviceEmptySubtitle => '使用藍芽標籤頁來發現硬體。';
 
   @override
-  String get deviceDeleteConfirmTitle => 'Remove devices?';
+  String get deviceInSinkEmptyTitle => '水槽目前沒有裝置';
 
   @override
-  String get deviceDeleteConfirmMessage =>
-      'The selected devices will be removed from this phone. This does not reset the hardware.';
+  String get deviceInSinkEmptyContent => '下方切換藍芽列表新增裝置';
 
   @override
-  String get deviceDeleteConfirmPrimary => 'Remove';
+  String get deviceStateConnected => '已連線';
 
   @override
-  String get deviceDeleteConfirmSecondary => 'Keep';
+  String get deviceStateDisconnected => '未連線';
 
   @override
-  String get deviceActionDelete => 'Delete selected';
+  String get deviceStateConnecting => '連線中';
+
+  @override
+  String get deviceActionConnect => '連線';
+
+  @override
+  String get deviceActionDisconnect => '斷線';
+
+  @override
+  String get deviceDeleteMode => '刪除';
+
+  @override
+  String get deviceSelectMode => '選取';
+
+  @override
+  String get deviceDeleteConfirmTitle => '';
+
+  @override
+  String get deviceDeleteConfirmMessage => '是否刪除所選設備?';
+
+  @override
+  String get deviceDeleteConfirmPrimary => '刪除';
+
+  @override
+  String get deviceDeleteConfirmSecondary => '取消';
+
+  @override
+  String get deviceDeleteLedMasterTitle => '主從設定';
+
+  @override
+  String get deviceDeleteLedMasterContent => '欲刪除主燈，請先修改主從設定，將其他副燈設定為主燈';
+
+  @override
+  String get deviceDeleteLedMasterPositive => '我瞭解了';
+
+  @override
+  String get deviceActionDelete => '刪除所選';
 
   @override
   String deviceSelectionCount(int count) {
-    return '$count selected';
+    return '已選 $count 個';
   }
+
+  @override
+  String get toastDeleteDeviceSuccessful => '刪除設備成功';
+
+  @override
+  String get toastDeleteDeviceFailed => '刪除設備失敗';
 
   @override
   String get dosingHeader => 'Dosing';
@@ -2028,10 +2137,10 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get actionApply => 'Apply';
 
   @override
-  String get actionCancel => 'Cancel';
+  String get actionCancel => '取消';
 
   @override
-  String get actionConfirm => 'Confirm';
+  String get actionConfirm => '確定';
 
   @override
   String get actionRetry => 'Retry';
@@ -2620,7 +2729,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get homeSpinnerFavorite => '喜愛裝置';
 
   @override
-  String get homeSpinnerUnassigned => '未分配裝置';
+  String get homeSpinnerUnassigned => '未分配設備';
 
   @override
   String get dosingPumpHeadNoType => '無種類';

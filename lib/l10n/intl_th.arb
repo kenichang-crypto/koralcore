@@ -37,12 +37,17 @@
   "deviceActionDisconnect": "Disconnect",
   "deviceDeleteMode": "Delete",
   "deviceSelectMode": "Select",
-  "deviceDeleteConfirmTitle": "Remove devices?",
-  "deviceDeleteConfirmMessage": "The selected devices will be removed from this phone. This does not reset the hardware.",
-  "deviceDeleteConfirmPrimary": "Remove",
-  "deviceDeleteConfirmSecondary": "Keep",
+  "deviceDeleteConfirmTitle": "",
+  "deviceDeleteConfirmMessage": "ลบอุปกรณ์ที่เลือกหรือไม่?",
+  "deviceDeleteConfirmPrimary": "ลบ",
+  "deviceDeleteConfirmSecondary": "ยกเลิก",
+  "deviceDeleteLedMasterTitle": "การตั้งค่าเป็นท่านายและทาส",
+  "deviceDeleteLedMasterContent": "ในการลบแสงหลัก โปรดแก้ไขการตั้งค่าตัวคู่หน้าลำโพงและตั้งแสงที่เคยเป็นที่อื่นเป็นแสงหลัก",
+  "deviceDeleteLedMasterPositive": "ฉันเข้าใจแล้ว",
   "deviceActionDelete": "Delete selected",
   "deviceSelectionCount": "{count} selected",
+  "toastDeleteDeviceSuccessful": "ลบอุปกรณ์เรียบร้อยแล้ว",
+  "toastDeleteDeviceFailed": "ไม่สามารถลบอุปกรณ์ได้",
   "@deviceSelectionCount": {
     "placeholders": {
       "count": {

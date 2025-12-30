@@ -37,12 +37,17 @@
   "deviceActionDisconnect": "Disconnect",
   "deviceDeleteMode": "Delete",
   "deviceSelectMode": "Select",
-  "deviceDeleteConfirmTitle": "Remove devices?",
-  "deviceDeleteConfirmMessage": "The selected devices will be removed from this phone. This does not reset the hardware.",
-  "deviceDeleteConfirmPrimary": "Remove",
-  "deviceDeleteConfirmSecondary": "Keep",
+  "deviceDeleteConfirmTitle": "",
+  "deviceDeleteConfirmMessage": "Das ausgewählte Gerät löschen?",
+  "deviceDeleteConfirmPrimary": "Löschen",
+  "deviceDeleteConfirmSecondary": "Abbrechen",
+  "deviceDeleteLedMasterTitle": "Master-Slave-Einstellungen",
+  "deviceDeleteLedMasterContent": "Um das Master-Licht zu löschen, ändern Sie bitte die Master-Slave-Einstellungen und setzen Sie andere Slave-Lichter als Master.",
+  "deviceDeleteLedMasterPositive": "Ich habe verstanden",
   "deviceActionDelete": "Delete selected",
   "deviceSelectionCount": "{count} selected",
+  "toastDeleteDeviceSuccessful": "Gerät erfolgreich gelöscht.",
+  "toastDeleteDeviceFailed": "Löschen des Geräts fehlgeschlagen.",
   "@deviceSelectionCount": {
     "placeholders": {
       "count": {

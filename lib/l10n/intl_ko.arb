@@ -37,12 +37,17 @@
   "deviceActionDisconnect": "Disconnect",
   "deviceDeleteMode": "Delete",
   "deviceSelectMode": "Select",
-  "deviceDeleteConfirmTitle": "Remove devices?",
-  "deviceDeleteConfirmMessage": "The selected devices will be removed from this phone. This does not reset the hardware.",
-  "deviceDeleteConfirmPrimary": "Remove",
-  "deviceDeleteConfirmSecondary": "Keep",
+  "deviceDeleteConfirmTitle": "",
+  "deviceDeleteConfirmMessage": "선택한 장치를 삭제하시겠습니까?",
+  "deviceDeleteConfirmPrimary": "삭제",
+  "deviceDeleteConfirmSecondary": "취소",
+  "deviceDeleteLedMasterTitle": "마스터-슬레이브 설정",
+  "deviceDeleteLedMasterContent": "마스터 라이트를 삭제하려면 먼저 마스터-슬레이브 설정을 수정하고 다른 슬레이브 라이트를 마스터로 설정하십시오.",
+  "deviceDeleteLedMasterPositive": "이해했습니다",
   "deviceActionDelete": "Delete selected",
   "deviceSelectionCount": "{count} selected",
+  "toastDeleteDeviceSuccessful": "장치가 성공적으로 삭제되었습니다.",
+  "toastDeleteDeviceFailed": "장치 삭제에 실패했습니다.",
   "@deviceSelectionCount": {
     "placeholders": {
       "count": {

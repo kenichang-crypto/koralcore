@@ -37,12 +37,17 @@
   "deviceActionDisconnect": "Disconnect",
   "deviceDeleteMode": "Delete",
   "deviceSelectMode": "Select",
-  "deviceDeleteConfirmTitle": "Remove devices?",
-  "deviceDeleteConfirmMessage": "The selected devices will be removed from this phone. This does not reset the hardware.",
-  "deviceDeleteConfirmPrimary": "Remove",
-  "deviceDeleteConfirmSecondary": "Keep",
+  "deviceDeleteConfirmTitle": "",
+  "deviceDeleteConfirmMessage": "هل ترغب في حذف الجهاز المحدد؟",
+  "deviceDeleteConfirmPrimary": "حذف",
+  "deviceDeleteConfirmSecondary": "إلغاء",
+  "deviceDeleteLedMasterTitle": "إعدادات الماستر والسليف",
+  "deviceDeleteLedMasterContent": "لحذف الضوء الرئيسي، يرجى تعديل إعدادات الماستر-الرقيق وتعيين الأضواء الأخرى كأضواء رقيقة.",
+  "deviceDeleteLedMasterPositive": "فهمت",
   "deviceActionDelete": "Delete selected",
   "deviceSelectionCount": "{count} selected",
+  "toastDeleteDeviceSuccessful": "تم حذف الجهاز بنجاح.",
+  "toastDeleteDeviceFailed": "فشل في حذف الجهاز.",
   "@deviceSelectionCount": {
     "placeholders": {
       "count": {

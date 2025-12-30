@@ -37,12 +37,17 @@
   "deviceActionDisconnect": "Disconnect",
   "deviceDeleteMode": "Delete",
   "deviceSelectMode": "Select",
-  "deviceDeleteConfirmTitle": "Remove devices?",
-  "deviceDeleteConfirmMessage": "The selected devices will be removed from this phone. This does not reset the hardware.",
-  "deviceDeleteConfirmPrimary": "Remove",
-  "deviceDeleteConfirmSecondary": "Keep",
+  "deviceDeleteConfirmTitle": "",
+  "deviceDeleteConfirmMessage": "Hapus perangkat yang dipilih?",
+  "deviceDeleteConfirmPrimary": "Hapus",
+  "deviceDeleteConfirmSecondary": "Batal",
+  "deviceDeleteLedMasterTitle": "Pengaturan Master-Slave",
+  "deviceDeleteLedMasterContent": "Untuk menghapus lampu master, silakan modifikasi pengaturan master-slave dan tetapkan lampu budak lain sebagai lampu master.",
+  "deviceDeleteLedMasterPositive": "Saya mengerti",
   "deviceActionDelete": "Delete selected",
   "deviceSelectionCount": "{count} selected",
+  "toastDeleteDeviceSuccessful": "Berhasil menghapus perangkat.",
+  "toastDeleteDeviceFailed": "Gagal menghapus perangkat.",
   "@deviceSelectionCount": {
     "placeholders": {
       "count": {

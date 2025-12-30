@@ -391,16 +391,58 @@ abstract class AppLocalizations {
   /// **'Connect'**
   String get bluetoothConnect;
 
+  /// No description provided for @bluetoothRearrangement.
+  ///
+  /// In en, this message translates to:
+  /// **'Rearrangement'**
+  String get bluetoothRearrangement;
+
+  /// No description provided for @bluetoothOtherDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Devices'**
+  String get bluetoothOtherDevice;
+
+  /// No description provided for @bluetoothNoOtherDeviceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No devices found.'**
+  String get bluetoothNoOtherDeviceTitle;
+
+  /// No description provided for @bluetoothNoOtherDeviceContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap on the top right to rescan nearby devices.'**
+  String get bluetoothNoOtherDeviceContent;
+
+  /// No description provided for @bluetoothDisconnectDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to disconnect Bluetooth?'**
+  String get bluetoothDisconnectDialogContent;
+
+  /// No description provided for @bluetoothDisconnectDialogPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get bluetoothDisconnectDialogPositive;
+
+  /// No description provided for @bluetoothDisconnectDialogNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get bluetoothDisconnectDialogNegative;
+
   /// No description provided for @deviceHeader.
   ///
   /// In en, this message translates to:
-  /// **'My devices'**
+  /// **'Device'**
   String get deviceHeader;
 
   /// No description provided for @deviceEmptyTitle.
   ///
   /// In en, this message translates to:
-  /// **'No devices yet'**
+  /// **'No devices currently available.'**
   String get deviceEmptyTitle;
 
   /// No description provided for @deviceEmptySubtitle.
@@ -408,6 +450,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use the Bluetooth tab to discover hardware.'**
   String get deviceEmptySubtitle;
+
+  /// No description provided for @deviceInSinkEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The tank currently has no devices.'**
+  String get deviceInSinkEmptyTitle;
+
+  /// No description provided for @deviceInSinkEmptyContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Add devices from the Bluetooth list below.'**
+  String get deviceInSinkEmptyContent;
 
   /// No description provided for @deviceStateConnected.
   ///
@@ -454,26 +508,44 @@ abstract class AppLocalizations {
   /// No description provided for @deviceDeleteConfirmTitle.
   ///
   /// In en, this message translates to:
-  /// **'Remove devices?'**
+  /// **''**
   String get deviceDeleteConfirmTitle;
 
   /// No description provided for @deviceDeleteConfirmMessage.
   ///
   /// In en, this message translates to:
-  /// **'The selected devices will be removed from this phone. This does not reset the hardware.'**
+  /// **'Delete the selected device?'**
   String get deviceDeleteConfirmMessage;
 
   /// No description provided for @deviceDeleteConfirmPrimary.
   ///
   /// In en, this message translates to:
-  /// **'Remove'**
+  /// **'Delete'**
   String get deviceDeleteConfirmPrimary;
 
   /// No description provided for @deviceDeleteConfirmSecondary.
   ///
   /// In en, this message translates to:
-  /// **'Keep'**
+  /// **'Cancel'**
   String get deviceDeleteConfirmSecondary;
+
+  /// No description provided for @deviceDeleteLedMasterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Master-Slave Settings'**
+  String get deviceDeleteLedMasterTitle;
+
+  /// No description provided for @deviceDeleteLedMasterContent.
+  ///
+  /// In en, this message translates to:
+  /// **'To delete the master light, please modify the master-slave settings and set other slave lights as master.'**
+  String get deviceDeleteLedMasterContent;
+
+  /// No description provided for @deviceDeleteLedMasterPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'I understood'**
+  String get deviceDeleteLedMasterPositive;
 
   /// No description provided for @deviceActionDelete.
   ///
@@ -486,6 +558,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} selected'**
   String deviceSelectionCount(int count);
+
+  /// No description provided for @toastDeleteDeviceSuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'Successfully deleted device.'**
+  String get toastDeleteDeviceSuccessful;
+
+  /// No description provided for @toastDeleteDeviceFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete device.'**
+  String get toastDeleteDeviceFailed;
 
   /// No description provided for @dosingHeader.
   ///
@@ -1939,6 +2023,12 @@ abstract class AppLocalizations {
   /// **'Clear'**
   String get actionClear;
 
+  /// No description provided for @actionNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get actionNext;
+
   /// No description provided for @deviceName.
   ///
   /// In en, this message translates to:
@@ -3109,6 +3199,78 @@ abstract class AppLocalizations {
   /// **'Measured Volume'**
   String get dosingAdjustListVolume;
 
+  /// No description provided for @dosingAdjustTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Calibration'**
+  String get dosingAdjustTitle;
+
+  /// No description provided for @dosingAdjustDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Calibration Instructions'**
+  String get dosingAdjustDescription;
+
+  /// No description provided for @dosingAdjustStep.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Prepare the included measuring cup and some tubes\n2. Start manual operation to fill the tubes with liquid\n3. Select the speed for calibration'**
+  String get dosingAdjustStep;
+
+  /// No description provided for @dosingRotatingSpeedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotating Speed'**
+  String get dosingRotatingSpeedTitle;
+
+  /// No description provided for @dosingDropVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop Volume'**
+  String get dosingDropVolume;
+
+  /// No description provided for @dosingAdjustVolumeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter actual drop volume'**
+  String get dosingAdjustVolumeHint;
+
+  /// No description provided for @dosingCompleteAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Calibration'**
+  String get dosingCompleteAdjust;
+
+  /// No description provided for @dosingAdjusting.
+  ///
+  /// In en, this message translates to:
+  /// **'Calibrating'**
+  String get dosingAdjusting;
+
+  /// No description provided for @dosingAdjustVolumeEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop volume cannot be empty'**
+  String get dosingAdjustVolumeEmpty;
+
+  /// No description provided for @dosingStartAdjustFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to start calibration'**
+  String get dosingStartAdjustFailed;
+
+  /// No description provided for @dosingAdjustSuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'Calibration successful'**
+  String get dosingAdjustSuccessful;
+
+  /// No description provided for @dosingAdjustFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Calibration failed'**
+  String get dosingAdjustFailed;
+
   /// No description provided for @homeSpinnerAllSink.
   ///
   /// In en, this message translates to:
@@ -3118,7 +3280,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeSpinnerFavorite.
   ///
   /// In en, this message translates to:
-  /// **'Favorite devices'**
+  /// **'Favorite Devices'**
   String get homeSpinnerFavorite;
 
   /// No description provided for @homeSpinnerUnassigned.

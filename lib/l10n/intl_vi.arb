@@ -37,12 +37,17 @@
   "deviceActionDisconnect": "Disconnect",
   "deviceDeleteMode": "Delete",
   "deviceSelectMode": "Select",
-  "deviceDeleteConfirmTitle": "Remove devices?",
-  "deviceDeleteConfirmMessage": "The selected devices will be removed from this phone. This does not reset the hardware.",
-  "deviceDeleteConfirmPrimary": "Remove",
-  "deviceDeleteConfirmSecondary": "Keep",
+  "deviceDeleteConfirmTitle": "",
+  "deviceDeleteConfirmMessage": "Xóa thiết bị đã chọn?",
+  "deviceDeleteConfirmPrimary": "Xóa",
+  "deviceDeleteConfirmSecondary": "Hủy",
+  "deviceDeleteLedMasterTitle": "Cài đặt Master-Slave",
+  "deviceDeleteLedMasterContent": "Để xóa đèn chính, vui lòng sửa đổi cài đặt master-slave và đặt các đèn nô lệ khác làm đèn chính.",
+  "deviceDeleteLedMasterPositive": "Tôi đã hiểu",
   "deviceActionDelete": "Delete selected",
   "deviceSelectionCount": "{count} selected",
+  "toastDeleteDeviceSuccessful": "Xóa thiết bị thành công.",
+  "toastDeleteDeviceFailed": "Không thể xóa thiết bị.",
   "@deviceSelectionCount": {
     "placeholders": {
       "count": {

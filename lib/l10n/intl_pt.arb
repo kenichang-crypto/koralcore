@@ -37,12 +37,17 @@
   "deviceActionDisconnect": "Disconnect",
   "deviceDeleteMode": "Delete",
   "deviceSelectMode": "Select",
-  "deviceDeleteConfirmTitle": "Remove devices?",
-  "deviceDeleteConfirmMessage": "The selected devices will be removed from this phone. This does not reset the hardware.",
-  "deviceDeleteConfirmPrimary": "Remove",
-  "deviceDeleteConfirmSecondary": "Keep",
+  "deviceDeleteConfirmTitle": "",
+  "deviceDeleteConfirmMessage": "Excluir o dispositivo selecionado?",
+  "deviceDeleteConfirmPrimary": "Excluir",
+  "deviceDeleteConfirmSecondary": "Cancelar",
+  "deviceDeleteLedMasterTitle": "Configurações Mestre-Escravo",
+  "deviceDeleteLedMasterContent": "Para excluir a luz principal, modifique as configurações mestre-escravo e defina outras luzes escravas como luz mestra.",
+  "deviceDeleteLedMasterPositive": "Entendi",
   "deviceActionDelete": "Delete selected",
   "deviceSelectionCount": "{count} selected",
+  "toastDeleteDeviceSuccessful": "Dispositivo excluído com sucesso.",
+  "toastDeleteDeviceFailed": "Falha ao excluir o dispositivo.",
   "@deviceSelectionCount": {
     "placeholders": {
       "count": {

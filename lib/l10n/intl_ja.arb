@@ -37,12 +37,17 @@
   "deviceActionDisconnect": "Disconnect",
   "deviceDeleteMode": "Delete",
   "deviceSelectMode": "Select",
-  "deviceDeleteConfirmTitle": "Remove devices?",
-  "deviceDeleteConfirmMessage": "The selected devices will be removed from this phone. This does not reset the hardware.",
-  "deviceDeleteConfirmPrimary": "Remove",
-  "deviceDeleteConfirmSecondary": "Keep",
+  "deviceDeleteConfirmTitle": "",
+  "deviceDeleteConfirmMessage": "選択したデバイスを削除しますか？",
+  "deviceDeleteConfirmPrimary": "削除",
+  "deviceDeleteConfirmSecondary": "キャンセル",
+  "deviceDeleteLedMasterTitle": "マスタースレーブ設定",
+  "deviceDeleteLedMasterContent": "マスターライトを削除するには、まずマスター/スレーブ設定を変更し、他のスレーブライトをマスターに設定してください。",
+  "deviceDeleteLedMasterPositive": "了解しました",
   "deviceActionDelete": "Delete selected",
   "deviceSelectionCount": "{count} selected",
+  "toastDeleteDeviceSuccessful": "デバイスが正常に削除されました。",
+  "toastDeleteDeviceFailed": "デバイスの削除に失敗しました。",
   "@deviceSelectionCount": {
     "placeholders": {
       "count": {

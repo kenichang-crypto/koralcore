@@ -9,10 +9,10 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:koralcore/ui/assets/reef_icons.dart';
-import 'package:koralcore/ui/theme/reef_colors.dart';
-import 'package:koralcore/ui/theme/reef_spacing.dart';
-import 'package:koralcore/ui/theme/reef_radius.dart';
+import 'package:koralcore/shared/assets/reef_icons.dart';
+import 'package:koralcore/shared/theme/reef_colors.dart';
+import 'package:koralcore/shared/theme/reef_spacing.dart';
+import 'package:koralcore/shared/theme/reef_radius.dart';
 
 void main() {
   group('Resource Linkage Tests', () {

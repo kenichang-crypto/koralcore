@@ -51,5 +51,22 @@
 	<string>Bluetooth is required to communicate with your reef devices.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Location access is needed to discover nearby Bluetooth accessories.</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>ar</string>
+		<string>de</string>
+		<string>en</string>
+		<string>es</string>
+		<string>fr</string>
+		<string>id</string>
+		<string>ja</string>
+		<string>ko</string>
+		<string>pt</string>
+		<string>ru</string>
+		<string>th</string>
+		<string>vi</string>
+		<string>zh-Hans</string>
+		<string>zh-Hant</string>
+	</array>
 </dict>
 </plist>

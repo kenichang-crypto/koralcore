@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
-import 'application/common/app_context.dart';
-import 'application/common/app_session.dart';
-import 'application/system/ble_readiness_controller.dart';
-import 'ui/theme/reef_theme.dart';
-import 'ui/app/navigation_controller.dart';
-import 'ui/features/device/controllers/device_list_controller.dart';
-import 'ui/features/splash/pages/splash_page.dart';
+import '../../../../app/common/app_context.dart';
+import '../../../../app/common/app_session.dart';
+import 'core/ble/ble_readiness_controller.dart';
+import 'shared/theme/app_theme.dart';
+import 'app/navigation_controller.dart';
+import 'features/device/presentation/controllers/device_list_controller.dart';
+import 'features/splash/presentation/pages/splash_page.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 
 void main() {
@@ -46,7 +46,7 @@ class _KoralCoreAppState extends State<KoralCoreApp> {
       ],
       child: MaterialApp(
         title: 'KoralCore',
-        theme: ReefTheme.base(),
+        theme: AppTheme.base(),
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
@@ -54,6 +54,58 @@ class _KoralCoreAppState extends State<KoralCoreApp> {
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: AppLocalizations.supportedLocales,
+        // PARITY: Enable automatic locale resolution based on system language
+        // Flutter automatically detects system locale and matches it to supported locales
+        // We use a custom callback to handle Chinese variants (zh_TW -> zh_Hant)
+        localeResolutionCallback: (locale, supportedLocales) {
+          if (locale == null) {
+            // If no locale provided, use first supported (usually 'en')
+            return supportedLocales.first;
+          }
+
+          // Exact match: language + country + script
+          for (final supportedLocale in supportedLocales) {
+            if (supportedLocale.languageCode == locale.languageCode &&
+                supportedLocale.countryCode == locale.countryCode &&
+                supportedLocale.scriptCode == locale.scriptCode) {
+              return supportedLocale;
+            }
+          }
+
+          // Special handling for Chinese variants
+          // PARITY: reef-b-app only has Traditional Chinese (values-zh-rTW), no Simplified Chinese
+          if (locale.languageCode == 'zh') {
+            // Check for Traditional Chinese (zh_TW, zh_HK, zh_Hant)
+            if (locale.scriptCode == 'Hant' || 
+                locale.countryCode == 'TW' || 
+                locale.countryCode == 'HK') {
+              for (final supportedLocale in supportedLocales) {
+                if (supportedLocale.languageCode == 'zh' &&
+                    supportedLocale.scriptCode == 'Hant') {
+                  return supportedLocale;
+                }
+              }
+            }
+            // Simplified Chinese (zh_CN, zh) - fallback to Traditional Chinese
+            // PARITY: reef-b-app only has Traditional Chinese, so we use it as fallback
+            for (final supportedLocale in supportedLocales) {
+              if (supportedLocale.languageCode == 'zh' &&
+                  supportedLocale.scriptCode == 'Hant') {
+                return supportedLocale;
+              }
+            }
+          }
+
+          // Language code match: find any locale with the same language code
+          for (final supportedLocale in supportedLocales) {
+            if (supportedLocale.languageCode == locale.languageCode) {
+              return supportedLocale;
+            }
+          }
+
+          // Fallback to first supported locale (usually 'en')
+          return supportedLocales.first;
+        },
         home: const SplashPage(),
       ),
     );

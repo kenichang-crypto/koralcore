@@ -37,12 +37,17 @@
   "deviceActionDisconnect": "Disconnect",
   "deviceDeleteMode": "Delete",
   "deviceSelectMode": "Select",
-  "deviceDeleteConfirmTitle": "Remove devices?",
-  "deviceDeleteConfirmMessage": "The selected devices will be removed from this phone. This does not reset the hardware.",
-  "deviceDeleteConfirmPrimary": "Remove",
-  "deviceDeleteConfirmSecondary": "Keep",
+  "deviceDeleteConfirmTitle": "",
+  "deviceDeleteConfirmMessage": "Удалить выбранное устройство?",
+  "deviceDeleteConfirmPrimary": "Удалить",
+  "deviceDeleteConfirmSecondary": "Отмена",
+  "deviceDeleteLedMasterTitle": "Настройки Мастер-Слейв",
+  "deviceDeleteLedMasterContent": "Для удаления мастер-света, измените настройки мастер-слейв и установите другие слейвы как мастер.",
+  "deviceDeleteLedMasterPositive": "Понял",
   "deviceActionDelete": "Delete selected",
   "deviceSelectionCount": "{count} selected",
+  "toastDeleteDeviceSuccessful": "Устройство успешно удалено.",
+  "toastDeleteDeviceFailed": "Не удалось удалить устройство.",
   "@deviceSelectionCount": {
     "placeholders": {
       "count": {

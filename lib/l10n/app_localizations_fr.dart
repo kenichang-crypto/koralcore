@@ -166,6 +166,29 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bluetoothConnect => 'Connect';
 
   @override
+  String get bluetoothRearrangement => 'Rearrangement';
+
+  @override
+  String get bluetoothOtherDevice => 'Other Devices';
+
+  @override
+  String get bluetoothNoOtherDeviceTitle => 'No devices found.';
+
+  @override
+  String get bluetoothNoOtherDeviceContent =>
+      'Tap on the top right to rescan nearby devices.';
+
+  @override
+  String get bluetoothDisconnectDialogContent =>
+      'Do you want to disconnect Bluetooth?';
+
+  @override
+  String get bluetoothDisconnectDialogPositive => 'OK';
+
+  @override
+  String get bluetoothDisconnectDialogNegative => 'Cancel';
+
+  @override
   String get deviceHeader => 'My devices';
 
   @override
@@ -174,6 +197,13 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get deviceEmptySubtitle =>
       'Use the Bluetooth tab to discover hardware.';
+
+  @override
+  String get deviceInSinkEmptyTitle => 'The tank currently has no devices.';
+
+  @override
+  String get deviceInSinkEmptyContent =>
+      'Add devices from the Bluetooth list below.';
 
   @override
   String get deviceStateConnected => 'Connected';
@@ -197,17 +227,27 @@ class AppLocalizationsFr extends AppLocalizations {
   String get deviceSelectMode => 'Select';
 
   @override
-  String get deviceDeleteConfirmTitle => 'Remove devices?';
+  String get deviceDeleteConfirmTitle => '';
 
   @override
   String get deviceDeleteConfirmMessage =>
-      'The selected devices will be removed from this phone. This does not reset the hardware.';
+      'Supprimer l\'appareil sélectionné ?';
 
   @override
-  String get deviceDeleteConfirmPrimary => 'Remove';
+  String get deviceDeleteConfirmPrimary => 'Supprimer';
 
   @override
-  String get deviceDeleteConfirmSecondary => 'Keep';
+  String get deviceDeleteConfirmSecondary => 'Annuler';
+
+  @override
+  String get deviceDeleteLedMasterTitle => 'Réglages maître-esclave';
+
+  @override
+  String get deviceDeleteLedMasterContent =>
+      'Pour supprimer la lumière principale, veuillez modifier les paramètres maître-esclave et définir d\'autres lumières esclaves comme maître.';
+
+  @override
+  String get deviceDeleteLedMasterPositive => 'J\'ai compris';
 
   @override
   String get deviceActionDelete => 'Delete selected';
@@ -216,6 +256,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String deviceSelectionCount(int count) {
     return '$count selected';
   }
+
+  @override
+  String get toastDeleteDeviceSuccessful =>
+      'Échec de la suppression de l\'appareil.';
+
+  @override
+  String get toastDeleteDeviceFailed => 'Suppression de l\'appareil réussie.';
 
   @override
   String get dosingHeader => 'Dosing';
@@ -1006,6 +1053,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get actionClear => 'Clear';
 
   @override
+  String get actionNext => 'Next';
+
+  @override
   String get deviceName => 'Device Name';
 
   @override
@@ -1608,10 +1658,47 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dosingAdjustListVolume => 'Measured Volume';
 
   @override
+  String get dosingAdjustTitle => 'Calibration';
+
+  @override
+  String get dosingAdjustDescription => 'Calibration Instructions';
+
+  @override
+  String get dosingAdjustStep =>
+      '1. Prepare the included measuring cup and some tubes\n2. Start manual operation to fill the tubes with liquid\n3. Select the speed for calibration';
+
+  @override
+  String get dosingRotatingSpeedTitle => 'Rotating Speed';
+
+  @override
+  String get dosingDropVolume => 'Drop Volume';
+
+  @override
+  String get dosingAdjustVolumeHint => 'Enter actual drop volume';
+
+  @override
+  String get dosingCompleteAdjust => 'Complete Calibration';
+
+  @override
+  String get dosingAdjusting => 'Calibrating';
+
+  @override
+  String get dosingAdjustVolumeEmpty => 'Drop volume cannot be empty';
+
+  @override
+  String get dosingStartAdjustFailed => 'Failed to start calibration';
+
+  @override
+  String get dosingAdjustSuccessful => 'Calibration successful';
+
+  @override
+  String get dosingAdjustFailed => 'Calibration failed';
+
+  @override
   String get homeSpinnerAllSink => 'All Tanks';
 
   @override
-  String get homeSpinnerFavorite => 'Favorite devices';
+  String get homeSpinnerFavorite => 'Favorite Devices';
 
   @override
   String get homeSpinnerUnassigned => 'Unallocated Devices';

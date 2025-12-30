@@ -78,15 +78,6 @@ flutter:
 
   assets:
     - assets/icons/
-    - assets/icons/home/
-    - assets/icons/device/
-    - assets/icons/dosing/
-    - assets/icons/led/
-    - assets/icons/bluetooth/
-    - assets/icons/scene/
-    - assets/icons/action/
-        - assets/icons/led_record/
-        - assets/icons/common/
     - assets/images/
     - assets/images/splash/
     - docs/reef_b_app_res/

@@ -1,4 +1,4 @@
-import '../../core/capability/capability_id.dart';
+import 'capability/capability_id.dart';
 import 'capability_set.dart';
 import 'device_product.dart';
 import 'firmware_version.dart';

@@ -1,0 +1,7 @@
+<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+  <!-- PARITY: Converted from reef-b-app's ic_thursday_select.xml -->
+  <!-- 20×20dp Thursday selected icon -->
+  <path d="M10,0.5L10,0.5A9.5,9.5 0,0 1,19.5 10L19.5,10A9.5,9.5 0,0 1,10 19.5L10,19.5A9.5,9.5 0,0 1,0.5 10L0.5,10A9.5,9.5 0,0 1,10 0.5z" fill="#000000" fill-opacity="0.5"/>
+  <path d="M9.284,15H10.688V7.344H13.28V6.168H6.692V7.344H9.284V15Z" fill="#ffffff"/>
+  <circle cx="10" cy="10" r="9.5" fill="none" stroke="#000000" stroke-width="1"/>
+</svg>

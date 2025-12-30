@@ -1,4 +1,4 @@
-import '../../core/capability/capability_id.dart';
+import 'capability/capability_id.dart';
 
 /// Immutable collection wrapper around device capability identifiers.
 class CapabilitySet {

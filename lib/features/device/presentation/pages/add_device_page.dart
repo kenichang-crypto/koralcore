@@ -3,17 +3,12 @@ import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/common/app_context.dart';
-import '../../../../app/common/app_error_code.dart';
 import '../../../../app/common/app_session.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/theme/app_text_styles.dart';
-import '../../../../shared/widgets/reef_app_bar.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
-import '../../../../shared/widgets/app_error_presenter.dart';
-import '../../../../core/ble/ble_guard.dart';
-import '../../../sink/presentation/pages/sink_position_page.dart';
 import '../controllers/add_device_controller.dart';
 
 /// Add device page.
@@ -39,150 +34,152 @@ class AddDevicePage extends StatelessWidget {
   }
 }
 
-class _AddDeviceView extends StatefulWidget {
+class _AddDeviceView extends StatelessWidget {
   const _AddDeviceView();
-
-  @override
-  State<_AddDeviceView> createState() => _AddDeviceViewState();
-}
-
-class _AddDeviceViewState extends State<_AddDeviceView> {
-  final TextEditingController _nameController = TextEditingController();
-  String? _sinkName;
-
-  @override
-  void initState() {
-    super.initState();
-    final controller = context.read<AddDeviceController>();
-    final connectedName = controller.connectedDeviceName;
-    if (connectedName != null) {
-      _nameController.text = connectedName;
-      controller.setDeviceName(connectedName);
-    } else {
-      // No connected device, close page
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final session = context.watch<AppSession>();
     final controller = context.watch<AddDeviceController>();
-    final isConnected = session.isBleConnected;
-
-    _maybeShowError(context, controller.lastErrorCode);
-
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (didPop) async {
-        if (!didPop) {
-          await controller.disconnect();
-          if (context.mounted) {
-            Navigator.of(context).pop();
-          }
-        }
-      },
-      child: Scaffold(
-        backgroundColor: AppColors.surfaceMuted,
-        appBar: ReefAppBar(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.onPrimary,
-          elevation: 0,
-          leading: TextButton(
-            onPressed: () async {
-              await controller.disconnect();
-              if (context.mounted) {
-                Navigator.of(context).pop();
-              }
-            },
-            child: Text(
-              l10n.actionSkip,
-              style: TextStyle(color: AppColors.onPrimary),
+    return Scaffold(
+      // PARITY: activity_add_device.xml - root has no explicit background
+      backgroundColor: AppColors.surface,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                _ToolbarTwoAction(
+                  title: l10n.addDeviceTitle, // @string/add_device
+                  // TODO(android @string/skip): 若此 locale 缺少翻譯，需補齊 ARB（本任務禁止修改 ARB）
+                  leftText: l10n.actionSkip,
+                  rightText: l10n.actionDone, // @string/complete
+                ),
+                Expanded(
+                  // PARITY: layout_add_device paddings 16/12/16/12
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        _DeviceNameSection(),
+                        _SinkPositionSection(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          title: Text(
-            l10n.addDeviceTitle,
-            style: AppTextStyles.title2.copyWith(
-              color: AppColors.onPrimary,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: controller.isLoading || !isConnected
-                  ? null
-                  : () => _handleAdd(context, controller, l10n),
-              child: Text(
-                l10n.actionAdd,
-                style: TextStyle(color: AppColors.onPrimary),
-              ),
-            ),
+            // PARITY: include @layout/progress (gone by default)
+            if (controller.isLoading) const _ProgressOverlay(),
           ],
         ),
-        body: controller.isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : Padding(
-                // PARITY: activity_add_device.xml layout_add_device padding 16/12/16/12dp
-                padding: EdgeInsets.only(
-                  left: AppSpacing.md, // dp_16 paddingStart
-                  top: AppSpacing.md, // dp_12 paddingTop
-                  right: AppSpacing.md, // dp_16 paddingEnd
-                  bottom: AppSpacing.md, // dp_12 paddingBottom
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (!isConnected) ...[
-                      const BleGuardBanner(),
-                      SizedBox(height: AppSpacing.md), // dp_16 marginTop
-                    ],
-                    _buildNameSection(context, controller, l10n),
-                    SizedBox(height: AppSpacing.md), // dp_16 marginTop
-                    _buildSinkPositionSection(context, controller, l10n),
-                  ],
-                ),
-              ),
       ),
     );
   }
+}
 
-  Widget _buildNameSection(
-    BuildContext context,
-    AddDeviceController controller,
-    AppLocalizations l10n,
-  ) {
-    // PARITY: activity_add_device.xml tv_device_name_title + layout_name
+class _ToolbarTwoAction extends StatelessWidget {
+  final String title;
+  final String leftText;
+  final String rightText;
+
+  const _ToolbarTwoAction({
+    required this.title,
+    required this.leftText,
+    required this.rightText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // PARITY: toolbar_two_action.xml
+    // - White toolbar background
+    // - Left/Right text buttons (visible in AddDeviceActivity)
+    // - Center title
+    // - 2dp bottom divider (bg_press)
+    return Material(
+      color: AppColors.surface,
+      child: Column(
+        children: [
+          SizedBox(
+            height: kToolbarHeight,
+            width: double.infinity,
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 16),
+                  child: TextButton(
+                    // UI parity only: no onPressed behavior
+                    onPressed: null,
+                    child: Text(
+                      leftText,
+                      style: AppTextStyles.bodyAccent.copyWith(
+                        color: AppColors.primaryStrong,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.textPrimary, // text_aaaa
+                      fontWeight: FontWeight.normal,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: TextButton(
+                    // UI parity only: no onPressed behavior
+                    onPressed: null,
+                    child: Text(
+                      rightText,
+                      style: AppTextStyles.bodyAccent.copyWith(
+                        color: AppColors.primaryStrong,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(height: 2, color: AppColors.surfacePressed),
+        ],
+      ),
+    );
+  }
+}
+
+class _DeviceNameSection extends StatelessWidget {
+  const _DeviceNameSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    // PARITY: tv_device_name_title + layout_name (TextInputLayout)
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // PARITY: tv_device_name_title - caption1, 0dp width (constrained)
         Text(
-          l10n.deviceName,
+          l10n.deviceName, // @string/device_name
           style: AppTextStyles.caption1.copyWith(
             color: AppColors.textSecondary,
           ),
         ),
-        // PARITY: layout_name - marginTop 4dp, TextInputLayout style
-        SizedBox(height: AppSpacing.xs), // dp_4 marginTop
+        const SizedBox(height: 4), // dp_4 marginTop
         TextField(
-          controller: _nameController,
+          // UI parity only: no onChanged behavior
           decoration: InputDecoration(
-            // PARITY: TextInputLayout style - bg_aaa, 4dp cornerRadius, no border
             filled: true,
-            fillColor: AppColors.surfaceMuted, // bg_aaa (#F7F7F7)
+            fillColor: AppColors.surfaceMuted, // TextInputLayout bg_aaa
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.xs), // dp_4
-              borderSide: BorderSide.none, // boxStrokeWidth 0dp
+              borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.xs),
@@ -192,58 +189,48 @@ class _AddDeviceViewState extends State<_AddDeviceView> {
               borderRadius: BorderRadius.circular(AppRadius.xs),
               borderSide: BorderSide.none,
             ),
-            contentPadding: EdgeInsets.symmetric(
+            contentPadding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.md,
               vertical: AppSpacing.sm,
             ),
           ),
-          // PARITY: edt_name - body textAppearance
-          style: AppTextStyles.body.copyWith(
-            color: AppColors.textPrimary,
-          ),
-          onChanged: (value) {
-            controller.setDeviceName(value);
-          },
+          style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
           maxLines: 1,
         ),
       ],
     );
   }
+}
 
-  Widget _buildSinkPositionSection(
-    BuildContext context,
-    AddDeviceController controller,
-    AppLocalizations l10n,
-  ) {
-    // PARITY: activity_add_device.xml tv_sink_position_title + layout_sink_position
-    // layout_sink_position uses TextInputLayout with endIcon (ic_next) and enabled="false"
+class _SinkPositionSection extends StatelessWidget {
+  const _SinkPositionSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    // PARITY: tv_sink_position_title (marginTop 16dp) + layout_sink_position (TextInputLayout) + view_sink_position overlay
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // PARITY: tv_sink_position_title - marginTop 16dp, caption1
+        const SizedBox(height: 16), // dp_16 marginTop
         Text(
-          l10n.sinkPosition,
+          l10n.sinkPosition, // @string/sink_position
           style: AppTextStyles.caption1.copyWith(
             color: AppColors.textSecondary,
           ),
         ),
-        // PARITY: layout_sink_position - marginTop 4dp, TextInputLayout style with endIcon
-        // view_sink_position - selectableItemBackground overlay
-        SizedBox(height: AppSpacing.xs), // dp_4 marginTop
+        const SizedBox(height: 4), // dp_4 marginTop
         Stack(
           children: [
             TextField(
-              controller: TextEditingController(
-                text: _sinkName ?? l10n.sinkPositionNotSet,
-              ),
-              enabled: false, // enabled="false" in XML
+              enabled: false, // edt_sink_position enabled="false"
               decoration: InputDecoration(
-                // PARITY: TextInputLayout style - bg_aaa, 4dp cornerRadius, no border
                 filled: true,
-                fillColor: AppColors.surfaceMuted, // bg_aaa (#F7F7F7)
+                fillColor: AppColors.surfaceMuted,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.xs), // dp_4
-                  borderSide: BorderSide.none, // boxStrokeWidth 0dp
+                  borderRadius: BorderRadius.circular(AppRadius.xs),
+                  borderSide: BorderSide.none,
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(AppRadius.xs),
@@ -253,20 +240,17 @@ class _AddDeviceViewState extends State<_AddDeviceView> {
                   borderRadius: BorderRadius.circular(AppRadius.xs),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: EdgeInsets.symmetric(
+                contentPadding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.md,
                   vertical: AppSpacing.sm,
                 ),
-                // PARITY: endIcon (ic_next) - endIconMode="custom", endIconTint="text_aaa"
+                // PARITY: endIconDrawable="@drawable/ic_next", endIconTint="@color/text_aaa"
                 suffixIcon: CommonIconHelper.getNextIcon(
                   size: 20,
-                  color: AppColors.textTertiary, // text_aaa
+                  color: AppColors.textSecondary, // text_aaa
                 ),
               ),
-              // PARITY: edt_sink_position - body textAppearance, textColor="text_aaaa"
-              style: AppTextStyles.body.copyWith(
-                color: AppColors.textPrimary, // text_aaaa
-              ),
+              style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
               maxLines: 1,
             ),
             // PARITY: view_sink_position - selectableItemBackground overlay
@@ -274,7 +258,8 @@ class _AddDeviceViewState extends State<_AddDeviceView> {
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: () => _selectSinkPosition(context, controller, l10n),
+                  // UI parity only: no onTap behavior
+                  onTap: null,
                   borderRadius: BorderRadius.circular(AppRadius.xs),
                 ),
               ),
@@ -284,63 +269,22 @@ class _AddDeviceViewState extends State<_AddDeviceView> {
       ],
     );
   }
+}
 
-  Future<void> _selectSinkPosition(
-    BuildContext context,
-    AddDeviceController controller,
-    AppLocalizations l10n,
-  ) async {
-    final String? selectedSinkId = await Navigator.of(context).push<String>(
-      MaterialPageRoute(
-        builder: (_) =>
-            SinkPositionPage(initialSinkId: controller.selectedSinkId),
+class _ProgressOverlay extends StatelessWidget {
+  const _ProgressOverlay();
+
+  @override
+  Widget build(BuildContext context) {
+    // PARITY: progress.xml
+    return Positioned.fill(
+      child: AbsorbPointer(
+        absorbing: true,
+        child: Container(
+          color: const Color(0x4D000000),
+          child: const Center(child: CircularProgressIndicator()),
+        ),
       ),
     );
-
-    if (selectedSinkId != null) {
-      controller.setSelectedSinkId(selectedSinkId);
-      final String? name = await controller.getSinkNameById(selectedSinkId);
-      setState(() {
-        _sinkName = name ?? l10n.sinkPositionNotSet;
-      });
-    } else if (selectedSinkId == '') {
-      // "No" selected
-      controller.setSelectedSinkId(null);
-      setState(() {
-        _sinkName = l10n.sinkPositionNotSet;
-      });
-    }
-  }
-
-  Future<void> _handleAdd(
-    BuildContext context,
-    AddDeviceController controller,
-    AppLocalizations l10n,
-  ) async {
-    final bool success = await controller.addDevice();
-    if (success && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.addDeviceSuccess),
-        ),
-      );
-      Navigator.of(context).pop(true);
-    } else if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.addDeviceFailed)),
-      );
-    }
-  }
-
-  void _maybeShowError(BuildContext context, AppErrorCode? code) {
-    if (code == null) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final l10n = AppLocalizations.of(context);
-      final message = describeAppError(l10n, code);
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
-    });
   }
 }

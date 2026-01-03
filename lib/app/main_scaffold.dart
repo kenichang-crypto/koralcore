@@ -1,17 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-import '../shared/theme/app_colors.dart';
-import '../features/device/presentation/pages/device_scan_page.dart';
-import '../features/device/presentation/pages/device_page.dart';
-import '../features/home/presentation/pages/home_page.dart';
 import '../features/device/presentation/controllers/device_list_controller.dart';
 import '../core/ble/ble_readiness_controller.dart';
-import 'navigation_controller.dart';
-import 'package:koralcore/l10n/app_localizations.dart';
+import 'main_shell_page.dart';
 
 /// Main scaffold matching reef-b-app's MainActivity.
 ///
@@ -82,10 +76,11 @@ class _MainScaffoldState extends State<MainScaffold> {
   /// Handle BLE state changes and start scan when ready.
   /// PARITY: reef-b-app checkBlePermission() callback -> BleContainer.scanLeDevice()
   void _handleBleStateChange() {
-    if (!mounted || _bleController == null || _deviceListController == null) return;
-    
+    if (!mounted || _bleController == null || _deviceListController == null)
+      return;
+
     final nextReady = _bleController!.snapshot.isReady;
-    
+
     // PARITY: reef-b-app only starts scan after permissions are granted and BLE is ready
     if (nextReady && !_wasReady) {
       // BLE just became ready, start scanning
@@ -94,15 +89,18 @@ class _MainScaffoldState extends State<MainScaffold> {
       // Reset scan flag if BLE becomes unavailable
       _hasStartedScan = false;
     }
-    
+
     _wasReady = nextReady;
   }
 
   /// Check if BLE is ready and start scanning if not already started.
   /// PARITY: BleContainer.getInstance().getBleManager().scanLeDevice()
   void _checkAndStartScan() {
-    if (_hasStartedScan || _bleController == null || _deviceListController == null) return;
-    
+    if (_hasStartedScan ||
+        _bleController == null ||
+        _deviceListController == null)
+      return;
+
     if (_bleController!.snapshot.isReady) {
       _hasStartedScan = true;
       // PARITY: BleContainer.getInstance().getBleManager().scanLeDevice()
@@ -113,59 +111,10 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = context.watch<NavigationController>();
-    final l10n = AppLocalizations.of(context);
-    final items = [
-      _NavItem(label: l10n.tabHome, asset: 'assets/icons/icon_home.svg'),
-      _NavItem(
-        label: l10n.tabBluetooth,
-        asset: 'assets/icons/icon_bluetooth.svg',
-      ),
-      _NavItem(label: l10n.tabDevice, asset: 'assets/icons/icon_device.svg'),
-    ];
-
-    return Scaffold(
-      body: IndexedStack(
-        index: controller.index,
-        children: const [HomePage(), DeviceScanPage(), DevicePage()],
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: controller.index,
-        onDestinationSelected: context.read<NavigationController>().select,
-        destinations: [
-          for (final item in items)
-            NavigationDestination(
-              label: item.label,
-              icon: _NavIcon(asset: item.asset, active: false),
-              selectedIcon: _NavIcon(asset: item.asset, active: true),
-            ),
-        ],
-      ),
-    );
+    // UI parity for MainActivity is implemented in MainShellPage.
+    // Keep MainScaffold as the app entry point to preserve existing bootstrapping logic.
+    return const MainShellPage();
   }
 }
 
-class _NavItem {
-  final String label;
-  final String asset;
-
-  const _NavItem({required this.label, required this.asset});
-}
-
-class _NavIcon extends StatelessWidget {
-  final String asset;
-  final bool active;
-
-  const _NavIcon({required this.asset, required this.active});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = active ? AppColors.primary : AppColors.textTertiary;
-    return SvgPicture.asset(
-      asset,
-      width: 24,
-      height: 24,
-      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
-    );
-  }
-}
+// Navigation UI moved into MainShellPage.

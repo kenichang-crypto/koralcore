@@ -2,356 +2,345 @@ import 'package:flutter/material.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../app/common/app_context.dart';
-import '../../../../app/common/app_error_code.dart';
-import '../../../../app/common/app_session.dart';
-import '../../../../domain/led_lighting/led_record.dart';
 import '../../../../shared/theme/app_colors.dart';
-import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/theme/app_text_styles.dart';
-import '../../../../shared/widgets/reef_app_bar.dart';
-import '../../../../shared/widgets/app_error_presenter.dart';
-import '../../../../core/ble/ble_guard.dart';
 import '../controllers/led_record_time_setting_controller.dart';
-import '../widgets/led_spectrum_chart.dart';
-import '../helpers/support/led_record_icon_helper.dart';
-import '../../../../shared/assets/common_icon_helper.dart';
 
-/// LED record time setting page.
+/// LedRecordTimeSettingPage
 ///
-/// PARITY: Mirrors reef-b-app's LedRecordTimeSettingActivity.
+/// Parity with reef-b-app LedRecordTimeSettingActivity (activity_led_record_time_setting.xml)
+/// Correction Mode: UI structure only, no behavior
 class LedRecordTimeSettingPage extends StatelessWidget {
-  final LedRecord? initialRecord;
-  final int? initialHour;
-  final int? initialMinute;
-
-  const LedRecordTimeSettingPage({
-    super.key,
-    this.initialRecord,
-    this.initialHour,
-    this.initialMinute,
-  });
+  const LedRecordTimeSettingPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final appContext = context.read<AppContext>();
-    final session = context.read<AppSession>();
-    return ChangeNotifierProvider<LedRecordTimeSettingController>(
-      create: (_) => LedRecordTimeSettingController(
-        session: session,
-        ledRecordRepository: appContext.ledRecordRepository,
-        initialRecord: initialRecord,
-        initialHour: initialHour,
-        initialMinute: initialMinute,
-      )..enterDimmingMode(),
-      child: _LedRecordTimeSettingView(),
-    );
+    return const _LedRecordTimeSettingView();
   }
 }
 
-class _LedRecordTimeSettingView extends StatefulWidget {
-  @override
-  State<_LedRecordTimeSettingView> createState() =>
-      _LedRecordTimeSettingViewState();
-}
-
-class _LedRecordTimeSettingViewState extends State<_LedRecordTimeSettingView> {
-  @override
-  void dispose() {
-    final controller = context.read<LedRecordTimeSettingController>();
-    controller.exitDimmingMode();
-    super.dispose();
-  }
+class _LedRecordTimeSettingView extends StatelessWidget {
+  const _LedRecordTimeSettingView();
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final session = context.watch<AppSession>();
     final controller = context.watch<LedRecordTimeSettingController>();
-    final isConnected = session.isBleConnected;
 
-    _maybeShowError(context, controller.lastErrorCode);
+    return Stack(
+      children: [
+        Column(
+          children: [
+            // A. Toolbar (fixed) ↔ toolbar_two_action.xml
+            _ToolbarTwoAction(l10n: l10n),
 
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (didPop) async {
-        if (!didPop) {
-          await controller.exitDimmingMode();
-          if (context.mounted) {
-            Navigator.of(context).pop();
-          }
-        }
-      },
-      child: Scaffold(
-        backgroundColor: AppColors.surfaceMuted,
-        appBar: ReefAppBar(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.onPrimary,
-          elevation: 0,
-          leading: IconButton(
-            icon: CommonIconHelper.getCloseIcon(size: 24),
-            onPressed: () async {
-              await controller.exitDimmingMode();
-              if (context.mounted) {
-                Navigator.of(context).pop();
-              }
-            },
-          ),
-          title: Text(
-            l10n.ledRecordTimeSettingTitle,
-            style: AppTextStyles.title2.copyWith(
-              color: AppColors.onPrimary,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: controller.isLoading || !isConnected
-                  ? null
-                  : () => _handleSave(context, controller, l10n),
-              child: Text(
-                l10n.actionSave,
-                style: TextStyle(color: AppColors.onPrimary),
+            // B. ScrollView content (scrollable) ↔ layout_led_record_time_setting
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.only(
+                  left: 16, // dp_16 paddingStart
+                  top: 12, // dp_12 paddingTop
+                  right: 16, // dp_16 paddingEnd
+                  bottom: 40, // dp_40 paddingBottom
+                ),
+                children: [
+                  // B1. Time selection section
+                  _TimeSelectionSection(l10n: l10n),
+                  const SizedBox(height: 24), // marginTop before chart
+                  // B2. Spectrum chart section
+                  _SpectrumChartSection(l10n: l10n),
+                  const SizedBox(height: 24), // marginTop before sliders
+                  // B3. Channel sliders (9 channels)
+                  _ChannelSlidersSection(l10n: l10n),
+                ],
               ),
             ),
           ],
         ),
-        body: controller.isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : ListView(
-                // PARITY: activity_led_record_time_setting.xml padding 16/12/16/40dp
-                padding: EdgeInsets.only(
-                  left: AppSpacing.md, // dp_16 paddingStart
-                  top: AppSpacing.sm, // dp_12 paddingTop
-                  right: AppSpacing.md, // dp_16 paddingEnd
-                  bottom: 40, // dp_40 paddingBottom (not standard spacing)
-                ),
-                children: [
-                  if (!isConnected) ...[
-                    const BleGuardBanner(),
-                    const SizedBox(height: AppSpacing.lg),
-                  ],
-                  _buildTimeSection(context, controller, l10n),
-                  const SizedBox(height: 24), // dp_24 marginTop (from chart_spectrum)
-                  _buildSpectrumChart(context, controller),
-                  const SizedBox(height: 24), // dp_24 marginTop (from tv_uv_light_title)
-                  _buildChannelSliders(context, controller, l10n),
-                ],
-              ),
-      ),
+
+        // C. Progress overlay ↔ progress.xml
+        if (controller.isLoading) const _ProgressOverlay(),
+      ],
     );
   }
+}
 
-  Widget _buildTimeSection(
-    BuildContext context,
-    LedRecordTimeSettingController controller,
-    AppLocalizations l10n,
-  ) {
-    // PARITY: activity_led_record_time_setting.xml
-    // tv_time_title: caption1, text_aaaa
-    // btn_time: BackgroundMaterialButton, marginTop 4dp
+// ────────────────────────────────────────────────────────────────────────────
+// A. Toolbar (fixed) ↔ toolbar_two_action.xml
+// ────────────────────────────────────────────────────────────────────────────
+
+class _ToolbarTwoAction extends StatelessWidget {
+  const _ToolbarTwoAction({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          color: Colors.white,
+          height: 56,
+          child: Row(
+            children: [
+              // Left: Cancel (text button, no behavior)
+              TextButton(
+                onPressed: null, // No behavior in Correction Mode
+                child: Text(
+                  l10n.actionCancel,
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              // Center: Title (activity_led_record_time_setting_title → @string/record_time)
+              // TODO(android @string/record_time → "Scheduled Time Point")
+              Text(
+                l10n.ledRecordTimeSettingTitle,
+                style: AppTextStyles.headline.copyWith(
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const Spacer(),
+              // Right: Save (text button, no behavior)
+              TextButton(
+                onPressed: null, // No behavior in Correction Mode
+                child: Text(
+                  l10n.actionSave,
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Divider (2dp ↔ toolbar_two_action.xml MaterialDivider)
+        Container(height: 2, color: AppColors.divider),
+      ],
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// B1. Time selection section ↔ tv_time_title + btn_time
+// ────────────────────────────────────────────────────────────────────────────
+
+class _TimeSelectionSection extends StatelessWidget {
+  const _TimeSelectionSection({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Title: @string/time
         Text(
-          l10n.time, // PARITY: @string/time
+          l10n.time,
           style: AppTextStyles.caption1.copyWith(
             color: AppColors.textPrimary, // text_aaaa
           ),
         ),
-        const SizedBox(height: AppSpacing.xxxs), // dp_4 marginTop
+        const SizedBox(height: 4), // marginTop: dp_4
+        // MaterialButton (BackgroundMaterialButton style)
         MaterialButton(
-          onPressed: controller.isEditMode
-              ? null
-              : () => _selectTime(context, controller),
-          // PARITY: BackgroundMaterialButton style
-          color: AppColors.surfaceMuted, // bg_aaa background
+          onPressed: null, // No behavior in Correction Mode
+          color: AppColors.surfaceMuted, // bg_aaa
           textColor: AppColors.textPrimary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4), // dp_4 cornerRadius
-          ),
           elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${controller.timeHour.toString().padLeft(2, '0')} : ${controller.timeMinute.toString().padLeft(2, '0')}',
-                textAlign: TextAlign.start,
+                '05 : 00', // Placeholder time from XML
+                style: AppTextStyles.body.copyWith(
+                  color: AppColors.textPrimary,
+                ),
               ),
-              LedRecordIconHelper.getDownIcon(),
+              const Spacer(),
+              // ic_down icon (24x24dp)
+              // TODO(android @drawable/ic_down)
+              const Icon(Icons.arrow_drop_down, size: 24),
             ],
           ),
         ),
       ],
     );
   }
+}
 
-  Widget _buildSpectrumChart(
-    BuildContext context,
-    LedRecordTimeSettingController controller,
-  ) {
-    final l10n = AppLocalizations.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.ledRecordTimeSettingSpectrumLabel, style: AppTextStyles.title3),
-            const SizedBox(height: AppSpacing.sm),
-            LedSpectrumChart.fromChannelMap(
-              controller.channelLevels,
-              height: 120,
+// ────────────────────────────────────────────────────────────────────────────
+// B2. Spectrum chart section ↔ chart_spectrum
+// ────────────────────────────────────────────────────────────────────────────
+
+class _SpectrumChartSection extends StatelessWidget {
+  const _SpectrumChartSection({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 6,
+      ), // marginStart/End: dp_6
+      child: AspectRatio(
+        aspectRatio: 16 / 9, // Flexible chart (Android: 176dp fixed)
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.surfaceMuted,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Center(
+            child: Text(
+              'Spectrum Chart Placeholder',
+              style: AppTextStyles.body.copyWith(color: AppColors.textTertiary),
             ),
-          ],
+          ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildChannelSliders(
-    BuildContext context,
-    LedRecordTimeSettingController controller,
-    AppLocalizations l10n,
-  ) {
+// ────────────────────────────────────────────────────────────────────────────
+// B3. Channel sliders section (9 channels)
+// ────────────────────────────────────────────────────────────────────────────
+
+class _ChannelSlidersSection extends StatelessWidget {
+  const _ChannelSlidersSection({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    // Channel order from Android XML
     final channels = [
-      _ChannelInfo('uv', 'UV'),
-      _ChannelInfo('purple', 'Purple'),
-      _ChannelInfo('blue', 'Blue'),
-      _ChannelInfo('royalBlue', 'Royal Blue'),
-      _ChannelInfo('green', 'Green'),
-      _ChannelInfo('red', 'Red'),
-      _ChannelInfo('coldWhite', 'Cold White'),
-      _ChannelInfo('warmWhite', 'Warm White'),
-      _ChannelInfo('moonlight', 'Moonlight'),
+      _ChannelInfo('uv', l10n.lightUv, AppColors.ultraviolet),
+      _ChannelInfo('purple', l10n.lightPurple, AppColors.purple),
+      _ChannelInfo('blue', l10n.lightBlue, AppColors.blue),
+      _ChannelInfo('royalBlue', l10n.lightRoyalBlue, AppColors.royalBlue),
+      _ChannelInfo('green', l10n.lightGreen, AppColors.green),
+      _ChannelInfo('red', l10n.lightRed, AppColors.red),
+      _ChannelInfo('coldWhite', l10n.lightColdWhite, AppColors.coldWhite),
+      _ChannelInfo('warmWhite', l10n.lightWarmWhite, AppColors.warmWhite),
+      _ChannelInfo('moonlight', l10n.lightMoon, AppColors.moonLight),
     ];
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.ledRecordTimeSettingChannelsLabel,
-              style: AppTextStyles.title3,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            ...channels.map(
-              (channel) => Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                child: _buildChannelSlider(
-                  context,
-                  controller,
-                  channel.id,
-                  channel.label,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildChannelSlider(
-    BuildContext context,
-    LedRecordTimeSettingController controller,
-    String channelId,
-    String label,
-  ) {
-    final int value = controller.getChannelLevel(channelId);
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: AppTextStyles.body1),
-            Text('$value', style: AppTextStyles.title3),
-          ],
-        ),
-        Slider(
-          value: value.toDouble(),
-          min: 0,
-          max: 100,
-          divisions: 100,
-          label: '$value',
-          onChanged: (newValue) {
-            controller.setChannelLevel(channelId, newValue.toInt());
-          },
-        ),
-      ],
-    );
-  }
-
-  Future<void> _selectTime(
-    BuildContext context,
-    LedRecordTimeSettingController controller,
-  ) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay(
-        hour: controller.timeHour,
-        minute: controller.timeMinute,
-      ),
-    );
-    if (picked != null) {
-      controller.setTime(picked.hour, picked.minute);
-    }
-  }
-
-  Future<void> _handleSave(
-    BuildContext context,
-    LedRecordTimeSettingController controller,
-    AppLocalizations l10n,
-  ) async {
-    final LedRecord? record = await controller.saveRecord(
-      onTimeError: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              l10n.ledRecordTimeSettingErrorTime,
+      children: channels
+          .map(
+            (channel) => _ChannelSlider(
+              channelId: channel.id,
+              label: channel.label,
+              trackColor: channel.color,
             ),
-          ),
-        );
-      },
-      onTimeExists: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              l10n.ledRecordTimeSettingErrorTimeExists,
-            ),
-          ),
-        );
-      },
+          )
+          .toList(),
     );
-
-    if (record != null && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.ledRecordTimeSettingSuccess),
-        ),
-      );
-      Navigator.of(context).pop(record);
-    }
-  }
-
-  void _maybeShowError(BuildContext context, AppErrorCode? code) {
-    if (code == null) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final l10n = AppLocalizations.of(context);
-      final message = describeAppError(l10n, code);
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
-    });
   }
 }
 
 class _ChannelInfo {
   final String id;
   final String label;
+  final Color color;
 
-  const _ChannelInfo(this.id, this.label);
+  _ChannelInfo(this.id, this.label, this.color);
+}
+
+class _ChannelSlider extends StatelessWidget {
+  const _ChannelSlider({
+    required this.channelId,
+    required this.label,
+    required this.trackColor,
+  });
+
+  final String channelId;
+  final String label;
+  final Color trackColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(
+        bottom: 0,
+      ), // No bottom padding between sliders
+      child: Column(
+        children: [
+          // Title row
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 6,
+              right: 6,
+            ), // marginStart/End: dp_6
+            child: Row(
+              children: [
+                // Channel label (caption1, text_aaaa)
+                Expanded(
+                  child: Text(
+                    label,
+                    style: AppTextStyles.caption1.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4), // marginStart: dp_4
+                // Value text (caption1, text_aaa)
+                Padding(
+                  padding: const EdgeInsets.only(right: 6), // marginEnd: dp_6
+                  child: Text(
+                    '0', // Placeholder value
+                    style: AppTextStyles.caption1.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Slider
+          SliderTheme(
+            data: SliderThemeData(
+              activeTrackColor: trackColor,
+              inactiveTrackColor: AppColors.surfacePressed, // bg_press
+              thumbColor: trackColor,
+              trackHeight: 2, // dp_2 trackHeight
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+            ),
+            child: Slider(
+              value: 0, // Placeholder value
+              min: 0,
+              max: 100,
+              onChanged: null, // No behavior in Correction Mode
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// C. Progress overlay ↔ progress.xml
+// ────────────────────────────────────────────────────────────────────────────
+
+class _ProgressOverlay extends StatelessWidget {
+  const _ProgressOverlay();
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: Container(
+        color: Colors.black.withValues(alpha: 0.3),
+        child: const Center(child: CircularProgressIndicator()),
+      ),
+    );
+  }
 }

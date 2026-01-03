@@ -232,13 +232,35 @@ class _DeviceIdentificationSection extends StatelessWidget {
                     ),
             ],
           ),
-          Text(
-            positionText,
-            style: AppTextStyles.caption2.copyWith(
-              color: AppColors.textSecondary, // text_aaa
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          // tv_position + tv_group (tv_group 預設 visibility="gone")
+          Row(
+            children: [
+              Text(
+                positionText,
+                style: AppTextStyles.caption2.copyWith(
+                  color: AppColors.textSecondary, // text_aaa
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              // tv_group (visibility="gone" in Android XML, marginStart/End 4dp)
+              // PARITY: 結構必須存在，預設不顯示
+              // TODO(android @id/tv_group): 群組資訊來源待從 session/repo 提供
+              Visibility(
+                visible: false, // 預設 visibility="gone"
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    '群組Ａ', // Placeholder text from Android XML tools:text
+                    style: AppTextStyles.caption2.copyWith(
+                      color: AppColors.textTertiary, // text_aa
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -325,33 +347,83 @@ class _RecordChartPlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     // PARITY: Android uses LineChart with fixed 242dp height.
     // Gate: Flutter must NOT hardcode chart width/height.
-    return Column(
-      mainAxisSize: MainAxisSize.min,
+    // layout_record (visibility="gone" 預設) 包含：
+    // - line_chart
+    // - btn_expand / btn_preview
+    // - layout_record_pause (visibility="gone"，包含 record_pause text + btn_continue_record)
+    return Stack(
       children: [
-        AspectRatio(
-          aspectRatio: 16 / 9,
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.surfaceMuted,
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Row(
+        Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // btn_expand (ic_zoom_in, 24x24dp)
-            CommonIconHelper.getZoomInIcon(
-              size: 24,
-              color: AppColors.textPrimary,
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceMuted,
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+              ),
             ),
-            const Spacer(),
-            // btn_preview (ic_preview, 24x24dp)
-            CommonIconHelper.getPreviewIcon(
-              size: 24,
-              color: AppColors.textPrimary,
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                // btn_expand (ic_zoom_in, 24x24dp)
+                CommonIconHelper.getZoomInIcon(
+                  size: 24,
+                  color: AppColors.textPrimary,
+                ),
+                const Spacer(),
+                // btn_preview (ic_preview, 24x24dp)
+                CommonIconHelper.getPreviewIcon(
+                  size: 24,
+                  color: AppColors.textPrimary,
+                ),
+              ],
             ),
           ],
+        ),
+        // layout_record_pause (visibility="gone" 預設)
+        // PARITY: Android XML 此結構存在但預設不顯示
+        Visibility(
+          visible: false, // 預設 visibility="gone"
+          child: Positioned.fill(
+            child: Container(
+              color: Colors.white.withValues(alpha: 0.2), // white_20
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 39),
+                    // TODO(android @string/record_pause): ARB 未發現對應 key
+                    Text(
+                      'Record Pause',
+                      style: AppTextStyles.bodyAccent.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // btn_continue_record
+                    // TODO(android @string/continue_record): ARB 未發現對應 key
+                    ElevatedButton(
+                      onPressed: null, // No behavior in Correction Mode
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 14,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                        ),
+                      ),
+                      child: const Text('Continue Record'),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
       ],
     );

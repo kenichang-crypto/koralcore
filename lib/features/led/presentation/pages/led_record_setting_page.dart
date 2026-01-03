@@ -1,290 +1,353 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
-import 'package:provider/provider.dart';
 
-import '../../../../app/common/app_context.dart';
-import '../../../../app/common/app_error_code.dart';
-import '../../../../app/common/app_session.dart';
 import '../../../../shared/theme/app_colors.dart';
-import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/theme/app_text_styles.dart';
-import '../../../../shared/widgets/reef_app_bar.dart';
-import '../../../../shared/widgets/semi_circle_dashboard.dart';
-import '../../../../shared/widgets/app_error_presenter.dart';
-import '../../../../core/ble/ble_guard.dart';
-import '../controllers/led_record_setting_controller.dart';
-import '../helpers/support/led_record_icon_helper.dart';
-import '../../../../shared/assets/common_icon_helper.dart';
-import 'led_record_page.dart';
 
-/// LED record setting page.
+/// LedRecordSettingPage
 ///
-/// PARITY: Mirrors reef-b-app's LedRecordSettingActivity.
+/// Parity with reef-b-app LedRecordSettingActivity (activity_led_record_setting.xml)
+/// Correction Mode: UI structure only, no behavior
 class LedRecordSettingPage extends StatelessWidget {
   const LedRecordSettingPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final appContext = context.read<AppContext>();
-    final session = context.read<AppSession>();
-    return ChangeNotifierProvider<LedRecordSettingController>(
-      create: (_) => LedRecordSettingController(
-        session: session,
-        ledRecordRepository: appContext.ledRecordRepository,
-        initLedRecordUseCase: appContext.initLedRecordUseCase,
-      ),
-      child: const _LedRecordSettingView(),
-    );
+    return const _LedRecordSettingView();
   }
 }
 
-class _LedRecordSettingView extends StatefulWidget {
+class _LedRecordSettingView extends StatelessWidget {
   const _LedRecordSettingView();
-
-  @override
-  State<_LedRecordSettingView> createState() => _LedRecordSettingViewState();
-}
-
-class _LedRecordSettingViewState extends State<_LedRecordSettingView> {
-  bool _previousBleConnected = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    
-    // PARITY: reef-b-app disconnectLiveData.observe() → finish()
-    // Monitor BLE connection state and close page on disconnect
-    final session = context.watch<AppSession>();
-    final isBleConnected = session.isBleConnected;
-    
-    // If BLE was connected but now disconnected, close page
-    if (_previousBleConnected && !isBleConnected) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
-      });
-    }
-    
-    _previousBleConnected = isBleConnected;
-  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final session = context.watch<AppSession>();
-    final controller = context.watch<LedRecordSettingController>();
-    final isConnected = session.isBleConnected;
 
-    _maybeShowError(context, controller.lastErrorCode);
-
-    return Scaffold(
-      backgroundColor: AppColors.surfaceMuted, // bg_led_record_setting_background_color
-      appBar: ReefAppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.onPrimary,
-        elevation: 0,
-        leading: IconButton(
-          icon: CommonIconHelper.getCloseIcon(size: 24),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          l10n.ledRecordSettingTitle,
-          style: AppTextStyles.title2.copyWith(
-            color: AppColors.onPrimary,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: controller.isLoading || !isConnected
-                ? null
-                : () => _handleSave(context, controller, l10n),
-            child: Text(
-              l10n.actionSave,
-              style: TextStyle(color: AppColors.onPrimary),
-            ),
-          ),
-        ],
-      ),
-      body: controller.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16, // dp_16
-                vertical: 12, // dp_12
-              ),
-              children: [
-                if (!isConnected) ...[
-                  const BleGuardBanner(),
-                  const SizedBox(height: AppSpacing.lg),
-                ],
-                _buildInitStrengthSection(context, controller, l10n),
-                const SizedBox(height: 16), // dp_16
-                _buildSunriseSection(context, controller, l10n),
-                const SizedBox(height: 16), // dp_16
-                _buildSlowStartSection(context, controller, l10n),
-              ],
-            ),
-    );
-  }
-
-  Widget _buildInitStrengthSection(
-    BuildContext context,
-    LedRecordSettingController controller,
-    AppLocalizations l10n,
-  ) {
-    // PARITY: activity_led_record_setting.xml structure
-    // - ImageView (img_sun) + TextView (tv_sun_title) "Initial Intensity"
-    // - CustomDashBoard (db_strength) with TextView (tv_strength) showing percentage
-    // - Slider (sl_strength)
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Stack(
       children: [
-        // Title with sun icon
-        Row(
+        Column(
           children: [
-            LedRecordIconHelper.getSunIcon(
-              width: 20,
-              height: 20,
-            ),
-            const SizedBox(width: 4), // dp_4
-            Text(
-              l10n.ledRecordSettingInitStrength,
-              style: AppTextStyles.body.copyWith(
-                color: AppColors.textPrimary, // text_aaaa
+            // A. Toolbar (fixed) ↔ toolbar_two_action.xml
+            _ToolbarTwoAction(l10n: l10n),
+
+            // B. Main content (fixed, non-scrollable) ↔ layout_led_record_setting
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                color: AppColors
+                    .surfaceMuted, // bg_led_record_setting_background_color
+                padding: const EdgeInsets.only(
+                  left: 16, // dp_16
+                  top: 12, // dp_12
+                  right: 16, // dp_16
+                  bottom: 12, // dp_12
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // C1. Init Strength Section
+                    _InitStrengthSection(l10n: l10n),
+                    const SizedBox(
+                      height: 16,
+                    ), // marginTop before sunrise/sunset
+                    // C2. Sunrise/Sunset Section
+                    _SunriseSunsetSection(l10n: l10n),
+                    const SizedBox(height: 16), // marginTop before slow start
+                    // C3. Slow Start & Moon Light Section
+                    _SlowStartMoonLightSection(l10n: l10n),
+                  ],
+                ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 8), // dp_8
-        // Semi-circle dashboard
-        SemiCircleDashboard(
-          percentage: controller.initStrength,
+
+        // D. Progress overlay ↔ progress.xml
+        // Note: In Correction Mode, no controller to trigger loading
+        // Placeholder for structure only
+        // if (isLoading) const _ProgressOverlay(),
+      ],
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// A. Toolbar (fixed) ↔ toolbar_two_action.xml
+// ────────────────────────────────────────────────────────────────────────────
+
+class _ToolbarTwoAction extends StatelessWidget {
+  const _ToolbarTwoAction({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          color: Colors.white,
+          height: 56,
+          child: Row(
+            children: [
+              // Left: Cancel / Back (text button, no behavior)
+              TextButton(
+                onPressed: null, // No behavior in Correction Mode
+                child: Text(
+                  l10n.actionCancel,
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              // Center: Title (@string/record_setting or similar)
+              // TODO(android @string/record_setting → "Record Setting" / "記錄設定")
+              Text(
+                l10n.ledRecordSettingTitle,
+                style: AppTextStyles.headline.copyWith(
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const Spacer(),
+              // Right: Save (text button, no behavior)
+              TextButton(
+                onPressed: null, // No behavior in Correction Mode
+                child: Text(
+                  l10n.actionSave,
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 8), // dp_8
-        // Slider
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 2.0, // dp_2
-            thumbShape: const RoundSliderThumbShape(
-              enabledThumbRadius: 8.0, // dp_8 (16dp / 2)
+        // Divider (2dp ↔ toolbar_two_action.xml MaterialDivider)
+        Container(height: 2, color: AppColors.divider),
+      ],
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// C1. Init Strength Section ↔ img_sun + tv_sun_title + db_strength + tv_strength + sl_strength
+// ────────────────────────────────────────────────────────────────────────────
+
+class _InitStrengthSection extends StatelessWidget {
+  const _InitStrengthSection({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Row: img_sun + tv_sun_title
+        Row(
+          children: [
+            // img_sun (20x20dp)
+            // TODO(android @drawable/ic_sun)
+            SvgPicture.asset('assets/icons/ic_sun.svg', width: 20, height: 20),
+            const SizedBox(width: 4), // marginStart: dp_4
+            // tv_sun_title (@string/init_strength)
+            // TODO(android @string/init_strength → "Initial Intensity" / "初始強度")
+            // Using closest available: ledRecordSettingTitle or placeholder
+            Expanded(
+              child: Text(
+                'Initial Intensity', // TODO(android @string/init_strength)
+                style: AppTextStyles.body.copyWith(
+                  color: AppColors.textPrimary, // text_aaaa
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            thumbColor: const Color(0xFF5599FF), // Strength thumb color from SVG
+          ],
+        ),
+        // db_strength (CustomDashBoard, 123dp height) + tv_strength (centered)
+        SizedBox(
+          height: 123, // dp_123
+          child: Stack(
+            children: [
+              // Dashboard placeholder (CustomDashBoard is a custom view)
+              // TODO(android CustomDashBoard implementation)
+              Center(
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppColors
+                          .surfacePressed, // dashboard_progress as placeholder
+                      width: 8,
+                    ),
+                  ),
+                ),
+              ),
+              // tv_strength (centered, "50 %", headline, text_aaa)
+              Center(
+                child: Text(
+                  '50 %',
+                  style: AppTextStyles.headline.copyWith(
+                    color: AppColors.textSecondary, // text_aaa
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        // sl_strength (Slider, 0-100, value=50)
+        SliderTheme(
+          data: SliderThemeData(
+            activeTrackColor: AppColors.surfacePressed, // dashboard_progress
+            inactiveTrackColor: AppColors.textTertiary, // text_aa
+            thumbColor: AppColors.surfacePressed,
+            trackHeight: 2, // dp_2
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+            overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
           ),
           child: Slider(
-            value: controller.initStrength.toDouble(),
+            value: 50,
             min: 0,
             max: 100,
-            divisions: 100,
-            label: '${controller.initStrength}%',
-            activeColor: AppColors.dashboardProgress, // dashboard_progress
-            inactiveColor: AppColors.textTertiary, // text_aa
-            onChanged: (value) {
-              controller.setInitStrength(value.toInt());
-            },
+            onChanged: null, // No behavior in Correction Mode
           ),
         ),
       ],
     );
   }
+}
 
-  Widget _buildSunriseSection(
-    BuildContext context,
-    LedRecordSettingController controller,
-    AppLocalizations l10n,
-  ) {
-    // PARITY: layout_sunrise_sunset - white rounded background container
+// ────────────────────────────────────────────────────────────────────────────
+// C2. Sunrise/Sunset Section ↔ layout_sunrise_sunset
+// ────────────────────────────────────────────────────────────────────────────
+
+class _SunriseSunsetSection extends StatelessWidget {
+  const _SunriseSunsetSection({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 16), // dp_16
-      padding: const EdgeInsets.all(12), // dp_12
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.surface, // white
-        borderRadius: BorderRadius.circular(10.0), // dp_10 (background_white_radius)
+        color: Colors.white, // background_white_radius
+        borderRadius: BorderRadius.circular(8),
       ),
+      padding: const EdgeInsets.all(12), // dp_12
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Sunrise row
           Row(
             children: [
-              LedRecordIconHelper.getSunriseIcon(
+              // img_sunrise (20x20dp)
+              // TODO(android @drawable/ic_sunrise)
+              SvgPicture.asset(
+                'assets/icons/ic_sunrise.svg',
                 width: 20,
                 height: 20,
               ),
-              const SizedBox(width: 4), // dp_4
+              const SizedBox(width: 4), // marginStart: dp_4
+              // tv_sunrise_title (@string/sunrise)
+              // TODO(android @string/sunrise → "Sunrise" / "日出")
               Expanded(
                 child: Text(
-                  l10n.ledRecordSettingSunrise,
+                  'Sunrise', // TODO(android @string/sunrise)
                   style: AppTextStyles.caption1.copyWith(
                     color: AppColors.textPrimary, // text_aaaa
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              // Time button with dropdown icon
-              FilledButton.icon(
-                onPressed: () => _selectTime(
-                  context,
-                  controller.sunriseHour,
-                  controller.sunriseMinute,
-                  (hour, minute) => controller.setSunrise(hour, minute),
+              const SizedBox(width: 4), // marginStart before button
+              // btn_sunrise (MaterialButton, "06 : 00", icon ic_down)
+              MaterialButton(
+                onPressed: null, // No behavior in Correction Mode
+                color: AppColors.surfaceMuted, // BackgroundMaterialButton
+                textColor: AppColors.textPrimary,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
                 ),
-                icon: LedRecordIconHelper.getDownIcon(
-                  width: 20,
-                  height: 20,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
                 ),
-                label: Text(
-                  '${controller.sunriseHour.toString().padLeft(2, '0')} : ${controller.sunriseMinute.toString().padLeft(2, '0')}',
-                ),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.surfaceMuted, // bg_aaa
-                  foregroundColor: AppColors.textPrimary, // text_aaaa
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4.0), // dp_4
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '06 : 00',
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    // ic_down
+                    // TODO(android @drawable/ic_down)
+                    const Icon(Icons.arrow_drop_down, size: 24),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8), // dp_8
+          const SizedBox(height: 8), // marginTop: dp_8
           // Sunset row
           Row(
             children: [
-              LedRecordIconHelper.getSunsetIcon(
+              // img_sunset (20x20dp)
+              // TODO(android @drawable/ic_sunset)
+              SvgPicture.asset(
+                'assets/icons/ic_sunset.svg',
                 width: 20,
                 height: 20,
               ),
-              const SizedBox(width: 4), // dp_4
+              const SizedBox(width: 4), // marginStart: dp_4
+              // tv_sunset_title (@string/sunset)
+              // TODO(android @string/sunset → "Sunset" / "日落")
               Expanded(
                 child: Text(
-                  l10n.ledRecordSettingSunset,
+                  'Sunset', // TODO(android @string/sunset)
                   style: AppTextStyles.caption1.copyWith(
                     color: AppColors.textPrimary, // text_aaaa
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              // Time button with dropdown icon
-              FilledButton.icon(
-                onPressed: () => _selectTime(
-                  context,
-                  controller.sunsetHour,
-                  controller.sunsetMinute,
-                  (hour, minute) => controller.setSunset(hour, minute),
+              const SizedBox(width: 4), // marginStart before button
+              // btn_sunset (MaterialButton, "18 : 00", icon ic_down)
+              MaterialButton(
+                onPressed: null, // No behavior in Correction Mode
+                color: AppColors.surfaceMuted,
+                textColor: AppColors.textPrimary,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
                 ),
-                icon: LedRecordIconHelper.getDownIcon(
-                  width: 20,
-                  height: 20,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
                 ),
-                label: Text(
-                  '${controller.sunsetHour.toString().padLeft(2, '0')} : ${controller.sunsetMinute.toString().padLeft(2, '0')}',
-                ),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.surfaceMuted, // bg_aaa
-                  foregroundColor: AppColors.textPrimary, // text_aaaa
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4.0), // dp_4
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '18 : 00',
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.arrow_drop_down, size: 24),
+                  ],
                 ),
               ),
             ],
@@ -293,242 +356,221 @@ class _LedRecordSettingViewState extends State<_LedRecordSettingView> {
       ),
     );
   }
+}
 
+// ────────────────────────────────────────────────────────────────────────────
+// C3. Slow Start & Moon Light Section ↔ layout_slow_start_moon_light
+// ────────────────────────────────────────────────────────────────────────────
 
-  Widget _buildSlowStartSection(
-    BuildContext context,
-    LedRecordSettingController controller,
-    AppLocalizations l10n,
-  ) {
-    // PARITY: layout_slow_start_moon_light - white rounded background container
-    // Contains both Soft Start and Moonlight sections
+class _SlowStartMoonLightSection extends StatelessWidget {
+  const _SlowStartMoonLightSection({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 16), // dp_16
-      padding: const EdgeInsets.all(12), // dp_12
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.surface, // white
-        borderRadius: BorderRadius.circular(10.0), // dp_10 (background_white_radius)
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
       ),
+      padding: const EdgeInsets.all(12), // dp_12
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Soft Start section
+          // Slow Start row (icon + title + value)
           Row(
             children: [
-              LedRecordIconHelper.getSlowStartIcon(
-                width: 20,
-                height: 20,
-              ),
-              const SizedBox(width: 4), // dp_4
+              // img_slow_start (20x20dp)
+              // TODO(android @drawable/ic_slow_start)
+              const Icon(
+                Icons.speed,
+                size: 20,
+                color: Colors.grey,
+              ), // Placeholder
+              const SizedBox(width: 4), // marginStart: dp_4
+              // tv_slow_start_title (@string/slow_start)
+              // TODO(android @string/slow_start → "Slow Start" / "緩啟動")
               Expanded(
                 child: Text(
-                  l10n.ledRecordSettingSlowStart,
+                  'Slow Start', // TODO(android @string/slow_start)
                   style: AppTextStyles.caption1.copyWith(
                     color: AppColors.textPrimary, // text_aaaa
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: 4), // marginStart before value
+              // tv_slow_start (@string/init_minute)
+              // TODO(android @string/init_minute → "30 min" format)
               Text(
-                '${controller.slowStart} ${l10n.minute}',
+                '30 ${l10n.minute}', // Assuming l10n.minute exists for "min" / "分鐘"
                 style: AppTextStyles.caption1.copyWith(
                   color: AppColors.textSecondary, // text_aaa
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8), // dp_8
-          // Slider (10-60, step 10)
+          // sl_slow_start (Slider, 10-60, stepSize 10, value=30)
           SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              trackHeight: 2.0, // dp_2
-              thumbShape: const RoundSliderThumbShape(
-                enabledThumbRadius: 8.0, // dp_8 (16dp / 2)
-              ),
-              thumbColor: const Color(0xFF6F916F), // Default thumb color from SVG
+            data: SliderThemeData(
+              activeTrackColor: AppColors.primary, // bg_primary
+              inactiveTrackColor: AppColors.surfacePressed, // bg_press
+              thumbColor: AppColors.primary,
+              trackHeight: 2, // dp_2
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
             ),
             child: Slider(
-              value: controller.slowStart.clamp(10, 60).toDouble(),
+              value: 30,
               min: 10,
               max: 60,
-              divisions: 5, // (60-10)/10 = 5 steps
-              label: '${controller.slowStart} ${l10n.minute}',
-              activeColor: AppColors.primary, // bg_primary
-              inactiveColor: AppColors.surfacePressed, // bg_press
-              onChanged: (value) {
-                // Round to nearest 10
-                final rounded = ((value / 10).round() * 10).toInt();
-                controller.setSlowStart(rounded.clamp(10, 60));
-              },
+              divisions: 5, // stepSize 10 → 5 divisions (10,20,30,40,50,60)
+              onChanged: null, // No behavior in Correction Mode
             ),
           ),
-          // Scale labels (10, 20, 30, 40, 50, 60)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '10',
-                style: AppTextStyles.caption1.copyWith(
-                  color: AppColors.textTertiary, // text_aa
+          // Progress labels (10, 20, 30, 40, 50, 60)
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 9,
+            ), // marginStart 9 for first item
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '10',
+                  style: AppTextStyles.caption1.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
+                ), // text_aa
+                Text(
+                  '20',
+                  style: AppTextStyles.caption1.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
                 ),
-              ),
-              Text(
-                '20',
-                style: AppTextStyles.caption1.copyWith(
-                  color: AppColors.textTertiary, // text_aa
+                Text(
+                  '30',
+                  style: AppTextStyles.caption1.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
                 ),
-              ),
-              Text(
-                '30',
-                style: AppTextStyles.caption1.copyWith(
-                  color: AppColors.textTertiary, // text_aa
+                Text(
+                  '40',
+                  style: AppTextStyles.caption1.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
                 ),
-              ),
-              Text(
-                '40',
-                style: AppTextStyles.caption1.copyWith(
-                  color: AppColors.textTertiary, // text_aa
+                Text(
+                  '50',
+                  style: AppTextStyles.caption1.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
                 ),
-              ),
-              Text(
-                '50',
-                style: AppTextStyles.caption1.copyWith(
-                  color: AppColors.textTertiary, // text_aa
+                Text(
+                  '60',
+                  style: AppTextStyles.caption1.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
                 ),
-              ),
-              Text(
-                '60',
-                style: AppTextStyles.caption1.copyWith(
-                  color: AppColors.textTertiary, // text_aa
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 16), // dp_16
-          // Moonlight section
+          const SizedBox(height: 16), // marginTop: dp_16 before moon light
+          // Moon Light row (icon + title + value)
           Row(
             children: [
-              LedRecordIconHelper.getMoonLightIcon(
-                width: 20,
-                height: 20,
-              ),
-              const SizedBox(width: 6), // dp_6
+              // img_moon_light (20x20dp)
+              // TODO(android @drawable/ic_moon_round)
+              const Icon(
+                Icons.nightlight_round,
+                size: 20,
+                color: Colors.grey,
+              ), // Placeholder
+              const SizedBox(width: 6), // marginStart: dp_6
+              // tv_moon_light_title (@string/moon_light)
               Expanded(
                 child: Text(
-                  l10n.ledRecordSettingMoonlight,
+                  l10n.lightMoon,
                   style: AppTextStyles.caption1.copyWith(
                     color: AppColors.textPrimary, // text_aaaa
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: 4), // marginStart before value
+              // tv_moon_light ("0 %")
               Text(
-                '${controller.moonlight} %',
+                '0 %',
                 style: AppTextStyles.caption1.copyWith(
                   color: AppColors.textSecondary, // text_aaa
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8), // dp_8
-          // Moonlight slider (0-100)
+          // sl_moon_light (Slider, 0-100, value=0)
           SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              trackHeight: 2.0, // dp_2
-              thumbShape: const RoundSliderThumbShape(
-                enabledThumbRadius: 8.0, // dp_8 (16dp / 2)
-              ),
-              thumbColor: const Color(0xFFFF9955), // Moon light thumb color from SVG
+            data: SliderThemeData(
+              activeTrackColor: AppColors.moonLight, // moon_light_color
+              inactiveTrackColor: AppColors.surfacePressed, // bg_press
+              thumbColor: AppColors.moonLight,
+              trackHeight: 2, // dp_2
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
             ),
             child: Slider(
-              value: controller.moonlight.toDouble(),
+              value: 0,
               min: 0,
               max: 100,
-              divisions: 100,
-              label: '${controller.moonlight}%',
-              activeColor: AppColors.moonLight, // moon_light_color
-              inactiveColor: AppColors.surfacePressed, // bg_press
-              onChanged: (value) {
-                controller.setMoonlight(value.toInt());
-              },
+              onChanged: null, // No behavior in Correction Mode
             ),
           ),
-          // Scale labels (0, 100)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '0',
-                style: AppTextStyles.caption1.copyWith(
-                  color: AppColors.textTertiary, // text_aa
+          // Progress labels (0, 100)
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 14,
+            ), // marginStart 14 for first, marginEnd 7 for last
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '0',
+                  style: AppTextStyles.caption1.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
+                ), // text_aa
+                Text(
+                  '100',
+                  style: AppTextStyles.caption1.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
                 ),
-              ),
-              Text(
-                '100',
-                style: AppTextStyles.caption1.copyWith(
-                  color: AppColors.textTertiary, // text_aa
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
     );
   }
+}
 
+// ────────────────────────────────────────────────────────────────────────────
+// D. Progress overlay ↔ progress.xml (placeholder)
+// ────────────────────────────────────────────────────────────────────────────
 
-  Future<void> _selectTime(
-    BuildContext context,
-    int initialHour,
-    int initialMinute,
-    void Function(int, int) onTimeSelected,
-  ) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay(hour: initialHour, minute: initialMinute),
+class _ProgressOverlay extends StatelessWidget {
+  const _ProgressOverlay();
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: Container(
+        color: Colors.black.withValues(alpha: 0.3),
+        child: const Center(child: CircularProgressIndicator()),
+      ),
     );
-    if (picked != null) {
-      onTimeSelected(picked.hour, picked.minute);
-    }
-  }
-
-  Future<void> _handleSave(
-    BuildContext context,
-    LedRecordSettingController controller,
-    AppLocalizations l10n,
-  ) async {
-    final bool success = await controller.saveLedRecord(
-      onTimeError: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              l10n.ledRecordSettingErrorSunTime,
-            ),
-          ),
-        );
-      },
-    );
-
-    if (success && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.ledRecordSettingSuccess),
-        ),
-      );
-      // Navigate to record page
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LedRecordPage()),
-      );
-    }
-  }
-
-  void _maybeShowError(BuildContext context, AppErrorCode? code) {
-    if (code == null) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final l10n = AppLocalizations.of(context);
-      final message = describeAppError(l10n, code);
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
-    });
   }
 }

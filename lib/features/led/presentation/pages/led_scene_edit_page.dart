@@ -34,32 +34,40 @@ class _LedSceneEditView extends StatelessWidget {
         Column(
           children: [
             // A. Toolbar (fixed) ↔ toolbar_two_action.xml
-            const _ToolbarTwoAction(),
+            _ToolbarTwoAction(l10n: l10n),
 
-            // B. Form content (fixed, non-scrollable)
+            // B. ScrollView content (scrollable) ↔ layout_led_record_time_setting
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // B1. Scene name section ↔ tv_time_title + layout_name
-                    _SceneNameSection(l10n: l10n, controller: controller),
-                    const SizedBox(height: 24),
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      top: 12,
+                      right: 16,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // B1. Scene name section
+                        _SceneNameSection(l10n: l10n, controller: controller),
+                        const SizedBox(height: 24),
 
-                    // B2. Scene icon section ↔ tv_scene_icon_title + rv_scene_icon
-                    _SceneIconSection(l10n: l10n),
-                    const SizedBox(height: 24),
+                        // B2. Scene icon section
+                        _SceneIconSection(l10n: l10n),
+                        const SizedBox(height: 24),
 
-                    // B3. TODO: Android activity_led_scene_edit.xml does NOT have enable switch
-                    // enable switch is NOT present in either add or edit XML
-                    // This section is a placeholder per user instruction (B3)
-                    // _SceneEnableSection(l10n: l10n),
-                  ],
-                ),
+                        // B3. Spectrum chart section
+                        _SpectrumChartSection(l10n: l10n),
+                        const SizedBox(height: 24),
+
+                        // B4. Channel sliders (8 visible + 1 gone)
+                        _ChannelSlidersSection(l10n: l10n),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -77,12 +85,12 @@ class _LedSceneEditView extends StatelessWidget {
 // ────────────────────────────────────────────────────────────────────────────
 
 class _ToolbarTwoAction extends StatelessWidget {
-  const _ToolbarTwoAction();
+  const _ToolbarTwoAction({required this.l10n});
+
+  final AppLocalizations l10n;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -153,7 +161,7 @@ class _SceneNameSection extends StatelessWidget {
         Text(
           l10n.ledSceneNameLabel,
           style: AppTextStyles.caption1.copyWith(
-            color: AppColors.textSecondary,
+            color: AppColors.textPrimary, // text_aaaa
           ),
         ),
         const SizedBox(height: 4), // marginTop: dp_4
@@ -191,7 +199,7 @@ class _SceneIconSection extends StatelessWidget {
         Text(
           l10n.ledSceneIcon,
           style: AppTextStyles.caption1.copyWith(
-            color: AppColors.textSecondary,
+            color: AppColors.textPrimary, // text_aaaa
           ),
         ),
         const SizedBox(height: 4), // marginTop: dp_4
@@ -199,21 +207,28 @@ class _SceneIconSection extends StatelessWidget {
         // TODO(android @layout/adapter_scene_icon → ShapeableImageView 40x40dp, padding 8dp, cornerRadius 24dp)
         // Android uses RecyclerView with adapter_scene_icon.xml (icon size 40dp)
         // This is a structural placeholder only, no icon selection
-        SizedBox(
-          height: 56, // Approximate height for one row of 40dp icons + margin
-          child: Row(
-            children: [
-              // TODO(android drawables: ic_sun, ic_sunrise, ic_sunset, ic_moon, etc.)
-              // repo has: ic_sun.svg, ic_sunrise.svg, ic_sunset.svg, ic_sunny.svg
-              // This is a placeholder row, no actual icon selection
-              _IconPlaceholder(),
-              const SizedBox(width: 16),
-              _IconPlaceholder(),
-              const SizedBox(width: 16),
-              _IconPlaceholder(),
-              const SizedBox(width: 16),
-              _IconPlaceholder(),
-            ],
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 8,
+          ), // paddingStart/End: dp_8
+          child: SizedBox(
+            height: 56, // Approximate height for one row of 40dp icons + margin
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                // TODO(android drawables: ic_sun, ic_sunrise, ic_sunset, ic_moon, etc.)
+                // repo has: ic_sun.svg, ic_sunrise.svg, ic_sunset.svg, ic_sunny.svg
+                _IconPlaceholder(),
+                const SizedBox(width: 16),
+                _IconPlaceholder(),
+                const SizedBox(width: 16),
+                _IconPlaceholder(),
+                const SizedBox(width: 16),
+                _IconPlaceholder(),
+                const SizedBox(width: 16),
+                _IconPlaceholder(),
+              ],
+            ),
           ),
         ),
       ],
@@ -239,39 +254,183 @@ class _IconPlaceholder extends StatelessWidget {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// B3. Scene enable section (placeholder, NOT in activity_led_scene_edit.xml)
+// B3. Spectrum chart section ↔ chart_spectrum
 // ────────────────────────────────────────────────────────────────────────────
 
-// Android activity_led_scene_edit.xml does NOT have enable switch
-// enable switch is NOT present in either add or edit XML
-// This section would be structured as:
-/*
-class _SceneEnableSection extends StatelessWidget {
-  const _SceneEnableSection({required this.l10n});
+class _SpectrumChartSection extends StatelessWidget {
+  const _SpectrumChartSection({required this.l10n});
 
   final AppLocalizations l10n;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        // Title: TODO(android @string/enable → not found in strings.xml)
-        // Possible Android key: "enable" or "enabled"
-        Text(
-          'Enable', // TODO: missing l10n key
-          style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 6,
+      ), // margin: 22dp total (16+6)
+      child: AspectRatio(
+        aspectRatio: 16 / 9, // Flexible chart (Android: 176dp fixed)
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.surfaceMuted,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Center(
+            child: Text(
+              'Spectrum Chart Placeholder',
+              style: AppTextStyles.body.copyWith(color: AppColors.textTertiary),
+            ),
+          ),
         ),
-        const Spacer(),
-        // Switch (disabled, read-only)
-        Switch(
-          value: false,
-          onChanged: null, // Disabled in Correction Mode
-        ),
-      ],
+      ),
     );
   }
 }
-*/
+
+// ────────────────────────────────────────────────────────────────────────────
+// B4. Channel sliders section (8 visible + 1 gone)
+// ────────────────────────────────────────────────────────────────────────────
+
+class _ChannelSlidersSection extends StatelessWidget {
+  const _ChannelSlidersSection({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    // Channel order from Android XML (Warm White is visibility="gone")
+    final channels = [
+      _ChannelInfo('uv', l10n.lightUv, AppColors.ultraviolet, false),
+      _ChannelInfo('purple', l10n.lightPurple, AppColors.purple, false),
+      _ChannelInfo('blue', l10n.lightBlue, AppColors.blue, false),
+      _ChannelInfo(
+        'royalBlue',
+        l10n.lightRoyalBlue,
+        AppColors.royalBlue,
+        false,
+      ),
+      _ChannelInfo('green', l10n.lightGreen, AppColors.green, false),
+      _ChannelInfo('red', l10n.lightRed, AppColors.red, false),
+      _ChannelInfo(
+        'coldWhite',
+        l10n.lightColdWhite,
+        AppColors.coldWhite,
+        false,
+      ),
+      _ChannelInfo(
+        'warmWhite',
+        l10n.lightWarmWhite,
+        AppColors.warmWhite,
+        true,
+      ), // visibility="gone"
+      _ChannelInfo('moonlight', l10n.lightMoon, AppColors.moonLight, false),
+    ];
+
+    return Column(
+      children: channels
+          .map(
+            (channel) => channel.isGone
+                ? const SizedBox.shrink() // Warm White: visibility="gone"
+                : _ChannelSlider(
+                    channelId: channel.id,
+                    label: channel.label,
+                    trackColor: channel.color,
+                    isLast: channel.id == 'moonlight',
+                  ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class _ChannelInfo {
+  final String id;
+  final String label;
+  final Color color;
+  final bool isGone;
+
+  _ChannelInfo(this.id, this.label, this.color, this.isGone);
+}
+
+class _ChannelSlider extends StatelessWidget {
+  const _ChannelSlider({
+    required this.channelId,
+    required this.label,
+    required this.trackColor,
+    required this.isLast,
+  });
+
+  final String channelId;
+  final String label;
+  final Color trackColor;
+  final bool isLast;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: isLast ? 40 : 0,
+      ), // moonlight marginBottom: 40dp
+      child: Column(
+        children: [
+          // Title row
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 6,
+              right: 6,
+            ), // marginStart/End: dp_6
+            child: Row(
+              children: [
+                // Channel label (caption1, text_aaaa)
+                Expanded(
+                  child: Text(
+                    label,
+                    style: AppTextStyles.caption1.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4), // marginStart: dp_4
+                // Value text (caption1, text_aaa)
+                Padding(
+                  padding: const EdgeInsets.only(right: 6), // marginEnd: dp_6
+                  child: Text(
+                    '0', // Placeholder value
+                    style: AppTextStyles.caption1.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Slider
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+            ), // margin: dp_16
+            child: SliderTheme(
+              data: SliderThemeData(
+                activeTrackColor: trackColor,
+                inactiveTrackColor: AppColors.surfacePressed, // bg_press
+                thumbColor: trackColor,
+                trackHeight: 2, // dp_2 trackHeight
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+              ),
+              child: Slider(
+                value: 0, // Placeholder value
+                min: 0,
+                max: 100,
+                onChanged: null, // No behavior in Correction Mode
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 // C. Progress overlay ↔ progress.xml

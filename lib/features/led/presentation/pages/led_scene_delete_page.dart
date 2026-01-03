@@ -178,7 +178,8 @@ class _SceneSelectTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8), // marginStart: dp_8
-                // Check icon (20x20dp, visibility=gone by default) ↔ img_check
+                // Check icon (20x20dp, visibility="gone" by default) ↔ img_check
+                // PARITY: Android visibility="gone" 不佔空間；Flutter 用 if 條件控制
                 // TODO(android @drawable/ic_check)
                 if (isSelected)
                   Container(
@@ -193,9 +194,7 @@ class _SceneSelectTile extends StatelessWidget {
                       size: 16,
                       color: Colors.white,
                     ),
-                  )
-                else
-                  const SizedBox(width: 20, height: 20), // Occupy space
+                  ),
               ],
             ),
           ),

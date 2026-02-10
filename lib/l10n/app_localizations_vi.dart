@@ -1315,7 +1315,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get sinkTypeDefault => 'Default';
 
   @override
-  String get sinkPosition => 'Sink Position';
+  String get sinkPosition => 'Tank Location';
 
   @override
   String get sinkPositionTitle => 'Sink Position';
@@ -1726,4 +1726,161 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get timeRangeSeparator => '~';
+
+  @override
+  String get dosingVolume => 'Dosing Volume (ml)';
+
+  @override
+  String get dosingStartTime => 'Dosing Start Time';
+
+  @override
+  String get dosingEndTime => 'Dosing End Time';
+
+  @override
+  String get dosingFrequency => 'Dosing Frequency';
+
+  @override
+  String get dosingType => 'Dosing Type';
+
+  @override
+  String get dosingScheduleType => 'Schedule Type';
+
+  @override
+  String get dosingSchedulePeriod => 'Schedule Period';
+
+  @override
+  String get dosingWeeklyDays => 'Weekly Dosing Days';
+
+  @override
+  String get dosingExecuteNow => 'Execute Now';
+
+  @override
+  String get dosingExecutionTime => 'Execution Time';
+
+  @override
+  String get pumpHeadSpeed => 'Pump Head Speed';
+
+  @override
+  String get pumpHeadSpeedLow => 'Low Speed';
+
+  @override
+  String get pumpHeadSpeedMedium => 'Medium Speed';
+
+  @override
+  String get pumpHeadSpeedHigh => 'High Speed';
+
+  @override
+  String get pumpHeadSpeedDefault => 'Default Speed';
+
+  @override
+  String get calibrationInstructions => 'Calibration Instructions';
+
+  @override
+  String get calibrationSteps =>
+      '1.Prepare the included measuring cup and some tubes\n2. Start manual operation to fill the tubes with liquid\n3. Select the speed for calibration';
+
+  @override
+  String get calibrationVolumeHint => '1 ~ 15; one decimal place';
+
+  @override
+  String get calibrating => 'Calibrating...';
+
+  @override
+  String get calibrationComplete => 'Complete Calibration';
+
+  @override
+  String get recentCalibrationRecords => 'Recent Calibration Records';
+
+  @override
+  String get todayScheduledVolume =>
+      'Today\'s Scheduled Immediate Dosing Volume';
+
+  @override
+  String get maxDosingVolume => 'Daily Max Dosing Volume';
+
+  @override
+  String get maxDosingVolumeHint =>
+      'Limit dosing volume for scheduled and non-scheduled operation after opening';
+
+  @override
+  String get delayTime1Min => '1 minute';
+
+  @override
+  String get dosingSettingsTitle => 'Dosing Pump Settings';
+
+  @override
+  String get pumpHeadRecordTitle => 'Schedule';
+
+  @override
+  String get pumpHeadRecordSettingsTitle => 'Schedule Settings';
+
+  @override
+  String get pumpHeadRecordTimeSettingsTitle => 'Time Setting';
+
+  @override
+  String get pumpHeadAdjustListTitle => 'Adjust List';
+
+  @override
+  String get pumpHeadAdjustTitle => 'Adjust';
+
+  @override
+  String get dosingTypeTitle => 'Dosing Type';
+
+  @override
+  String get rotatingSpeed => 'Speed';
+
+  @override
+  String get ledInitialIntensity => 'Initial Intensity';
+
+  @override
+  String get ledSunrise => 'Sunrise';
+
+  @override
+  String get ledSunset => 'Sunset';
+
+  @override
+  String get ledSlowStart => 'Soft Start';
+
+  @override
+  String get ledInitDuration => '30 Minutes';
+
+  @override
+  String get ledScheduleTimePoint => 'Scheduled Time Point';
+
+  @override
+  String get ledScheduleSettings => 'Schedule Settings';
+
+  @override
+  String get ledSceneAdd => 'Add Scene';
+
+  @override
+  String get ledSceneEdit => 'Scene Settings';
+
+  @override
+  String get ledSceneDelete => 'Delete Scene';
+
+  @override
+  String get ledRecordPause => 'The schedule is paused.';
+
+  @override
+  String get ledRecordContinue => 'Resume execution.';
+
+  @override
+  String get actionEdit => 'Edit';
+
+  @override
+  String get generalNone => 'None';
+
+  @override
+  String get actionComplete => 'Done';
+
+  @override
+  String get actionRun => 'Run';
+
+  @override
+  String get deviceNotConnected => 'Device not connected';
+
+  @override
+  String get sinkEmptyMessage =>
+      'Tap the add button at the bottom right to add a tank.';
 }

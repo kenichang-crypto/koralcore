@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 
+import '../../../../shared/assets/common_icon_helper.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 
@@ -292,7 +293,7 @@ class _SunriseSunsetSection extends StatelessWidget {
                     const SizedBox(width: 4),
                     // ic_down
                     // TODO(android @drawable/ic_down)
-                    const Icon(Icons.arrow_drop_down, size: 24),
+                    const CommonIconHelper.getDownIcon(), size: 24),
                   ],
                 ),
               ),
@@ -346,7 +347,7 @@ class _SunriseSunsetSection extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 4),
-                    const Icon(Icons.arrow_drop_down, size: 24),
+                    const CommonIconHelper.getDownIcon(), size: 24),
                   ],
                 ),
               ),
@@ -384,9 +385,8 @@ class _SlowStartMoonLightSection extends StatelessWidget {
             children: [
               // img_slow_start (20x20dp)
               // TODO(android @drawable/ic_slow_start)
-              const Icon(
-                Icons.speed,
-                size: 20,
+              CommonIconHelper.getSlowStartIcon(
+                size: 20, // dp_20
                 color: Colors.grey,
               ), // Placeholder
               const SizedBox(width: 4), // marginStart: dp_4
@@ -485,7 +485,7 @@ class _SlowStartMoonLightSection extends StatelessWidget {
               // img_moon_light (20x20dp)
               // TODO(android @drawable/ic_moon_round)
               const Icon(
-                Icons.nightlight_round,
+                CommonIconHelper.getMoonRoundIcon(),
                 size: 20,
                 color: Colors.grey,
               ), // Placeholder

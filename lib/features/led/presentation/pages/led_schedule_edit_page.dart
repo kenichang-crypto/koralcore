@@ -449,7 +449,7 @@ class _TimeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: onPressed,
-      icon: CommonIconHelper.getCalendarIcon(size: 20),
+      icon: CommonIconHelper.getCalendarIcon(size: 24),
       label: Text(label),
     );
   }

@@ -11,6 +11,7 @@ import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../../../../shared/widgets/reef_backgrounds.dart';
 import '../../../../shared/widgets/reef_app_bar.dart';
+import '../../../../shared/widgets/reef_blocking_overlay.dart';
 import '../../../../core/ble/ble_guard.dart';
 import '../../../../shared/widgets/error_state_widget.dart';
 import '../../../../shared/widgets/loading_state_widget.dart';
@@ -60,7 +61,8 @@ class _LedSceneListView extends StatefulWidget {
   State<_LedSceneListView> createState() => _LedSceneListViewState();
 }
 
-class _LedSceneListViewState extends State<_LedSceneListView> with WidgetsBindingObserver {
+class _LedSceneListViewState extends State<_LedSceneListView>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
@@ -122,159 +124,180 @@ class _LedSceneListViewState extends State<_LedSceneListView> with WidgetsBindin
                       ),
                     );
                   },
-                  child: CommonIconHelper.getAddIcon(size: 24, color: Colors.white),
+                  child: CommonIconHelper.getAddIcon(
+                    size: 24,
+                    color: Colors.white,
+                  ),
                 )
               : null,
-          body: ReefMainBackground(
-            child: SafeArea(
-              child: RefreshIndicator(
-                onRefresh: controller.refresh,
-                child: ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  // PARITY: activity_led_scene.xml layout_led_scene padding 16/14/16/14dp
-                  padding: EdgeInsets.only(
-                    left: AppSpacing.md, // dp_16 paddingStart
-                    top: 14, // dp_14 paddingTop (not standard spacing)
-                    right: AppSpacing.md, // dp_16 paddingEnd
-                    bottom: 14, // dp_14 paddingBottom (not standard spacing)
-                  ),
-                  children: [
-                    Text(
-                      l10n.ledScenesListSubtitle,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
+          body: Stack(
+            children: [
+              ReefMainBackground(
+                child: SafeArea(
+                  child: RefreshIndicator(
+                    onRefresh: controller.refresh,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      // PARITY: activity_led_scene.xml layout_led_scene padding 16/14/16/14dp
+                      padding: EdgeInsets.only(
+                        left: AppSpacing.md, // dp_16 paddingStart
+                        top: 14, // dp_14 paddingTop (not standard spacing)
+                        right: AppSpacing.md, // dp_16 paddingEnd
+                        bottom:
+                            14, // dp_14 paddingBottom (not standard spacing)
                       ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    if (controller.currentChannelLevels.isNotEmpty) ...[
-                      LedSpectrumChart.fromChannelMap(
-                        controller.currentChannelLevels,
-                        height: 72,
-                        compact: true,
-                        emptyLabel: l10n.ledControlEmptyState,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                    ],
-                    if (!isConnected) ...[
-                      const BleGuardBanner(),
-                      const SizedBox(height: AppSpacing.xl),
-                    ],
-                    if (controller.isBusy)
-                      const LoadingStateWidget.linear(),
-                    if (controller.isLoading)
-                      const LoadingStateWidget.inline()
-                    else if (controller.scenes.isEmpty)
-                      _ScenesEmptyState(l10n: l10n)
-                    else ...[
-                      // Dynamic Scenes Section
-                      if (controller.dynamicScenes.isNotEmpty) ...[
+                      children: [
                         Text(
-                          l10n.ledDynamicScene,
+                          l10n.ledScenesListSubtitle,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: AppColors.textSecondary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.xs),
-                        ...controller.dynamicScenes.map(
-                          (scene) => Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: AppSpacing.sm,
-                            ),
-                            child: _SceneCard(
-                              scene: scene,
-                              l10n: l10n,
-                              channelCount: controller.currentChannelLevels.length,
-                              isConnected: isConnected,
-                              controller: controller,
-                              onApply:
-                                  isConnected &&
-                                      !controller.isBusy &&
-                                      scene.isEnabled &&
-                                      !scene.isActive
-                                  ? () => controller.applyScene(scene.id)
-                                  : null,
-                              // PARITY: reef-b-app - preset scenes (sceneId != null) cannot be edited
-                              // Only custom scenes (sceneId == null) can be edited
-                              onTap: (isConnected && !controller.isBusy && !scene.isPreset)
-                                  ? () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (_) => LedSceneEditPage(sceneId: scene.id),
-                                        ),
-                                      );
-                                    }
-                                  : null,
-                            ),
                           ),
                         ),
                         const SizedBox(height: AppSpacing.md),
-                      ],
-                      // Static Scenes Section
-                      if (controller.staticScenes.isNotEmpty) ...[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
+                        if (controller.currentChannelLevels.isNotEmpty) ...[
+                          LedSpectrumChart.fromChannelMap(
+                            controller.currentChannelLevels,
+                            height: 72,
+                            compact: true,
+                            emptyLabel: l10n.ledControlEmptyState,
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                        ],
+                        if (!isConnected) ...[
+                          const BleGuardBanner(),
+                          const SizedBox(height: AppSpacing.xl),
+                        ],
+                        // PARITY: Use ReefBlockingOverlay instead of inline linear progress
+                        if (controller.isLoading)
+                          const LoadingStateWidget.inline()
+                        else if (controller.scenes.isEmpty)
+                          _ScenesEmptyState(l10n: l10n)
+                        else ...[
+                          // Dynamic Scenes Section
+                          if (controller.dynamicScenes.isNotEmpty) ...[
                             Text(
-                              l10n.ledStaticScene,
+                              l10n.ledDynamicScene,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: AppColors.textSecondary,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            if (isConnected && !controller.isBusy)
-                              IconButton(
-                                icon: CommonIconHelper.getAddIcon(size: 24),
-                                tooltip: l10n.ledScenesActionAdd,
-                                onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => const LedSceneAddPage(),
-                                    ),
-                                  );
-                                },
+                            const SizedBox(height: AppSpacing.xs),
+                            ...controller.dynamicScenes.map(
+                              (scene) => Padding(
+                                padding: const EdgeInsets.only(
+                                  bottom: AppSpacing.sm,
+                                ),
+                                child: _SceneCard(
+                                  scene: scene,
+                                  l10n: l10n,
+                                  channelCount:
+                                      controller.currentChannelLevels.length,
+                                  isConnected: isConnected,
+                                  controller: controller,
+                                  onApply:
+                                      isConnected &&
+                                          !controller.isBusy &&
+                                          scene.isEnabled &&
+                                          !scene.isActive
+                                      ? () => controller.applyScene(scene.id)
+                                      : null,
+                                  // PARITY: reef-b-app - preset scenes (sceneId != null) cannot be edited
+                                  // Only custom scenes (sceneId == null) can be edited
+                                  onTap:
+                                      (isConnected &&
+                                          !controller.isBusy &&
+                                          !scene.isPreset)
+                                      ? () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (_) => LedSceneEditPage(
+                                                sceneId: scene.id,
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      : null,
+                                ),
                               ),
-                          ],
-                        ),
-                        const SizedBox(height: AppSpacing.xs),
-                        ...controller.staticScenes.map(
-                          (scene) => Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: AppSpacing.sm,
                             ),
-                            child: _SceneCard(
-                              scene: scene,
-                              l10n: l10n,
-                              channelCount: controller.currentChannelLevels.length,
-                              isConnected: isConnected,
-                              controller: controller,
-                              onApply:
-                                  isConnected &&
-                                      !controller.isBusy &&
-                                      scene.isEnabled &&
-                                      !scene.isActive
-                                  ? () => controller.applyScene(scene.id)
-                                  : null,
-                              // PARITY: reef-b-app - preset scenes (sceneId != null) cannot be edited
-                              // Only custom scenes (sceneId == null) can be edited
-                              onTap: (isConnected && !controller.isBusy && !scene.isPreset)
-                                  ? () {
+                            const SizedBox(height: AppSpacing.md),
+                          ],
+                          // Static Scenes Section
+                          if (controller.staticScenes.isNotEmpty) ...[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  l10n.ledStaticScene,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.textSecondary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                if (isConnected && !controller.isBusy)
+                                  IconButton(
+                                    icon: CommonIconHelper.getAddIcon(size: 24),
+                                    tooltip: l10n.ledScenesActionAdd,
+                                    onPressed: () {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
-                                          builder: (_) => LedSceneEditPage(sceneId: scene.id),
+                                          builder: (_) =>
+                                              const LedSceneAddPage(),
                                         ),
                                       );
-                                    }
-                                  : null,
+                                    },
+                                  ),
+                              ],
                             ),
-                          ),
-                        ),
+                            const SizedBox(height: AppSpacing.xs),
+                            ...controller.staticScenes.map(
+                              (scene) => Padding(
+                                padding: const EdgeInsets.only(
+                                  bottom: AppSpacing.sm,
+                                ),
+                                child: _SceneCard(
+                                  scene: scene,
+                                  l10n: l10n,
+                                  channelCount:
+                                      controller.currentChannelLevels.length,
+                                  isConnected: isConnected,
+                                  controller: controller,
+                                  onApply:
+                                      isConnected &&
+                                          !controller.isBusy &&
+                                          scene.isEnabled &&
+                                          !scene.isActive
+                                      ? () => controller.applyScene(scene.id)
+                                      : null,
+                                  // PARITY: reef-b-app - preset scenes (sceneId != null) cannot be edited
+                                  // Only custom scenes (sceneId == null) can be edited
+                                  onTap:
+                                      (isConnected &&
+                                          !controller.isBusy &&
+                                          !scene.isPreset)
+                                      ? () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (_) => LedSceneEditPage(
+                                                sceneId: scene.id,
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      : null,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
                       ],
-                    ],
-                  ],
+                    ),
+                  ),
                 ),
               ),
-            ),
+              if (controller.isBusy) const ReefBlockingOverlay(),
+            ],
           ),
         );
       },
@@ -427,10 +450,7 @@ class _SceneCard extends StatelessWidget {
                 ),
                 onPressed: onApply,
                 padding: EdgeInsets.zero,
-                constraints: BoxConstraints(
-                  minWidth: 20,
-                  minHeight: 20,
-                ),
+                constraints: BoxConstraints(minWidth: 20, minHeight: 20),
               ),
               SizedBox(width: AppSpacing.xs), // dp_8 marginStart
               // Favorite button (btn_favorite) - 20×20dp
@@ -449,10 +469,7 @@ class _SceneCard extends StatelessWidget {
                   ),
                   onPressed: () => controller.toggleFavoriteScene(scene.id),
                   padding: EdgeInsets.zero,
-                  constraints: BoxConstraints(
-                    minWidth: 20,
-                    minHeight: 20,
-                  ),
+                  constraints: BoxConstraints(minWidth: 20, minHeight: 20),
                 ),
             ],
           ),
@@ -460,7 +477,6 @@ class _SceneCard extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class _SceneSwatch extends StatelessWidget {
@@ -480,7 +496,7 @@ class _SceneSwatch extends StatelessWidget {
         ? palette
         : const <Color>[AppColors.primary, AppColors.primaryOverlay];
     final List<Color> gradientColors = colors.length == 1
-        ? <Color>[colors.first, colors.first.withOpacity(0.7)]
+        ? <Color>[colors.first, colors.first.withValues(alpha: 0.7)]
         : colors;
 
     return Container(
@@ -502,9 +518,12 @@ class _SceneSwatch extends StatelessWidget {
               right: 6,
               bottom: 6,
               child: Icon(
+                // TODO(L3): Icons.auto_awesome is indicator for dynamic scenes
+                // Android doesn't have this overlay icon, it uses scene icon directly
+                // VIOLATION: Material Icon not in Android
                 Icons.auto_awesome,
                 size: 16,
-                color: Colors.white.withOpacity(0.85),
+                color: Colors.white.withValues(alpha: 0.85),
               ),
             ),
         ],
@@ -566,6 +585,9 @@ Widget _sceneIcon(String? iconKey, bool isPreset) {
   }
   // Fallback for preset or custom scenes without iconKey
   return Icon(
+    // TODO(L3): Icons.auto_awesome_motion and Icons.pie_chart_outline are fallbacks
+    // Android uses getSceneIconById() to load drawable resources
+    // VIOLATION: Material Icons not in Android
     isPreset ? Icons.auto_awesome_motion : Icons.pie_chart_outline,
     size: 24,
   );

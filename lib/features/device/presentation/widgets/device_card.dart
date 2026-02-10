@@ -82,8 +82,8 @@ class DeviceCard extends StatelessWidget {
                               ),
                               child: Icon(
                                 deviceKind == _DeviceKind.led
-                                    ? Icons.lightbulb
-                                    : Icons.water_drop,
+                                    ? CommonIconHelper.getLedIcon()
+                                    : CommonIconHelper.getDropIcon(),
                                 size: 32,
                                 color: AppColors.primary,
                               ),

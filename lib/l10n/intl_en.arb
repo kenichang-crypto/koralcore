@@ -690,5 +690,305 @@
       }
     }
   },
-  "timeRangeSeparator": "~"
+  "timeRangeSeparator": "~",
+  "dosingVolume": "Dosing Volume (ml)",
+  "@dosingVolume": {
+    "description": "Dosing volume label with unit",
+    "androidSource": "@string/drop_volume"
+  },
+  "dosingStartTime": "Dosing Start Time",
+  "@dosingStartTime": {
+    "description": "Dosing start time label",
+    "androidSource": "@string/drop_start_time"
+  },
+  "dosingEndTime": "Dosing End Time",
+  "@dosingEndTime": {
+    "description": "Dosing end time label",
+    "androidSource": "@string/drop_end_time"
+  },
+  "dosingFrequency": "Dosing Frequency",
+  "@dosingFrequency": {
+    "description": "Number of dosing times",
+    "androidSource": "@string/drop_times"
+  },
+  "dosingType": "Dosing Type",
+  "@dosingType": {
+    "description": "Type of dosing (additive type)",
+    "androidSource": "@string/drop_type"
+  },
+  "dosingScheduleType": "Schedule Type",
+  "@dosingScheduleType": {
+    "description": "Type of schedule (24hr/single/custom)",
+    "androidSource": "@string/drop_record_type"
+  },
+  "dosingSchedulePeriod": "Schedule Period",
+  "@dosingSchedulePeriod": {
+    "description": "Schedule time period",
+    "androidSource": "@string/drop_record_time"
+  },
+  "dosingWeeklyDays": "Weekly Dosing Days",
+  "@dosingWeeklyDays": {
+    "description": "Days of week for dosing",
+    "androidSource": "@string/drop_days_a_week"
+  },
+  "dosingExecuteNow": "Execute Now",
+  "@dosingExecuteNow": {
+    "description": "Execute dosing immediately",
+    "androidSource": "@string/run_immediatrly"
+  },
+  "dosingExecutionTime": "Execution Time",
+  "@dosingExecutionTime": {
+    "description": "Time for dosing execution",
+    "androidSource": "@string/run_time"
+  },
+  "pumpHeadSpeed": "Pump Head Speed",
+  "@pumpHeadSpeed": {
+    "description": "Pump head rotating speed label",
+    "androidSource": "@string/drop_head_rotating_speed"
+  },
+  "pumpHeadSpeedLow": "Low Speed",
+  "@pumpHeadSpeedLow": {
+    "description": "Low rotating speed",
+    "androidSource": "@string/low_rotating_speed"
+  },
+  "pumpHeadSpeedMedium": "Medium Speed",
+  "@pumpHeadSpeedMedium": {
+    "description": "Medium rotating speed",
+    "androidSource": "@string/middle_rotating_speed"
+  },
+  "pumpHeadSpeedHigh": "High Speed",
+  "@pumpHeadSpeedHigh": {
+    "description": "High rotating speed",
+    "androidSource": "@string/high_rotating_speed"
+  },
+  "pumpHeadSpeedDefault": "Default Speed",
+  "@pumpHeadSpeedDefault": {
+    "description": "Default rotating speed",
+    "androidSource": "@string/init_rotating_speed"
+  },
+  "calibrationInstructions": "Calibration Instructions",
+  "@calibrationInstructions": {
+    "description": "Title for calibration instructions section",
+    "androidSource": "@string/adjust_description"
+  },
+  "calibrationSteps": "1.Prepare the included measuring cup and some tubes\n2. Start manual operation to fill the tubes with liquid\n3. Select the speed for calibration",
+  "@calibrationSteps": {
+    "description": "Step-by-step calibration instructions",
+    "androidSource": "@string/adjust_step"
+  },
+  "calibrationVolumeHint": "1 ~ 15; one decimal place",
+  "@calibrationVolumeHint": {
+    "description": "Hint for calibration volume input",
+    "androidSource": "@string/adjust_volume_hint"
+  },
+  "calibrating": "Calibrating...",
+  "@calibrating": {
+    "description": "Calibration in progress message",
+    "androidSource": "@string/adjusting"
+  },
+  "calibrationComplete": "Complete Calibration",
+  "@calibrationComplete": {
+    "description": "Button text to complete calibration",
+    "androidSource": "@string/complete_adjust"
+  },
+  "recentCalibrationRecords": "Recent Calibration Records",
+  "@recentCalibrationRecords": {
+    "description": "Title for recent calibration records section",
+    "androidSource": "@string/recently_adjust_list"
+  },
+  "todayScheduledVolume": "Today's Scheduled Immediate Dosing Volume",
+  "@todayScheduledVolume": {
+    "description": "Today's total scheduled dosing volume",
+    "androidSource": "@string/today_record_drop_volume"
+  },
+  "maxDosingVolume": "Daily Max Dosing Volume",
+  "@maxDosingVolume": {
+    "description": "Maximum daily dosing volume setting",
+    "androidSource": "@string/max_drop_volume"
+  },
+  "maxDosingVolumeHint": "Limit dosing volume for scheduled and non-scheduled operation after opening",
+  "@maxDosingVolumeHint": {
+    "description": "Hint for max dosing volume setting",
+    "androidSource": "@string/max_drop_volume_hint"
+  },
+  "delayTime": "Delay Time",
+  "@delayTime": {
+    "description": "Delay time setting",
+    "androidSource": "@string/delay_time"
+  },
+  "delayTime1Min": "1 minute",
+  "@delayTime1Min": {
+    "description": "1 minute delay option",
+    "androidSource": "@string/_1min"
+  },
+  "dosingSettingsTitle": "Dosing Pump Settings",
+  "@dosingSettingsTitle": {
+    "description": "Dosing settings page title",
+    "androidSource": "@string/drop_setting"
+  },
+  "pumpHeadRecordTitle": "Schedule",
+  "@pumpHeadRecordTitle": {
+    "description": "Pump head record/schedule title",
+    "androidSource": "@string/record"
+  },
+  "pumpHeadRecordSettingsTitle": "Schedule Settings",
+  "@pumpHeadRecordSettingsTitle": {
+    "description": "Pump head record settings page title",
+    "androidSource": "@string/record"
+  },
+  "pumpHeadRecordTimeSettingsTitle": "Time Setting",
+  "@pumpHeadRecordTimeSettingsTitle": {
+    "description": "Pump head record time settings page title",
+    "androidSource": "@string/time_setting"
+  },
+  "pumpHeadAdjustListTitle": "Adjust List",
+  "@pumpHeadAdjustListTitle": {
+    "description": "Pump head adjust list page title",
+    "androidSource": "@string/adjust_list"
+  },
+  "pumpHeadAdjustTitle": "Adjust",
+  "@pumpHeadAdjustTitle": {
+    "description": "Pump head adjust page title",
+    "androidSource": "@string/adjust"
+  },
+  "dosingTypeTitle": "Dosing Type",
+  "@dosingTypeTitle": {
+    "description": "Dosing type page title",
+    "androidSource": "@string/drop_type"
+  },
+  "rotatingSpeed": "Speed",
+  "@rotatingSpeed": {
+    "description": "Rotating speed label",
+    "androidSource": "@string/rotating_speed"
+  },
+  "ledInitialIntensity": "Initial Intensity",
+  "@ledInitialIntensity": {
+    "description": "Initial LED intensity setting",
+    "androidSource": "@string/init_strength"
+  },
+  "ledSunrise": "Sunrise",
+  "@ledSunrise": {
+    "description": "Sunrise lighting effect",
+    "androidSource": "@string/sunrise"
+  },
+  "ledSunset": "Sunset",
+  "@ledSunset": {
+    "description": "Sunset lighting effect",
+    "androidSource": "@string/sunset"
+  },
+  "ledSlowStart": "Soft Start",
+  "@ledSlowStart": {
+    "description": "Slow start / soft start feature",
+    "androidSource": "@string/slow_start"
+  },
+  "ledInitDuration": "30 Minutes",
+  "@ledInitDuration": {
+    "description": "Initial duration (30 minutes)",
+    "androidSource": "@string/init_minute"
+  },
+  "ledScheduleTimePoint": "Scheduled Time Point",
+  "@ledScheduleTimePoint": {
+    "description": "Scheduled time point in LED record",
+    "androidSource": "@string/record_time"
+  },
+  "ledScheduleSettings": "Schedule Settings",
+  "@ledScheduleSettings": {
+    "description": "LED schedule settings page title",
+    "androidSource": "@string/record_setting"
+  },
+  "ledSceneAdd": "Add Scene",
+  "@ledSceneAdd": {
+    "description": "Add new LED scene",
+    "androidSource": "@string/led_scene_add"
+  },
+  "ledSceneEdit": "Scene Settings",
+  "@ledSceneEdit": {
+    "description": "Edit LED scene settings",
+    "androidSource": "@string/led_scene_edit"
+  },
+  "ledSceneDelete": "Delete Scene",
+  "@ledSceneDelete": {
+    "description": "Delete LED scene",
+    "androidSource": "@string/led_scene_delete"
+  },
+  "ledRecordPause": "The schedule is paused.",
+  "@ledRecordPause": {
+    "description": "LED record paused message",
+    "androidSource": "@string/record_pause"
+  },
+  "ledRecordContinue": "Resume execution.",
+  "@ledRecordContinue": {
+    "description": "LED record continue message",
+    "androidSource": "@string/continue_record"
+  },
+  "actionConfirm": "OK",
+  "@actionConfirm": {
+    "description": "Confirm action button",
+    "androidSource": "@string/confirm"
+  },
+  "actionCancel": "Cancel",
+  "@actionCancel": {
+    "description": "Cancel action button",
+    "androidSource": "@string/cancel"
+  },
+  "actionNext": "Next",
+  "@actionNext": {
+    "description": "Next step button",
+    "androidSource": "@string/next"
+  },
+  "actionSave": "Save",
+  "@actionSave": {
+    "description": "Save button",
+    "androidSource": "@string/save"
+  },
+  "actionEdit": "Edit",
+  "@actionEdit": {
+    "description": "Edit action button",
+    "androidSource": "@string/edit"
+  },
+  "actionDelete": "Delete",
+  "@actionDelete": {
+    "description": "Delete action button",
+    "androidSource": "@string/delete"
+  },
+  "actionSkip": "Skip",
+  "@actionSkip": {
+    "description": "Skip step button",
+    "androidSource": "@string/skip"
+  },
+  "generalNone": "None",
+  "@generalNone": {
+    "description": "None/Empty option",
+    "androidSource": "@string/no"
+  },
+  "actionComplete": "Done",
+  "@actionComplete": {
+    "description": "Complete/Done button",
+    "androidSource": "@string/complete"
+  },
+  "actionRun": "Run",
+  "@actionRun": {
+    "description": "Run/Execute action button",
+    "androidSource": "@string/run"
+  },
+  "deviceName": "Device Name",
+  "@deviceName": {
+    "description": "Device name label",
+    "androidSource": "@string/device_name"
+  },
+  "deviceNotConnected": "Device not connected",
+  "@deviceNotConnected": {
+    "description": "Device not connected message",
+    "androidSource": "@string/device_is_not_connect"
+  },
+  "sinkPosition": "Tank Location",
+  "@sinkPosition": {
+    "description": "Tank/sink position setting",
+    "androidSource": "@string/sink_position"
+  },
+  "sinkEmptyMessage": "Tap the add button at the bottom right to add a tank.",
+  "@sinkEmptyMessage": {
+    "description": "Empty state message for sink list",
+    "androidSource": "@string/text_no_sink_content"
+  }
 }

@@ -62,6 +62,8 @@ class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.onPrimary,
+          disabledBackgroundColor: AppColors.surfaceMutedOverlay, // bg_aaa_60
+          disabledForegroundColor: AppColors.textDisabled,
           textStyle: AppTextStyles.bodyAccent,
           padding: buttonPadding,
           shape: RoundedRectangleBorder(
@@ -130,9 +132,7 @@ class AppTheme {
           horizontal: AppSpacing.md,
           vertical: AppSpacing.sm,
         ),
-        hintStyle: AppTextStyles.body.copyWith(
-          color: AppColors.textSecondary,
-        ),
+        hintStyle: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
       ),
     );
   }
@@ -141,4 +141,3 @@ class AppTheme {
 /// Legacy alias for backward compatibility
 @Deprecated('Use AppTheme instead')
 typedef ReefTheme = AppTheme;
-

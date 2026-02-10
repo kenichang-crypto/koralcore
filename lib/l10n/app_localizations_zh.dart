@@ -1285,7 +1285,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sinkTypeDefault => 'Default';
 
   @override
-  String get sinkPosition => 'Sink Position';
+  String get sinkPosition => 'Tank Location';
 
   @override
   String get sinkPositionTitle => 'Sink Position';
@@ -1696,6 +1696,163 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get timeRangeSeparator => '~';
+
+  @override
+  String get dosingVolume => 'Dosing Volume (ml)';
+
+  @override
+  String get dosingStartTime => 'Dosing Start Time';
+
+  @override
+  String get dosingEndTime => 'Dosing End Time';
+
+  @override
+  String get dosingFrequency => 'Dosing Frequency';
+
+  @override
+  String get dosingType => 'Dosing Type';
+
+  @override
+  String get dosingScheduleType => 'Schedule Type';
+
+  @override
+  String get dosingSchedulePeriod => 'Schedule Period';
+
+  @override
+  String get dosingWeeklyDays => 'Weekly Dosing Days';
+
+  @override
+  String get dosingExecuteNow => 'Execute Now';
+
+  @override
+  String get dosingExecutionTime => 'Execution Time';
+
+  @override
+  String get pumpHeadSpeed => 'Pump Head Speed';
+
+  @override
+  String get pumpHeadSpeedLow => 'Low Speed';
+
+  @override
+  String get pumpHeadSpeedMedium => 'Medium Speed';
+
+  @override
+  String get pumpHeadSpeedHigh => 'High Speed';
+
+  @override
+  String get pumpHeadSpeedDefault => 'Default Speed';
+
+  @override
+  String get calibrationInstructions => 'Calibration Instructions';
+
+  @override
+  String get calibrationSteps =>
+      '1.Prepare the included measuring cup and some tubes\n2. Start manual operation to fill the tubes with liquid\n3. Select the speed for calibration';
+
+  @override
+  String get calibrationVolumeHint => '1 ~ 15; one decimal place';
+
+  @override
+  String get calibrating => 'Calibrating...';
+
+  @override
+  String get calibrationComplete => 'Complete Calibration';
+
+  @override
+  String get recentCalibrationRecords => 'Recent Calibration Records';
+
+  @override
+  String get todayScheduledVolume =>
+      'Today\'s Scheduled Immediate Dosing Volume';
+
+  @override
+  String get maxDosingVolume => 'Daily Max Dosing Volume';
+
+  @override
+  String get maxDosingVolumeHint =>
+      'Limit dosing volume for scheduled and non-scheduled operation after opening';
+
+  @override
+  String get delayTime1Min => '1 minute';
+
+  @override
+  String get dosingSettingsTitle => 'Dosing Pump Settings';
+
+  @override
+  String get pumpHeadRecordTitle => 'Schedule';
+
+  @override
+  String get pumpHeadRecordSettingsTitle => 'Schedule Settings';
+
+  @override
+  String get pumpHeadRecordTimeSettingsTitle => 'Time Setting';
+
+  @override
+  String get pumpHeadAdjustListTitle => 'Adjust List';
+
+  @override
+  String get pumpHeadAdjustTitle => 'Adjust';
+
+  @override
+  String get dosingTypeTitle => 'Dosing Type';
+
+  @override
+  String get rotatingSpeed => 'Speed';
+
+  @override
+  String get ledInitialIntensity => 'Initial Intensity';
+
+  @override
+  String get ledSunrise => 'Sunrise';
+
+  @override
+  String get ledSunset => 'Sunset';
+
+  @override
+  String get ledSlowStart => 'Soft Start';
+
+  @override
+  String get ledInitDuration => '30 Minutes';
+
+  @override
+  String get ledScheduleTimePoint => 'Scheduled Time Point';
+
+  @override
+  String get ledScheduleSettings => 'Schedule Settings';
+
+  @override
+  String get ledSceneAdd => 'Add Scene';
+
+  @override
+  String get ledSceneEdit => 'Scene Settings';
+
+  @override
+  String get ledSceneDelete => 'Delete Scene';
+
+  @override
+  String get ledRecordPause => 'The schedule is paused.';
+
+  @override
+  String get ledRecordContinue => 'Resume execution.';
+
+  @override
+  String get actionEdit => 'Edit';
+
+  @override
+  String get generalNone => 'None';
+
+  @override
+  String get actionComplete => 'Done';
+
+  @override
+  String get actionRun => 'Run';
+
+  @override
+  String get deviceNotConnected => 'Device not connected';
+
+  @override
+  String get sinkEmptyMessage =>
+      'Tap the add button at the bottom right to add a tank.';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -2610,6 +2767,21 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get ledScheduleStatusDisabled => 'Disabled';
 
   @override
+  String get actionSave => '儲存';
+
+  @override
+  String get actionDelete => '刪除';
+
+  @override
+  String get actionSkip => '略過';
+
+  @override
+  String get actionNext => '下一步';
+
+  @override
+  String get deviceName => '裝置名稱';
+
+  @override
   String get ledSceneNameLabel => '場景名稱';
 
   @override
@@ -2693,6 +2865,12 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get ledRecordSettingErrorSunTime => '日出時間、日落時間設定錯誤。';
 
   @override
+  String get sinkPosition => '水槽位置';
+
+  @override
+  String get delayTime => '延遲時間';
+
+  @override
   String get group => '群組';
 
   @override
@@ -2763,4 +2941,158 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get timeRangeSeparator => '~';
+
+  @override
+  String get dosingVolume => '滴液量 (ml)';
+
+  @override
+  String get dosingStartTime => '滴液開始時間';
+
+  @override
+  String get dosingEndTime => '滴液結束時間';
+
+  @override
+  String get dosingFrequency => '滴液次數';
+
+  @override
+  String get dosingType => '滴液種類';
+
+  @override
+  String get dosingScheduleType => '排程種類';
+
+  @override
+  String get dosingSchedulePeriod => '排程時段';
+
+  @override
+  String get dosingWeeklyDays => '一週滴液天數';
+
+  @override
+  String get dosingExecuteNow => '立即執行';
+
+  @override
+  String get dosingExecutionTime => '執行時間';
+
+  @override
+  String get pumpHeadSpeed => '泵頭轉速';
+
+  @override
+  String get pumpHeadSpeedLow => '低速';
+
+  @override
+  String get pumpHeadSpeedMedium => '中速';
+
+  @override
+  String get pumpHeadSpeedHigh => '高速';
+
+  @override
+  String get pumpHeadSpeedDefault => '預設轉速';
+
+  @override
+  String get calibrationInstructions => '校正說明';
+
+  @override
+  String get calibrationSteps =>
+      '1.準備好隨附量筒及一些管子\n2.以啟動手動運轉讓管子內充滿液體\n3.選定轉速進行校正';
+
+  @override
+  String get calibrationVolumeHint => '1 ~ 15;小數點後一位';
+
+  @override
+  String get calibrating => '校正中...';
+
+  @override
+  String get calibrationComplete => '完成校正';
+
+  @override
+  String get recentCalibrationRecords => '最近校正紀錄';
+
+  @override
+  String get todayScheduledVolume => '今日排程即時滴液量';
+
+  @override
+  String get maxDosingVolume => '每日最大滴液量';
+
+  @override
+  String get maxDosingVolumeHint => '開啟後排程及非排程運行動作將被限制滴液量';
+
+  @override
+  String get delayTime1Min => '1 分';
+
+  @override
+  String get dosingSettingsTitle => '滴液泵設定';
+
+  @override
+  String get pumpHeadRecordTitle => '排程';
+
+  @override
+  String get pumpHeadRecordSettingsTitle => '排程設定';
+
+  @override
+  String get pumpHeadRecordTimeSettingsTitle => '時段設定';
+
+  @override
+  String get pumpHeadAdjustListTitle => '校正紀錄';
+
+  @override
+  String get pumpHeadAdjustTitle => '校正';
+
+  @override
+  String get dosingTypeTitle => '滴液種類';
+
+  @override
+  String get rotatingSpeed => '轉速';
+
+  @override
+  String get ledInitialIntensity => '起始強度';
+
+  @override
+  String get ledSunrise => '日出';
+
+  @override
+  String get ledSunset => '日落';
+
+  @override
+  String get ledSlowStart => '緩啟動';
+
+  @override
+  String get ledInitDuration => '30 分鐘';
+
+  @override
+  String get ledScheduleTimePoint => '排程時間點';
+
+  @override
+  String get ledScheduleSettings => '排程設定';
+
+  @override
+  String get ledSceneAdd => '新增場景';
+
+  @override
+  String get ledSceneEdit => '場景設定';
+
+  @override
+  String get ledSceneDelete => '刪除場景';
+
+  @override
+  String get ledRecordPause => '排程已暫停';
+
+  @override
+  String get ledRecordContinue => '繼續執行';
+
+  @override
+  String get actionEdit => '編輯';
+
+  @override
+  String get generalNone => '無';
+
+  @override
+  String get actionComplete => '完成';
+
+  @override
+  String get actionRun => '執行';
+
+  @override
+  String get deviceNotConnected => '裝置未連線';
+
+  @override
+  String get sinkEmptyMessage => '點擊右下新增按鈕增加水槽';
 }

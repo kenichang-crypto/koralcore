@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/common/app_context.dart';
 import '../../../../app/device/device_snapshot.dart';
+import '../../../../app/common/app_session.dart';
 import '../../../../domain/sink/sink.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
@@ -15,6 +16,8 @@ import '../../../../shared/assets/common_icon_helper.dart';
 import '../../../led/presentation/helpers/support/led_record_icon_helper.dart';
 import '../../../device/presentation/controllers/device_list_controller.dart';
 import '../controllers/home_controller.dart';
+import '../../../led/presentation/pages/led_main_page.dart';
+import '../../../doser/presentation/pages/dosing_main_page.dart';
 
 class HomeTabPage extends StatelessWidget {
   const HomeTabPage({super.key});
@@ -50,8 +53,14 @@ class _HomePageView extends StatelessWidget {
           child: _HomeFixedHeaderLayout(
             header: _SinkSelectorBar(
               controller: controller,
-              // Correction Mode (UI parity only): 本頁不處理 navigation
-              onManagerTap: () {},
+              // TODO: Navigate to SinkManagerPage (第二階段實現)
+              onManagerTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('功能開發中 / Feature under development'),
+                  ),
+                );
+              },
               l10n: l10n,
             ),
             body: controller.selectionType == SinkSelectionType.allSinks
@@ -416,8 +425,8 @@ class _HomeDeviceGridTile extends StatelessWidget {
     // groupLabel is computed for data parity but intentionally not used in UI (disabled in Flutter)
 
     return ReefDeviceCard(
-      // Correction Mode (UI parity only): 本頁不處理 navigation
-      onTap: null,
+      // Navigate to device main page based on device type
+      onTap: () => _navigateToDeviceMainPage(context, device),
       child: Padding(
         padding: EdgeInsets.only(
           left: AppSpacing.md, // dp_12 paddingStart
@@ -574,6 +583,31 @@ class _HomeDeviceGridTile extends StatelessWidget {
   // NOTE: _getFavoriteIcon method removed - now using CommonIconHelper.getFavoriteSelectIcon() / getFavoriteUnselectIcon()
   // PARITY: reef-b-app uses @drawable/ic_favorite_select / @drawable/ic_favorite_unselect
   // koralcore uses CommonIconHelper which loads SVG from assets/icons/ic_favorite_*.svg
+
+  /// Navigate to device main page based on device type
+  /// PARITY: reef-b-app HomeFragment navigates to LedMainActivity or DropMainActivity
+  void _navigateToDeviceMainPage(BuildContext context, DeviceSnapshot device) {
+    final session = context.read<AppSession>();
+    final _DeviceKind kind = _DeviceKindHelper.fromName(device.name);
+
+    // Set active device in session before navigation
+    // PARITY: reef-b-app sets currentDevice via DeviceUtil.setCurrentDevice()
+    session.setActiveDevice(device.id);
+
+    if (kind == _DeviceKind.led) {
+      // Navigate to LED main page
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LedMainPage()),
+      );
+    } else {
+      // Navigate to Dosing main page
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const DosingMainPage()),
+      );
+    }
+  }
 }
 
 /// Sink with devices tile (PARITY: adapter_sink_with_devices.xml)

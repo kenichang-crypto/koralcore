@@ -76,8 +76,8 @@ class _KoralCoreAppState extends State<KoralCoreApp> {
           // PARITY: reef-b-app only has Traditional Chinese (values-zh-rTW), no Simplified Chinese
           if (locale.languageCode == 'zh') {
             // Check for Traditional Chinese (zh_TW, zh_HK, zh_Hant)
-            if (locale.scriptCode == 'Hant' || 
-                locale.countryCode == 'TW' || 
+            if (locale.scriptCode == 'Hant' ||
+                locale.countryCode == 'TW' ||
                 locale.countryCode == 'HK') {
               for (final supportedLocale in supportedLocales) {
                 if (supportedLocale.languageCode == 'zh' &&

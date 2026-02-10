@@ -24,14 +24,17 @@ import '../../platform/contracts/device_repository.dart';
 import '../common/app_error.dart';
 import '../common/app_error_code.dart';
 import '../session/current_device_session.dart';
+import 'initialize_device_usecase.dart';
 
 class ConnectDeviceUseCase {
   final DeviceRepository deviceRepository;
   final CurrentDeviceSession currentDeviceSession;
+  final InitializeDeviceUseCase initializeDeviceUseCase;
 
   ConnectDeviceUseCase({
     required this.deviceRepository,
     required this.currentDeviceSession,
+    required this.initializeDeviceUseCase,
   });
 
   Future<void> execute({required String deviceId}) async {
@@ -47,16 +50,12 @@ class ConnectDeviceUseCase {
     try {
       await deviceRepository.connect(deviceId);
       await deviceRepository.setCurrentDevice(deviceId);
-      await deviceRepository.updateDeviceState(deviceId, 'connected');
 
-      currentDeviceSession.start(
-        DeviceContext(
-          deviceId: deviceId,
-          product: DeviceProduct.unknown,
-          firmware: const FirmwareVersion('0.0.0'),
-          capabilities: const CapabilitySet.empty(),
-        ),
-      );
+      // KC-A3-Final: Explicitly removed direct call to InitializeDeviceUseCase.
+      // Logic moved to DeviceConnectionCoordinator to enforce "Reconnect == Fresh Connect" semantics.
+      // The coordinator observes the native connection stream and triggers initialization.
+      // 
+      // await initializeDeviceUseCase.execute(deviceId: deviceId);
     } on AppError {
       rethrow;
     } catch (error) {

@@ -1009,16 +1009,16 @@ abstract class AppLocalizations {
   /// **'Apply'**
   String get actionApply;
 
-  /// No description provided for @actionCancel.
+  /// Cancel action button
   ///
   /// In en, this message translates to:
   /// **'Cancel'**
   String get actionCancel;
 
-  /// No description provided for @actionConfirm.
+  /// Confirm action button
   ///
   /// In en, this message translates to:
-  /// **'Confirm'**
+  /// **'OK'**
   String get actionConfirm;
 
   /// No description provided for @actionRetry.
@@ -1981,13 +1981,13 @@ abstract class AppLocalizations {
   /// **'Time window'**
   String get ledScheduleWindow;
 
-  /// No description provided for @actionSave.
+  /// Save button
   ///
   /// In en, this message translates to:
   /// **'Save'**
   String get actionSave;
 
-  /// No description provided for @actionDelete.
+  /// Delete action button
   ///
   /// In en, this message translates to:
   /// **'Delete'**
@@ -2005,7 +2005,7 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get actionDone;
 
-  /// No description provided for @actionSkip.
+  /// Skip step button
   ///
   /// In en, this message translates to:
   /// **'Skip'**
@@ -2023,13 +2023,13 @@ abstract class AppLocalizations {
   /// **'Clear'**
   String get actionClear;
 
-  /// No description provided for @actionNext.
+  /// Next step button
   ///
   /// In en, this message translates to:
   /// **'Next'**
   String get actionNext;
 
-  /// No description provided for @deviceName.
+  /// Device name label
   ///
   /// In en, this message translates to:
   /// **'Device Name'**
@@ -2551,10 +2551,10 @@ abstract class AppLocalizations {
   /// **'Default'**
   String get sinkTypeDefault;
 
-  /// No description provided for @sinkPosition.
+  /// Tank/sink position setting
   ///
   /// In en, this message translates to:
-  /// **'Sink Position'**
+  /// **'Tank Location'**
   String get sinkPosition;
 
   /// No description provided for @sinkPositionTitle.
@@ -2983,7 +2983,7 @@ abstract class AppLocalizations {
   /// **'Drop Settings'**
   String get dropSettingTitle;
 
-  /// No description provided for @delayTime.
+  /// Delay time setting
   ///
   /// In en, this message translates to:
   /// **'Delay Time'**
@@ -3342,6 +3342,312 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'~'**
   String get timeRangeSeparator;
+
+  /// Dosing volume label with unit
+  ///
+  /// In en, this message translates to:
+  /// **'Dosing Volume (ml)'**
+  String get dosingVolume;
+
+  /// Dosing start time label
+  ///
+  /// In en, this message translates to:
+  /// **'Dosing Start Time'**
+  String get dosingStartTime;
+
+  /// Dosing end time label
+  ///
+  /// In en, this message translates to:
+  /// **'Dosing End Time'**
+  String get dosingEndTime;
+
+  /// Number of dosing times
+  ///
+  /// In en, this message translates to:
+  /// **'Dosing Frequency'**
+  String get dosingFrequency;
+
+  /// Type of dosing (additive type)
+  ///
+  /// In en, this message translates to:
+  /// **'Dosing Type'**
+  String get dosingType;
+
+  /// Type of schedule (24hr/single/custom)
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule Type'**
+  String get dosingScheduleType;
+
+  /// Schedule time period
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule Period'**
+  String get dosingSchedulePeriod;
+
+  /// Days of week for dosing
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Dosing Days'**
+  String get dosingWeeklyDays;
+
+  /// Execute dosing immediately
+  ///
+  /// In en, this message translates to:
+  /// **'Execute Now'**
+  String get dosingExecuteNow;
+
+  /// Time for dosing execution
+  ///
+  /// In en, this message translates to:
+  /// **'Execution Time'**
+  String get dosingExecutionTime;
+
+  /// Pump head rotating speed label
+  ///
+  /// In en, this message translates to:
+  /// **'Pump Head Speed'**
+  String get pumpHeadSpeed;
+
+  /// Low rotating speed
+  ///
+  /// In en, this message translates to:
+  /// **'Low Speed'**
+  String get pumpHeadSpeedLow;
+
+  /// Medium rotating speed
+  ///
+  /// In en, this message translates to:
+  /// **'Medium Speed'**
+  String get pumpHeadSpeedMedium;
+
+  /// High rotating speed
+  ///
+  /// In en, this message translates to:
+  /// **'High Speed'**
+  String get pumpHeadSpeedHigh;
+
+  /// Default rotating speed
+  ///
+  /// In en, this message translates to:
+  /// **'Default Speed'**
+  String get pumpHeadSpeedDefault;
+
+  /// Title for calibration instructions section
+  ///
+  /// In en, this message translates to:
+  /// **'Calibration Instructions'**
+  String get calibrationInstructions;
+
+  /// Step-by-step calibration instructions
+  ///
+  /// In en, this message translates to:
+  /// **'1.Prepare the included measuring cup and some tubes\n2. Start manual operation to fill the tubes with liquid\n3. Select the speed for calibration'**
+  String get calibrationSteps;
+
+  /// Hint for calibration volume input
+  ///
+  /// In en, this message translates to:
+  /// **'1 ~ 15; one decimal place'**
+  String get calibrationVolumeHint;
+
+  /// Calibration in progress message
+  ///
+  /// In en, this message translates to:
+  /// **'Calibrating...'**
+  String get calibrating;
+
+  /// Button text to complete calibration
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Calibration'**
+  String get calibrationComplete;
+
+  /// Title for recent calibration records section
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Calibration Records'**
+  String get recentCalibrationRecords;
+
+  /// Today's total scheduled dosing volume
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Scheduled Immediate Dosing Volume'**
+  String get todayScheduledVolume;
+
+  /// Maximum daily dosing volume setting
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Max Dosing Volume'**
+  String get maxDosingVolume;
+
+  /// Hint for max dosing volume setting
+  ///
+  /// In en, this message translates to:
+  /// **'Limit dosing volume for scheduled and non-scheduled operation after opening'**
+  String get maxDosingVolumeHint;
+
+  /// 1 minute delay option
+  ///
+  /// In en, this message translates to:
+  /// **'1 minute'**
+  String get delayTime1Min;
+
+  /// Dosing settings page title
+  ///
+  /// In en, this message translates to:
+  /// **'Dosing Pump Settings'**
+  String get dosingSettingsTitle;
+
+  /// Pump head record/schedule title
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get pumpHeadRecordTitle;
+
+  /// Pump head record settings page title
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule Settings'**
+  String get pumpHeadRecordSettingsTitle;
+
+  /// Pump head record time settings page title
+  ///
+  /// In en, this message translates to:
+  /// **'Time Setting'**
+  String get pumpHeadRecordTimeSettingsTitle;
+
+  /// Pump head adjust list page title
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust List'**
+  String get pumpHeadAdjustListTitle;
+
+  /// Pump head adjust page title
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust'**
+  String get pumpHeadAdjustTitle;
+
+  /// Dosing type page title
+  ///
+  /// In en, this message translates to:
+  /// **'Dosing Type'**
+  String get dosingTypeTitle;
+
+  /// Rotating speed label
+  ///
+  /// In en, this message translates to:
+  /// **'Speed'**
+  String get rotatingSpeed;
+
+  /// Initial LED intensity setting
+  ///
+  /// In en, this message translates to:
+  /// **'Initial Intensity'**
+  String get ledInitialIntensity;
+
+  /// Sunrise lighting effect
+  ///
+  /// In en, this message translates to:
+  /// **'Sunrise'**
+  String get ledSunrise;
+
+  /// Sunset lighting effect
+  ///
+  /// In en, this message translates to:
+  /// **'Sunset'**
+  String get ledSunset;
+
+  /// Slow start / soft start feature
+  ///
+  /// In en, this message translates to:
+  /// **'Soft Start'**
+  String get ledSlowStart;
+
+  /// Initial duration (30 minutes)
+  ///
+  /// In en, this message translates to:
+  /// **'30 Minutes'**
+  String get ledInitDuration;
+
+  /// Scheduled time point in LED record
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled Time Point'**
+  String get ledScheduleTimePoint;
+
+  /// LED schedule settings page title
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule Settings'**
+  String get ledScheduleSettings;
+
+  /// Add new LED scene
+  ///
+  /// In en, this message translates to:
+  /// **'Add Scene'**
+  String get ledSceneAdd;
+
+  /// Edit LED scene settings
+  ///
+  /// In en, this message translates to:
+  /// **'Scene Settings'**
+  String get ledSceneEdit;
+
+  /// Delete LED scene
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Scene'**
+  String get ledSceneDelete;
+
+  /// LED record paused message
+  ///
+  /// In en, this message translates to:
+  /// **'The schedule is paused.'**
+  String get ledRecordPause;
+
+  /// LED record continue message
+  ///
+  /// In en, this message translates to:
+  /// **'Resume execution.'**
+  String get ledRecordContinue;
+
+  /// Edit action button
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get actionEdit;
+
+  /// None/Empty option
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get generalNone;
+
+  /// Complete/Done button
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get actionComplete;
+
+  /// Run/Execute action button
+  ///
+  /// In en, this message translates to:
+  /// **'Run'**
+  String get actionRun;
+
+  /// Device not connected message
+  ///
+  /// In en, this message translates to:
+  /// **'Device not connected'**
+  String get deviceNotConnected;
+
+  /// Empty state message for sink list
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the add button at the bottom right to add a tank.'**
+  String get sinkEmptyMessage;
 }
 
 class _AppLocalizationsDelegate

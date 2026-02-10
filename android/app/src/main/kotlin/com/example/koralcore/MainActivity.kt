@@ -25,18 +25,32 @@ class MainActivity : FlutterActivity() {
 			}
 		}
 		methodChannel = channel
-		bleHost.setNotificationSink { deviceId, characteristicUuid, payload ->
-			mainHandler.post {
-				methodChannel?.invokeMethod(
-					"notify",
-					mapOf(
-						"deviceId" to deviceId,
-						"characteristic" to characteristicUuid.toString(),
-						"payload" to payload,
-					),
-				)
+		bleHost.setNotificationSink(object : BleHost.NotificationSink {
+			override fun onNotify(deviceId: String, characteristicUuid: java.util.UUID, payload: ByteArray) {
+				mainHandler.post {
+					methodChannel?.invokeMethod(
+						"notify",
+						mapOf(
+							"deviceId" to deviceId,
+							"characteristic" to characteristicUuid.toString(),
+							"payload" to payload,
+						),
+					)
+				}
 			}
-		}
+
+			override fun onConnectionStateChange(deviceId: String, isConnected: Boolean) {
+				mainHandler.post {
+					methodChannel?.invokeMethod(
+						"connectionStateChange",
+						mapOf(
+							"deviceId" to deviceId,
+							"isConnected" to isConnected,
+						),
+					)
+				}
+			}
+		})
 	}
 
 	override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {

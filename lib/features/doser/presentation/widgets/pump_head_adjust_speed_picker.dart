@@ -34,7 +34,7 @@ class PumpHeadAdjustSpeedPicker {
             ListTile(
               title: Text(l10n.dosingRotatingSpeedLow),
               trailing: controller.selectedSpeed == 1
-                  ? CommonIconHelper.getCheckIcon(
+                  ? CommonIconHelper.getCheckIcon(size: 20, 
                       size: 24,
                       color: AppColors.primary,
                     )
@@ -47,7 +47,7 @@ class PumpHeadAdjustSpeedPicker {
             ListTile(
               title: Text(l10n.dosingRotatingSpeedMedium),
               trailing: controller.selectedSpeed == 2
-                  ? CommonIconHelper.getCheckIcon(
+                  ? CommonIconHelper.getCheckIcon(size: 20, 
                       size: 24,
                       color: AppColors.primary,
                     )
@@ -60,7 +60,7 @@ class PumpHeadAdjustSpeedPicker {
             ListTile(
               title: Text(l10n.dosingRotatingSpeedHigh),
               trailing: controller.selectedSpeed == 3
-                  ? CommonIconHelper.getCheckIcon(
+                  ? CommonIconHelper.getCheckIcon(size: 20, 
                       size: 24,
                       color: AppColors.primary,
                     )

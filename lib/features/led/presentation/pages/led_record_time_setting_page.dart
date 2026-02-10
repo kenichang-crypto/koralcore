@@ -165,7 +165,7 @@ class _TimeSelectionSection extends StatelessWidget {
               const Spacer(),
               // ic_down icon (24x24dp)
               // TODO(android @drawable/ic_down)
-              const Icon(Icons.arrow_drop_down, size: 24),
+              const CommonIconHelper.getDownIcon(), size: 24),
             ],
           ),
         ),

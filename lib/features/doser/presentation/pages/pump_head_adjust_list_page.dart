@@ -1,190 +1,152 @@
+// PARITY: 100% Android activity_drop_head_adjust_list.xml
+// android/ReefB_Android/app/src/main/res/layout/activity_drop_head_adjust_list.xml
+// Mode: Correction (路徑 B：完全 Parity 化)
+//
+// Android 結構：
+// - Root: ConstraintLayout
+// - Toolbar: include toolbar_two_action (固定)
+// - RecyclerView: rv_adjust (可捲動, padding 16/8/16/8, layout_height="0dp")
+// - Progress: include progress (visibility=gone)
+//
+// 所有業務邏輯已移除，僅保留 UI 結構。
+
 import 'package:flutter/material.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
-import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
-import '../../../../app/common/app_context.dart';
-import '../../../../app/common/app_error_code.dart';
-import '../../../../app/common/app_session.dart';
 import '../../../../shared/theme/app_colors.dart';
-import '../../../../shared/theme/app_radius.dart';
-import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/theme/app_text_styles.dart';
-import '../../../../shared/widgets/reef_app_bar.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
-import '../../../../core/ble/ble_guard.dart';
-import '../../../../shared/widgets/error_state_widget.dart';
-import '../../../../shared/widgets/loading_state_widget.dart';
-import '../../../../shared/widgets/empty_state_widget.dart';
-import '../controllers/pump_head_calibration_controller.dart';
-import '../models/pump_head_calibration_record.dart';
-import 'pump_head_adjust_page.dart';
 
-/// Pump head adjust list page.
+/// PumpHeadAdjustListPage (Parity Mode)
 ///
-/// PARITY: Mirrors reef-b-app's DropHeadAdjustListActivity.
+/// PARITY: android/ReefB_Android/app/src/main/res/layout/activity_drop_head_adjust_list.xml
+///
+/// 此頁面為純 UI Parity 實作，無業務邏輯。
+/// - 所有按鈕 onPressed = null
+/// - 不實作 BLE、DB、Navigation
+/// - RecyclerView 可捲動
 class PumpHeadAdjustListPage extends StatelessWidget {
-  final String headId;
-
-  const PumpHeadAdjustListPage({super.key, required this.headId});
-
-  @override
-  Widget build(BuildContext context) {
-    final appContext = context.read<AppContext>();
-    final session = context.read<AppSession>();
-    return ChangeNotifierProvider<PumpHeadCalibrationController>(
-      create: (_) => PumpHeadCalibrationController(
-        headId: headId,
-        session: session,
-        readCalibrationHistoryUseCase: appContext.readCalibrationHistoryUseCase,
-      )..refresh(),
-      child: _PumpHeadAdjustListView(headId: headId),
-    );
-  }
-}
-
-class _PumpHeadAdjustListView extends StatelessWidget {
-  final String headId;
-
-  const _PumpHeadAdjustListView({required this.headId});
+  const PumpHeadAdjustListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final session = context.watch<AppSession>();
-    final controller = context.watch<PumpHeadCalibrationController>();
-    final isConnected = session.isBleConnected;
-
-    _maybeShowError(context, controller.lastErrorCode);
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceMuted,
-      appBar: ReefAppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.onPrimary,
-        elevation: 0,
-        leading: IconButton(
-          icon: CommonIconHelper.getBackIcon(size: 24),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          l10n.dosingAdjustListTitle,
-        ),
-        actions: [
-          IconButton(
-            icon: CommonIconHelper.getResetIcon(size: 24),
-            onPressed: controller.isLoading ? null : controller.refresh,
-            tooltip: l10n.actionRefresh,
+      backgroundColor: AppColors.surfaceMuted, // bg_aaa (#F7F7F7)
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              // PARITY: toolbar_drop_head_adjust_list (Line 8-13)
+              _ToolbarTwoAction(l10n: l10n),
+              // PARITY: rv_adjust (Line 15-29)
+              // RecyclerView with layout_height="0dp" (fills remaining space)
+              // padding 16/8/16/8 (Line 20-23), clipToPadding=false (Line 19)
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.only(
+                    left: 16, // dp_16 paddingStart
+                    top: 8, // dp_8 paddingTop
+                    right: 16, // dp_16 paddingEnd
+                    bottom: 8, // dp_8 paddingBottom
+                  ),
+                  children: [
+                    // PARITY: adapter_adjust.xml (tools:listitem, Line 25)
+                    // Placeholder for RecyclerView items
+                    _AdjustHistoryItem(),
+                    _AdjustHistoryItem(),
+                    _AdjustHistoryItem(),
+                  ],
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: controller.isLoading || !isConnected
-                ? null
-                : () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => PumpHeadAdjustPage(headId: headId),
-                      ),
-                    );
-                  },
+          // PARITY: progress (Line 31-36, visibility="gone")
+          _ProgressOverlay(visible: false),
+        ],
+      ),
+    );
+  }
+}
+
+/// PARITY: toolbar_two_action.xml
+/// - Title: activity_drop_head_adjust_list_title
+/// - Left: btn_back
+/// - Right: btn_right (activity_drop_head_adjust_list_toolbar_right_btn = "開始校準")
+class _ToolbarTwoAction extends StatelessWidget {
+  final AppLocalizations l10n;
+
+  const _ToolbarTwoAction({required this.l10n});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: AppColors.primary,
+      padding: const EdgeInsets.only(
+        top: 40,
+        bottom: 8,
+      ), // Status bar + padding
+      child: Row(
+        children: [
+          // btn_back
+          IconButton(
+            icon: CommonIconHelper.getBackIcon(size: 24, 
+              size: 24,
+              color: AppColors.onPrimary,
+            ),
+            onPressed: null, // Disabled in Parity Mode
+          ),
+          // toolbar_title
+          Expanded(
             child: Text(
-              l10n.dosingAdjustListStartAdjust,
-              style: TextStyle(color: AppColors.onPrimary),
+              'TODO(android @string/activity_drop_head_adjust_list_title)', // TODO(android @string/activity_drop_head_adjust_list_title)
+              style: AppTextStyles.title2.copyWith(color: AppColors.onPrimary),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          // btn_right ("開始校準")
+          TextButton(
+            onPressed: null, // Disabled in Parity Mode
+            child: Text(
+              'TODO(android @string/activity_drop_head_adjust_list_toolbar_right_btn)', // TODO(android @string/activity_drop_head_adjust_list_toolbar_right_btn)
+              style: AppTextStyles.body.copyWith(color: AppColors.onPrimary),
             ),
           ),
         ],
       ),
-      body: controller.isLoading
-          ? const LoadingStateWidget.center()
-          : Column(
-              children: [
-                if (!isConnected) ...[const BleGuardBanner()],
-                Expanded(
-                  child: controller.records.isEmpty
-                      ? _EmptyState(l10n: l10n)
-                      : RefreshIndicator(
-                          onRefresh: controller.refresh,
-                          child: ListView.builder(
-                            // PARITY: activity_drop_head_adjust_list.xml rv_adjust padding 16/8/16/8dp
-                            padding: EdgeInsets.only(
-                              left: AppSpacing.md, // dp_16 paddingStart
-                              top: AppSpacing.xs, // dp_8 paddingTop
-                              right: AppSpacing.md, // dp_16 paddingEnd
-                              bottom: AppSpacing.xs, // dp_8 paddingBottom
-                            ),
-                            itemCount: controller.records.length,
-                            itemBuilder: (context, index) {
-                              final record = controller.records[index];
-                              return _AdjustHistoryCard(
-                                record: record,
-                                l10n: l10n,
-                              );
-                            },
-                          ),
-                        ),
-                ),
-              ],
-            ),
     );
-  }
-
-  void _maybeShowError(BuildContext context, AppErrorCode? code) {
-    if (code == null) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!context.mounted) return;
-      showErrorSnackBar(context, code);
-    });
   }
 }
 
-class _AdjustHistoryCard extends StatelessWidget {
-  final PumpHeadCalibrationRecord record;
-  final AppLocalizations l10n;
-
-  const _AdjustHistoryCard({required this.record, required this.l10n});
-
-  /// Convert speedProfile string to rotatingSpeed int.
-  /// Low -> 1, Medium -> 2, High -> 3, Custom/Other -> 2 (default to medium)
-  int _speedProfileToInt(String speedProfile) {
-    switch (speedProfile.toLowerCase()) {
-      case 'low':
-        return 1;
-      case 'medium':
-        return 2;
-      case 'high':
-        return 3;
-      default:
-        return 2; // Default to medium for Custom or unknown profiles
-    }
-  }
-
-  /// Adjust history card matching adapter_adjust.xml layout.
-  ///
-  /// PARITY: Mirrors reef-b-app's adapter_adjust.xml structure:
-  /// - ConstraintLayout: background_white_radius, padding 12dp, margin 4dp top/bottom
-  /// - tv_speed_title: caption1_accent, text_aaa
-  /// - tv_speed: caption1, bg_secondary
-  /// - tv_date_title: caption1_accent, text_aaa, marginTop 4dp
-  /// - tv_date: caption1
-  /// - tv_volume_title: caption1_accent, text_aaa, marginTop 4dp
-  /// - tv_volume: caption1
+/// PARITY: adapter_adjust.xml
+/// RecyclerView item for adjust history
+/// - ConstraintLayout: background_white_radius, padding 12dp, margin 4/4 top/bottom
+/// - tv_speed_title + tv_speed (caption1_accent + caption1)
+/// - tv_date_title + tv_date (caption1_accent + caption1, marginTop 4dp)
+/// - tv_volume_title + tv_volume (caption1_accent + caption1, marginTop 4dp)
+class _AdjustHistoryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final int speed = _speedProfileToInt(record.speedProfile);
-    final String speedText = _getSpeedText(speed, l10n);
-    final String dateText = DateFormat('yyyy-MM-dd HH:mm:ss').format(record.performedAt);
-    final String volumeText = '${record.flowRateMlPerMin.toStringAsFixed(1)} ml';
-
-    // PARITY: adapter_adjust.xml structure
     return Container(
-      margin: EdgeInsets.only(
-        top: AppSpacing.xs, // dp_4 marginTop
-        bottom: AppSpacing.xs, // dp_4 marginBottom
+      margin: const EdgeInsets.only(
+        top: 4, // dp_4 marginTop
+        bottom: 4, // dp_4 marginBottom
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface, // white background
-        borderRadius: BorderRadius.circular(AppRadius.md), // background_white_radius
+        color: AppColors.surface, // white background (background_white_radius)
+        borderRadius: BorderRadius.circular(8), // radius
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      padding: EdgeInsets.all(AppSpacing.md), // dp_12 padding
+      padding: const EdgeInsets.all(12), // dp_12 padding
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -192,42 +154,42 @@ class _AdjustHistoryCard extends StatelessWidget {
           // Speed row
           Row(
             children: [
-              // Speed title (tv_speed_title) - caption1_accent, text_aaa
+              // tv_speed_title (caption1_accent, text_aaa)
               Text(
-                l10n.dosingScheduleEditRotatingSpeedLabel, // "旋轉速度" or "Rotating Speed"
+                'TODO(android @string/rotating_speed)', // TODO(android @string/rotating_speed)
                 style: AppTextStyles.caption1Accent.copyWith(
                   color: AppColors.textTertiary, // text_aaa
                 ),
               ),
-              SizedBox(width: AppSpacing.xs), // dp_4 marginStart
-              // Speed value (tv_speed) - caption1, bg_secondary
+              const SizedBox(width: 4), // dp_4 marginStart
+              // tv_speed (caption1, bg_secondary)
               Expanded(
                 child: Text(
-                  speedText,
+                  '中速', // Placeholder
                   style: AppTextStyles.caption1.copyWith(
-                    color: AppColors.textSecondary, // bg_secondary (using textSecondary as fallback)
+                    color: AppColors.textSecondary, // bg_secondary
                   ),
                   textAlign: TextAlign.end,
                 ),
               ),
             ],
           ),
-          SizedBox(height: AppSpacing.xs), // dp_4 marginTop
+          const SizedBox(height: 4), // dp_4 marginTop
           // Date row
           Row(
             children: [
-              // Date title (tv_date_title) - caption1_accent, text_aaa
+              // tv_date_title (caption1_accent, text_aaa)
               Text(
-                l10n.dosingAdjustListDate,
+                'TODO(android @string/date)', // TODO(android @string/date)
                 style: AppTextStyles.caption1Accent.copyWith(
                   color: AppColors.textTertiary, // text_aaa
                 ),
               ),
-              SizedBox(width: AppSpacing.xs), // dp_4 marginStart
-              // Date value (tv_date) - caption1
+              const SizedBox(width: 4), // dp_4 marginStart
+              // tv_date (caption1)
               Expanded(
                 child: Text(
-                  dateText,
+                  '2024-01-01 12:00:00', // Placeholder
                   style: AppTextStyles.caption1.copyWith(
                     color: AppColors.textPrimary,
                   ),
@@ -236,22 +198,22 @@ class _AdjustHistoryCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: AppSpacing.xs), // dp_4 marginTop
+          const SizedBox(height: 4), // dp_4 marginTop
           // Volume row
           Row(
             children: [
-              // Volume title (tv_volume_title) - caption1_accent, text_aaa
+              // tv_volume_title (caption1_accent, text_aaa)
               Text(
-                l10n.dosingAdjustListVolume,
+                'TODO(android @string/volume)', // TODO(android @string/volume)
                 style: AppTextStyles.caption1Accent.copyWith(
                   color: AppColors.textTertiary, // text_aaa
                 ),
               ),
-              SizedBox(width: AppSpacing.xs), // dp_4 marginStart
-              // Volume value (tv_volume) - caption1
+              const SizedBox(width: 4), // dp_4 marginStart
+              // tv_volume (caption1)
               Expanded(
                 child: Text(
-                  volumeText,
+                  '10.0 ml', // Placeholder
                   style: AppTextStyles.caption1.copyWith(
                     color: AppColors.textPrimary,
                   ),
@@ -264,32 +226,23 @@ class _AdjustHistoryCard extends StatelessWidget {
       ),
     );
   }
-
-  String _getSpeedText(int speed, AppLocalizations l10n) {
-    switch (speed) {
-      case 1:
-        return l10n.dosingRotatingSpeedLow;
-      case 2:
-        return l10n.dosingRotatingSpeedMedium;
-      case 3:
-        return l10n.dosingRotatingSpeedHigh;
-      default:
-        return l10n.dosingRotatingSpeedMedium;
-    }
-  }
 }
 
-class _EmptyState extends StatelessWidget {
-  final AppLocalizations l10n;
+/// PARITY: progress.xml (include layout)
+/// Full-screen overlay with CircularProgressIndicator
+class _ProgressOverlay extends StatelessWidget {
+  final bool visible;
 
-  const _EmptyState({required this.l10n});
+  const _ProgressOverlay({required this.visible});
 
   @override
   Widget build(BuildContext context) {
-    return EmptyStateWidget(
-      title: l10n.dosingAdjustListEmptyTitle,
-      subtitle: l10n.dosingAdjustListEmptySubtitle,
-      icon: Icons.history,
+    return Visibility(
+      visible: visible,
+      child: Container(
+        color: Colors.black.withValues(alpha: 0.3), // Semi-transparent overlay
+        child: const Center(child: CircularProgressIndicator()),
+      ),
     );
   }
 }

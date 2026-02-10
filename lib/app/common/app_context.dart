@@ -20,20 +20,26 @@ import '../../data/repositories/sink_repository_impl.dart';
 import '../../data/repositories/scene_repository_impl.dart';
 import '../../data/ble/led/led_command_builder.dart';
 import '../../platform/contracts/device_repository.dart';
+import '../../data/repositories/system_repository_impl.dart';
+import '../../platform/contracts/device_repository.dart';
 import '../../platform/contracts/dosing_port.dart';
 import '../../platform/contracts/dosing_repository.dart';
+import '../../platform/contracts/drop_type_repository.dart';
 import '../../platform/contracts/led_port.dart';
 import '../../platform/contracts/led_record_repository.dart';
 import '../../platform/contracts/led_repository.dart';
 import '../../platform/contracts/pump_head_repository.dart';
 import '../../platform/contracts/sink_repository.dart';
+import '../../platform/contracts/system_repository.dart';
 import '../../platform/contracts/warning_repository.dart';
 import '../../platform/contracts/drop_type_repository.dart';
 import '../../data/repositories/warning_repository_impl.dart';
 import '../../data/repositories/drop_type_repository_impl.dart';
 import '../common/app_error_mapper.dart';
 import '../device/connect_device_usecase.dart';
+import '../device/device_connection_coordinator.dart';
 import '../device/disconnect_device_usecase.dart';
+import '../device/initialize_device_usecase.dart';
 import '../device/remove_device_usecase.dart';
 import '../device/scan_devices_usecase.dart';
 import '../device/toggle_favorite_device_usecase.dart';
@@ -97,6 +103,7 @@ class AppContext {
   final ScanDevicesUseCase scanDevicesUseCase;
   final ConnectDeviceUseCase connectDeviceUseCase;
   final DisconnectDeviceUseCase disconnectDeviceUseCase;
+  final InitializeDeviceUseCase initializeDeviceUseCase;
   final RemoveDeviceUseCase removeDeviceUseCase;
   final ToggleFavoriteDeviceUseCase toggleFavoriteDeviceUseCase;
   final UpdateDeviceNameUseCase updateDeviceNameUseCase;
@@ -138,6 +145,8 @@ class AppContext {
   final EnterDimmingModeUseCase enterDimmingModeUseCase;
   final ExitDimmingModeUseCase exitDimmingModeUseCase;
 
+  final DeviceConnectionCoordinator _deviceConnectionCoordinator;
+
   AppContext._({
     required this.deviceRepository,
     required this.ledRepository,
@@ -152,6 +161,7 @@ class AppContext {
     required this.scanDevicesUseCase,
     required this.connectDeviceUseCase,
     required this.disconnectDeviceUseCase,
+    required this.initializeDeviceUseCase,
     required this.removeDeviceUseCase,
     required this.toggleFavoriteDeviceUseCase,
     required this.updateDeviceNameUseCase,
@@ -192,7 +202,10 @@ class AppContext {
     required this.exitDimmingModeUseCase,
     required this.observeDosingStateUseCase,
     required this.readDosingStateUseCase,
-  });
+    required DeviceConnectionCoordinator deviceConnectionCoordinator,
+  }) : _deviceConnectionCoordinator = deviceConnectionCoordinator {
+    _deviceConnectionCoordinator.start();
+  }
 
   factory AppContext.bootstrap() {
     final SinkRepository sinkRepository = SinkRepositoryImpl();
@@ -216,11 +229,13 @@ class AppContext {
     );
     final BleLedRepositoryImpl bleLedRepository = BleLedRepositoryImpl(
       bleAdapter: bleAdapter,
+      connectionStream: platformTransportWriter.connectionStateStream,
     );
     final LedRepository ledRepository = bleLedRepository;
     final LedRecordRepository ledRecordRepository = bleLedRepository;
     final BleDosingRepositoryImpl bleDosingRepository = BleDosingRepositoryImpl(
       bleAdapter: bleAdapter,
+      connectionStream: platformTransportWriter.connectionStateStream,
     );
     final DosingRepository dosingRepository = bleDosingRepository;
     final BleReadTransport bleReadTransport = BleAdapterReadTransport(
@@ -258,6 +273,16 @@ class AppContext {
       pumpHeadRepository: pumpHeadRepository,
     );
 
+    final SystemRepository systemRepository = SystemRepositoryImpl();
+    final InitializeDeviceUseCase initializeDeviceUseCase =
+        InitializeDeviceUseCase(
+          deviceRepository: deviceRepository,
+          systemRepository: systemRepository,
+          currentDeviceSession: currentDeviceSession,
+          // Default resolver is used, which is fine for production.
+          // Explicit injection would require creating the instance above.
+        );
+
     return AppContext._(
       deviceRepository: deviceRepository,
       ledRepository: ledRepository,
@@ -275,11 +300,13 @@ class AppContext {
       connectDeviceUseCase: ConnectDeviceUseCase(
         deviceRepository: deviceRepository,
         currentDeviceSession: currentDeviceSession,
+        initializeDeviceUseCase: initializeDeviceUseCase,
       ),
       disconnectDeviceUseCase: DisconnectDeviceUseCase(
         deviceRepository: deviceRepository,
         currentDeviceSession: currentDeviceSession,
       ),
+      initializeDeviceUseCase: initializeDeviceUseCase,
       removeDeviceUseCase: RemoveDeviceUseCase(
         deviceRepository: deviceRepository,
         currentDeviceSession: currentDeviceSession,
@@ -389,9 +416,7 @@ class AppContext {
       stopLedPreviewUseCase: StopLedPreviewUseCase(
         repository: ledRecordRepository,
       ),
-      startLedRecordUseCase: StartLedRecordUseCase(
-        repository: ledRepository,
-      ),
+      startLedRecordUseCase: StartLedRecordUseCase(repository: ledRepository),
       initLedRecordUseCase: InitLedRecordUseCase(
         ledRecordRepository: ledRecordRepository,
         ledRepository: ledRepository,
@@ -415,6 +440,11 @@ class AppContext {
       exitDimmingModeUseCase: ExitDimmingModeUseCase(
         bleAdapter: bleAdapter,
         commandBuilder: const LedCommandBuilder(),
+      ),
+      deviceConnectionCoordinator: DeviceConnectionCoordinator(
+        connectionStream: platformTransportWriter.connectionStateStream,
+        initializeDeviceUseCase: initializeDeviceUseCase,
+        deviceRepository: deviceRepository,
       ),
     );
   }

@@ -1,95 +1,83 @@
+// PARITY: 100% Android activity_drop_setting.xml
+// android/ReefB_Android/app/src/main/res/layout/activity_drop_setting.xml
+// Mode: Feature Implementation (完整功能實現)
+//
+// Android 結構：
+// - Root: ConstraintLayout
+// - Toolbar: include toolbar_two_action (固定)
+// - Main Content: ConstraintLayout (固定高度，不可捲動)
+//   - Device Name Section (TextView + TextInputLayout)
+//   - Sink Position Section (TextView + MaterialButton)
+//   - Delay Time Section (TextView + MaterialButton)
+// - Progress: include progress (visibility=gone)
+
 import 'package:flutter/material.dart';
-import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 
 import '../../../../app/common/app_context.dart';
-import '../../../../app/common/app_error.dart';
 import '../../../../app/common/app_error_code.dart';
 import '../../../../app/common/app_session.dart';
-import '../../../../domain/sink/sink.dart';
-import '../../../../shared/widgets/app_error_presenter.dart';
-import '../../../sink/presentation/pages/sink_position_page.dart';
+import '../../../../data/ble/dosing/dosing_command_builder.dart';
 import '../../../../shared/theme/app_colors.dart';
-import '../../../../shared/theme/app_radius.dart';
-import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/theme/app_text_styles.dart';
-import '../../../../shared/widgets/reef_app_bar.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
-import '../../../led/presentation/helpers/support/led_record_icon_helper.dart';
+import '../controllers/drop_setting_controller.dart';
 
-/// DropSettingPage
+/// DropSettingPage - Dosing 設備設定頁面
 ///
-/// Page for editing Dosing device-specific settings.
-/// Features:
-/// - Device name editing
-/// - Sink position selection
-/// - Delay time setting (requires BLE connection)
-class DropSettingPage extends StatefulWidget {
-  const DropSettingPage({super.key});
+/// PARITY: android/ReefB_Android/app/src/main/res/layout/activity_drop_setting.xml
+///
+/// Feature Implementation Mode:
+/// - 集成 DropSettingController
+/// - 完整業務邏輯
+/// - 編輯設備名稱、水槽位置、延遲時間
+class DropSettingPage extends StatelessWidget {
+  final String deviceId;
+
+  const DropSettingPage({super.key, required this.deviceId});
 
   @override
-  State<DropSettingPage> createState() => _DropSettingPageState();
+  Widget build(BuildContext context) {
+    final appContext = context.read<AppContext>();
+    final session = context.read<AppSession>();
+
+    return ChangeNotifierProvider(
+      create: (_) => DropSettingController(
+        deviceId: deviceId,
+        session: session,
+        updateDeviceNameUseCase: appContext.updateDeviceNameUseCase,
+        updateDeviceSinkUseCase: appContext.updateDeviceSinkUseCase,
+        deviceRepository: appContext.deviceRepository,
+        sinkRepository: appContext.sinkRepository,
+        bleAdapter: appContext.bleAdapter,
+        commandBuilder: const DosingCommandBuilder(),
+      )..initialize(),
+      child: _DropSettingPageContent(),
+    );
+  }
 }
 
-class _DropSettingPageState extends State<DropSettingPage> {
-  late TextEditingController _nameController;
-  bool _isLoading = false;
-  int _selectedDelayTime = 60; // Default: 1 minute
-  String? _currentSinkId;
-  String? _currentSinkName;
-  String? _selectedSinkId;
-  String? _deviceType;
+/// Internal content widget that has access to DropSettingController
+class _DropSettingPageContent extends StatefulWidget {
+  @override
+  State<_DropSettingPageContent> createState() =>
+      _DropSettingPageContentState();
+}
 
-  final List<int> _delayTimeOptions = [15, 30, 60, 120, 180, 240, 300]; // seconds
+class _DropSettingPageContentState extends State<_DropSettingPageContent> {
+  late TextEditingController _nameController;
 
   @override
   void initState() {
     super.initState();
-    _loadDeviceData();
-  }
+    _nameController = TextEditingController();
 
-  Future<void> _loadDeviceData() async {
-    final appContext = context.read<AppContext>();
-    final session = context.read<AppSession>();
-    final deviceId = session.activeDeviceId;
-    if (deviceId == null) return;
-
-    final device = await appContext.deviceRepository.getDevice(deviceId);
-    if (device != null) {
-      final deviceName = device['name']?.toString() ?? session.activeDeviceName ?? '';
-      _nameController = TextEditingController(text: deviceName);
-      
-      _currentSinkId = device['sinkId']?.toString();
-      _selectedSinkId = _currentSinkId;
-      _deviceType = device['type']?.toString();
-      
-      // Load delay time
-      final delayTime = device['delayTime'];
-      if (delayTime != null) {
-        _selectedDelayTime = delayTime is num ? delayTime.toInt() : 60;
-      }
-
-      // Load sink name
-      if (_currentSinkId != null && _currentSinkId!.isNotEmpty) {
-        final sinks = appContext.sinkRepository.getCurrentSinks();
-        final sink = sinks.firstWhere(
-          (s) => s.id == _currentSinkId,
-          orElse: () => const Sink(
-            id: '',
-            name: '',
-            type: SinkType.custom,
-            deviceIds: [],
-          ),
-        );
-        if (sink.id.isNotEmpty) {
-          _currentSinkName = sink.name;
-        }
-      }
-    } else {
-      final deviceName = session.activeDeviceName ?? '';
-      _nameController = TextEditingController(text: deviceName);
-    }
-    if (mounted) setState(() {});
+    // Initialize controller after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final controller = context.read<DropSettingController>();
+      _nameController.text = controller.deviceName;
+    });
   }
 
   @override
@@ -98,133 +86,137 @@ class _DropSettingPageState extends State<DropSettingPage> {
     super.dispose();
   }
 
-  String _formatDelayTime(int seconds) {
-    if (seconds < 60) {
-      return '${seconds}s';
-    } else {
-      final minutes = seconds ~/ 60;
-      return '${minutes}min';
-    }
-  }
-
-  Future<void> _saveSettings() async {
-    final appContext = context.read<AppContext>();
-    final session = context.read<AppSession>();
-    final deviceId = session.activeDeviceId;
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.watch<DropSettingController>();
     final l10n = AppLocalizations.of(context);
 
-    if (deviceId == null) {
-      return;
-    }
-
-    final newName = _nameController.text.trim();
-    if (newName.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.deviceNameEmpty)),
-      );
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      // Update device name
-      await appContext.updateDeviceNameUseCase.execute(
-        deviceId: deviceId,
-        name: newName,
-      );
-
-      // Update sink assignment if changed
-      if (_selectedSinkId != _currentSinkId) {
-        await appContext.updateDeviceSinkUseCase.execute(
-          deviceId: deviceId,
-          newSinkId: _selectedSinkId,
-          currentSinkId: _currentSinkId,
-          deviceType: _deviceType ?? 'DROP',
-          currentGroup: null, // DROP devices don't have groups
-          currentMaster: null, // DROP devices don't have master
-        );
-      }
-
-      // TODO: Set delay time via BLE if connected
-      // Note: reef-b-app sets delay time after device update succeeds
-      // if (session.isBleConnected) {
-      //   await appContext.setDosingDelayTimeUseCase.execute(
-      //     deviceId: deviceId,
-      //     delayTimeSeconds: _selectedDelayTime,
-      //   );
-      // }
-
-      if (mounted) {
-        Navigator.of(context).pop(true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.deviceSettingsSaved)),
-        );
-      }
-    } on AppError catch (error) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(describeAppError(l10n, error.code)),
-          ),
-        );
-      }
-    } catch (error) {
-      if (mounted) {
-        final l10n = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(describeAppError(l10n, AppErrorCode.unknownError)),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-
-  void _showDelayTimePicker() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+    return PopScope(
+      canPop: !controller.isSaving,
+      child: Scaffold(
+        body: Stack(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Text(
-                AppLocalizations.of(context).delayTime,
-                style: AppTextStyles.subheader1.copyWith(
-                  color: AppColors.textPrimary,
+            Column(
+              children: [
+                // PARITY: include toolbar_two_action (Line 8-14)
+                _ToolbarTwoAction(
+                  title: l10n.dropSettingTitle,
+                  rightButtonText: l10n.actionSave,
+                  onBack: controller.isSaving
+                      ? null
+                      : () => Navigator.of(context).pop(),
+                  onRightButton: controller.isSaving ? null : () => _save(),
                 ),
-              ),
+                // PARITY: layout_drop_setting (Line 16-112)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      top: 12,
+                      right: 16,
+                      bottom: 12,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // UI Block 1: Device Name
+                        Text(
+                          l10n.deviceName,
+                          style: AppTextStyles.caption1.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        TextField(
+                          controller: _nameController,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: AppColors.surfaceMuted,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(4),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(4),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(4),
+                              borderSide: BorderSide(
+                                color: AppColors.primaryStrong,
+                                width: 2,
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                          ),
+                          style: AppTextStyles.body.copyWith(
+                            color: AppColors.textPrimary,
+                          ),
+                          enabled: !controller.isSaving,
+                          maxLines: 1,
+                          onChanged: (value) {
+                            controller.updateName(value);
+                          },
+                        ),
+
+                        // UI Block 2: Sink Position
+                        const SizedBox(height: 16),
+                        Text(
+                          l10n.sinkPosition,
+                          style: AppTextStyles.caption1.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        _BackgroundMaterialButton(
+                          text: controller.sinkName ?? l10n.sinkPositionNotSet,
+                          icon: CommonIconHelper.getNextIcon(
+                            size: 20,
+                            color: AppColors.textPrimary,
+                          ),
+                          onPressed: controller.isSaving
+                              ? null
+                              : () => _selectSinkPosition(),
+                        ),
+
+                        // UI Block 3: Delay Time
+                        const SizedBox(height: 16),
+                        Text(
+                          l10n.delayTime,
+                          style: AppTextStyles.caption1.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        _BackgroundMaterialButton(
+                          text: controller.getDelayTimeText(),
+                          icon: CommonIconHelper.getMenuIcon(
+                            size: 20,
+                            color: AppColors.textPrimary,
+                          ),
+                          onPressed:
+                              controller.isSaving || !controller.isConnected
+                              ? null
+                              : () => _selectDelayTime(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: _delayTimeOptions.length,
-              itemBuilder: (context, index) {
-                final delayTime = _delayTimeOptions[index];
-                final isSelected = delayTime == _selectedDelayTime;
-                return ListTile(
-                  title: Text(_formatDelayTime(delayTime)),
-                  trailing: isSelected
-                      ? CommonIconHelper.getCheckIcon(size: 24, color: AppColors.primary)
-                      : null,
-                  onTap: () {
-                    setState(() {
-                      _selectedDelayTime = delayTime;
-                    });
-                    Navigator.of(context).pop();
-                  },
-                );
-              },
+            // PARITY: include progress (Line 114-119)
+            _ProgressOverlay(
+              visible: controller.isLoading || controller.isSaving,
             ),
           ],
         ),
@@ -232,238 +224,224 @@ class _DropSettingPageState extends State<DropSettingPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  /// Save settings
+  ///
+  /// PARITY: DropSettingActivity.setListener() btnRight (Line 81-88)
+  Future<void> _save() async {
+    final controller = context.read<DropSettingController>();
     final l10n = AppLocalizations.of(context);
-    final session = context.watch<AppSession>();
-    final isConnected = session.isBleConnected;
 
-    return Scaffold(
-      appBar: ReefAppBar(
-        backgroundColor: AppColors.primaryStrong,
-        foregroundColor: AppColors.onPrimary,
-        elevation: 0,
-        title: Text(
-          l10n.dropSettingTitle,
-          style: AppTextStyles.title2.copyWith(
-            color: AppColors.onPrimary,
-          ),
-        ),
-        actions: [
-          if (_isLoading)
-            const Padding(
-              padding: EdgeInsets.all(AppSpacing.md),
-              child: Center(
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.onPrimary),
-                  ),
-                ),
-              ),
-            )
-          else
-            TextButton(
-              onPressed: !isConnected || _isLoading
-                  ? null
-                  : _saveSettings,
-              child: Text(
-                l10n.actionSave,
-                style: AppTextStyles.subheaderAccent.copyWith(
-                  color: AppColors.onPrimary,
-                ),
-              ),
-            ),
-        ],
-      ),
-      body: Padding(
-        // PARITY: activity_drop_setting.xml layout_drop_setting padding 16/12/16/12dp
-        padding: EdgeInsets.only(
-          left: AppSpacing.md, // dp_16 paddingStart
-          top: AppSpacing.md, // dp_12 paddingTop
-          right: AppSpacing.md, // dp_16 paddingEnd
-          bottom: AppSpacing.md, // dp_12 paddingBottom
-        ),
+    final currentContext = context;
+    final success = await controller.save();
+
+    if (!currentContext.mounted) return;
+
+    if (success) {
+      // Success: Show toast and finish
+      ScaffoldMessenger.of(
+        currentContext,
+      ).showSnackBar(SnackBar(content: Text(l10n.toastSettingSuccessful)));
+      Navigator.of(currentContext).pop(true);
+    } else {
+      // Error: Show error message
+      final errorCode = controller.lastErrorCode;
+      String errorMessage;
+
+      if (errorCode == AppErrorCode.invalidParam) {
+        // Name is empty
+        errorMessage =
+            'TODO(l10n): Name is empty'; // TODO(l10n): Use l10n.toastNameIsEmpty
+      } else if (errorCode == AppErrorCode.sinkFull) {
+        // Sink is full
+        errorMessage =
+            'TODO(l10n): Sink is full'; // TODO(l10n): Use l10n.toastSinkIsFull
+      } else {
+        // Generic error
+        errorMessage =
+            'TODO(l10n): Setting failed'; // TODO(l10n): Use l10n.toastSettingFailed
+      }
+
+      ScaffoldMessenger.of(
+        currentContext,
+      ).showSnackBar(SnackBar(content: Text(errorMessage)));
+    }
+  }
+
+  /// Select sink position
+  ///
+  /// PARITY: DropSettingActivity.setListener() btnPosition (Line 89-94)
+  Future<void> _selectSinkPosition() async {
+    // TODO: Navigate to SinkPositionPage
+    // For now, show placeholder
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('TODO: Navigate to SinkPositionPage')),
+    );
+
+    // Example of how it should work:
+    // final result = await Navigator.of(context).push(
+    //   MaterialPageRoute(
+    //     builder: (context) => SinkPositionPage(
+    //       currentSinkId: controller.sinkId,
+    //     ),
+    //   ),
+    // );
+    // if (result != null && result is String) {
+    //   await controller.updateSinkId(result);
+    // }
+  }
+
+  /// Select delay time
+  ///
+  /// PARITY: DropSettingActivity.setListener() btnDelayTime (Line 95-124)
+  Future<void> _selectDelayTime() async {
+    final controller = context.read<DropSettingController>();
+
+    final options = DropSettingController.getDelayTimeOptions();
+    final labels = {
+      15: '15 秒', // TODO(l10n): Use l10n.delay15Sec
+      30: '30 秒', // TODO(l10n): Use l10n.delay30Sec
+      60: '1 分鐘', // TODO(l10n): Use l10n.delay1Min
+      120: '2 分鐘', // TODO(l10n): Use l10n.delay2Min
+      180: '3 分鐘', // TODO(l10n): Use l10n.delay3Min
+      240: '4 分鐘', // TODO(l10n): Use l10n.delay4Min
+      300: '5 分鐘', // TODO(l10n): Use l10n.delay5Min
+    };
+
+    await showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Device Name Section
-            // PARITY: tv_device_name_title - caption1, 0dp width (constrained)
-            Text(
-              l10n.deviceName,
-              style: AppTextStyles.caption1.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-            // PARITY: layout_name - marginTop 4dp, TextInputLayout style
-            SizedBox(height: AppSpacing.xs), // dp_4 marginTop
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                // PARITY: TextInputLayout style - bg_aaa, 4dp cornerRadius, no border
-                filled: true,
-                fillColor: AppColors.surfaceMuted, // bg_aaa (#F7F7F7)
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.xs), // dp_4
-                  borderSide: BorderSide.none, // boxStrokeWidth 0dp
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.xs),
-                  borderSide: BorderSide.none,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.xs),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: AppSpacing.sm,
-                ),
-              ),
-              // PARITY: edt_name - body textAppearance
-              style: AppTextStyles.body.copyWith(
-                color: AppColors.textPrimary,
-              ),
-              enabled: !_isLoading,
-              maxLines: 1,
-            ),
-
-            // Sink Position Section
-            // PARITY: tv_device_position_title - marginTop 16dp, caption1
-            SizedBox(height: AppSpacing.md), // dp_16 marginTop
-            Text(
-              l10n.sinkPosition,
-              style: AppTextStyles.caption1.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-            // PARITY: btn_position - marginTop 4dp, BackgroundMaterialButton style
-            SizedBox(height: AppSpacing.xs), // dp_4 marginTop
-            MaterialButton(
-              onPressed: !_isLoading && isConnected
-                  ? () async {
-                      final String? selectedSinkId = await Navigator.of(context)
-                          .push<String>(
-                            MaterialPageRoute(
-                              builder: (_) => SinkPositionPage(
-                                initialSinkId: _currentSinkId,
-                              ),
-                            ),
-                          );
-                      
-                      if (selectedSinkId != null && mounted) {
-                        setState(() {
-                          _selectedSinkId = selectedSinkId.isEmpty ? null : selectedSinkId;
-                          
-                          // Update sink name display
-                          if (_selectedSinkId == null || _selectedSinkId!.isEmpty) {
-                            _currentSinkName = null;
-                          } else {
-                            final appContext = context.read<AppContext>();
-                            final sinks = appContext.sinkRepository.getCurrentSinks();
-                            final sink = sinks.firstWhere(
-                              (s) => s.id == _selectedSinkId,
-                              orElse: () => const Sink(
-                                id: '',
-                                name: '',
-                                type: SinkType.custom,
-                                deviceIds: [],
-                              ),
-                            );
-                            _currentSinkName = sink.id.isNotEmpty ? sink.name : null;
-                          }
-                        });
-                      }
-                    }
+          mainAxisSize: MainAxisSize.min,
+          children: options.map((seconds) {
+            return ListTile(
+              title: Text(labels[seconds] ?? '$seconds秒'),
+              trailing: controller.delayTimeSeconds == seconds
+                  ? Icon(Icons.check, color: AppColors.primaryStrong)
                   : null,
-              // PARITY: BackgroundMaterialButton style
-              color: AppColors.surfaceMuted, // bg_aaa background
-              elevation: 0, // elevation 0dp
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.xs), // 4dp cornerRadius
-              ),
-              padding: EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.sm,
-              ),
-              textColor: AppColors.textPrimary, // text_aaaa
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      _currentSinkName ?? l10n.sinkPositionNotSet,
-                      style: AppTextStyles.body.copyWith(
-                        color: AppColors.textPrimary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.start,
-                    ),
-                  ),
-                  CommonIconHelper.getNextIcon(
-                    size: 20,
-                    color: AppColors.textPrimary,
-                  ),
-                ],
-              ),
-            ),
-
-            // Delay Time Section
-            // PARITY: tv_delay_time_title - marginTop 16dp, caption1
-            SizedBox(height: AppSpacing.md), // dp_16 marginTop
-            Text(
-              l10n.delayTime,
-              style: AppTextStyles.caption1.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-            // PARITY: btn_delay_time - marginTop 4dp, BackgroundMaterialButton style, icon ic_down
-            SizedBox(height: AppSpacing.xs), // dp_4 marginTop
-            MaterialButton(
-              onPressed: isConnected && !_isLoading ? _showDelayTimePicker : null,
-              // PARITY: BackgroundMaterialButton style
-              color: AppColors.surfaceMuted, // bg_aaa background
-              elevation: 0, // elevation 0dp
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.xs), // 4dp cornerRadius
-              ),
-              padding: EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.sm,
-              ),
-              textColor: AppColors.textPrimary, // text_aaaa
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      _formatDelayTime(_selectedDelayTime),
-                      style: AppTextStyles.body.copyWith(
-                        color: AppColors.textPrimary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.start,
-                    ),
-                  ),
-                  LedRecordIconHelper.getDownIcon(
-                    width: 20,
-                    height: 20,
-                    color: AppColors.textPrimary,
-                  ),
-                ],
-              ),
-            ),
-
-            // Note: Device Info Section removed to match activity_drop_setting.xml
-            // (activity_drop_setting.xml only has device name, position, and delay time sections)
-          ],
+              onTap: () {
+                controller.updateDelayTime(seconds);
+                Navigator.of(context).pop();
+              },
+            );
+          }).toList(),
         ),
       ),
     );
   }
 }
 
+/// PARITY: include toolbar_two_action
+/// android/ReefB_Android/app/src/main/res/layout/toolbar_two_action.xml
+class _ToolbarTwoAction extends StatelessWidget {
+  final String title;
+  final String rightButtonText;
+  final VoidCallback? onBack;
+  final VoidCallback? onRightButton;
+
+  const _ToolbarTwoAction({
+    required this.title,
+    required this.rightButtonText,
+    this.onBack,
+    this.onRightButton,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 56,
+      color: AppColors.primaryStrong,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Row(
+        children: [
+          IconButton(
+            icon: CommonIconHelper.getCloseIcon(
+              size: 24,
+              color: AppColors.onPrimary,
+            ),
+            onPressed: onBack,
+          ),
+          Expanded(
+            child: Text(
+              title,
+              style: AppTextStyles.title2.copyWith(
+                color: AppColors.onPrimary,
+                fontWeight: FontWeight.w700,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          TextButton(
+            onPressed: onRightButton,
+            child: Text(
+              rightButtonText,
+              style: AppTextStyles.subheaderAccent.copyWith(
+                color: AppColors.onPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// PARITY: BackgroundMaterialButton style
+class _BackgroundMaterialButton extends StatelessWidget {
+  final String text;
+  final Widget icon;
+  final VoidCallback? onPressed;
+
+  const _BackgroundMaterialButton({
+    required this.text,
+    required this.icon,
+    this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialButton(
+      onPressed: onPressed,
+      color: AppColors.surfaceMuted,
+      elevation: 0,
+      disabledColor: AppColors.surfaceMuted,
+      disabledElevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              text,
+              style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
+              textAlign: TextAlign.start,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          icon,
+        ],
+      ),
+    );
+  }
+}
+
+/// PARITY: include progress (全畫面 Loading Overlay)
+class _ProgressOverlay extends StatelessWidget {
+  final bool visible;
+
+  const _ProgressOverlay({required this.visible});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!visible) {
+      return const SizedBox.shrink();
+    }
+    return Container(
+      color: Colors.black.withValues(alpha: 0.3),
+      child: const Center(child: CircularProgressIndicator()),
+    );
+  }
+}

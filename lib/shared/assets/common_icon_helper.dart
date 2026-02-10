@@ -14,7 +14,9 @@ class CommonIconHelper {
       'assets/icons/ic_add_black.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -24,7 +26,9 @@ class CommonIconHelper {
       'assets/icons/ic_back.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -34,7 +38,9 @@ class CommonIconHelper {
       'assets/icons/ic_delete.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -44,7 +50,9 @@ class CommonIconHelper {
       'assets/icons/ic_edit.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -54,7 +62,9 @@ class CommonIconHelper {
       'assets/icons/ic_close.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -64,7 +74,9 @@ class CommonIconHelper {
       'assets/icons/ic_minus.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -74,7 +86,9 @@ class CommonIconHelper {
       'assets/icons/ic_check.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -84,7 +98,9 @@ class CommonIconHelper {
       'assets/icons/ic_play_enabled.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -94,7 +110,9 @@ class CommonIconHelper {
       'assets/icons/ic_stop.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -104,7 +122,9 @@ class CommonIconHelper {
       'assets/icons/ic_pause.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -114,7 +134,9 @@ class CommonIconHelper {
       'assets/icons/ic_next.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -124,7 +146,9 @@ class CommonIconHelper {
       'assets/icons/ic_menu.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -135,7 +159,9 @@ class CommonIconHelper {
       'assets/icons/ic_manager.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -145,7 +171,9 @@ class CommonIconHelper {
       'assets/icons/ic_bluetooth.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -156,7 +184,9 @@ class CommonIconHelper {
       'assets/icons/ic_connect.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -167,7 +197,9 @@ class CommonIconHelper {
       'assets/icons/ic_disconnect.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -177,7 +209,9 @@ class CommonIconHelper {
       'assets/icons/ic_device.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -187,7 +221,9 @@ class CommonIconHelper {
       'assets/icons/ic_home.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -197,7 +233,9 @@ class CommonIconHelper {
       'assets/icons/ic_warning.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -207,7 +245,9 @@ class CommonIconHelper {
       'assets/icons/ic_reset.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -221,7 +261,10 @@ class CommonIconHelper {
   }
 
   /// Get disconnect background icon (48×32dp)
-  static SvgPicture getDisconnectBackgroundIcon({double? width, double? height}) {
+  static SvgPicture getDisconnectBackgroundIcon({
+    double? width,
+    double? height,
+  }) {
     return SvgPicture.asset(
       'assets/icons/ic_disconnect_background.svg',
       width: width ?? 48,
@@ -235,7 +278,9 @@ class CommonIconHelper {
       'assets/icons/ic_master.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -245,7 +290,9 @@ class CommonIconHelper {
       'assets/icons/ic_master_big.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -255,7 +302,9 @@ class CommonIconHelper {
       'assets/icons/ic_zoom_in.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -265,7 +314,9 @@ class CommonIconHelper {
       'assets/icons/ic_zoom_out.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -275,7 +326,9 @@ class CommonIconHelper {
       'assets/icons/ic_calendar.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -285,7 +338,9 @@ class CommonIconHelper {
       'assets/icons/ic_preview.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -295,7 +350,9 @@ class CommonIconHelper {
       'assets/icons/ic_more_enable.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -305,7 +362,9 @@ class CommonIconHelper {
       'assets/icons/ic_favorite_select.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -315,7 +374,9 @@ class CommonIconHelper {
       'assets/icons/ic_favorite_unselect.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -325,7 +386,9 @@ class CommonIconHelper {
       'assets/icons/ic_play_select.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -335,7 +398,9 @@ class CommonIconHelper {
       'assets/icons/ic_play_unselect.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -346,7 +411,9 @@ class CommonIconHelper {
       'assets/icons/ic_add_btn.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -357,7 +424,9 @@ class CommonIconHelper {
       'assets/icons/ic_add_rounded.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -368,7 +437,9 @@ class CommonIconHelper {
       'assets/icons/ic_add_white.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -379,7 +450,9 @@ class CommonIconHelper {
       'assets/icons/ic_green_check.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -390,7 +463,9 @@ class CommonIconHelper {
       'assets/icons/ic_more_disable.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -401,8 +476,86 @@ class CommonIconHelper {
       'assets/icons/ic_play_disable.svg',
       width: size,
       height: size,
-      colorFilter: color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
+    );
+  }
+
+  /// Get down icon (PARITY: ic_down.xml from reef-b-app)
+  /// Dropdown arrow icon (used for spinners/dropdowns)
+  static SvgPicture getDownIcon({double? size, Color? color}) {
+    return SvgPicture.asset(
+      'assets/icons/ic_down.svg',
+      width: size,
+      height: size,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
+    );
+  }
+
+  /// Get drop icon (PARITY: ic_drop.svg from reef-b-app)
+  /// Water drop icon (used for dosing/pump head)
+  static SvgPicture getDropIcon({double? size, Color? color}) {
+    return SvgPicture.asset(
+      'assets/icons/ic_drop.svg',
+      width: size,
+      height: size,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
+    );
+  }
+
+  /// Get moon round icon (PARITY: ic_moon_round.xml from reef-b-app)
+  /// Moon icon (used for moon light/night mode)
+  static SvgPicture getMoonRoundIcon({double? size, Color? color}) {
+    return SvgPicture.asset(
+      'assets/icons/ic_moon_round.svg',
+      width: size,
+      height: size,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
+    );
+  }
+
+  /// Get LED device icon (PARITY: icon_led.svg from reef-b-app)
+  /// LED device type icon
+  static SvgPicture getLedIcon({double? size, Color? color}) {
+    return SvgPicture.asset(
+      'assets/icons/icon_led.svg',
+      width: size,
+      height: size,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
+    );
+  }
+
+  /// Get Dosing device icon (PARITY: icon_dosing.svg from reef-b-app)
+  /// Dosing device type icon
+  static SvgPicture getDosingIcon({double? size, Color? color}) {
+    return SvgPicture.asset(
+      'assets/icons/icon_dosing.svg',
+      width: size,
+      height: size,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
+    );
+  }
+
+  /// Get slow start icon (20×20dp)
+  static SvgPicture getSlowStartIcon({double? size, Color? color}) {
+    return SvgPicture.asset(
+      'assets/icons/ic_slow_start.svg',
+      width: size,
+      height: size,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 }
-

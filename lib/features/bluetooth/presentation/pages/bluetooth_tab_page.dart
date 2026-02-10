@@ -43,15 +43,26 @@ class _BluetoothTabPageState extends State<BluetoothTabPage> {
               const SizedBox(height: 12),
               SizedBox(
                 height: 160,
-                child: _PairedDevicesList(devices: savedDevices),
+                child: _PairedDevicesList(
+                  devices: savedDevices,
+                  controller: controller,
+                ),
               ),
               const SizedBox(height: 12),
             ],
 
             // (2) 其他裝置區：tv_other_device_title + btn_refresh/progress_scan + rv_other_device / layout_no_other_device
-            _OtherDevicesHeader(l10n: l10n, isScanning: isScanning),
+            _OtherDevicesHeader(
+              l10n: l10n,
+              isScanning: isScanning,
+              onRefresh: () => controller.refresh(),
+            ),
             Expanded(
-              child: _OtherDevicesBody(devices: discoveredDevices, l10n: l10n),
+              child: _OtherDevicesBody(
+                devices: discoveredDevices,
+                l10n: l10n,
+                controller: controller,
+              ),
             ),
 
             // PARITY: fragment_bluetooth.xml - rv_other_device/layout_no_other_device marginBottom 55dp
@@ -65,8 +76,9 @@ class _BluetoothTabPageState extends State<BluetoothTabPage> {
 
 class _PairedDevicesList extends StatelessWidget {
   final List<DeviceSnapshot> devices;
+  final DeviceListController controller;
 
-  const _PairedDevicesList({required this.devices});
+  const _PairedDevicesList({required this.devices, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -76,20 +88,38 @@ class _PairedDevicesList extends StatelessWidget {
       itemBuilder: (context, index) {
         return _BtMyDeviceTile(
           device: devices[index],
-          // Correction Mode (UI parity only): 不在本頁處理 connect/disconnect
-          onTap: null,
+          // PARITY: reef-b-app BluetoothFragment connects/disconnects on item tap
+          onTap: () => _handleDeviceTap(context, devices[index]),
         );
       },
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
     );
+  }
+
+  Future<void> _handleDeviceTap(
+    BuildContext context,
+    DeviceSnapshot device,
+  ) async {
+    if (device.isConnected) {
+      // Disconnect
+      await controller.disconnect(device.id);
+    } else {
+      // Connect
+      await controller.connect(device.id);
+    }
   }
 }
 
 class _OtherDevicesHeader extends StatelessWidget {
   final AppLocalizations l10n;
   final bool isScanning;
+  final VoidCallback onRefresh;
 
-  const _OtherDevicesHeader({required this.l10n, required this.isScanning});
+  const _OtherDevicesHeader({
+    required this.l10n,
+    required this.isScanning,
+    required this.onRefresh,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -112,25 +142,31 @@ class _OtherDevicesHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                child: Text(
-                  l10n.bluetoothRearrangement, // @string/rearrangement
-                  style: AppTextStyles.caption1.copyWith(
-                    color: AppColors.primaryStrong, // bg_primary
+          InkWell(
+            onTap: isScanning ? null : onRefresh,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5,
+                    vertical: 3,
+                  ),
+                  child: Text(
+                    l10n.bluetoothRearrangement, // @string/rearrangement
+                    style: AppTextStyles.caption1.copyWith(
+                      color: AppColors.primaryStrong, // bg_primary
+                    ),
                   ),
                 ),
-              ),
-              if (isScanning)
-                const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-            ],
+                if (isScanning)
+                  const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+              ],
+            ),
           ),
         ],
       ),
@@ -141,8 +177,13 @@ class _OtherDevicesHeader extends StatelessWidget {
 class _OtherDevicesBody extends StatelessWidget {
   final List<DeviceSnapshot> devices;
   final AppLocalizations l10n;
+  final DeviceListController controller;
 
-  const _OtherDevicesBody({required this.devices, required this.l10n});
+  const _OtherDevicesBody({
+    required this.devices,
+    required this.l10n,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -183,7 +224,7 @@ class _OtherDevicesBody extends StatelessWidget {
         padding: EdgeInsets.zero,
         itemCount: devices.length,
         itemBuilder: (context, index) {
-          return _BtDeviceTile(device: devices[index]);
+          return _BtDeviceTile(device: devices[index], controller: controller);
         },
       ),
     );
@@ -200,8 +241,9 @@ class _OtherDevicesBody extends StatelessWidget {
 /// - MaterialDivider: 1dp, bg_press
 class _BtDeviceTile extends StatelessWidget {
   final DeviceSnapshot device;
+  final DeviceListController controller;
 
-  const _BtDeviceTile({required this.device});
+  const _BtDeviceTile({required this.device, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -213,8 +255,8 @@ class _BtDeviceTile extends StatelessWidget {
 
     // PARITY: adapter_ble_scan.xml structure
     return InkWell(
-      // Correction Mode (UI parity only): 不在本頁處理 connect/disconnect
-      onTap: null,
+      // PARITY: reef-b-app BluetoothFragment connects discovered device
+      onTap: () => _handleDeviceTap(context),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -265,6 +307,11 @@ class _BtDeviceTile extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _handleDeviceTap(BuildContext context) async {
+    // PARITY: reef-b-app BluetoothFragment connects discovered device
+    await controller.connect(device.id);
   }
 }
 

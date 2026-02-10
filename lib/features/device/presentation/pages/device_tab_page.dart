@@ -3,6 +3,7 @@ import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/common/app_context.dart';
+import '../../../../app/common/app_session.dart';
 import '../../../../domain/sink/sink.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
@@ -10,6 +11,8 @@ import '../../../../shared/widgets/reef_backgrounds.dart';
 import '../../../../app/device/device_snapshot.dart';
 import '../controllers/device_list_controller.dart';
 import '../widgets/device_card.dart';
+import '../../../led/presentation/pages/led_main_page.dart';
+import '../../../doser/presentation/pages/dosing_main_page.dart';
 
 class DeviceTabPage extends StatelessWidget {
   const DeviceTabPage({super.key});
@@ -89,9 +92,34 @@ class _DeviceCardWithSink extends StatelessWidget {
       selectionMode: false,
       isSelected: false,
       onSelect: null,
-      onTap: null,
+      onTap: () => _navigateToDeviceMainPage(context, device),
       sinkName: sinkName,
     );
+  }
+
+  /// Navigate to device main page based on device type
+  /// PARITY: reef-b-app DeviceFragment navigates to LedMainActivity or DropMainActivity
+  void _navigateToDeviceMainPage(BuildContext context, DeviceSnapshot device) {
+    final session = context.read<AppSession>();
+    final String deviceNameLower = device.name.toLowerCase();
+    final bool isLed = deviceNameLower.contains('led');
+
+    // Set active device in session before navigation
+    session.setActiveDevice(device.id);
+
+    if (isLed) {
+      // Navigate to LED main page
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LedMainPage()),
+      );
+    } else {
+      // Navigate to Dosing main page
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const DosingMainPage()),
+      );
+    }
   }
 }
 
@@ -135,8 +163,14 @@ class _EmptyState extends StatelessWidget {
               bottom: 8.0, // dp_8 marginBottom
             ),
             child: FilledButton(
-              // Correction Mode (UI parity only): 僅保留結構，不接行為
-              onPressed: null,
+              // TODO: Navigate to AddDevicePage (第五階段實現)
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('功能開發中 / Feature under development'),
+                  ),
+                );
+              },
               child: Text(
                 l10n.deviceActionAdd,
               ), // PARITY: add_device (@string/add_device)

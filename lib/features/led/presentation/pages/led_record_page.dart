@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../shared/assets/common_icon_helper.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../controllers/led_record_controller.dart';
@@ -97,7 +98,7 @@ class _ToolbarTwoAction extends StatelessWidget {
               // TODO(android toolbar left button → uses back icon)
               IconButton(
                 onPressed: null, // No behavior in Correction Mode
-                icon: const Icon(Icons.arrow_back, size: 24),
+                icon: CommonIconHelper.getBackIcon(size: 24),
               ),
               const Spacer(),
               // Center: Title (activity_led_record_title → @string/led_record)
@@ -109,12 +110,9 @@ class _ToolbarTwoAction extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              // Right: Setting (icon button, no behavior)
-              // TODO(android toolbar right button → setting icon or action)
-              IconButton(
-                onPressed: null, // No behavior in Correction Mode
-                icon: const Icon(Icons.settings, size: 24),
-              ),
+              // Right: No icon/button in Android toolbar_two_action.xml
+              // Android: toolbar_two_action has btn_right (text button), NOT an icon button
+              // REMOVED: Icons.settings (violated L3-1 - not in Android)
             ],
           ),
         ),
@@ -190,26 +188,26 @@ class _RecordOverviewCard extends StatelessWidget {
             children: [
               // btn_add (ic_add_black)
               // TODO(android @drawable/ic_add_black)
-              _ControlButton(icon: Icons.add, onPressed: null),
+              _ControlButton(icon: CommonIconHelper.getAddIcon(), onPressed: null),
               const SizedBox(width: 24), // marginStart + marginEnd = 24dp
               // btn_minus (ic_minus)
               // TODO(android @drawable/ic_minus)
-              _ControlButton(icon: Icons.remove, onPressed: null),
+              _ControlButton(icon: CommonIconHelper.getMinusIcon(), onPressed: null),
               const SizedBox(width: 24),
 
               // btn_prev (ic_back)
               // TODO(android @drawable/ic_back)
-              _ControlButton(icon: Icons.skip_previous, onPressed: null),
+              _ControlButton(icon: CommonIconHelper.getBackIcon(), onPressed: null),
               const SizedBox(width: 24),
 
               // btn_next (ic_next)
               // TODO(android @drawable/ic_next)
-              _ControlButton(icon: Icons.skip_next, onPressed: null),
+              _ControlButton(icon: CommonIconHelper.getNextIcon(), onPressed: null),
               const SizedBox(width: 24),
 
               // btn_preview (ic_preview)
               // TODO(android @drawable/ic_preview)
-              _ControlButton(icon: Icons.play_arrow, onPressed: null),
+              _ControlButton(icon: CommonIconHelper.getPlayIcon(), onPressed: null),
             ],
           ),
         ],
@@ -272,7 +270,7 @@ class _RecordListHeader extends StatelessWidget {
           // TODO(android @drawable/ic_add_btn)
           IconButton(
             onPressed: null, // No behavior in Correction Mode
-            icon: const Icon(Icons.add_circle_outline, size: 24),
+            icon: const CommonIconHelper.getAddBtnIcon(), size: 24),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
           ),
@@ -321,7 +319,7 @@ class _RecordTile extends StatelessWidget {
                 // More icon (img_next → ic_more_enable, 24x24dp)
                 // TODO(android @drawable/ic_more_enable)
                 const Icon(
-                  Icons.more_horiz,
+                  CommonIconHelper.getMoreEnableIcon(),
                   size: 24,
                   color: AppColors.textSecondary,
                 ),

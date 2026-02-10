@@ -246,7 +246,15 @@ class _IconPlaceholder extends StatelessWidget {
           20,
         ), // cornerRadius 24dp → 20 for 40dp size
       ),
-      child: const Icon(Icons.image, size: 24, color: Colors.grey),
+      child: const Icon(
+        // TODO(L3): Icons.image is placeholder for scene icon
+        // Android uses rv_scene_icon (RecyclerView) with adapter_scene_icon.xml
+        // This should use SceneIconHelper or actual scene icon image
+        // VIOLATION: Material Icon not in Android XML
+        Icons.image,
+        size: 24,
+        color: Colors.grey,
+      ),
     );
   }
 }

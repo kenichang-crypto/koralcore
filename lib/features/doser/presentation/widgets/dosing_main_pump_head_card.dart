@@ -49,7 +49,15 @@ class DosingMainPumpHeadCard extends StatelessWidget {
     final String? timeString = null; // TODO: Get from schedule
 
     // Weekday selection (simplified - TODO: Get from PumpHeadMode.runDay)
-    final List<bool> weekDays = [false, false, false, false, false, false, false]; // TODO: Get from schedule
+    final List<bool> weekDays = [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+    ]; // TODO: Get from schedule
 
     // PARITY: adapter_drop_head.xml structure
     return Card(
@@ -83,9 +91,12 @@ class DosingMainPumpHeadCard extends StatelessWidget {
               child: Row(
                 children: [
                   // Pump head icon (img_drop_head) - 80×20dp
-                  // PARITY: Using SvgPicture for img_drop_head_*.svg for 100% parity
+                  // PARITY: Android img_drop_head_1.xml ~ img_drop_head_4.xml
+                  // Mapping: A→1, B→2, C→3, D→4
+                  // TODO(android @drawable/img_drop_head_1-4):
+                  // Verify SVG content matches Android XML Vector Drawable
                   SvgPicture.asset(
-                    'assets/icons/img_drop_head_${summary.headId.toLowerCase()}.svg',
+                    'assets/icons/img_drop_head_${_headIdToNumber(summary.headId)}.svg',
                     width: 80, // dp_80
                     height: 20, // dp_20
                     fit: BoxFit.fitWidth,
@@ -127,19 +138,18 @@ class DosingMainPumpHeadCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Play button (btn_play) - 60×60dp
-                  // PARITY: Using CommonIconHelper.getPlayIcon() for 100% parity
+                  // PARITY: Android ic_play_enabled.xml
+                  // TODO(android @drawable/ic_play_enabled):
+                  // Verify CommonIconHelper.getPlayIcon() matches Android ic_play_enabled.xml
                   if (onPlay != null)
                     IconButton(
-                      icon: CommonIconHelper.getPlayIcon(
+                      icon: CommonIconHelper.getPlayIcon(size: 60, 
                         size: 60,
                         color: AppColors.primary,
                       ),
                       onPressed: onPlay,
                       padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(
-                        minWidth: 60,
-                        minHeight: 60,
-                      ),
+                      constraints: BoxConstraints(minWidth: 60, minHeight: 60),
                     )
                   else
                     SizedBox(width: 60, height: 60),
@@ -154,7 +164,8 @@ class DosingMainPumpHeadCard extends StatelessWidget {
                         Text(
                           modeName,
                           style: AppTextStyles.caption1.copyWith(
-                            color: AppColors.textSecondary, // bg_secondary (using textSecondary as fallback)
+                            color: AppColors
+                                .textSecondary, // bg_secondary (using textSecondary as fallback)
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -166,14 +177,22 @@ class DosingMainPumpHeadCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             // Weekday icons (layout_weekday)
+                            // PARITY: Android ic_*_select/unselect.xml (7 icons, 20x20dp)
+                            // TODO(android @drawable/ic_sunday_unselect etc):
+                            // Verify SVG icons match Android XML Vector Drawables
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: List.generate(7, (index) {
                                 final bool isSelected = weekDays[index];
                                 return Padding(
                                   padding: EdgeInsets.only(
-                                    left: index == 0 ? 0 : AppSpacing.xs, // dp_4 marginStart (except first)
-                                    right: index < 6 ? AppSpacing.xs : 0, // dp_4 marginEnd (except last)
+                                    left: index == 0
+                                        ? 0
+                                        : AppSpacing
+                                              .xs, // dp_4 marginStart (except first)
+                                    right: index < 6
+                                        ? AppSpacing.xs
+                                        : 0, // dp_4 marginEnd (except last)
                                   ),
                                   // PARITY: Using SvgPicture for weekday icons for 100% parity
                                   child: SvgPicture.asset(
@@ -205,11 +224,14 @@ class DosingMainPumpHeadCard extends StatelessWidget {
                                 LinearProgressIndicator(
                                   value: progress,
                                   minHeight: 20, // dp_20 trackThickness
-                                  backgroundColor: AppColors.surfacePressed, // bg_press trackColor
+                                  backgroundColor: AppColors
+                                      .surfacePressed, // bg_press trackColor
                                   valueColor: AlwaysStoppedAnimation<Color>(
                                     AppColors.grey, // grey indicatorColor
                                   ),
-                                  borderRadius: BorderRadius.circular(10), // dp_10 trackCornerRadius
+                                  borderRadius: BorderRadius.circular(
+                                    10,
+                                  ), // dp_10 trackCornerRadius
                                 ),
                                 // Volume text (tv_volume) - caption1, text_aaaa
                                 Text(
@@ -223,6 +245,24 @@ class DosingMainPumpHeadCard extends StatelessWidget {
                             ),
                           ],
                         ),
+                        // PARITY: chip_total (visibility=gone)
+                        // android/ReefB_Android/app/src/main/res/layout/adapter_drop_head.xml Line 222-239
+                        //
+                        // Chip properties:
+                        // - marginTop: 8dp
+                        // - clickable: false
+                        // - visibility: gone (預設隱藏)
+                        // - textAppearance: caption1
+                        // - textColor: text_aaaa
+                        // - chipBackgroundColor: bg_aaaa
+                        // - chipIcon: ic_solid_add
+                        // - chipStrokeColor: text_aaaa
+                        // - chipStrokeWidth: 1dp
+                        // - tools:text: "120 ml"
+                        //
+                        // PARITY: 因為預設 visibility=gone，所以不顯示
+                        // 保留結構以供未來實作
+                        const SizedBox.shrink(), // visibility=gone (不佔空間)
                       ],
                     ),
                   ),
@@ -246,10 +286,36 @@ class DosingMainPumpHeadCard extends StatelessWidget {
 
   String _getWeekdayIconAsset(int index, bool isSelected) {
     // Index: 0=Sunday, 1=Monday, ..., 6=Saturday
-    // PARITY: Using SVG icons for weekday selectors for 100% parity
-    final List<String> weekdayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    // PARITY: Android ic_sunday_unselect.xml ~ ic_saturday_unselect.xml
+    // TODO(android @drawable/ic_*_select/unselect):
+    // Verify SVG content matches Android XML Vector Drawable
+    final List<String> weekdayNames = [
+      'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+    ];
     final String state = isSelected ? 'select' : 'unselect';
     return 'assets/icons/ic_${weekdayNames[index]}_$state.svg';
   }
-}
 
+  /// Convert head ID (A-D) to number (1-4) for Android resource naming
+  /// PARITY: Android uses img_drop_head_1.xml ~ img_drop_head_4.xml
+  String _headIdToNumber(String headId) {
+    switch (headId.toUpperCase()) {
+      case 'A':
+        return '1';
+      case 'B':
+        return '2';
+      case 'C':
+        return '3';
+      case 'D':
+        return '4';
+      default:
+        return '1'; // Fallback to 1
+    }
+  }
+}

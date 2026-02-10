@@ -165,7 +165,15 @@ class _SceneSelectTile extends StatelessWidget {
                     color: AppColors.textTertiary,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.image, size: 16, color: Colors.white),
+                  child: const Icon(
+                    // TODO(L3): Icons.image is placeholder for scene icon
+                    // Android uses rv_scene (RecyclerView) with adapter_scene.xml
+                    // This should use SceneIconHelper or actual scene icon image
+                    // VIOLATION: Material Icon not in Android XML
+                    Icons.image,
+                    size: 16,
+                    color: Colors.white,
+                  ),
                 ),
                 const SizedBox(width: 8), // marginStart: dp_8
                 // Scene name ↔ tv_name
@@ -190,7 +198,7 @@ class _SceneSelectTile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
-                      Icons.check,
+                      CommonIconHelper.getCheckIcon(),
                       size: 16,
                       color: Colors.white,
                     ),

@@ -82,10 +82,12 @@ class BleHost(private val context: Context) : BleConnectionManager.Listener {
 
   override fun onConnected(deviceId: String, gatt: BluetoothGatt) {
     registerConnection(deviceId, gatt)
+    notificationSink?.onConnectionStateChange(deviceId, true)
   }
 
   override fun onDisconnected(deviceId: String) {
     unregisterConnection(deviceId)
+    notificationSink?.onConnectionStateChange(deviceId, false)
   }
 
   override fun onNotification(
@@ -168,8 +170,9 @@ class BleHost(private val context: Context) : BleConnectionManager.Listener {
       return deviceId.trim().lowercase(Locale.US)
     }
   }
-  fun interface NotificationSink {
+  interface NotificationSink {
     fun onNotify(deviceId: String, characteristicUuid: UUID, payload: ByteArray)
+    fun onConnectionStateChange(deviceId: String, isConnected: Boolean)
   }
 }
 

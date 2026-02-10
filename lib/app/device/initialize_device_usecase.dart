@@ -20,6 +20,7 @@ import '../../domain/device/capability/capability_id.dart';
 import '../../domain/device/capability_set.dart';
 import '../../domain/device/device_context.dart';
 import '../../domain/device/device_product.dart';
+import '../../domain/device/device_product_resolver.dart';
 import '../../domain/device/firmware_version.dart';
 import '../../platform/contracts/device_repository.dart';
 import '../../platform/contracts/system_repository.dart';
@@ -29,11 +30,13 @@ class InitializeDeviceUseCase {
   final DeviceRepository deviceRepository;
   final SystemRepository systemRepository;
   final CurrentDeviceSession currentDeviceSession;
+  final DeviceProductResolver deviceProductResolver;
 
   InitializeDeviceUseCase({
     required this.deviceRepository,
     required this.systemRepository,
     required this.currentDeviceSession,
+    this.deviceProductResolver = const DeviceProductResolver(),
   });
 
   Future<DeviceContext> execute({required String deviceId}) async {
@@ -52,17 +55,18 @@ class InitializeDeviceUseCase {
     // TODO: deviceRepository.saveFirmware(deviceId, firmware)
 
     // 3) Read Product ID (if applicable)
-    // TODO: await ReadDeviceInfoUseCase.productId or separate usecase
+    // Use 'product' field if available (internal ID), otherwise 'device_name'
+    final productIdentity =
+        deviceInfo['product'] as String? ??
+        deviceInfo['device_name'] as String?;
 
     // 4) Read Capability
     final capabilityPayload = await systemRepository.readCapability(deviceId);
     final capabilitySet = CapabilitySet.fromRaw(capabilityPayload);
     // Capability is stored in DeviceContext, which is the single source of truth
 
-    final product = _resolveProduct(
-      capabilitySet: capabilitySet,
-      deviceInfo: deviceInfo,
-    );
+    // Resolve Product using authoritative resolver (no heuristics)
+    final product = deviceProductResolver.resolve(productIdentity);
 
     final deviceContext = DeviceContext(
       deviceId: deviceId,
@@ -90,45 +94,5 @@ class InitializeDeviceUseCase {
     currentDeviceSession.start(deviceContext);
 
     return deviceContext;
-  }
-
-  DeviceProduct _resolveProduct({
-    required CapabilitySet capabilitySet,
-    required Map<String, dynamic> deviceInfo,
-  }) {
-    if (capabilitySet.supports(CapabilityId.doserOneshotSchedule)) {
-      return DeviceProduct.doser4k;
-    }
-
-    final bool ledCapabilitiesPresent =
-        capabilitySet.supports(CapabilityId.ledPower) ||
-        capabilitySet.supports(CapabilityId.ledIntensity) ||
-        capabilitySet.supports(CapabilityId.ledScheduleDaily) ||
-        capabilitySet.supports(CapabilityId.ledScheduleCustom) ||
-        capabilitySet.supports(CapabilityId.ledScheduleScene);
-
-    if (ledCapabilitiesPresent) {
-      return DeviceProduct.ledController;
-    }
-
-    if (capabilitySet.supports(CapabilityId.dosing)) {
-      return DeviceProduct.doser;
-    }
-
-    final String? productHint = deviceInfo['product']?.toString();
-    if (productHint != null) {
-      final lower = productHint.toLowerCase();
-      if (lower.contains('led')) {
-        return DeviceProduct.ledController;
-      }
-      if (lower.contains('doser')) {
-        return DeviceProduct.doser;
-      }
-      if (lower.contains('4k')) {
-        return DeviceProduct.doser4k;
-      }
-    }
-
-    return DeviceProduct.unknown;
   }
 }

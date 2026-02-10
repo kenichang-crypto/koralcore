@@ -66,6 +66,9 @@ class SceneIconHelper {
     final assetPath = getSceneIconAssetPath(iconId);
     if (assetPath == null) {
       // Fallback to default icon if iconId is invalid
+      // TODO(L3): Icons.circle_outlined is fallback when scene icon is not found
+      // Android uses R.drawable.ic_scene_0 as default fallback
+      // VIOLATION: Material Icon not in Android (as fallback)
       return Icon(
         Icons.circle_outlined,
         size: width ?? height ?? 24,
@@ -94,6 +97,9 @@ class SceneIconHelper {
     Color? color,
   }) {
     if (iconKey == null) {
+      // TODO(L3): Icons.circle_outlined is fallback when scene iconKey is null
+      // Android uses R.drawable.ic_scene_0 as default fallback
+      // VIOLATION: Material Icon not in Android (as fallback)
       return Icon(
         Icons.circle_outlined,
         size: width ?? height ?? 24,
@@ -140,6 +146,9 @@ class SceneIconHelper {
       default:
         // Try to extract iconId from iconKey if it's in format "ic_xxx"
         // For custom icons, use default
+        // TODO(L3): Icons.circle_outlined is fallback for unmapped custom scene icons
+        // Android returns R.drawable.ic_scene_0 as default
+        // VIOLATION: Material Icon not in Android (as fallback)
         return Icon(
           Icons.circle_outlined,
           size: width ?? height ?? 24,
@@ -155,4 +164,3 @@ class SceneIconHelper {
     );
   }
 }
-

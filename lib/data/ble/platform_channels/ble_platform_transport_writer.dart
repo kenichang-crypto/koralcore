@@ -15,6 +15,7 @@ class BlePlatformTransportWriter {
   static const String _writeMethod = 'write';
   static const String _connectMethod = 'connect';
   static const String _notifyCallback = 'notify';
+  static const String _connectionStateCallback = 'connectionStateChange';
 
   final MethodChannel _channel;
   final ListQueue<_PendingPayload> _pendingPayloads =
@@ -23,6 +24,8 @@ class BlePlatformTransportWriter {
   final Map<String, Future<void>> _connectingDevices = <String, Future<void>>{};
   final StreamController<BleNotifyPacket> _notifyController =
       StreamController<BleNotifyPacket>.broadcast();
+  final StreamController<BleConnectionState> _connectionStateController =
+      StreamController<BleConnectionState>.broadcast();
 
   BlePlatformTransportWriter({MethodChannel? channel})
     : _channel = channel ?? const MethodChannel(_channelName) {
@@ -31,6 +34,10 @@ class BlePlatformTransportWriter {
 
   /// Broadcast stream of every BLE notification envelope emitted by the host.
   Stream<BleNotifyPacket> get notifyStream => _notifyController.stream;
+
+  /// Broadcast stream of connection state changes.
+  Stream<BleConnectionState> get connectionStateStream =>
+      _connectionStateController.stream;
 
   /// Invokes the platform transport and returns the adapter-level write result.
   Future<BleWriteResult> write({
@@ -153,6 +160,9 @@ class BlePlatformTransportWriter {
       case _notifyCallback:
         _handleNotify(call.arguments);
         break;
+      case _connectionStateCallback:
+        _handleConnectionState(call.arguments);
+        break;
       default:
         break;
     }
@@ -183,6 +193,32 @@ class BlePlatformTransportWriter {
       break;
     }
     _drainCancelledPayloads();
+  }
+
+  void _handleConnectionState(dynamic rawArguments) {
+    final Map<Object?, Object?>? arguments = rawArguments is Map
+        ? rawArguments.cast<Object?, Object?>()
+        : null;
+    if (arguments == null) {
+      return;
+    }
+
+    final String? deviceId = arguments['deviceId'] as String?;
+    final bool? isConnected = arguments['isConnected'] as bool?;
+
+    if (deviceId != null && isConnected != null) {
+      if (isConnected) {
+        _connectedDevices.add(deviceId);
+      } else {
+        _connectedDevices.remove(deviceId);
+      }
+
+      if (!_connectionStateController.isClosed) {
+        _connectionStateController.add(
+          BleConnectionState(deviceId: deviceId, isConnected: isConnected),
+        );
+      }
+    }
   }
 
   void _drainCancelledPayloads() {

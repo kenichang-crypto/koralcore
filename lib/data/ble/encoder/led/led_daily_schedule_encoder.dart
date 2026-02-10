@@ -8,6 +8,12 @@ class LedDailyScheduleEncoder {
   const LedDailyScheduleEncoder();
 
   Uint8List encode(LedDailySchedule schedule) {
+    if (!LedOpcodes.enableNew5ChannelEncoders) {
+      throw UnsupportedError(
+        'New 5-channel LED daily schedule encoder (0x81) is disabled for v1.0.',
+      );
+    }
+
     if (schedule.points.isEmpty) {
       throw ArgumentError('LED daily schedule requires at least one point.');
     }

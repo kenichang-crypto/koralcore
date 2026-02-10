@@ -8,6 +8,12 @@ class LedCustomScheduleEncoder {
   const LedCustomScheduleEncoder();
 
   Uint8List encode(LedCustomSchedule schedule) {
+    if (!LedOpcodes.enableNew5ChannelEncoders) {
+      throw UnsupportedError(
+        'New 5-channel LED custom schedule encoder (0x82) is disabled for v1.0.',
+      );
+    }
+
     final List<int> bytes = <int>[
       LedOpcodes.customWindow,
       0x00,

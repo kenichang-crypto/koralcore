@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import '../encoder/led/led_opcodes.dart';
+
 const List<String> ledChannelOrder = <String>[
   'coldWhite',
   'royalBlue',
@@ -68,11 +70,16 @@ class LedCommandBuilder {
     required int recurrenceMask,
     required List<int> channels,
   }) {
+    if (!LedOpcodes.enableNew5ChannelEncoders) {
+      throw UnsupportedError(
+        'New 5-channel LED schedule apply (0x82) is disabled for v1.0.',
+      );
+    }
     if (channels.length != 5) {
       throw ArgumentError('Schedule apply requires 5 channel values.');
     }
     return _build(<int>[
-      0x82,
+      LedOpcodes.customWindow, // 0x82
       0x00,
       0x01, // channel group (full spectrum)
       scheduleCode & 0xFF,

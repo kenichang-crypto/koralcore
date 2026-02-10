@@ -8,6 +8,12 @@ class LedSceneScheduleEncoder {
   const LedSceneScheduleEncoder();
 
   Uint8List encode(LedSceneSchedule schedule) {
+    if (!LedOpcodes.enableNew5ChannelEncoders) {
+      throw UnsupportedError(
+        'New 5-channel LED scene schedule encoder (0x83) is disabled for v1.0.',
+      );
+    }
+
     final List<int> bytes = <int>[
       LedOpcodes.sceneWindow,
       0x00,

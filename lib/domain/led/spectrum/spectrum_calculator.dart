@@ -1,9 +1,9 @@
 // Ported from Android SpectrumUtil.kt
 // Spectrum calculation logic (no UI, no chart)
 
-import 'dart:convert';
+import '../../../features/led/data/spectrum/spectrum_data_source_final.dart';
+import '../../../features/led/domain/models/spectrum/spectrum_wave_point.dart';
 import 'spectrum.dart';
-import 'spectrum_data.dart';
 
 class SpectrumCalculator {
   final List<SpectrumItem> uvDatas;
@@ -16,20 +16,28 @@ class SpectrumCalculator {
   final List<SpectrumItem> moonLightDatas;
 
   SpectrumCalculator()
-    : uvDatas = Spectrum.fromJson(jsonDecode(SpectrumData.uv)).list,
-      purpleDatas = Spectrum.fromJson(jsonDecode(SpectrumData.purple)).list,
-      blueDatas = Spectrum.fromJson(jsonDecode(SpectrumData.blue)).list,
-      royalBlueDatas = Spectrum.fromJson(
-        jsonDecode(SpectrumData.royalBlue),
-      ).list,
-      greenDatas = Spectrum.fromJson(jsonDecode(SpectrumData.green)).list,
-      redDatas = Spectrum.fromJson(jsonDecode(SpectrumData.red)).list,
-      coldWhiteDatas = Spectrum.fromJson(
-        jsonDecode(SpectrumData.coldWhite),
-      ).list,
-      moonLightDatas = Spectrum.fromJson(
-        jsonDecode(SpectrumData.moonLight),
-      ).list;
+    : uvDatas = _mapToItems(SpectrumDataSource.uv),
+      purpleDatas = _mapToItems(SpectrumDataSource.purple),
+      blueDatas = _mapToItems(SpectrumDataSource.blue),
+      royalBlueDatas = _mapToItems(SpectrumDataSource.royalBlue),
+      greenDatas = _mapToItems(SpectrumDataSource.green),
+      redDatas = _mapToItems(SpectrumDataSource.red),
+      coldWhiteDatas = _mapToItems(SpectrumDataSource.coldWhite),
+      moonLightDatas = _mapToItems(SpectrumDataSource.moonLight);
+
+  static List<SpectrumItem> _mapToItems(List<SpectrumWavePoint> source) {
+    return source
+        .map(
+          (e) => SpectrumItem(
+            wave: e.waveLength,
+            strength25: e.strength25,
+            strength50: e.strength50,
+            strength75: e.strength75,
+            strength100: e.strength100,
+          ),
+        )
+        .toList();
+  }
 
   /// Returns a list of spectrum intensity (length 320, 380~699) for given channel values (0~100)
   List<double> calculateSpectrum({

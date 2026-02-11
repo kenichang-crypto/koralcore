@@ -103,6 +103,7 @@ class _ScheduleEditPageState extends State<ScheduleEditPage> {
     final theme = Theme.of(context);
     final session = context.watch<AppSession>();
     final bool isConnected = session.isBleConnected;
+    final bool isReady = session.isReady;
     final title = widget.initialEntry == null
         ? l10n.dosingScheduleEditTitleNew
         : l10n.dosingScheduleEditTitleEdit;
@@ -175,7 +176,7 @@ class _ScheduleEditPageState extends State<ScheduleEditPage> {
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: FilledButton(
-                  onPressed: !isConnected || _isSaving ? null : _handleSave,
+                  onPressed: !isReady || _isSaving ? null : _handleSave,
                   child: _isSaving
                       ? const SizedBox(
                           width: 18,

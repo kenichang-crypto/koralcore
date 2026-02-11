@@ -90,6 +90,7 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
 
   @override
   Widget build(BuildContext context) {
+    final session = context.watch<AppSession>();
     final controller = context.watch<DosingMainController>();
     final l10n = AppLocalizations.of(context);
     final deviceName = controller.deviceName ?? l10n.dosingHeader;
@@ -140,7 +141,7 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
                         // rv_drop_head (泵頭列表)
                         DosingMainPumpHeadList(
                           isConnected: controller.isConnected,
-                          session: context.read<AppSession>(),
+                          session: session,
                           onHeadTap: (headId) {
                             // PARITY: DropMainActivity.onClickDropHead() -> navigate to DropHeadMainActivity
                             Navigator.of(context).push(
@@ -150,12 +151,13 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
                               ),
                             );
                           },
-                          onHeadPlay: (headId) {
-                            // PARITY: DropMainActivity.onClickPlayDropHead() -> viewModel.clickPlayDropHead()
-                            // Convert headId (A/B/C/D) to index (0/1/2/3)
-                            final int index = _headIdToIndex(headId);
-                            controller.toggleManualDrop(index);
-                          },
+                          onHeadPlay: session.isReady
+                              ? (headId) {
+                                  // KC-A-FINAL: Only when ready
+                                  final int index = _headIdToIndex(headId);
+                                  controller.toggleManualDrop(index);
+                                }
+                              : null,
                         ),
                       ],
                     ),
@@ -175,10 +177,11 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
   /// PARITY: DropMainActivity Line 95-120
   void _showPopupMenu(BuildContext context, DosingMainController controller) {
     final l10n = AppLocalizations.of(context);
+    final session = context.read<AppSession>();
 
     showModalBottomSheet(
       context: context,
-      builder: (context) => SafeArea(
+      builder: (modalContext) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -212,9 +215,9 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
             ListTile(
               leading: const Icon(Icons.refresh),
               title: const Text('Reset'), // TODO: Add to ARB (actionReset)
-              onTap: () {
-                Navigator.of(context).pop();
-                if (controller.isConnected) {
+                onTap: () {
+                Navigator.of(modalContext).pop();
+                if (controller.isConnected && session.isReady) {
                   _showResetDialog(context, controller);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(

@@ -88,6 +88,7 @@ class _DropSettingPageContentState extends State<_DropSettingPageContent> {
 
   @override
   Widget build(BuildContext context) {
+    final session = context.watch<AppSession>();
     final controller = context.watch<DropSettingController>();
     final l10n = AppLocalizations.of(context);
 
@@ -105,7 +106,9 @@ class _DropSettingPageContentState extends State<_DropSettingPageContent> {
                   onBack: controller.isSaving
                       ? null
                       : () => Navigator.of(context).pop(),
-                  onRightButton: controller.isSaving ? null : () => _save(),
+                  onRightButton: controller.isSaving || !session.isReady
+                      ? null
+                      : () => _save(),
                 ),
                 // PARITY: layout_drop_setting (Line 16-112)
                 Expanded(
@@ -204,7 +207,7 @@ class _DropSettingPageContentState extends State<_DropSettingPageContent> {
                             color: AppColors.textPrimary,
                           ),
                           onPressed:
-                              controller.isSaving || !controller.isConnected
+                              controller.isSaving || !session.isReady
                               ? null
                               : () => _selectDelayTime(),
                         ),

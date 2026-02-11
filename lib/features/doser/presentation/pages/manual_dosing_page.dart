@@ -65,6 +65,7 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
       builder: (context, session, controller, _) {
         final theme = Theme.of(context);
         final bool isConnected = session.isBleConnected;
+        final bool isReady = session.isReady;
         final PumpHeadSummary summary = PumpHeadSummary.demo(_selectedHead);
 
         return Scaffold(
@@ -116,7 +117,7 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: FilledButton(
-                          onPressed: !isConnected || controller.isSubmitting
+                          onPressed: !isReady || controller.isSubmitting
                               ? null
                               : () => _handleSubmit(context),
                           child: controller.isSubmitting

@@ -177,17 +177,19 @@ class _PumpHeadDetailPageContentState
     PumpHeadDetailController controller,
   ) {
     final l10n = AppLocalizations.of(context);
+    final session = context.read<AppSession>();
+    final isReady = session.isReady;
 
     showModalBottomSheet(
       context: context,
-      builder: (context) => SafeArea(
+      builder: (modalContext) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               title: Text(l10n.dosingPumpHeadSettingsTitle),
               onTap: () async {
-                Navigator.of(context).pop();
+                Navigator.of(modalContext).pop();
                 final session = context.read<AppSession>();
                 final deviceId = session.activeDeviceId;
                 if (deviceId != null) {
@@ -204,8 +206,9 @@ class _PumpHeadDetailPageContentState
             ),
             ListTile(
               title: Text(l10n.dosingManualPageSubtitle),
+              enabled: isReady,
               onTap: () async {
-                Navigator.of(context).pop();
+                Navigator.of(modalContext).pop();
                 final success = await controller.sendManualDose();
                 if (!context.mounted) return;
 
@@ -220,8 +223,9 @@ class _PumpHeadDetailPageContentState
             ),
             ListTile(
               title: Text(l10n.dosingPumpHeadTimedDose),
+              enabled: isReady,
               onTap: () async {
-                Navigator.of(context).pop();
+                Navigator.of(modalContext).pop();
                 final success = await controller.scheduleTimedDose();
                 if (!context.mounted) return;
 

@@ -62,6 +62,7 @@ class _PumpHeadAdjustView extends StatelessWidget {
     final session = context.watch<AppSession>();
     final controller = context.watch<PumpHeadAdjustController>();
     final isConnected = session.isBleConnected;
+    final isReady = session.isReady;
 
     // Show error if any
     final AppErrorCode? errorCode = controller.lastErrorCode;
@@ -107,7 +108,7 @@ class _PumpHeadAdjustView extends StatelessWidget {
                   const SizedBox(height: AppSpacing.lg),
                   PumpHeadAdjustRotatingSpeedSection(
                     controller: controller,
-                    isConnected: isConnected,
+                    isConnected: isReady,
                     l10n: l10n,
                     onSpeedPickerTap: () => PumpHeadAdjustSpeedPicker.show(
                       context,
@@ -120,7 +121,7 @@ class _PumpHeadAdjustView extends StatelessWidget {
                     const SizedBox(height: AppSpacing.md),
                     PumpHeadAdjustDropVolumeSection(
                       controller: controller,
-                      isConnected: isConnected,
+                      isConnected: isReady,
                       l10n: l10n,
                     ),
                   ],
@@ -131,7 +132,7 @@ class _PumpHeadAdjustView extends StatelessWidget {
                   const Spacer(),
                   PumpHeadAdjustBottomButtons(
                     controller: controller,
-                    isConnected: isConnected,
+                    isConnected: isReady,
                     l10n: l10n,
                   ),
                 ],

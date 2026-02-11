@@ -156,6 +156,11 @@ class PumpHeadAdjustController extends ChangeNotifier {
       _setError(AppErrorCode.noActiveDevice);
       return;
     }
+    // KC-A-FINAL: Gate on device ready state
+    if (!session.isReady) {
+      _setError(AppErrorCode.deviceNotReady);
+      return;
+    }
 
     // Validate volume input
     final volumeText = volumeController.text.trim();

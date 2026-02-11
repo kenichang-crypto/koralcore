@@ -64,6 +64,7 @@ class PumpHeadSettingsPage extends StatelessWidget {
 class _PumpHeadSettingsPageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final session = context.watch<AppSession>();
     final controller = context.watch<PumpHeadSettingsController>();
     final l10n = AppLocalizations.of(context);
 
@@ -82,7 +83,9 @@ class _PumpHeadSettingsPageContent extends StatelessWidget {
                   onBack: controller.isSaving
                       ? null
                       : () => Navigator.of(context).pop(),
-                  onRightButton: controller.isSaving ? null : () => _save(context),
+                  onRightButton: controller.isSaving || !session.isReady
+                      ? null
+                      : () => _save(context),
                 ),
                 // PARITY: layout_drop_head_setting (Line 16-160)
                 Expanded(
@@ -138,7 +141,7 @@ class _PumpHeadSettingsPageContent extends StatelessWidget {
                                 ? AppColors.textPrimary
                                 : AppColors.textSecondary,
                           ),
-                          onPressed: controller.isSaving || !controller.isConnected
+                          onPressed: controller.isSaving || !session.isReady
                               ? null
                               : () => _selectRotatingSpeed(context),
                           textColor: controller.isConnected

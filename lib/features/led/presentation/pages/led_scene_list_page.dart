@@ -91,6 +91,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
     return Consumer2<AppSession, LedSceneListController>(
       builder: (context, session, controller, _) {
         final isConnected = session.isBleConnected;
+        final isReady = session.isReady;
         final theme = Theme.of(context);
         _maybeShowError(context, controller);
         _maybeShowEvent(context, controller);
@@ -103,7 +104,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
               IconButton(
                 icon: CommonIconHelper.getEditIcon(size: 24),
                 tooltip: l10n.ledScenesActionEdit,
-                onPressed: isConnected && !controller.isBusy
+                onPressed: isReady && !controller.isBusy
                     ? () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -115,7 +116,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
               ),
             ],
           ),
-          floatingActionButton: isConnected && !controller.isBusy
+          floatingActionButton: isReady && !controller.isBusy
               ? FloatingActionButton(
                   onPressed: () {
                     Navigator.of(context).push(
@@ -194,6 +195,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
                                   channelCount:
                                       controller.currentChannelLevels.length,
                                   isConnected: isConnected,
+                                  isReady: isReady,
                                   controller: controller,
                                   onApply:
                                       session.isReady &&
@@ -205,7 +207,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
                                   // PARITY: reef-b-app - preset scenes (sceneId != null) cannot be edited
                                   // Only custom scenes (sceneId == null) can be edited
                                   onTap:
-                                      (isConnected &&
+                                      (isReady &&
                                           !controller.isBusy &&
                                           !scene.isPreset)
                                       ? () {
@@ -235,7 +237,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                if (isConnected && !controller.isBusy)
+                                if (isReady && !controller.isBusy)
                                   IconButton(
                                     icon: CommonIconHelper.getAddIcon(size: 24),
                                     tooltip: l10n.ledScenesActionAdd,
@@ -262,6 +264,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
                                   channelCount:
                                       controller.currentChannelLevels.length,
                                   isConnected: isConnected,
+                                  isReady: isReady,
                                   controller: controller,
                                   onApply:
                                       session.isReady &&
@@ -273,7 +276,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
                                   // PARITY: reef-b-app - preset scenes (sceneId != null) cannot be edited
                                   // Only custom scenes (sceneId == null) can be edited
                                   onTap:
-                                      (isConnected &&
+                                      (isReady &&
                                           !controller.isBusy &&
                                           !scene.isPreset)
                                       ? () {
@@ -371,6 +374,7 @@ class _SceneCard extends StatelessWidget {
   final VoidCallback? onApply;
   final VoidCallback? onTap;
   final bool isConnected;
+  final bool isReady;
   final LedSceneListController controller;
 
   const _SceneCard({
@@ -380,6 +384,7 @@ class _SceneCard extends StatelessWidget {
     this.onApply,
     this.onTap,
     required this.isConnected,
+    required this.isReady,
     required this.controller,
   });
 
@@ -455,7 +460,7 @@ class _SceneCard extends StatelessWidget {
               SizedBox(width: AppSpacing.xs), // dp_8 marginStart
               // Favorite button (btn_favorite) - 20×20dp
               // PARITY: reef-b-app ic_favorite_select / ic_favorite_unselect
-              if (isConnected && !controller.isBusy)
+              if (isReady && !controller.isBusy)
                 IconButton(
                   icon: SvgPicture.asset(
                     scene.isFavorite

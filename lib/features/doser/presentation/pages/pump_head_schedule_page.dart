@@ -55,6 +55,7 @@ class _PumpHeadScheduleView extends StatelessWidget {
       builder: (context, session, controller, _) {
         final theme = Theme.of(context);
         final isConnected = session.isBleConnected;
+        final isReady = session.isReady;
         final entries = controller.entries;
         // Show error if any
         final AppErrorCode? errorCode = controller.lastErrorCode;
@@ -94,12 +95,12 @@ class _PumpHeadScheduleView extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 FilledButton.icon(
-                  onPressed: isConnected
+                  onPressed: isReady
                       ? () {
                           // Navigate to PumpHeadRecordSettingPage for new schedule
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => PumpHeadRecordSettingPage(headId: headId),
+                              builder: (_) => const PumpHeadRecordSettingPage(),
                             ),
                           );
                         }
@@ -119,7 +120,7 @@ class _PumpHeadScheduleView extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 OutlinedButton(
-                  onPressed: isConnected
+                  onPressed: isReady
                       ? () => _openScheduleEditor(
                           context,
                           templateType: PumpHeadScheduleType.customWindow,
@@ -144,7 +145,7 @@ class _PumpHeadScheduleView extends StatelessWidget {
                       ),
                       child: _ScheduleEntryCard(
                         entry: entry,
-                        isConnected: isConnected,
+                        isConnected: isReady,
                         l10n: l10n,
                         onTap: () => _openScheduleEditor(context, entry: entry),
                       ),

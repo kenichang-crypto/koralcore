@@ -78,6 +78,7 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
     final theme = Theme.of(context);
     final session = context.watch<AppSession>();
     final bool isConnected = session.isBleConnected;
+    final bool isReady = session.isReady;
     final String title = widget.initialSchedule == null
         ? l10n.ledScheduleEditTitleNew
         : l10n.ledScheduleEditTitleEdit;
@@ -129,7 +130,7 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: FilledButton(
-                  onPressed: !isConnected || _isSaving ? null : _handleSave,
+                  onPressed: !isReady || _isSaving ? null : _handleSave,
                   child: _isSaving
                       ? const SizedBox(
                           width: 18,
@@ -338,6 +339,11 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
     final String? deviceId = session.activeDeviceId;
     if (deviceId == null) {
       _showSnackbar(describeAppError(l10n, AppErrorCode.noActiveDevice));
+      return;
+    }
+    // KC-A-FINAL: Gate on device ready state
+    if (!session.isReady) {
+      _showSnackbar(describeAppError(l10n, AppErrorCode.deviceNotReady));
       return;
     }
 

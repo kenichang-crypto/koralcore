@@ -210,6 +210,12 @@ class LedSceneListController extends ChangeNotifier {
       notifyListeners();
       return;
     }
+    // KC-A-FINAL: Gate on device ready state
+    if (!session.isReady) {
+      _setError(AppErrorCode.deviceNotReady);
+      notifyListeners();
+      return;
+    }
     if (isBusy || isPreviewing) {
       return;
     }
@@ -230,6 +236,12 @@ class LedSceneListController extends ChangeNotifier {
     final String? deviceId = session.activeDeviceId;
     if (deviceId == null) {
       _setError(AppErrorCode.noActiveDevice);
+      notifyListeners();
+      return;
+    }
+    // KC-A-FINAL: Gate on device ready state
+    if (!session.isReady) {
+      _setError(AppErrorCode.deviceNotReady);
       notifyListeners();
       return;
     }

@@ -293,7 +293,7 @@ class _SunriseSunsetSection extends StatelessWidget {
                     const SizedBox(width: 4),
                     // ic_down
                     // TODO(android @drawable/ic_down)
-                    const CommonIconHelper.getDownIcon(), size: 24),
+                    CommonIconHelper.getDownIcon(size: 24),
                   ],
                 ),
               ),
@@ -347,7 +347,7 @@ class _SunriseSunsetSection extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 4),
-                    const CommonIconHelper.getDownIcon(), size: 24),
+                    CommonIconHelper.getDownIcon(size: 24),
                   ],
                 ),
               ),
@@ -484,11 +484,7 @@ class _SlowStartMoonLightSection extends StatelessWidget {
             children: [
               // img_moon_light (20x20dp)
               // TODO(android @drawable/ic_moon_round)
-              const Icon(
-                CommonIconHelper.getMoonRoundIcon(),
-                size: 20,
-                color: Colors.grey,
-              ), // Placeholder
+              CommonIconHelper.getMoonRoundIcon(size: 20, color: Colors.grey),
               const SizedBox(width: 6), // marginStart: dp_6
               // tv_moon_light_title (@string/moon_light)
               Expanded(

@@ -188,26 +188,26 @@ class _RecordOverviewCard extends StatelessWidget {
             children: [
               // btn_add (ic_add_black)
               // TODO(android @drawable/ic_add_black)
-              _ControlButton(icon: CommonIconHelper.getAddIcon(), onPressed: null),
+              _ControlButton(icon: CommonIconHelper.getAddIcon(size: 24), onPressed: null),
               const SizedBox(width: 24), // marginStart + marginEnd = 24dp
               // btn_minus (ic_minus)
               // TODO(android @drawable/ic_minus)
-              _ControlButton(icon: CommonIconHelper.getMinusIcon(), onPressed: null),
+              _ControlButton(icon: CommonIconHelper.getMinusIcon(size: 24), onPressed: null),
               const SizedBox(width: 24),
 
               // btn_prev (ic_back)
               // TODO(android @drawable/ic_back)
-              _ControlButton(icon: CommonIconHelper.getBackIcon(), onPressed: null),
+              _ControlButton(icon: CommonIconHelper.getBackIcon(size: 24), onPressed: null),
               const SizedBox(width: 24),
 
               // btn_next (ic_next)
               // TODO(android @drawable/ic_next)
-              _ControlButton(icon: CommonIconHelper.getNextIcon(), onPressed: null),
+              _ControlButton(icon: CommonIconHelper.getNextIcon(size: 24), onPressed: null),
               const SizedBox(width: 24),
 
               // btn_preview (ic_preview)
               // TODO(android @drawable/ic_preview)
-              _ControlButton(icon: CommonIconHelper.getPlayIcon(), onPressed: null),
+              _ControlButton(icon: CommonIconHelper.getPlayIcon(size: 24), onPressed: null),
             ],
           ),
         ],
@@ -219,14 +219,14 @@ class _RecordOverviewCard extends StatelessWidget {
 class _ControlButton extends StatelessWidget {
   const _ControlButton({required this.icon, required this.onPressed});
 
-  final IconData icon;
+  final Widget icon;
   final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: onPressed,
-      icon: Icon(icon, size: 24),
+      icon: icon,
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(
         minWidth: 24,
@@ -270,7 +270,7 @@ class _RecordListHeader extends StatelessWidget {
           // TODO(android @drawable/ic_add_btn)
           IconButton(
             onPressed: null, // No behavior in Correction Mode
-            icon: const CommonIconHelper.getAddBtnIcon(), size: 24),
+            icon: CommonIconHelper.getAddBtnIcon(size: 24),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
           ),
@@ -318,8 +318,7 @@ class _RecordTile extends StatelessWidget {
                 const SizedBox(width: 8), // marginStart: dp_8
                 // More icon (img_next → ic_more_enable, 24x24dp)
                 // TODO(android @drawable/ic_more_enable)
-                const Icon(
-                  CommonIconHelper.getMoreEnableIcon(),
+                CommonIconHelper.getMoreEnableIcon(
                   size: 24,
                   color: AppColors.textSecondary,
                 ),

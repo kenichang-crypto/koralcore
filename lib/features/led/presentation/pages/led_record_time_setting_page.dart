@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../shared/assets/common_icon_helper.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../controllers/led_record_time_setting_controller.dart';
@@ -165,7 +166,7 @@ class _TimeSelectionSection extends StatelessWidget {
               const Spacer(),
               // ic_down icon (24x24dp)
               // TODO(android @drawable/ic_down)
-              const CommonIconHelper.getDownIcon(), size: 24),
+              CommonIconHelper.getDownIcon(size: 24),
             ],
           ),
         ),

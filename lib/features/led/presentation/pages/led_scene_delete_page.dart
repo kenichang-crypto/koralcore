@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../shared/assets/common_icon_helper.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../controllers/led_scene_list_controller.dart';
@@ -197,10 +198,11 @@ class _SceneSelectTile extends StatelessWidget {
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
-                      CommonIconHelper.getCheckIcon(),
-                      size: 16,
-                      color: Colors.white,
+                    child: Center(
+                      child: CommonIconHelper.getCheckIcon(
+                        size: 16,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
               ],

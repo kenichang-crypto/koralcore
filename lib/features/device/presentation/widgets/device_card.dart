@@ -80,13 +80,16 @@ class DeviceCard extends StatelessWidget {
                                 color: AppColors.primary.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(AppRadius.md),
                               ),
-                              child: Icon(
-                                deviceKind == _DeviceKind.led
-                                    ? CommonIconHelper.getLedIcon()
-                                    : CommonIconHelper.getDropIcon(),
-                                size: 32,
-                                color: AppColors.primary,
-                              ),
+                              alignment: Alignment.center,
+                              child: deviceKind == _DeviceKind.led
+                                  ? CommonIconHelper.getLedIcon(
+                                      size: 32,
+                                      color: AppColors.primary,
+                                    )
+                                  : CommonIconHelper.getDropIcon(
+                                      size: 32,
+                                      color: AppColors.primary,
+                                    ),
                             );
                           },
                         ),

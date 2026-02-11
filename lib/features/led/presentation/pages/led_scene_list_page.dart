@@ -196,7 +196,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
                                   isConnected: isConnected,
                                   controller: controller,
                                   onApply:
-                                      isConnected &&
+                                      session.isReady &&
                                           !controller.isBusy &&
                                           scene.isEnabled &&
                                           !scene.isActive
@@ -264,7 +264,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
                                   isConnected: isConnected,
                                   controller: controller,
                                   onApply:
-                                      isConnected &&
+                                      session.isReady &&
                                           !controller.isBusy &&
                                           scene.isEnabled &&
                                           !scene.isActive

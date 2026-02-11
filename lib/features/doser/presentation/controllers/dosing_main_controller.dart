@@ -245,6 +245,11 @@ class DosingMainController extends ChangeNotifier {
       _setError(AppErrorCode.unknownError);
       return;
     }
+    // KC-A-FINAL: Gate on device ready state
+    if (!session.isReady) {
+      _setError(AppErrorCode.deviceNotReady);
+      return;
+    }
 
     if (pumpHeadIndex < 0 || pumpHeadIndex >= 4) {
       return;

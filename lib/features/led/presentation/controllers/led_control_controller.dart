@@ -129,6 +129,13 @@ class LedControlController extends ChangeNotifier {
       return false;
     }
 
+    // KC-A-FINAL: Gate on device ready state
+    if (!session.isReady) {
+      _setError(AppErrorCode.deviceNotReady);
+      notifyListeners();
+      return false;
+    }
+
     _isApplying = true;
     notifyListeners();
 

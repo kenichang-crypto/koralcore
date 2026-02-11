@@ -1,55 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:koralcore/features/led/domain/models/spectrum/spectrum_wave_point.dart';
-import 'package:koralcore/features/led/domain/services/spectrum_calculator.dart';
-import 'package:koralcore/features/led/data/spectrum/spectrum_data_source.dart';
+import 'package:koralcore/domain/led/spectrum/spectrum_calculator.dart';
+import 'package:koralcore/features/led/data/spectrum/spectrum_data_source_final.dart';
 
 void main() {
-  group('Spectrum Domain Logic', () {
-    test('SpectrumWavePoint model should hold correct values', () {
-      final point = SpectrumWavePoint(
-        waveLength: 450,
-        strength25: 10,
-        strength50: 20,
-        strength75: 30,
-        strength100: 40,
-      );
-      expect(point.waveLength, 450);
-      expect(point.strength100, 40);
-    });
-
-    test('SpectrumCalculator interpolation logic', () {
-      final point = SpectrumWavePoint(
-        waveLength: 450,
-        strength25: 10, // at 25%
-        strength50: 20, // at 50%
-        strength75: 30, // at 75%
-        strength100: 40, // at 100%
-      );
-
-      // Case 0: 0% -> 0
-      expect(SpectrumCalculator.calculateIntensity(point, 0), 0.0);
-
-      // Case 1: 25% -> 10
-      expect(SpectrumCalculator.calculateIntensity(point, 25), 10.0);
-
-      // Case 2: 50% -> 20
-      expect(SpectrumCalculator.calculateIntensity(point, 50), 20.0);
-
-      // Case 3: 75% -> 30
-      expect(SpectrumCalculator.calculateIntensity(point, 75), 30.0);
-
-      // Case 4: 100% -> 40
-      expect(SpectrumCalculator.calculateIntensity(point, 100), 40.0);
-
-      // Case 5: 12.5% (Midway 0-25) -> 5.0
-      // 0 + (12.5 - 0)/(25-0) * (10 - 0) = 0.5 * 10 = 5.0
-      expect(SpectrumCalculator.calculateIntensity(point, 12.5), 5.0);
-
-      // Case 6: 37.5% (Midway 25-50) -> 15.0
-      // 10 + (37.5 - 25)/(50-25) * (20 - 10) = 10 + 0.5 * 10 = 15.0
-      expect(SpectrumCalculator.calculateIntensity(point, 37.5), 15.0);
-    });
-
+  group('Spectrum Domain Logic (Canonical)', () {
     test('SpectrumDataSource should parse UV channel correctly', () {
       // Accessing the static getter triggers parsing
       final points = SpectrumDataSource.uv;
@@ -62,6 +16,62 @@ void main() {
       expect(first.strength25, 0);
       expect(first.strength75, closeTo(5.97, 0.001));
       expect(first.strength100, closeTo(16.435, 0.001));
+    });
+
+    test('SpectrumCalculator should calculate full spectrum', () {
+      final calculator = SpectrumCalculator();
+
+      // Test all zeros
+      final zeros = calculator.calculateSpectrum(
+        uv: 0,
+        purple: 0,
+        blue: 0,
+        royalBlue: 0,
+        green: 0,
+        red: 0,
+        coldWhite: 0,
+        moonLight: 0,
+      );
+
+      expect(zeros.length, 321); // 380 to 700 is 321 points
+      expect(zeros.every((val) => val == 0.0), isTrue);
+
+      // Test UV max
+      final uvMax = calculator.calculateSpectrum(
+        uv: 100,
+        purple: 0,
+        blue: 0,
+        royalBlue: 0,
+        green: 0,
+        red: 0,
+        coldWhite: 0,
+        moonLight: 0,
+      );
+
+      expect(uvMax.length, 321);
+      // UV has value at 380nm
+      // 16.43547...
+      expect(uvMax[0], closeTo(16.435, 0.001));
+
+      // Test accumulation
+      // UV at 380 is ~16.435
+      // If we add another channel that has 0 at 380, it stays same.
+      // If we add something that has value, it sums up.
+      // Let's just check it's deterministic.
+      final combined = calculator.calculateSpectrum(
+        uv: 100,
+        purple: 100,
+        blue: 0,
+        royalBlue: 0,
+        green: 0,
+        red: 0,
+        coldWhite: 0,
+        moonLight: 0,
+      );
+
+      // If purple has 0 at 380 (it does), then result is same as uvMax at 380
+      // Checking Purple data from file: 380 is 0.
+      expect(combined[0], closeTo(16.435, 0.001));
     });
   });
 }

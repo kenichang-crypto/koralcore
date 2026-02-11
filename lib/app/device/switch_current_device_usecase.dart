@@ -23,23 +23,21 @@ class SwitchCurrentDeviceUseCase {
   });
 
   Future<void> execute({required String deviceId}) async {
-    // 1) Validate device exists
-    // TODO: if not exists -> return error
+    // 1) Validate device exists in the repository.
+    // If not, this will throw, which is the desired behavior.
     await deviceRepository.getDevice(deviceId);
 
-    // 2) Set application currentDevice (context)
-    // TODO: appContext.setCurrentDevice(deviceId)
-    // Clearing prevents downstream use cases from reading stale context while
-    // the new device awaits initialization.
-    currentDeviceSession.clear();
+    // 2) KC-A-FINAL: Set application current device to a "selected-not-ready" state.
+    // This clears any prior "ready" state and establishes a partial context
+    // containing only the device ID. It prevents downstream use cases from
+    // accessing a full (but stale) context before initialization completes.
+    currentDeviceSession.switchTo(deviceId);
+
+    // 3) Persist the new current device ID.
     await deviceRepository.setCurrentDevice(deviceId);
 
-    // 3) Load cached device state and notify presentation
-    // TODO: final state = await deviceRepository.getState(deviceId)
-    await deviceRepository.getDeviceState(deviceId);
-    // TODO: notify UI to load state
-
-    // 4) Optionally: trigger a light sync
-    // TODO: consider ReadDeviceInfoUseCase or ReadCapabilityUseCase
+    // Downstream steps (like loading cached state or light sync) are intentionally
+    // omitted. The lifecycle contract dictates that a full 'InitializeDeviceUseCase'
+    // MUST run after a switch to bring the device to a "ready" state.
   }
 }

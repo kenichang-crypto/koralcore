@@ -78,6 +78,12 @@ class PumpHeadScheduleController extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+    // KC-A-FINAL: Gate on device ready state
+    if (!session.isReady) {
+      _setError(AppErrorCode.deviceNotReady);
+      notifyListeners();
+      return false;
+    }
 
     try {
       final ScheduleResult result = await applyScheduleUseCase
@@ -109,6 +115,12 @@ class PumpHeadScheduleController extends ChangeNotifier {
     final String? deviceId = session.activeDeviceId;
     if (deviceId == null) {
       _setError(AppErrorCode.noActiveDevice);
+      notifyListeners();
+      return false;
+    }
+    // KC-A-FINAL: Gate on device ready state
+    if (!session.isReady) {
+      _setError(AppErrorCode.deviceNotReady);
       notifyListeners();
       return false;
     }

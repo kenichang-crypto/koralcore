@@ -29,6 +29,12 @@ class ManualDosingController extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+    // KC-A-FINAL: Gate on device ready state
+    if (!session.isReady) {
+      _lastErrorCode = AppErrorCode.deviceNotReady;
+      notifyListeners();
+      return false;
+    }
 
     if (_isSubmitting) {
       return false;

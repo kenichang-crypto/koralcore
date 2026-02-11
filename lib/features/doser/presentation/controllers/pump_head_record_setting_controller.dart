@@ -195,6 +195,11 @@ class PumpHeadRecordSettingController extends ChangeNotifier {
         _setError(AppErrorCode.noActiveDevice);
         return false;
       }
+      // KC-A-FINAL: Gate on device ready state
+      if (!session.isReady) {
+        _setError(AppErrorCode.deviceNotReady);
+        return false;
+      }
 
       switch (_selectedRecordType) {
         case PumpHeadRecordType.none:

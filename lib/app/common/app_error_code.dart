@@ -3,6 +3,8 @@ enum AppErrorCode {
   deviceBusy,
   noActiveDevice,
   noDeviceSelected,
+  deviceNotReady, // KC-A-FINAL: Device is selected but not initialized
+  deviceMismatch, // KC-A-FINAL: Attempted to start a session for a non-selected device
   notSupported,
   invalidParam,
   transportError,

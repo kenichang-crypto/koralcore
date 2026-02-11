@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 
+import '../../../../domain/led/spectrum/spectrum_calculator.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../models/led_schedule_summary.dart';
 
-/// Lightweight multi-channel spectrum bar chart used across LED screens.
+/// Spectrum chart using Domain SpectrumCalculator to render the full synthesis curve.
+///
+/// PARITY: Matches Android's SpectrumUtil full synthesis logic (380-699nm).
 class LedSpectrumChart extends StatelessWidget {
   const LedSpectrumChart._({
     super.key,
-    required List<_LedSpectrumSample> samples,
+    required this.channelLevels,
     required this.height,
     required this.compact,
     required this.emptyLabel,
-  }) : _samples = samples;
+  });
 
   factory LedSpectrumChart.fromChannelMap(
     Map<String, int> channelLevels, {
@@ -24,7 +28,7 @@ class LedSpectrumChart extends StatelessWidget {
   }) {
     return LedSpectrumChart._(
       key: key,
-      samples: _buildSamplesFromMap(channelLevels),
+      channelLevels: channelLevels,
       height: height,
       compact: compact,
       emptyLabel: emptyLabel,
@@ -51,20 +55,46 @@ class LedSpectrumChart extends StatelessWidget {
     );
   }
 
-  final List<_LedSpectrumSample> _samples;
+  final Map<String, int> channelLevels;
   final double height;
   final bool compact;
   final String? emptyLabel;
 
-  static const double _barWidth = 18;
-
   @override
   Widget build(BuildContext context) {
-    if (_samples.isEmpty) {
+    if (channelLevels.isEmpty) {
       return _emptyState();
     }
 
+    // 1. Calculate full spectrum using Domain Calculator
+    final calculator = SpectrumCalculator();
+    final spectrumData = calculator.calculateSpectrum(
+      uv: _getInt('uv') ?? _getInt('ultraviolet') ?? 0,
+      purple: _getInt('purple') ?? 0,
+      blue: _getInt('blue') ?? 0,
+      royalBlue: _getInt('royalBlue') ?? 0,
+      green: _getInt('green') ?? 0,
+      red: _getInt('red') ?? 0,
+      coldWhite: _getInt('coldWhite') ?? _getInt('white') ?? 0,
+      moonLight: _getInt('moonLight') ?? _getInt('moon') ?? 0,
+    );
+
+    // 2. Convert to FlSpots
+    // SpectrumCalculator returns 320 points corresponding to 380nm - 699nm
+    final spots = <FlSpot>[];
+    double maxY = 0;
+    for (int i = 0; i < spectrumData.length; i++) {
+      final x = 380.0 + i;
+      final y = spectrumData[i];
+      if (y > maxY) maxY = y;
+      spots.add(FlSpot(x, y));
+    }
+
+    if (maxY == 0) maxY = 100; // Default range if all zero
+
+    // 3. Render LineChart
     return Container(
+      height: height,
       padding: EdgeInsets.symmetric(
         horizontal: compact ? AppSpacing.sm : AppSpacing.md,
         vertical: compact ? AppSpacing.sm : AppSpacing.md,
@@ -73,27 +103,44 @@ class LedSpectrumChart extends StatelessWidget {
         color: AppColors.surface.withValues(alpha: compact ? 0.35 : 0.5),
         borderRadius: BorderRadius.circular(AppSpacing.md),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: _samples
-            .map(
-              (sample) => Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.xs,
-                  ),
-                  child: _SpectrumBar(
-                    sample: sample,
-                    maxHeight: height,
-                    compact: compact,
-                  ),
+      child: LineChart(
+        LineChartData(
+          gridData: const FlGridData(show: false),
+          titlesData: const FlTitlesData(show: false),
+          borderData: FlBorderData(show: false),
+          minX: 380,
+          maxX: 699,
+          minY: 0,
+          // Add some padding to top
+          maxY: maxY * 1.1,
+          lineBarsData: [
+            LineChartBarData(
+              spots: spots,
+              isCurved: true,
+              color: AppColors.primary,
+              barWidth: 2,
+              isStrokeCapRound: true,
+              dotData: const FlDotData(show: false),
+              belowBarData: BarAreaData(
+                show: true,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.primary.withValues(alpha: 0.5),
+                    AppColors.primary.withValues(alpha: 0.0),
+                  ],
                 ),
               ),
-            )
-            .toList(growable: false),
+            ),
+          ],
+          lineTouchData: const LineTouchData(enabled: false),
+        ),
       ),
     );
   }
+
+  int? _getInt(String key) => channelLevels[key];
 
   Widget _emptyState() {
     return Container(
@@ -111,187 +158,5 @@ class LedSpectrumChart extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _SpectrumBar extends StatelessWidget {
-  const _SpectrumBar({
-    required this.sample,
-    required this.maxHeight,
-    required this.compact,
-  });
-
-  final _LedSpectrumSample sample;
-  final double maxHeight;
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    final double fillHeight =
-        (sample.percentage.clamp(0, 100) / 100) * maxHeight;
-    final TextStyle captionStyle =
-        (compact ? AppTextStyles.caption1 : AppTextStyles.caption1Accent)
-            .copyWith(color: AppColors.textSecondary);
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          height: maxHeight,
-          width: LedSpectrumChart._barWidth,
-          child: Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.surface.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(AppSpacing.xs),
-                ),
-              ),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                height: fillHeight,
-                decoration: BoxDecoration(
-                  color: sample.color,
-                  borderRadius: BorderRadius.circular(AppSpacing.xs),
-                  boxShadow: [
-                    BoxShadow(
-                      color: sample.color.withValues(alpha: 0.3),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          sample.label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: captionStyle,
-        ),
-        Text(
-          '${sample.percentage}%',
-          style: AppTextStyles.caption1.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _LedSpectrumSample {
-  const _LedSpectrumSample({
-    required this.id,
-    required this.label,
-    required this.percentage,
-    required this.color,
-  });
-
-  final String id;
-  final String label;
-  final int percentage;
-  final Color color;
-}
-
-List<_LedSpectrumSample> _buildSamplesFromMap(Map<String, int> levels) {
-  if (levels.isEmpty) {
-    return const <_LedSpectrumSample>[];
-  }
-
-  final List<String> orderedKeys = <String>[];
-  for (final String key in _channelOrder) {
-    if (levels.containsKey(key)) {
-      orderedKeys.add(key);
-    }
-  }
-  for (final String key in levels.keys) {
-    if (!orderedKeys.contains(key)) {
-      orderedKeys.add(key);
-    }
-  }
-
-  return orderedKeys
-      .map(
-        (key) => _LedSpectrumSample(
-          id: key,
-          label: _channelLabel(key),
-          percentage: levels[key]?.clamp(0, 100) ?? 0,
-          color: _channelColor(key),
-        ),
-      )
-      .where((sample) => sample.percentage > 0)
-      .toList(growable: false);
-}
-
-const List<String> _channelOrder = <String>[
-  'red',
-  'green',
-  'blue',
-  'royalBlue',
-  'purple',
-  'uv',
-  'warmWhite',
-  'coldWhite',
-  'moonLight',
-];
-
-Color _channelColor(String id) {
-  switch (id) {
-    case 'red':
-      return AppColors.red;
-    case 'green':
-      return AppColors.green;
-    case 'blue':
-      return AppColors.blue;
-    case 'royalBlue':
-      return AppColors.royalBlue;
-    case 'purple':
-      return AppColors.purple;
-    case 'uv':
-    case 'ultraviolet':
-      return AppColors.ultraviolet;
-    case 'warmWhite':
-      return AppColors.warmWhite;
-    case 'coldWhite':
-    case 'white':
-      return AppColors.coldWhite;
-    case 'moonLight':
-    case 'moon':
-      return AppColors.moonLight;
-    default:
-      return AppColors.primary;
-  }
-}
-
-String _channelLabel(String id) {
-  switch (id) {
-    case 'red':
-      return 'Red';
-    case 'green':
-      return 'Green';
-    case 'blue':
-      return 'Blue';
-    case 'royalBlue':
-      return 'Royal';
-    case 'purple':
-      return 'Purple';
-    case 'uv':
-    case 'ultraviolet':
-      return 'UV';
-    case 'warmWhite':
-      return 'Warm';
-    case 'coldWhite':
-    case 'white':
-      return 'Cool';
-    case 'moonLight':
-      return 'Moon';
-    default:
-      return id;
   }
 }

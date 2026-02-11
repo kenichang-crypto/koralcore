@@ -214,8 +214,8 @@ class DropSettingController extends ChangeNotifier {
       await deviceRepository.addSavedDevice(deviceData);
     }
 
-    // Send BLE command if connected
-    if (isConnected && session.activeDeviceId == deviceId) {
+    // Send BLE command if connected and ready
+    if (isConnected && session.activeDeviceId == deviceId && session.isReady) {
       final command = commandBuilder.setDelayTime(_delayTimeSeconds);
       await bleAdapter.writeBytes(deviceId: deviceId, data: command);
       // Note: ACK handling will be done by BLE layer

@@ -175,8 +175,8 @@ class PumpHeadSettingsController extends ChangeNotifier {
     // TODO: PumpHeadRepository needs updateRotatingSpeed method
     // For now, the BLE command will be sent, and DB update will be handled by ACK callback
 
-    // Send BLE command if connected
-    if (isConnected && session.activeDeviceId == deviceId) {
+    // Send BLE command if connected and ready
+    if (isConnected && session.activeDeviceId == deviceId && session.isReady) {
       final command = commandBuilder.setRotatingSpeed(
         headNo: headNo,
         speed: _rotatingSpeed,

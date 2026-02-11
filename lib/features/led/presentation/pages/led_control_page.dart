@@ -73,13 +73,11 @@ class _LedControlView extends StatelessWidget {
                     else
                       ...controller.channels.map(
                         (channel) => Padding(
-                          padding: const EdgeInsets.only(
-                            bottom: AppSpacing.sm,
-                          ),
+                          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                           child: _ChannelSliderCard(
                             key: ValueKey(channel.id),
                             channel: channel,
-                            enabled: isConnected && !controller.isApplying,
+                            enabled: session.isReady && !controller.isApplying,
                           ),
                         ),
                       ),
@@ -119,7 +117,7 @@ class _LedControlView extends StatelessWidget {
                   Expanded(
                     child: FilledButton(
                       onPressed:
-                          !isConnected ||
+                          !session.isReady ||
                               controller.isApplying ||
                               !controller.hasChanges
                           ? null
@@ -237,7 +235,9 @@ class _LedControlEmptyState extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Text(
           message,
-          style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: AppColors.textSecondary,
+          ),
         ),
       ),
     );

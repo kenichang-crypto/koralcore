@@ -18,6 +18,7 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
   StreamSubscription<List<Sink>>? _sinkSubscription;
   StreamSubscription<List<PumpHead>>? _pumpHeadSubscription;
   StreamSubscription<LedState>? _ledStateSubscription;
+  StreamSubscription<bool>? _isReadySubscription;
 
   String? _activeDeviceId;
   String? _activeDeviceName;
@@ -36,10 +37,16 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
         .listen(_onSavedDevices);
     _sinkSubscription = context.sinkRepository.observeSinks().listen(_onSinks);
     _sinks = context.sinkRepository.getCurrentSinks();
+    _isReadySubscription = context.currentDeviceSession.isReadyStream.listen((
+      _,
+    ) {
+      notifyListeners();
+    });
     WidgetsBinding.instance.addObserver(this);
   }
 
   bool get isBleConnected => _activeDeviceId != null;
+  bool get isReady => context.currentDeviceSession.isReady;
   String? get activeDeviceId => _activeDeviceId;
   String? get activeDeviceName => _activeDeviceName;
 
@@ -68,6 +75,7 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
     _resubscribeLedState(_activeDeviceId);
     notifyListeners();
   }
+
   Sink get defaultSink =>
       _defaultSink ??
       Sink.defaultSink(
@@ -211,6 +219,7 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
     _sinkSubscription?.cancel();
     _pumpHeadSubscription?.cancel();
     _ledStateSubscription?.cancel();
+    _isReadySubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

@@ -197,6 +197,12 @@ class PumpHeadDetailController extends ChangeNotifier
       _notifyListenersIfActive();
       return false;
     }
+    // KC-A-FINAL: Gate on device ready state
+    if (!session.isReady) {
+      _setError(AppErrorCode.deviceNotReady);
+      _notifyListenersIfActive();
+      return false;
+    }
 
     if (_isManualDoseInFlight) {
       return false;
@@ -234,6 +240,12 @@ class PumpHeadDetailController extends ChangeNotifier
     final String? deviceId = session.activeDeviceId;
     if (deviceId == null) {
       _setError(AppErrorCode.noActiveDevice);
+      _notifyListenersIfActive();
+      return false;
+    }
+    // KC-A-FINAL: Gate on device ready state
+    if (!session.isReady) {
+      _setError(AppErrorCode.deviceNotReady);
       _notifyListenersIfActive();
       return false;
     }

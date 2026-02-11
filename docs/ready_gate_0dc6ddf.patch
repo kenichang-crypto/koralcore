@@ -1,0 +1,679 @@
+commit 0dc6ddfb3627c8fb40c2be2766888f38f816c8ad
+Author: kenichang-crypto <keni.chang@gmail.com>
+Date:   Wed Feb 11 13:01:27 2026 +0800
+
+    feat: ready gate for UI handlers - align with Android lifecycle (AUDIT-4/5)
+    
+    - All BLE/Repository command handlers now gate on session.isReady
+    - Reconnect→init→ready: UI fully non-operable during init window
+    - LED: led_control_page, led_scene_list_page, led_schedule_edit_page
+    - Dosing: schedule_edit, manual_dosing, pump_head_schedule/adjust/detail/settings
+    - Dosing: dosing_main, drop_setting, pump_head_settings
+    - Device: device_settings_page
+    - Add docs/READY_GATE_IMPLEMENTATION_REPORT.md
+    
+    Co-authored-by: Cursor <cursoragent@cursor.com>
+
+diff --git a/docs/READY_GATE_IMPLEMENTATION_REPORT.md b/docs/READY_GATE_IMPLEMENTATION_REPORT.md
+new file mode 100644
+index 0000000..53576e2
+--- /dev/null
++++ b/docs/READY_GATE_IMPLEMENTATION_REPORT.md
+@@ -0,0 +1,134 @@
++# Ready Gate Implementation Report
++
++## 依據 AUDIT-4 與 AUDIT-5 實作「ready 才可送 command」一致性對齊
++
++**日期**: 2026-02-11  
++**依據**: `docs/UI_FINAL_AUDIT_REPORT.md` AUDIT-4、AUDIT-5
++
++---
++
++## 1. 變更檔案清單
++
++| 檔案 | 變更類型 |
++|------|----------|
++| `lib/features/led/presentation/pages/led_scene_list_page.dart` | isConnected→isReady UI gate + _SceneCard.isReady |
++| `lib/features/led/presentation/controllers/led_scene_list_controller.dart` | startRecord/togglePreview 加入 session.isReady 檢查 |
++| `lib/features/led/presentation/pages/led_schedule_edit_page.dart` | Save 按鈕改為 isReady gate + _handleSave 內檢查 |
++| `lib/features/doser/presentation/pages/schedule_edit_page.dart` | Save 按鈕改為 isReady gate |
++| `lib/features/doser/presentation/pages/manual_dosing_page.dart` | Submit 按鈕改為 isReady gate |
++| `lib/features/doser/presentation/pages/pump_head_schedule_page.dart` | Add/Edit 按鈕與 ScheduleEntryCard 改為 isReady gate |
++| `lib/features/doser/presentation/pages/dosing_main_page.dart` | onHeadPlay 改為 session.isReady ? callback : null、Reset 選單 gate、PopupMenu session |
++| `lib/features/doser/presentation/controllers/dosing_main_controller.dart` | resetDevice() 加入 session.isReady 檢查 |
++| `lib/features/doser/presentation/controllers/pump_head_adjust_controller.dart` | completeCalibration() 加入 session.isReady 檢查 |
++| `lib/features/doser/presentation/pages/pump_head_adjust_page.dart` | 傳入 isReady 給 BottomButtons/RotatingSpeed/DropVolume |
++| `lib/features/doser/presentation/pages/pump_head_detail_page.dart` | PopupMenu Manual/Timed ListTile 加入 enabled: isReady |
++| `lib/features/doser/presentation/pages/drop_setting_page.dart` | Delay Time 按鈕、Save 按鈕改為 session.isReady gate |
++| `lib/features/doser/presentation/pages/pump_head_settings_page.dart` | Rotating Speed 按鈕、Save 按鈕改為 session.isReady gate |
++| `lib/features/device/presentation/pages/device_settings_page.dart` | Save 按鈕改為 session.isReady + _saveSettings 內檢查 |
++
++---
++
++## 2. 每個 Handler 的 Gating 條件
++
++| Handler / 按鈕 | Gating 條件 |
++|----------------|-------------|
++| **LED Control** | |
++| Slider (Channel) | `session.isReady && !controller.isApplying` |
++| Apply 按鈕 | `session.isReady && !controller.isApplying && controller.hasChanges` |
++| applyChanges() | `session.isReady` (controller 內) |
++| **LED Scene List** | |
++| Edit / FAB Add | `session.isReady && !controller.isBusy` |
++| Apply Scene | `session.isReady && !controller.isBusy && scene.isEnabled && !scene.isActive` |
++| onTap (Edit scene) | `session.isReady && !controller.isBusy && !scene.isPreset` |
++| Favorite 按鈕 | `session.isReady && !controller.isBusy` |
++| applyScene() | `session.isReady` (controller 內) |
++| startRecord() | `session.isReady` (controller 內) |
++| togglePreview() | `session.isReady` (controller 內) |
++| **LED Schedule Edit** | |
++| Save 按鈕 | `session.isReady && !_isSaving` |
++| _handleSave() | `session.isReady` (內層檢查) |
++| **LED Schedule List** | (若有用到 Save，已對齊) |
++| **Dosing Schedule** | |
++| schedule_edit Save | `session.isReady && !_isSaving` |
++| pump_head_schedule Add/Edit | `session.isReady` |
++| ScheduleEntryCard onTap | `session.isReady` (傳入為 isConnected 參數) |
++| saveDailyAverageSchedule / saveCustomWindowSchedule | `session.isReady` (controller 內) |
++| **Manual Dosing** | |
++| Submit 按鈕 | `session.isReady && !controller.isSubmitting` |
++| submit() | `session.isReady` (controller 內) |
++| **Pump Head Detail** | |
++| PopupMenu Manual Dose | `enabled: session.isReady` |
++| PopupMenu Timed Dose | `enabled: session.isReady` |
++| sendManualDose() | `session.isReady` (controller 內) |
++| scheduleTimedDose() | `session.isReady` (controller 內) |
++| **Pump Head Adjust** | |
++| Start Calibration | `session.isReady` (傳入 BottomButtons) |
++| Complete Calibration | `session.isReady` (傳入 BottomButtons) |
++| startCalibration() | `session.isReady` (controller 內) |
++| completeCalibration() | `session.isReady` (controller 內) |
++| **Dosing Main** | |
++| onHeadPlay (泵頭 Play) | `session.isReady ? callback : null` |
++| Reset 選單項 | `controller.isConnected && session.isReady` |
++| toggleManualDrop() | `session.isReady` (controller 內) |
++| resetDevice() | `session.isReady` (controller 內) |
++| **Drop Setting** | |
++| Delay Time 按鈕 | `!session.isReady \|\| controller.isSaving` → disabled |
++| Save 按鈕 | `!session.isReady \|\| controller.isSaving` → disabled |
++| save() _updateDelayTime BLE path | `session.isReady` (controller 內) |
++| **Pump Head Settings** | |
++| Rotating Speed 按鈕 | `!session.isReady \|\| controller.isSaving` → disabled |
++| Save 按鈕 | `!session.isReady \|\| controller.isSaving` → disabled |
++| save() _updateRotatingSpeed BLE path | `session.isReady` (controller 內) |
++| **Device Settings** | |
++| Save 按鈕 | `!session.isReady \|\| _isLoading` → disabled |
++| _saveSettings() | `session.isReady` (內層檢查) |
++
++---
++
++## 3. 風險已消除對照表（對應 AUDIT-5）
++
++| AUDIT-5 項目 | 修正前 | 修正後 |
++|--------------|--------|--------|
++| `led_control_page.dart` Slider/Apply | isConnected | **session.isReady** |
++| `led_control_controller.dart` applyChanges() | (已有 isReady) | 維持 |
++| `led_scene_list_page.dart` onApply | isConnected | **session.isReady** |
++| `led_scene_list_controller.dart` applyScene() | (已有 isReady) | 維持 |
++| `led_scene_list_controller.dart` startRecord/togglePreview | 無 ready 檢查 | **加入 session.isReady** |
++| `schedule_edit_page.dart` Save | isConnected | **session.isReady** |
++| `pump_head_schedule_controller.dart` save*Schedule() | (已有 isReady) | 維持 |
++| `manual_dosing_page.dart` Submit | isConnected | **session.isReady** |
++| `manual_dosing_controller.dart` submit() | (已有 isReady) | 維持 |
++| `pump_head_detail_controller.dart` sendManualDose/scheduleTimedDose | (已有 isReady) | 維持 |
++| `pump_head_detail_page.dart` PopupMenu | 無 gate | **enabled: session.isReady** |
++| `pump_head_adjust_controller.dart` start/completeCalibration | (start 已有) complete 補上 | **completeCalibration 加入 isReady** |
++| `pump_head_adjust_page.dart` 按鈕 | isConnected | **isReady** |
++| `dosing_main_controller.dart` toggleManualDrop/resetDevice | (toggle 已有) reset 補上 | **resetDevice 加入 isReady** |
++| `dosing_main_page.dart` onHeadPlay | 無 UI gate | **session.isReady ? callback : null** |
++| `dosing_main_page.dart` Reset 選單 | isConnected only | **isConnected && session.isReady** |
++| `drop_setting_controller.dart` _updateDelayTime | (已有 isReady) | 維持 |
++| `drop_setting_page.dart` 按鈕 | controller.isConnected | **session.isReady** |
++| `pump_head_settings_controller.dart` _updateRotatingSpeed | (已有 isReady) | 維持 |
++| `pump_head_settings_page.dart` 按鈕 | controller.isConnected | **session.isReady** |
++| `led_schedule_edit_page.dart` Save | isConnected | **session.isReady** |
++| `device_settings_page.dart` Save | isBleConnected | **session.isReady** |
++
++---
++
++## 4. 行為摘要
++
++- **reconnect → initialize → ready 期間**：所有會送出 BLE/Repository command 的 UI 一律以 `session.isReady` 作 gate，按鈕 disabled 或 callback 為 null。
++- **Ready 來源**：`CurrentDeviceSession.isReady`，由 `InitializeDeviceUseCase` 在連線後完成 init 時設為 true。
++- **視覺**：不做調整，僅改 gating 邏輯。
++
++---
++
++## 5. Flutter analyze 與 flutter test
++
++請在本機執行：
++
++```bash
++flutter analyze
++flutter test
++```
++
++並回報結果。
+diff --git a/lib/features/device/presentation/pages/device_settings_page.dart b/lib/features/device/presentation/pages/device_settings_page.dart
+index eb13b8b..c5f3fa8 100644
+--- a/lib/features/device/presentation/pages/device_settings_page.dart
++++ b/lib/features/device/presentation/pages/device_settings_page.dart
+@@ -56,6 +56,11 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
+       _setError(AppErrorCode.noActiveDevice);
+       return;
+     }
++    // KC-A-FINAL: Gate on device ready state
++    if (!session.isReady) {
++      _setError(AppErrorCode.deviceNotReady);
++      return;
++    }
+ 
+     final newName = _nameController.text.trim();
+     if (newName.isEmpty) {
+@@ -151,7 +156,7 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
+             )
+           else
+             TextButton(
+-              onPressed: !session.isBleConnected || _isLoading
++              onPressed: !session.isReady || _isLoading
+                   ? null
+                   : _saveSettings,
+               child: Text(
+diff --git a/lib/features/doser/presentation/controllers/dosing_main_controller.dart b/lib/features/doser/presentation/controllers/dosing_main_controller.dart
+index cd20b6b..44822a4 100644
+--- a/lib/features/doser/presentation/controllers/dosing_main_controller.dart
++++ b/lib/features/doser/presentation/controllers/dosing_main_controller.dart
+@@ -330,6 +330,11 @@ class DosingMainController extends ChangeNotifier {
+       _setError(AppErrorCode.unknownError);
+       return false;
+     }
++    // KC-A-FINAL: Gate on device ready state
++    if (!session.isReady) {
++      _setError(AppErrorCode.deviceNotReady);
++      return false;
++    }
+ 
+     _setLoading(true);
+ 
+diff --git a/lib/features/doser/presentation/controllers/pump_head_adjust_controller.dart b/lib/features/doser/presentation/controllers/pump_head_adjust_controller.dart
+index 6a2c7d2..9930b84 100644
+--- a/lib/features/doser/presentation/controllers/pump_head_adjust_controller.dart
++++ b/lib/features/doser/presentation/controllers/pump_head_adjust_controller.dart
+@@ -156,6 +156,11 @@ class PumpHeadAdjustController extends ChangeNotifier {
+       _setError(AppErrorCode.noActiveDevice);
+       return;
+     }
++    // KC-A-FINAL: Gate on device ready state
++    if (!session.isReady) {
++      _setError(AppErrorCode.deviceNotReady);
++      return;
++    }
+ 
+     // Validate volume input
+     final volumeText = volumeController.text.trim();
+diff --git a/lib/features/doser/presentation/pages/dosing_main_page.dart b/lib/features/doser/presentation/pages/dosing_main_page.dart
+index a356d8d..ee4454e 100644
+--- a/lib/features/doser/presentation/pages/dosing_main_page.dart
++++ b/lib/features/doser/presentation/pages/dosing_main_page.dart
+@@ -90,6 +90,7 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
+ 
+   @override
+   Widget build(BuildContext context) {
++    final session = context.watch<AppSession>();
+     final controller = context.watch<DosingMainController>();
+     final l10n = AppLocalizations.of(context);
+     final deviceName = controller.deviceName ?? l10n.dosingHeader;
+@@ -140,7 +141,7 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
+                         // rv_drop_head (泵頭列表)
+                         DosingMainPumpHeadList(
+                           isConnected: controller.isConnected,
+-                          session: context.read<AppSession>(),
++                          session: session,
+                           onHeadTap: (headId) {
+                             // PARITY: DropMainActivity.onClickDropHead() -> navigate to DropHeadMainActivity
+                             Navigator.of(context).push(
+@@ -150,12 +151,13 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
+                               ),
+                             );
+                           },
+-                          onHeadPlay: (headId) {
+-                            // PARITY: DropMainActivity.onClickPlayDropHead() -> viewModel.clickPlayDropHead()
+-                            // Convert headId (A/B/C/D) to index (0/1/2/3)
+-                            final int index = _headIdToIndex(headId);
+-                            controller.toggleManualDrop(index);
+-                          },
++                          onHeadPlay: session.isReady
++                              ? (headId) {
++                                  // KC-A-FINAL: Only when ready
++                                  final int index = _headIdToIndex(headId);
++                                  controller.toggleManualDrop(index);
++                                }
++                              : null,
+                         ),
+                       ],
+                     ),
+@@ -175,10 +177,11 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
+   /// PARITY: DropMainActivity Line 95-120
+   void _showPopupMenu(BuildContext context, DosingMainController controller) {
+     final l10n = AppLocalizations.of(context);
++    final session = context.read<AppSession>();
+ 
+     showModalBottomSheet(
+       context: context,
+-      builder: (context) => SafeArea(
++      builder: (modalContext) => SafeArea(
+         child: Column(
+           mainAxisSize: MainAxisSize.min,
+           children: [
+@@ -212,9 +215,9 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
+             ListTile(
+               leading: const Icon(Icons.refresh),
+               title: const Text('Reset'), // TODO: Add to ARB (actionReset)
+-              onTap: () {
+-                Navigator.of(context).pop();
+-                if (controller.isConnected) {
++                onTap: () {
++                Navigator.of(modalContext).pop();
++                if (controller.isConnected && session.isReady) {
+                   _showResetDialog(context, controller);
+                 } else {
+                   ScaffoldMessenger.of(context).showSnackBar(
+diff --git a/lib/features/doser/presentation/pages/drop_setting_page.dart b/lib/features/doser/presentation/pages/drop_setting_page.dart
+index 8ac8136..5bf59c7 100644
+--- a/lib/features/doser/presentation/pages/drop_setting_page.dart
++++ b/lib/features/doser/presentation/pages/drop_setting_page.dart
+@@ -88,6 +88,7 @@ class _DropSettingPageContentState extends State<_DropSettingPageContent> {
+ 
+   @override
+   Widget build(BuildContext context) {
++    final session = context.watch<AppSession>();
+     final controller = context.watch<DropSettingController>();
+     final l10n = AppLocalizations.of(context);
+ 
+@@ -105,7 +106,9 @@ class _DropSettingPageContentState extends State<_DropSettingPageContent> {
+                   onBack: controller.isSaving
+                       ? null
+                       : () => Navigator.of(context).pop(),
+-                  onRightButton: controller.isSaving ? null : () => _save(),
++                  onRightButton: controller.isSaving || !session.isReady
++                      ? null
++                      : () => _save(),
+                 ),
+                 // PARITY: layout_drop_setting (Line 16-112)
+                 Expanded(
+@@ -204,7 +207,7 @@ class _DropSettingPageContentState extends State<_DropSettingPageContent> {
+                             color: AppColors.textPrimary,
+                           ),
+                           onPressed:
+-                              controller.isSaving || !controller.isConnected
++                              controller.isSaving || !session.isReady
+                               ? null
+                               : () => _selectDelayTime(),
+                         ),
+diff --git a/lib/features/doser/presentation/pages/manual_dosing_page.dart b/lib/features/doser/presentation/pages/manual_dosing_page.dart
+index 5594bb6..f0b1a2e 100644
+--- a/lib/features/doser/presentation/pages/manual_dosing_page.dart
++++ b/lib/features/doser/presentation/pages/manual_dosing_page.dart
+@@ -65,6 +65,7 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
+       builder: (context, session, controller, _) {
+         final theme = Theme.of(context);
+         final bool isConnected = session.isBleConnected;
++        final bool isReady = session.isReady;
+         final PumpHeadSummary summary = PumpHeadSummary.demo(_selectedHead);
+ 
+         return Scaffold(
+@@ -116,7 +117,7 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
+                       const SizedBox(width: AppSpacing.sm),
+                       Expanded(
+                         child: FilledButton(
+-                          onPressed: !isConnected || controller.isSubmitting
++                          onPressed: !isReady || controller.isSubmitting
+                               ? null
+                               : () => _handleSubmit(context),
+                           child: controller.isSubmitting
+diff --git a/lib/features/doser/presentation/pages/pump_head_adjust_page.dart b/lib/features/doser/presentation/pages/pump_head_adjust_page.dart
+index 6ee512a..f6fce1f 100644
+--- a/lib/features/doser/presentation/pages/pump_head_adjust_page.dart
++++ b/lib/features/doser/presentation/pages/pump_head_adjust_page.dart
+@@ -62,6 +62,7 @@ class _PumpHeadAdjustView extends StatelessWidget {
+     final session = context.watch<AppSession>();
+     final controller = context.watch<PumpHeadAdjustController>();
+     final isConnected = session.isBleConnected;
++    final isReady = session.isReady;
+ 
+     // Show error if any
+     final AppErrorCode? errorCode = controller.lastErrorCode;
+@@ -107,7 +108,7 @@ class _PumpHeadAdjustView extends StatelessWidget {
+                   const SizedBox(height: AppSpacing.lg),
+                   PumpHeadAdjustRotatingSpeedSection(
+                     controller: controller,
+-                    isConnected: isConnected,
++                    isConnected: isReady,
+                     l10n: l10n,
+                     onSpeedPickerTap: () => PumpHeadAdjustSpeedPicker.show(
+                       context,
+@@ -120,7 +121,7 @@ class _PumpHeadAdjustView extends StatelessWidget {
+                     const SizedBox(height: AppSpacing.md),
+                     PumpHeadAdjustDropVolumeSection(
+                       controller: controller,
+-                      isConnected: isConnected,
++                      isConnected: isReady,
+                       l10n: l10n,
+                     ),
+                   ],
+@@ -131,7 +132,7 @@ class _PumpHeadAdjustView extends StatelessWidget {
+                   const Spacer(),
+                   PumpHeadAdjustBottomButtons(
+                     controller: controller,
+-                    isConnected: isConnected,
++                    isConnected: isReady,
+                     l10n: l10n,
+                   ),
+                 ],
+diff --git a/lib/features/doser/presentation/pages/pump_head_detail_page.dart b/lib/features/doser/presentation/pages/pump_head_detail_page.dart
+index 17ac7d7..0dc57bc 100644
+--- a/lib/features/doser/presentation/pages/pump_head_detail_page.dart
++++ b/lib/features/doser/presentation/pages/pump_head_detail_page.dart
+@@ -177,17 +177,19 @@ class _PumpHeadDetailPageContentState
+     PumpHeadDetailController controller,
+   ) {
+     final l10n = AppLocalizations.of(context);
++    final session = context.read<AppSession>();
++    final isReady = session.isReady;
+ 
+     showModalBottomSheet(
+       context: context,
+-      builder: (context) => SafeArea(
++      builder: (modalContext) => SafeArea(
+         child: Column(
+           mainAxisSize: MainAxisSize.min,
+           children: [
+             ListTile(
+               title: Text(l10n.dosingPumpHeadSettingsTitle),
+               onTap: () async {
+-                Navigator.of(context).pop();
++                Navigator.of(modalContext).pop();
+                 final session = context.read<AppSession>();
+                 final deviceId = session.activeDeviceId;
+                 if (deviceId != null) {
+@@ -204,8 +206,9 @@ class _PumpHeadDetailPageContentState
+             ),
+             ListTile(
+               title: Text(l10n.dosingManualPageSubtitle),
++              enabled: isReady,
+               onTap: () async {
+-                Navigator.of(context).pop();
++                Navigator.of(modalContext).pop();
+                 final success = await controller.sendManualDose();
+                 if (!context.mounted) return;
+ 
+@@ -220,8 +223,9 @@ class _PumpHeadDetailPageContentState
+             ),
+             ListTile(
+               title: Text(l10n.dosingPumpHeadTimedDose),
++              enabled: isReady,
+               onTap: () async {
+-                Navigator.of(context).pop();
++                Navigator.of(modalContext).pop();
+                 final success = await controller.scheduleTimedDose();
+                 if (!context.mounted) return;
+ 
+diff --git a/lib/features/doser/presentation/pages/pump_head_schedule_page.dart b/lib/features/doser/presentation/pages/pump_head_schedule_page.dart
+index 98097c8..78fa90f 100644
+--- a/lib/features/doser/presentation/pages/pump_head_schedule_page.dart
++++ b/lib/features/doser/presentation/pages/pump_head_schedule_page.dart
+@@ -55,6 +55,7 @@ class _PumpHeadScheduleView extends StatelessWidget {
+       builder: (context, session, controller, _) {
+         final theme = Theme.of(context);
+         final isConnected = session.isBleConnected;
++        final isReady = session.isReady;
+         final entries = controller.entries;
+         // Show error if any
+         final AppErrorCode? errorCode = controller.lastErrorCode;
+@@ -94,12 +95,12 @@ class _PumpHeadScheduleView extends StatelessWidget {
+                 ),
+                 const SizedBox(height: AppSpacing.md),
+                 FilledButton.icon(
+-                  onPressed: isConnected
++                  onPressed: isReady
+                       ? () {
+                           // Navigate to PumpHeadRecordSettingPage for new schedule
+                           Navigator.of(context).push(
+                             MaterialPageRoute(
+-                              builder: (_) => PumpHeadRecordSettingPage(headId: headId),
++                              builder: (_) => const PumpHeadRecordSettingPage(),
+                             ),
+                           );
+                         }
+@@ -119,7 +120,7 @@ class _PumpHeadScheduleView extends StatelessWidget {
+                 ),
+                 const SizedBox(height: AppSpacing.xs),
+                 OutlinedButton(
+-                  onPressed: isConnected
++                  onPressed: isReady
+                       ? () => _openScheduleEditor(
+                           context,
+                           templateType: PumpHeadScheduleType.customWindow,
+@@ -144,7 +145,7 @@ class _PumpHeadScheduleView extends StatelessWidget {
+                       ),
+                       child: _ScheduleEntryCard(
+                         entry: entry,
+-                        isConnected: isConnected,
++                        isConnected: isReady,
+                         l10n: l10n,
+                         onTap: () => _openScheduleEditor(context, entry: entry),
+                       ),
+diff --git a/lib/features/doser/presentation/pages/pump_head_settings_page.dart b/lib/features/doser/presentation/pages/pump_head_settings_page.dart
+index 24b6673..94c0479 100644
+--- a/lib/features/doser/presentation/pages/pump_head_settings_page.dart
++++ b/lib/features/doser/presentation/pages/pump_head_settings_page.dart
+@@ -64,6 +64,7 @@ class PumpHeadSettingsPage extends StatelessWidget {
+ class _PumpHeadSettingsPageContent extends StatelessWidget {
+   @override
+   Widget build(BuildContext context) {
++    final session = context.watch<AppSession>();
+     final controller = context.watch<PumpHeadSettingsController>();
+     final l10n = AppLocalizations.of(context);
+ 
+@@ -82,7 +83,9 @@ class _PumpHeadSettingsPageContent extends StatelessWidget {
+                   onBack: controller.isSaving
+                       ? null
+                       : () => Navigator.of(context).pop(),
+-                  onRightButton: controller.isSaving ? null : () => _save(context),
++                  onRightButton: controller.isSaving || !session.isReady
++                      ? null
++                      : () => _save(context),
+                 ),
+                 // PARITY: layout_drop_head_setting (Line 16-160)
+                 Expanded(
+@@ -138,7 +141,7 @@ class _PumpHeadSettingsPageContent extends StatelessWidget {
+                                 ? AppColors.textPrimary
+                                 : AppColors.textSecondary,
+                           ),
+-                          onPressed: controller.isSaving || !controller.isConnected
++                          onPressed: controller.isSaving || !session.isReady
+                               ? null
+                               : () => _selectRotatingSpeed(context),
+                           textColor: controller.isConnected
+diff --git a/lib/features/doser/presentation/pages/schedule_edit_page.dart b/lib/features/doser/presentation/pages/schedule_edit_page.dart
+index d03b36e..b3e1774 100644
+--- a/lib/features/doser/presentation/pages/schedule_edit_page.dart
++++ b/lib/features/doser/presentation/pages/schedule_edit_page.dart
+@@ -103,6 +103,7 @@ class _ScheduleEditPageState extends State<ScheduleEditPage> {
+     final theme = Theme.of(context);
+     final session = context.watch<AppSession>();
+     final bool isConnected = session.isBleConnected;
++    final bool isReady = session.isReady;
+     final title = widget.initialEntry == null
+         ? l10n.dosingScheduleEditTitleNew
+         : l10n.dosingScheduleEditTitleEdit;
+@@ -175,7 +176,7 @@ class _ScheduleEditPageState extends State<ScheduleEditPage> {
+               const SizedBox(width: AppSpacing.sm),
+               Expanded(
+                 child: FilledButton(
+-                  onPressed: !isConnected || _isSaving ? null : _handleSave,
++                  onPressed: !isReady || _isSaving ? null : _handleSave,
+                   child: _isSaving
+                       ? const SizedBox(
+                           width: 18,
+diff --git a/lib/features/led/presentation/controllers/led_scene_list_controller.dart b/lib/features/led/presentation/controllers/led_scene_list_controller.dart
+index 5beb817..c664f5d 100644
+--- a/lib/features/led/presentation/controllers/led_scene_list_controller.dart
++++ b/lib/features/led/presentation/controllers/led_scene_list_controller.dart
+@@ -210,6 +210,12 @@ class LedSceneListController extends ChangeNotifier {
+       notifyListeners();
+       return;
+     }
++    // KC-A-FINAL: Gate on device ready state
++    if (!session.isReady) {
++      _setError(AppErrorCode.deviceNotReady);
++      notifyListeners();
++      return;
++    }
+     if (isBusy || isPreviewing) {
+       return;
+     }
+@@ -233,6 +239,12 @@ class LedSceneListController extends ChangeNotifier {
+       notifyListeners();
+       return;
+     }
++    // KC-A-FINAL: Gate on device ready state
++    if (!session.isReady) {
++      _setError(AppErrorCode.deviceNotReady);
++      notifyListeners();
++      return;
++    }
+     if (isBusy) {
+       return;
+     }
+diff --git a/lib/features/led/presentation/pages/led_scene_list_page.dart b/lib/features/led/presentation/pages/led_scene_list_page.dart
+index 3b94872..e51ede7 100644
+--- a/lib/features/led/presentation/pages/led_scene_list_page.dart
++++ b/lib/features/led/presentation/pages/led_scene_list_page.dart
+@@ -91,6 +91,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
+     return Consumer2<AppSession, LedSceneListController>(
+       builder: (context, session, controller, _) {
+         final isConnected = session.isBleConnected;
++        final isReady = session.isReady;
+         final theme = Theme.of(context);
+         _maybeShowError(context, controller);
+         _maybeShowEvent(context, controller);
+@@ -103,7 +104,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
+               IconButton(
+                 icon: CommonIconHelper.getEditIcon(size: 24),
+                 tooltip: l10n.ledScenesActionEdit,
+-                onPressed: isConnected && !controller.isBusy
++                onPressed: isReady && !controller.isBusy
+                     ? () {
+                         Navigator.of(context).push(
+                           MaterialPageRoute(
+@@ -115,7 +116,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
+               ),
+             ],
+           ),
+-          floatingActionButton: isConnected && !controller.isBusy
++          floatingActionButton: isReady && !controller.isBusy
+               ? FloatingActionButton(
+                   onPressed: () {
+                     Navigator.of(context).push(
+@@ -194,6 +195,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
+                                   channelCount:
+                                       controller.currentChannelLevels.length,
+                                   isConnected: isConnected,
++                                  isReady: isReady,
+                                   controller: controller,
+                                   onApply:
+                                       session.isReady &&
+@@ -205,7 +207,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
+                                   // PARITY: reef-b-app - preset scenes (sceneId != null) cannot be edited
+                                   // Only custom scenes (sceneId == null) can be edited
+                                   onTap:
+-                                      (isConnected &&
++                                      (isReady &&
+                                           !controller.isBusy &&
+                                           !scene.isPreset)
+                                       ? () {
+@@ -235,7 +237,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
+                                     fontWeight: FontWeight.w600,
+                                   ),
+                                 ),
+-                                if (isConnected && !controller.isBusy)
++                                if (isReady && !controller.isBusy)
+                                   IconButton(
+                                     icon: CommonIconHelper.getAddIcon(size: 24),
+                                     tooltip: l10n.ledScenesActionAdd,
+@@ -262,6 +264,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
+                                   channelCount:
+                                       controller.currentChannelLevels.length,
+                                   isConnected: isConnected,
++                                  isReady: isReady,
+                                   controller: controller,
+                                   onApply:
+                                       session.isReady &&
+@@ -273,7 +276,7 @@ class _LedSceneListViewState extends State<_LedSceneListView>
+                                   // PARITY: reef-b-app - preset scenes (sceneId != null) cannot be edited
+                                   // Only custom scenes (sceneId == null) can be edited
+                                   onTap:
+-                                      (isConnected &&
++                                      (isReady &&
+                                           !controller.isBusy &&
+                                           !scene.isPreset)
+                                       ? () {
+@@ -371,6 +374,7 @@ class _SceneCard extends StatelessWidget {
+   final VoidCallback? onApply;
+   final VoidCallback? onTap;
+   final bool isConnected;
++  final bool isReady;
+   final LedSceneListController controller;
+ 
+   const _SceneCard({
+@@ -380,6 +384,7 @@ class _SceneCard extends StatelessWidget {
+     this.onApply,
+     this.onTap,
+     required this.isConnected,
++    required this.isReady,
+     required this.controller,
+   });
+ 
+@@ -455,7 +460,7 @@ class _SceneCard extends StatelessWidget {
+               SizedBox(width: AppSpacing.xs), // dp_8 marginStart
+               // Favorite button (btn_favorite) - 20×20dp
+               // PARITY: reef-b-app ic_favorite_select / ic_favorite_unselect
+-              if (isConnected && !controller.isBusy)
++              if (isReady && !controller.isBusy)
+                 IconButton(
+                   icon: SvgPicture.asset(
+                     scene.isFavorite
+diff --git a/lib/features/led/presentation/pages/led_schedule_edit_page.dart b/lib/features/led/presentation/pages/led_schedule_edit_page.dart
+index e897a47..ab1d918 100644
+--- a/lib/features/led/presentation/pages/led_schedule_edit_page.dart
++++ b/lib/features/led/presentation/pages/led_schedule_edit_page.dart
+@@ -78,6 +78,7 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
+     final theme = Theme.of(context);
+     final session = context.watch<AppSession>();
+     final bool isConnected = session.isBleConnected;
++    final bool isReady = session.isReady;
+     final String title = widget.initialSchedule == null
+         ? l10n.ledScheduleEditTitleNew
+         : l10n.ledScheduleEditTitleEdit;
+@@ -129,7 +130,7 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
+               const SizedBox(width: AppSpacing.sm),
+               Expanded(
+                 child: FilledButton(
+-                  onPressed: !isConnected || _isSaving ? null : _handleSave,
++                  onPressed: !isReady || _isSaving ? null : _handleSave,
+                   child: _isSaving
+                       ? const SizedBox(
+                           width: 18,
+@@ -340,6 +341,11 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
+       _showSnackbar(describeAppError(l10n, AppErrorCode.noActiveDevice));
+       return;
+     }
++    // KC-A-FINAL: Gate on device ready state
++    if (!session.isReady) {
++      _showSnackbar(describeAppError(l10n, AppErrorCode.deviceNotReady));
++      return;
++    }
+ 
+     setState(() => _isSaving = true);
+     try {

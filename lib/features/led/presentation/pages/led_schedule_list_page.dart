@@ -18,6 +18,7 @@ import '../models/led_schedule_summary.dart';
 import '../widgets/led_schedule_timeline.dart';
 import '../widgets/led_spectrum_chart.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
+import 'led_schedule_edit_page.dart';
 
 const _ledIconAsset = 'assets/icons/led/led_main.png';
 
@@ -104,6 +105,21 @@ class _LedScheduleListViewState extends State<_LedScheduleListView> {
                                 !schedule.isActive
                             ? () => controller.applySchedule(schedule.id)
                             : null,
+                        onTap: session.isReady && !controller.isBusy
+                            ? () async {
+                                final result = await Navigator.of(context)
+                                    .push<bool>(
+                                  MaterialPageRoute(
+                                    builder: (_) => LedScheduleEditPage(
+                                      initialSchedule: schedule,
+                                    ),
+                                  ),
+                                );
+                                if (result == true && context.mounted) {
+                                  controller.refresh();
+                                }
+                              }
+                            : null,
                       ),
                     ),
                   ),
@@ -154,12 +170,14 @@ class _ScheduleCard extends StatelessWidget {
   final LedScheduleSummary schedule;
   final AppLocalizations l10n;
   final VoidCallback? onApply;
+  final VoidCallback? onTap;
   final int? previewMinutes;
 
   const _ScheduleCard({
     required this.schedule,
     required this.l10n,
     this.onApply,
+    this.onTap,
     this.previewMinutes,
   });
 
@@ -177,7 +195,10 @@ class _ScheduleCard extends StatelessWidget {
         ? AppColors.success
         : AppColors.warning;
     return Card(
-      child: Padding(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(4),
+        child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,6 +312,7 @@ class _ScheduleCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 

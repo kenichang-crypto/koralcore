@@ -26,7 +26,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 7,
+      version: 8,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -133,6 +133,26 @@ class DatabaseHelper {
       await db.execute('CREATE INDEX IF NOT EXISTS idx_drop_head_device_id ON drop_head(device_id)');
       await db.execute('CREATE INDEX IF NOT EXISTS idx_drop_head_head_id ON drop_head(head_id)');
       await db.execute('CREATE INDEX IF NOT EXISTS idx_drop_head_drop_type_id ON drop_head(drop_type_id)');
+    }
+    if (oldVersion < 8) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS led_schedules (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          device_id TEXT NOT NULL,
+          schedule_id TEXT NOT NULL,
+          title TEXT NOT NULL,
+          type TEXT NOT NULL,
+          recurrence TEXT NOT NULL,
+          start_minutes INTEGER NOT NULL,
+          end_minutes INTEGER NOT NULL,
+          is_enabled INTEGER NOT NULL DEFAULT 1,
+          channels_json TEXT,
+          scene_name TEXT,
+          created_at INTEGER NOT NULL,
+          UNIQUE(device_id, schedule_id)
+        )
+      ''');
+      await db.execute('CREATE INDEX IF NOT EXISTS idx_led_schedules_device_id ON led_schedules(device_id)');
     }
   }
 
@@ -268,6 +288,25 @@ class DatabaseHelper {
     await db.execute('CREATE INDEX idx_drop_head_device_id ON drop_head(device_id)');
     await db.execute('CREATE INDEX idx_drop_head_head_id ON drop_head(head_id)');
     await db.execute('CREATE INDEX idx_drop_head_drop_type_id ON drop_head(drop_type_id)');
+
+    await db.execute('''
+      CREATE TABLE led_schedules (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        device_id TEXT NOT NULL,
+        schedule_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        type TEXT NOT NULL,
+        recurrence TEXT NOT NULL,
+        start_minutes INTEGER NOT NULL,
+        end_minutes INTEGER NOT NULL,
+        is_enabled INTEGER NOT NULL DEFAULT 1,
+        channels_json TEXT,
+        scene_name TEXT,
+        created_at INTEGER NOT NULL,
+        UNIQUE(device_id, schedule_id)
+      )
+    ''');
+    await db.execute('CREATE INDEX idx_led_schedules_device_id ON led_schedules(device_id)');
   }
 
   Future<void> close() async {

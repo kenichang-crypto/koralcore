@@ -55,6 +55,9 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
   /// PARITY: Matches reef-b-app's Intent.putExtra("device_id", ...) behavior.
   /// This allows setting the active device when navigating to a device page
   /// even if the device is not currently connected via BLE.
+  ///
+  /// Lifecycle: Calls [CurrentDeviceSession.switchTo] to sync session state.
+  /// This resets isReady to false until [InitializeDeviceUseCase] runs on BLE connect.
   void setActiveDevice(String deviceId) {
     // Find device name from saved devices
     String? deviceName;
@@ -68,6 +71,10 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
     if (_activeDeviceId == deviceId && _activeDeviceName == deviceName) {
       return;
     }
+
+    // KC-A-FINAL: Sync with CurrentDeviceSession. Switching device resets isReady
+    // to false. No stale ready state persists after device switch.
+    context.currentDeviceSession.switchTo(deviceId);
 
     _activeDeviceId = deviceId;
     _activeDeviceName = deviceName;
@@ -119,6 +126,13 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
       return;
     }
 
+    // KC-A-FINAL: When no connected device, clear session. When connected device exists,
+    // do NOT call switchTo here - DeviceConnectionCoordinator already ran InitializeDeviceUseCase
+    // on connect, so session may already be ready. Calling switchTo would incorrectly reset.
+    if (nextId == null) {
+      context.currentDeviceSession.clear();
+    }
+
     _activeDeviceId = nextId;
     _activeDeviceName = nextName;
     _resubscribePumpHeads(_activeDeviceId);
@@ -128,6 +142,23 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
 
   void _onSavedDevices(List<DeviceSnapshot> devices) {
     _savedDevices = devices;
+    // KC-A-FINAL: When active device is deleted, clear session.
+    if (_activeDeviceId != null &&
+        !devices.any((d) => d.id == _activeDeviceId)) {
+      _activeDeviceId = null;
+      _activeDeviceName = null;
+      context.currentDeviceSession.clear();
+      _resubscribePumpHeads(null);
+      _resubscribeLedState(null);
+    } else if (_activeDeviceId != null) {
+      // Update active device name when it changes in repo (e.g. UpdateDeviceNameUseCase)
+      for (final d in devices) {
+        if (d.id == _activeDeviceId) {
+          _activeDeviceName = d.name;
+          break;
+        }
+      }
+    }
     notifyListeners();
   }
 

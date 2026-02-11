@@ -23,6 +23,7 @@ import '../helpers/support/scene_icon_helper.dart';
 import '../widgets/led_spectrum_chart.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
+import '../controllers/led_scene_edit_controller.dart';
 import 'led_scene_add_page.dart';
 import 'led_scene_edit_page.dart';
 import 'led_scene_delete_page.dart';
@@ -105,12 +106,17 @@ class _LedSceneListViewState extends State<_LedSceneListView>
                 icon: CommonIconHelper.getEditIcon(size: 24),
                 tooltip: l10n.ledScenesActionEdit,
                 onPressed: isReady && !controller.isBusy
-                    ? () {
-                        Navigator.of(context).push(
+                    ? () async {
+                        final result = await Navigator.of(context).push<bool>(
                           MaterialPageRoute(
-                            builder: (_) => const LedSceneDeletePage(),
+                            builder: (_) => LedSceneDeletePage(
+                              listController: controller,
+                            ),
                           ),
                         );
+                        if (result == true && context.mounted) {
+                          controller.refresh();
+                        }
                       }
                     : null,
               ),
@@ -118,12 +124,28 @@ class _LedSceneListViewState extends State<_LedSceneListView>
           ),
           floatingActionButton: isReady && !controller.isBusy
               ? FloatingActionButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
+                  onPressed: () async {
+                    final appContext = context.read<AppContext>();
+                    final session = context.read<AppSession>();
+                    final result = await Navigator.of(context).push<bool>(
                       MaterialPageRoute(
-                        builder: (_) => const LedSceneAddPage(),
+                        builder: (ctx) => ChangeNotifierProvider<LedSceneEditController>(
+                          create: (_) => LedSceneEditController(
+                            session: session,
+                            addSceneUseCase: appContext.addSceneUseCase,
+                            updateSceneUseCase: appContext.updateSceneUseCase,
+                            enterDimmingModeUseCase: appContext.enterDimmingModeUseCase,
+                            exitDimmingModeUseCase: appContext.exitDimmingModeUseCase,
+                            setChannelIntensityUseCase: appContext.setChannelIntensityUseCase,
+                            applySceneUseCase: appContext.applySceneUseCase,
+                          ),
+                          child: const LedSceneAddPage(),
+                        ),
                       ),
                     );
+                    if (result == true && context.mounted) {
+                      controller.refresh();
+                    }
                   },
                   child: CommonIconHelper.getAddIcon(
                     size: 24,
@@ -210,14 +232,33 @@ class _LedSceneListViewState extends State<_LedSceneListView>
                                       (isReady &&
                                           !controller.isBusy &&
                                           !scene.isPreset)
-                                      ? () {
-                                          Navigator.of(context).push(
+                                      ? () async {
+                                          final appContext = context.read<AppContext>();
+                                          final session = context.read<AppSession>();
+                                          final dbSceneId = SceneIconHelper.parseLocalSceneId(scene.id);
+                                          final result = await Navigator.of(context).push<bool>(
                                             MaterialPageRoute(
-                                              builder: (_) => LedSceneEditPage(
-                                                sceneId: scene.id,
+                                              builder: (ctx) => ChangeNotifierProvider<LedSceneEditController>(
+                                                create: (_) => LedSceneEditController(
+                                                  session: session,
+                                                  addSceneUseCase: appContext.addSceneUseCase,
+                                                  updateSceneUseCase: appContext.updateSceneUseCase,
+                                                  enterDimmingModeUseCase: appContext.enterDimmingModeUseCase,
+                                                  exitDimmingModeUseCase: appContext.exitDimmingModeUseCase,
+                                                  setChannelIntensityUseCase: appContext.setChannelIntensityUseCase,
+                                                  applySceneUseCase: appContext.applySceneUseCase,
+                                                  initialSceneId: dbSceneId,
+                                                  initialName: scene.name,
+                                                  initialChannelLevels: Map.from(scene.channelLevels),
+                                                  initialIconId: SceneIconHelper.iconKeyToId(scene.iconKey),
+                                                ),
+                                                child: LedSceneEditPage(sceneId: scene.id),
                                               ),
                                             ),
                                           );
+                                          if (result == true && context.mounted) {
+                                            controller.refresh();
+                                          }
                                         }
                                       : null,
                                 ),
@@ -241,13 +282,28 @@ class _LedSceneListViewState extends State<_LedSceneListView>
                                   IconButton(
                                     icon: CommonIconHelper.getAddIcon(size: 24),
                                     tooltip: l10n.ledScenesActionAdd,
-                                    onPressed: () {
-                                      Navigator.of(context).push(
+                                    onPressed: () async {
+                                      final appContext = context.read<AppContext>();
+                                      final session = context.read<AppSession>();
+                                      final result = await Navigator.of(context).push<bool>(
                                         MaterialPageRoute(
-                                          builder: (_) =>
-                                              const LedSceneAddPage(),
+                                          builder: (ctx) => ChangeNotifierProvider<LedSceneEditController>(
+                                            create: (_) => LedSceneEditController(
+                                              session: session,
+                                              addSceneUseCase: appContext.addSceneUseCase,
+                                              updateSceneUseCase: appContext.updateSceneUseCase,
+                                              enterDimmingModeUseCase: appContext.enterDimmingModeUseCase,
+                                              exitDimmingModeUseCase: appContext.exitDimmingModeUseCase,
+                                              setChannelIntensityUseCase: appContext.setChannelIntensityUseCase,
+                                              applySceneUseCase: appContext.applySceneUseCase,
+                                            ),
+                                            child: const LedSceneAddPage(),
+                                          ),
                                         ),
                                       );
+                                      if (result == true && context.mounted) {
+                                        controller.refresh();
+                                      }
                                     },
                                   ),
                               ],
@@ -279,14 +335,33 @@ class _LedSceneListViewState extends State<_LedSceneListView>
                                       (isReady &&
                                           !controller.isBusy &&
                                           !scene.isPreset)
-                                      ? () {
-                                          Navigator.of(context).push(
+                                      ? () async {
+                                          final appContext = context.read<AppContext>();
+                                          final session = context.read<AppSession>();
+                                          final dbSceneId = SceneIconHelper.parseLocalSceneId(scene.id);
+                                          final result = await Navigator.of(context).push<bool>(
                                             MaterialPageRoute(
-                                              builder: (_) => LedSceneEditPage(
-                                                sceneId: scene.id,
+                                              builder: (ctx) => ChangeNotifierProvider<LedSceneEditController>(
+                                                create: (_) => LedSceneEditController(
+                                                  session: session,
+                                                  addSceneUseCase: appContext.addSceneUseCase,
+                                                  updateSceneUseCase: appContext.updateSceneUseCase,
+                                                  enterDimmingModeUseCase: appContext.enterDimmingModeUseCase,
+                                                  exitDimmingModeUseCase: appContext.exitDimmingModeUseCase,
+                                                  setChannelIntensityUseCase: appContext.setChannelIntensityUseCase,
+                                                  applySceneUseCase: appContext.applySceneUseCase,
+                                                  initialSceneId: dbSceneId,
+                                                  initialName: scene.name,
+                                                  initialChannelLevels: Map.from(scene.channelLevels),
+                                                  initialIconId: SceneIconHelper.iconKeyToId(scene.iconKey),
+                                                ),
+                                                child: LedSceneEditPage(sceneId: scene.id),
                                               ),
                                             ),
                                           );
+                                          if (result == true && context.mounted) {
+                                            controller.refresh();
+                                          }
                                         }
                                       : null,
                                 ),

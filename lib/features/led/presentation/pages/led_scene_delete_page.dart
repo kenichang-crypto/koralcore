@@ -2,63 +2,138 @@ import 'package:flutter/material.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/common/app_context.dart';
+import '../../../../app/common/app_error_code.dart';
+import '../../../../app/common/app_session.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
+import '../../../../shared/widgets/error_state_widget.dart';
 import '../controllers/led_scene_list_controller.dart';
+import '../helpers/support/scene_display_text.dart';
+import '../helpers/support/scene_icon_helper.dart';
+import '../models/led_scene_summary.dart';
 
 /// LedSceneDeletePage
 ///
 /// Parity with reef-b-app LedSceneDeleteActivity (activity_led_scene_delete.xml)
-/// Correction Mode: UI structure only, no behavior
 class LedSceneDeletePage extends StatelessWidget {
-  const LedSceneDeletePage({super.key});
+  const LedSceneDeletePage({
+    super.key,
+    required this.listController,
+  });
+
+  final LedSceneListController listController;
 
   @override
   Widget build(BuildContext context) {
-    return const _LedSceneDeleteView();
+    return ChangeNotifierProvider<LedSceneListController>.value(
+      value: listController,
+      child: const _LedSceneDeleteView(),
+    );
   }
 }
 
-class _LedSceneDeleteView extends StatelessWidget {
+class _LedSceneDeleteView extends StatefulWidget {
   const _LedSceneDeleteView();
+
+  @override
+  State<_LedSceneDeleteView> createState() => _LedSceneDeleteViewState();
+}
+
+class _LedSceneDeleteViewState extends State<_LedSceneDeleteView> {
+  final Set<String> _selectedIds = {};
+  bool _isDeleting = false;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final controller = context.watch<LedSceneListController>();
+    final listController = context.watch<LedSceneListController>();
+    final session = context.read<AppSession>();
+    final appContext = context.read<AppContext>();
+    final isReady = session.isReady;
+
+    final customScenes =
+        listController.scenes.where((s) => !s.isPreset).toList(growable: false);
 
     return Stack(
       children: [
         Column(
           children: [
-            // A. Toolbar (fixed) ↔ toolbar_two_action.xml
-            _ToolbarTwoAction(l10n: l10n),
-
-            // B. Scene list (scrollable) ↔ rv_scene
+            _ToolbarTwoAction(
+              l10n: l10n,
+              listController: listController,
+              session: session,
+              selectedIds: _selectedIds,
+              onCancel: () => Navigator.of(context).pop(),
+              onDelete: () async {
+                final deviceId = session.activeDeviceId;
+                if (deviceId == null || _selectedIds.isEmpty) return;
+                setState(() => _isDeleting = true);
+                final deleteUseCase = appContext.deleteSceneUseCase;
+                try {
+                  for (final id in _selectedIds) {
+                    final dbId = SceneIconHelper.parseLocalSceneId(id);
+                    if (dbId != null) {
+                      await deleteUseCase.execute(
+                        deviceId: deviceId,
+                        sceneId: dbId,
+                      );
+                    }
+                  }
+                  if (mounted) Navigator.of(context).pop(true);
+                } catch (_) {
+                  if (mounted) {
+                    showErrorSnackBar(context, AppErrorCode.unknownError);
+                  }
+                } finally {
+                  if (mounted) setState(() => _isDeleting = false);
+                }
+              },
+            ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 12,
                 ),
-                child: ListView(
-                  children: [
-                    // Scene list items (placeholder)
-                    // TODO(android @layout/adapter_scene_select.xml)
-                    // Android RecyclerView with scene selection items
-                    _SceneSelectTile(sceneName: 'Scene 1', isSelected: false),
-                    _SceneSelectTile(sceneName: 'Scene 2', isSelected: false),
-                    _SceneSelectTile(sceneName: 'Scene 3', isSelected: false),
-                  ],
-                ),
+                child: listController.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : customScenes.isEmpty
+                        ? Center(
+                            child: Text(
+                              l10n.ledScenesEmptySubtitle,
+                              style: AppTextStyles.body.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          )
+                        : ListView(
+                            children: customScenes
+                                .map(
+                                  (scene) => _SceneSelectTile(
+                                    scene: scene,
+                                    l10n: l10n,
+                                    isSelected: _selectedIds.contains(scene.id),
+                                    isEnabled: isReady,
+                                    onTap: () {
+                                      setState(() {
+                                        if (_selectedIds.contains(scene.id)) {
+                                          _selectedIds.remove(scene.id);
+                                        } else {
+                                          _selectedIds.add(scene.id);
+                                        }
+                                      });
+                                    },
+                                  ),
+                                )
+                                .toList(),
+                          ),
               ),
             ),
           ],
         ),
-
-        // C. Progress overlay ↔ progress.xml
-        if (controller.isLoading) const _ProgressOverlay(),
+        if (_isDeleting) const _ProgressOverlay(),
       ],
     );
   }
@@ -69,12 +144,27 @@ class _LedSceneDeleteView extends StatelessWidget {
 // ────────────────────────────────────────────────────────────────────────────
 
 class _ToolbarTwoAction extends StatelessWidget {
-  const _ToolbarTwoAction({required this.l10n});
+  const _ToolbarTwoAction({
+    required this.l10n,
+    required this.listController,
+    required this.session,
+    required this.selectedIds,
+    required this.onCancel,
+    required this.onDelete,
+  });
 
   final AppLocalizations l10n;
+  final LedSceneListController listController;
+  final AppSession session;
+  final Set<String> selectedIds;
+  final VoidCallback onCancel;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
+    final canDelete =
+        session.isReady && !listController.isBusy && selectedIds.isNotEmpty;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -83,10 +173,8 @@ class _ToolbarTwoAction extends StatelessWidget {
           height: 56,
           child: Row(
             children: [
-              // Left: Cancel (text button, no behavior)
-              // TODO(android toolbar left button → uses @string/cancel or back icon)
               TextButton(
-                onPressed: null, // No behavior in Correction Mode
+                onPressed: listController.isLoading ? null : onCancel,
                 child: Text(
                   l10n.actionCancel,
                   style: AppTextStyles.body.copyWith(
@@ -95,19 +183,15 @@ class _ToolbarTwoAction extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              // Center: Title (activity_led_scene_delete_title → @string/led_scene_delete)
               Text(
-                // TODO(android @string/led_scene_delete → "Delete Scene" / "刪除場景")
                 l10n.ledSceneDeleteTitle,
                 style: AppTextStyles.headline.copyWith(
                   color: AppColors.textPrimary,
                 ),
               ),
               const Spacer(),
-              // Right: Delete (text button, no behavior)
-              // TODO(android toolbar right button → uses @string/delete)
               TextButton(
-                onPressed: null, // No behavior in Correction Mode
+                onPressed: canDelete ? onDelete : null,
                 child: Text(
                   l10n.actionDelete,
                   style: AppTextStyles.body.copyWith(
@@ -118,7 +202,6 @@ class _ToolbarTwoAction extends StatelessWidget {
             ],
           ),
         ),
-        // Divider (2dp ↔ toolbar_two_action.xml MaterialDivider)
         Container(height: 2, color: AppColors.divider),
       ],
     );
@@ -130,54 +213,51 @@ class _ToolbarTwoAction extends StatelessWidget {
 // ────────────────────────────────────────────────────────────────────────────
 
 class _SceneSelectTile extends StatelessWidget {
-  const _SceneSelectTile({required this.sceneName, required this.isSelected});
+  const _SceneSelectTile({
+    required this.scene,
+    required this.l10n,
+    required this.isSelected,
+    required this.isEnabled,
+    required this.onTap,
+  });
 
-  final String sceneName;
+  final LedSceneSummary scene;
+  final AppLocalizations l10n;
   final bool isSelected;
+  final bool isEnabled;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final sceneName = LedSceneDisplayText.name(scene, l10n);
+    final sceneIcon = SceneIconHelper.getSceneIcon(
+      iconId: SceneIconHelper.iconKeyToId(scene.iconKey),
+      width: 24,
+      height: 24,
+    );
+
     return Container(
-      margin: const EdgeInsets.only(top: 12), // marginTop: dp_12
+      margin: const EdgeInsets.only(top: 12),
       decoration: BoxDecoration(
-        color: AppColors.surfaceMuted, // bg_aaa
-        borderRadius: BorderRadius.circular(8), // cornerRadius: dp_8
+        color: AppColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: null, // No behavior in Correction Mode
+          onTap: isEnabled ? onTap : null,
           borderRadius: BorderRadius.circular(8),
           child: Padding(
             padding: const EdgeInsets.only(
-              left: 8, // dp_8 paddingStart
-              top: 6, // dp_6 paddingTop
-              right: 12, // dp_12 paddingEnd
-              bottom: 6, // dp_6 paddingBottom
+              left: 8,
+              top: 6,
+              right: 12,
+              bottom: 6,
             ),
             child: Row(
               children: [
-                // Icon (24x24dp) ↔ img_icon
-                // TODO(android @drawable/ic_sunrise or scene icon)
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: AppColors.textTertiary,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    // TODO(L3): Icons.image is placeholder for scene icon
-                    // Android uses rv_scene (RecyclerView) with adapter_scene.xml
-                    // This should use SceneIconHelper or actual scene icon image
-                    // VIOLATION: Material Icon not in Android XML
-                    Icons.image,
-                    size: 16,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(width: 8), // marginStart: dp_8
-                // Scene name ↔ tv_name
+                SizedBox(width: 24, height: 24, child: sceneIcon),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     sceneName,
@@ -186,10 +266,7 @@ class _SceneSelectTile extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 8), // marginStart: dp_8
-                // Check icon (20x20dp, visibility="gone" by default) ↔ img_check
-                // PARITY: Android visibility="gone" 不佔空間；Flutter 用 if 條件控制
-                // TODO(android @drawable/ic_check)
+                const SizedBox(width: 8),
                 if (isSelected)
                   Container(
                     width: 20,

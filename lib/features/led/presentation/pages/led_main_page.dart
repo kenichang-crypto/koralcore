@@ -10,21 +10,25 @@ import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../controllers/led_scene_list_controller.dart';
 import '../models/led_scene_summary.dart';
+import '../widgets/led_main_record_chart_section.dart';
+import 'led_scene_list_page.dart';
 
 /// LED main page.
 ///
 /// PARITY target: Android `activity_led_main.xml`
-/// Gate: UI 結構 parity only（不接任何 onTap / navigation / BLE / preview / record / scene 行為）
-class LedMainPage extends StatelessWidget {
+class LedMainPage extends StatefulWidget {
   const LedMainPage({super.key});
 
+  @override
+  State<LedMainPage> createState() => _LedMainPageState();
+}
+
+class _LedMainPageState extends State<LedMainPage> {
   @override
   Widget build(BuildContext context) {
     final appContext = context.read<AppContext>();
     final session = context.read<AppSession>();
 
-    // NOTE: Correction Mode / UI parity only
-    // 不在此觸發 controller.initialize()/refreshAll() 以避免 BLE/資料流程副作用。
     return ChangeNotifierProvider<LedSceneListController>(
       create: (_) => LedSceneListController(
         session: session,
@@ -37,8 +41,8 @@ class LedMainPage extends StatelessWidget {
         readLedRecordStateUseCase: appContext.readLedRecordStateUseCase,
         startLedPreviewUseCase: appContext.startLedPreviewUseCase,
         startLedRecordUseCase: appContext.startLedRecordUseCase,
-      ),
-      child: const _LedMainView(),
+      )..initialize(),
+      child: _LedMainView(),
     );
   }
 }
@@ -51,6 +55,16 @@ class _LedMainView extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final session = context.watch<AppSession>();
     final controller = context.watch<LedSceneListController>();
+
+    // KC-A-FINAL: Redirect when active device was deleted (e.g. from Device tab).
+    if (session.activeDeviceId == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
+      });
+      return const SizedBox.shrink();
+    }
 
     // Dynamic device display name is Android-parity data (not a string resource).
     final deviceName = session.activeDeviceName ?? l10n.ledDetailUnknownDevice;
@@ -76,15 +90,47 @@ class _LedMainView extends StatelessWidget {
                   positionText: l10n.unassignedDevice,
                 ),
 
-                // C. Record / Preview card (fixed, non-scroll)
-                _RecordPreviewSection(
-                  title: l10n.record, // @string/record
-                  isConnected: isConnected,
-                  l10n: l10n,
+                // C. Record / Preview card - reuses LedMainRecordChartSection for togglePreview
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                  child: isConnected
+                      ? LedMainRecordChartSection(
+                          controller: controller,
+                          isConnected: isConnected,
+                          featuresEnabled: session.isReady,
+                          l10n: l10n,
+                          onToggleOrientation: () {}, // Main page: no orientation toggle
+                          isLandscape: false,
+                        )
+                      : Card(
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.md),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Text(
+                              l10n.homeStatusDisconnected,
+                              style: AppTextStyles.bodyAccent.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
                 ),
 
-                // D. Scene title row (fixed)
-                _SceneHeader(title: l10n.ledScene), // @string/led_scene
+                // D. Scene title row (fixed) - more navigates to scene list
+                _SceneHeader(
+                  title: l10n.ledScene,
+                  onMore: session.isReady && !controller.isBusy
+                      ? () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const LedSceneListPage(),
+                            ),
+                          )
+                      : null,
+                ),
                 // E. Scene list (only scrollable region)
                 Expanded(child: _SceneList(scenes: controller.scenes)),
               ],
@@ -268,173 +314,12 @@ class _DeviceIdentificationSection extends StatelessWidget {
   }
 }
 
-/// C. Record / Preview card – mirrors tv_record_title + btn_record_more + layout_record_background.
-class _RecordPreviewSection extends StatelessWidget {
-  final String title;
-  final bool isConnected;
-  final AppLocalizations l10n;
-
-  const _RecordPreviewSection({
-    required this.title,
-    required this.isConnected,
-    required this.l10n,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: AppTextStyles.bodyAccent.copyWith(
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ),
-              // btn_record_more (ic_more_disable, 24x24dp)
-              CommonIconHelper.getMoreDisableIcon(
-                size: 24,
-                color: AppColors.textSecondary,
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Card(
-            elevation: 5,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.md), // dp_10
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: isConnected
-                  ? const _RecordChartPlaceholder()
-                  : _RecordDisconnected(l10n: l10n),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RecordDisconnected extends StatelessWidget {
-  final AppLocalizations l10n;
-
-  const _RecordDisconnected({required this.l10n});
-
-  @override
-  Widget build(BuildContext context) {
-    // Android string: @string/device_is_not_connect
-    // TODO(android @string/device_is_not_connect): ARB 未發現對應 key；暫以現有字串顯示並待補齊。
-    return Text(
-      l10n.homeStatusDisconnected,
-      style: AppTextStyles.bodyAccent.copyWith(color: AppColors.textSecondary),
-      textAlign: TextAlign.center,
-    );
-  }
-}
-
-class _RecordChartPlaceholder extends StatelessWidget {
-  const _RecordChartPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    // PARITY: Android uses LineChart with fixed 242dp height.
-    // Gate: Flutter must NOT hardcode chart width/height.
-    // layout_record (visibility="gone" 預設) 包含：
-    // - line_chart
-    // - btn_expand / btn_preview
-    // - layout_record_pause (visibility="gone"，包含 record_pause text + btn_continue_record)
-    return Stack(
-      children: [
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceMuted,
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                // btn_expand (ic_zoom_in, 24x24dp)
-                CommonIconHelper.getZoomInIcon(
-                  size: 24,
-                  color: AppColors.textPrimary,
-                ),
-                const Spacer(),
-                // btn_preview (ic_preview, 24x24dp)
-                CommonIconHelper.getPreviewIcon(
-                  size: 24,
-                  color: AppColors.textPrimary,
-                ),
-              ],
-            ),
-          ],
-        ),
-        // layout_record_pause (visibility="gone" 預設)
-        // PARITY: Android XML 此結構存在但預設不顯示
-        Visibility(
-          visible: false, // 預設 visibility="gone"
-          child: Positioned.fill(
-            child: Container(
-              color: Colors.white.withValues(alpha: 0.2), // white_20
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(height: 39),
-                    // TODO(android @string/record_pause): ARB 未發現對應 key
-                    Text(
-                      'Record Pause',
-                      style: AppTextStyles.bodyAccent.copyWith(
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    // btn_continue_record
-                    // TODO(android @string/continue_record): ARB 未發現對應 key
-                    ElevatedButton(
-                      onPressed: null, // No behavior in Correction Mode
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 14,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppRadius.md),
-                        ),
-                      ),
-                      child: const Text('Continue Record'),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 /// D. Scene title row – mirrors tv_scene_title + btn_scene_more.
 class _SceneHeader extends StatelessWidget {
   final String title;
+  final VoidCallback? onMore;
 
-  const _SceneHeader({required this.title});
+  const _SceneHeader({required this.title, this.onMore});
 
   @override
   Widget build(BuildContext context) {
@@ -450,10 +335,15 @@ class _SceneHeader extends StatelessWidget {
               ),
             ),
           ),
-          // btn_scene_more (ic_more_disable, 24x24dp)
-          CommonIconHelper.getMoreDisableIcon(
-            size: 24,
-            color: AppColors.textSecondary,
+          IconButton(
+            icon: CommonIconHelper.getMoreEnableIcon(
+              size: 24,
+              color: onMore != null
+                  ? AppColors.textPrimary
+                  : AppColors.textPrimary.withValues(alpha: 0.5),
+            ),
+            onPressed: onMore,
+            iconSize: 24,
           ),
         ],
       ),

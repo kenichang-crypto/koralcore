@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
+import '../../../../shared/widgets/error_state_widget.dart';
 import '../controllers/led_scene_edit_controller.dart';
+import '../widgets/scene_icon_picker.dart';
 
 /// LedSceneAddPage
 ///
@@ -32,7 +34,7 @@ class _LedSceneAddView extends StatelessWidget {
         Column(
           children: [
             // A. Toolbar (fixed) ↔ toolbar_two_action.xml
-            _ToolbarTwoAction(l10n: l10n),
+            _ToolbarTwoAction(l10n: l10n, controller: controller),
 
             // B. ScrollView content (scrollable) ↔ layout_led_record_time_setting
             Expanded(
@@ -53,7 +55,7 @@ class _LedSceneAddView extends StatelessWidget {
                         const SizedBox(height: 24),
 
                         // B2. Scene icon section
-                        _SceneIconSection(l10n: l10n),
+                        _SceneIconSection(l10n: l10n, controller: controller),
                         const SizedBox(height: 24),
 
                         // B3. Spectrum chart section
@@ -61,7 +63,7 @@ class _LedSceneAddView extends StatelessWidget {
                         const SizedBox(height: 24),
 
                         // B4. Channel sliders (8 visible + 1 gone)
-                        _ChannelSlidersSection(l10n: l10n),
+                        _ChannelSlidersSection(l10n: l10n, controller: controller),
                       ],
                     ),
                   ),
@@ -83,9 +85,10 @@ class _LedSceneAddView extends StatelessWidget {
 // ────────────────────────────────────────────────────────────────────────────
 
 class _ToolbarTwoAction extends StatelessWidget {
-  const _ToolbarTwoAction({required this.l10n});
+  const _ToolbarTwoAction({required this.l10n, required this.controller});
 
   final AppLocalizations l10n;
+  final LedSceneEditController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -97,10 +100,10 @@ class _ToolbarTwoAction extends StatelessWidget {
           height: 56,
           child: Row(
             children: [
-              // Left: Cancel (text button, no behavior)
-              // TODO(android @string/activity_led_scene_add_toolbar_left_btn) → uses @string/cancel
               TextButton(
-                onPressed: null, // No behavior in Correction Mode
+                onPressed: controller.isLoading
+                    ? null
+                    : () => Navigator.of(context).pop(),
                 child: Text(
                   l10n.actionCancel,
                   style: AppTextStyles.body.copyWith(
@@ -109,8 +112,6 @@ class _ToolbarTwoAction extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              // Center: Title (activity_led_scene_add_title → @string/led_scene_add)
-              // TODO(android @string/led_scene_add → "Add Scene" / "新增場景")
               Text(
                 l10n.ledSceneAddTitle,
                 style: AppTextStyles.headline.copyWith(
@@ -118,12 +119,19 @@ class _ToolbarTwoAction extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              // Right: Save (text button, no behavior)
-              // TODO(android @string/activity_led_scene_add_toolbar_right_btn) → uses @string/save
               TextButton(
-                onPressed: null, // No behavior in Correction Mode
+                onPressed: controller.isLoading
+                    ? null
+                    : () async {
+                        final ok = await controller.saveScene();
+                        if (ok && context.mounted) {
+                          Navigator.of(context).pop(true);
+                        } else if (context.mounted && controller.lastErrorCode != null) {
+                          showErrorSnackBar(context, controller.lastErrorCode);
+                          controller.clearError();
+                        }
+                      },
                 child: Text(
-                  // TODO(android @string/save → l10n.actionSave is in intl_en.arb but missing in intl_zh_Hant.arb)
                   l10n.actionSave,
                   style: AppTextStyles.body.copyWith(
                     color: AppColors.textSecondary,
@@ -133,7 +141,6 @@ class _ToolbarTwoAction extends StatelessWidget {
             ],
           ),
         ),
-        // Divider (2dp ↔ toolbar_two_action.xml MaterialDivider)
         Container(height: 2, color: AppColors.divider),
       ],
     );
@@ -163,16 +170,16 @@ class _SceneNameSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4), // marginTop: dp_4
-        // TextField (no behavior)
-        TextField(
-          enabled: false, // Disabled in Correction Mode
+        TextFormField(
+          enabled: !controller.isLoading,
           decoration: InputDecoration(
             hintText: l10n.ledSceneNameHint,
             border: const OutlineInputBorder(),
             filled: true,
             fillColor: AppColors.surfaceMuted,
           ),
-          controller: TextEditingController(text: controller.name),
+          initialValue: controller.name,
+          onChanged: controller.setName,
         ),
       ],
     );
@@ -184,77 +191,16 @@ class _SceneNameSection extends StatelessWidget {
 // ────────────────────────────────────────────────────────────────────────────
 
 class _SceneIconSection extends StatelessWidget {
-  const _SceneIconSection({required this.l10n});
+  const _SceneIconSection({required this.l10n, required this.controller});
 
   final AppLocalizations l10n;
+  final LedSceneEditController controller;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Title: @string/led_scene_icon
-        Text(
-          l10n.ledSceneIcon,
-          style: AppTextStyles.caption1.copyWith(
-            color: AppColors.textPrimary, // text_aaaa
-          ),
-        ),
-        const SizedBox(height: 4), // marginTop: dp_4
-        // Icon grid placeholder (no behavior)
-        // TODO(android @layout/adapter_scene_icon → ShapeableImageView 40x40dp, padding 8dp, cornerRadius 24dp)
-        // Android uses RecyclerView with adapter_scene_icon.xml (icon size 40dp)
-        // This is a structural placeholder only, no icon selection
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 8,
-          ), // paddingStart/End: dp_8
-          child: SizedBox(
-            height: 56, // Approximate height for one row of 40dp icons + margin
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                // TODO(android drawables: ic_sun, ic_sunrise, ic_sunset, ic_moon, etc.)
-                // repo has: ic_sun.svg, ic_sunrise.svg, ic_sunset.svg, ic_sunny.svg
-                _IconPlaceholder(),
-                const SizedBox(width: 16),
-                _IconPlaceholder(),
-                const SizedBox(width: 16),
-                _IconPlaceholder(),
-                const SizedBox(width: 16),
-                _IconPlaceholder(),
-                const SizedBox(width: 16),
-                _IconPlaceholder(),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _IconPlaceholder extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: AppColors.surfaceMuted,
-        borderRadius: BorderRadius.circular(
-          20,
-        ), // cornerRadius 24dp → 20 for 40dp size
-      ),
-      child: const Icon(
-        // TODO(L3): Icons.image is placeholder for scene icon
-        // Android uses rv_scene_icon (RecyclerView) with adapter_scene_icon.xml
-        // This should use SceneIconHelper or actual scene icon image
-        // VIOLATION: Material Icon not in Android XML
-        Icons.image,
-        size: 24,
-        color: Colors.grey,
-      ),
+    return SceneIconPicker(
+      selectedIconId: controller.iconId,
+      onIconSelected: controller.isLoading ? (_) {} : controller.setIconId,
     );
   }
 }
@@ -298,50 +244,37 @@ class _SpectrumChartSection extends StatelessWidget {
 // ────────────────────────────────────────────────────────────────────────────
 
 class _ChannelSlidersSection extends StatelessWidget {
-  const _ChannelSlidersSection({required this.l10n});
+  const _ChannelSlidersSection({required this.l10n, required this.controller});
 
   final AppLocalizations l10n;
+  final LedSceneEditController controller;
 
   @override
   Widget build(BuildContext context) {
-    // Channel order from Android XML (Warm White is visibility="gone")
     final channels = [
       _ChannelInfo('uv', l10n.lightUv, AppColors.ultraviolet, false),
       _ChannelInfo('purple', l10n.lightPurple, AppColors.purple, false),
       _ChannelInfo('blue', l10n.lightBlue, AppColors.blue, false),
-      _ChannelInfo(
-        'royalBlue',
-        l10n.lightRoyalBlue,
-        AppColors.royalBlue,
-        false,
-      ),
+      _ChannelInfo('royalBlue', l10n.lightRoyalBlue, AppColors.royalBlue, false),
       _ChannelInfo('green', l10n.lightGreen, AppColors.green, false),
       _ChannelInfo('red', l10n.lightRed, AppColors.red, false),
-      _ChannelInfo(
-        'coldWhite',
-        l10n.lightColdWhite,
-        AppColors.coldWhite,
-        false,
-      ),
-      _ChannelInfo(
-        'warmWhite',
-        l10n.lightWarmWhite,
-        AppColors.warmWhite,
-        true,
-      ), // visibility="gone"
-      _ChannelInfo('moonlight', l10n.lightMoon, AppColors.moonLight, false),
+      _ChannelInfo('coldWhite', l10n.lightColdWhite, AppColors.coldWhite, false),
+      _ChannelInfo('warmWhite', l10n.lightWarmWhite, AppColors.warmWhite, true),
+      _ChannelInfo('moonLight', l10n.lightMoon, AppColors.moonLight, false),
     ];
 
     return Column(
       children: channels
           .map(
             (channel) => channel.isGone
-                ? const SizedBox.shrink() // Warm White: visibility="gone"
+                ? const SizedBox.shrink()
                 : _ChannelSlider(
                     channelId: channel.id,
                     label: channel.label,
                     trackColor: channel.color,
-                    isLast: channel.id == 'moonlight',
+                    isLast: channel.id == 'moonLight',
+                    controller: controller,
+                    isLoading: controller.isLoading,
                   ),
           )
           .toList(),
@@ -364,30 +297,28 @@ class _ChannelSlider extends StatelessWidget {
     required this.label,
     required this.trackColor,
     required this.isLast,
+    required this.controller,
+    required this.isLoading,
   });
 
   final String channelId;
   final String label;
   final Color trackColor;
   final bool isLast;
+  final LedSceneEditController controller;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
+    final value = controller.getChannelLevel(channelId).toDouble();
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: isLast ? 40 : 0,
-      ), // moonlight marginBottom: 40dp
+      padding: EdgeInsets.only(bottom: isLast ? 40 : 0),
       child: Column(
         children: [
-          // Title row
           Padding(
-            padding: const EdgeInsets.only(
-              left: 6,
-              right: 6,
-            ), // marginStart/End: dp_6
+            padding: const EdgeInsets.only(left: 6, right: 6),
             child: Row(
               children: [
-                // Channel label (caption1, text_aaaa)
                 Expanded(
                   child: Text(
                     label,
@@ -396,12 +327,11 @@ class _ChannelSlider extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 4), // marginStart: dp_4
-                // Value text (caption1, text_aaa)
+                const SizedBox(width: 4),
                 Padding(
-                  padding: const EdgeInsets.only(right: 6), // marginEnd: dp_6
+                  padding: const EdgeInsets.only(right: 6),
                   child: Text(
-                    '0', // Placeholder value
+                    value.round().toString(),
                     style: AppTextStyles.caption1.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -410,25 +340,24 @@ class _ChannelSlider extends StatelessWidget {
               ],
             ),
           ),
-          // Slider
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-            ), // margin: dp_16
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: SliderTheme(
               data: SliderThemeData(
                 activeTrackColor: trackColor,
-                inactiveTrackColor: AppColors.surfacePressed, // bg_press
+                inactiveTrackColor: AppColors.surfacePressed,
                 thumbColor: trackColor,
-                trackHeight: 2, // dp_2 trackHeight
+                trackHeight: 2,
                 thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
                 overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
               ),
               child: Slider(
-                value: 0, // Placeholder value
+                value: value,
                 min: 0,
                 max: 100,
-                onChanged: null, // No behavior in Correction Mode
+                onChanged: isLoading
+                    ? null
+                    : (v) => controller.setChannelLevel(channelId, v.round()),
               ),
             ),
           ),

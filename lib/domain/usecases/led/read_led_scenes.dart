@@ -2,6 +2,7 @@ library;
 
 import 'dart:async';
 
+import '../../../data/repositories/scene_repository_impl.dart';
 import '../../led_lighting/led_state.dart';
 import '../../led_lighting/scene_catalog.dart';
 import '../../../platform/contracts/led_repository.dart';
@@ -40,51 +41,126 @@ class ReadLedSceneSnapshot {
 /// - LedSceneActivity displays scene list with preset and custom scenes
 /// - SceneDao queries Scene table filtered by deviceId
 class ReadLedScenesUseCase {
-  const ReadLedScenesUseCase({required this.ledRepository});
+  const ReadLedScenesUseCase({
+    required this.ledRepository,
+    this.sceneRepository,
+  });
 
   final LedRepository ledRepository;
+  final SceneRepositoryImpl? sceneRepository;
 
   Future<List<ReadLedSceneSnapshot>> execute({required String deviceId}) async {
     final LedState? state = await ledRepository.getLedState(deviceId);
-    
-    // PARITY: reef-b-app's getAllScene() returns all scenes from database
-    // If BLE state is null or empty, fallback to SceneCatalog preset scenes
-    if (state == null || state.scenes.isEmpty) {
-      // Return preset scenes from SceneCatalog (matching reef-b-app's getPresetScene)
-      return SceneCatalog.presetScenes.values
-          .map(
-            (scene) => ReadLedSceneSnapshot(
+
+    // Build preset list (from catalog when state empty, else from state)
+    final List<ReadLedSceneSnapshot> presets = (state == null || state.scenes.isEmpty)
+        ? SceneCatalog.presetScenes.values
+            .map(
+              (scene) => ReadLedSceneSnapshot(
+                id: scene.sceneId,
+                name: scene.name,
+                description: scene.name,
+                palette: _buildPalette(scene),
+                isEnabled: true,
+                isPreset: true,
+                isDynamic: scene.isDynamic,
+                iconKey: scene.iconKey,
+                presetCode: scene.presetCode,
+                channelLevels: Map<String, int>.unmodifiable(scene.channelLevels),
+              ),
+            )
+            .toList(growable: false)
+        : state.scenes
+            .where((s) => s.presetCode != null)
+            .map(
+              (scene) => ReadLedSceneSnapshot(
+                id: scene.sceneId,
+                name: scene.name,
+                description: scene.name,
+                palette: _buildPalette(scene),
+                isEnabled: true,
+                isPreset: true,
+                isDynamic: scene.isDynamic,
+                iconKey: scene.iconKey,
+                presetCode: scene.presetCode,
+                channelLevels: Map<String, int>.unmodifiable(scene.channelLevels),
+              ),
+            )
+            .toList(growable: false);
+
+    // Merge custom scenes from local database so AddScene/EditScene show up after save
+    final List<ReadLedSceneSnapshot> custom = <ReadLedSceneSnapshot>[];
+    if (sceneRepository != null) {
+      final dbScenes = await sceneRepository!.getScenes(deviceId);
+      for (final r in dbScenes) {
+        custom.add(
+          ReadLedSceneSnapshot(
+            id: 'local_scene_${r.sceneId}',
+            name: r.name,
+            description: r.name,
+            palette: _paletteFromChannels(r.channelLevels),
+            isEnabled: true,
+            isPreset: false,
+            isDynamic: false,
+            iconKey: _iconIdToKey(r.iconId),
+            presetCode: null,
+            channelLevels: Map<String, int>.unmodifiable(r.channelLevels),
+          ),
+        );
+      }
+    }
+    // Also include custom scenes from BLE state not yet in DB (e.g. from device sync)
+    if (state != null && state.scenes.isNotEmpty) {
+      for (final scene in state.scenes) {
+        if (scene.presetCode == null && !custom.any((c) => c.id == scene.sceneId)) {
+          custom.add(
+            ReadLedSceneSnapshot(
               id: scene.sceneId,
               name: scene.name,
               description: scene.name,
               palette: _buildPalette(scene),
               isEnabled: true,
-              isPreset: true,
+              isPreset: false,
               isDynamic: scene.isDynamic,
               iconKey: scene.iconKey,
-              presetCode: scene.presetCode,
+              presetCode: null,
               channelLevels: Map<String, int>.unmodifiable(scene.channelLevels),
             ),
-          )
-          .toList(growable: false);
+          );
+        }
+      }
     }
-    
-    return state.scenes
-        .map(
-          (scene) => ReadLedSceneSnapshot(
-            id: scene.sceneId,
-            name: scene.name,
-            description: scene.name,
-            palette: _buildPalette(scene),
-            isEnabled: true,
-            isPreset: scene.presetCode != null,
-            isDynamic: scene.isDynamic,
-            iconKey: scene.iconKey,
-            presetCode: scene.presetCode,
-            channelLevels: Map<String, int>.unmodifiable(scene.channelLevels),
-          ),
-        )
-        .toList(growable: false);
+
+    return [...presets, ...custom];
+  }
+}
+
+String _iconIdToKey(int iconId) {
+  switch (iconId) {
+    case 0:
+      return 'ic_thunder';
+    case 1:
+      return 'ic_cloudy';
+    case 2:
+      return 'ic_sunny';
+    case 3:
+      return 'ic_rainy';
+    case 4:
+      return 'ic_dizzle';
+    case 5:
+      return 'ic_none';
+    case 6:
+      return 'ic_moon';
+    case 7:
+      return 'ic_sunrise';
+    case 8:
+      return 'ic_sunset';
+    case 9:
+      return 'ic_mist';
+    case 10:
+      return 'ic_light_off';
+    default:
+      return 'ic_none';
   }
 }
 

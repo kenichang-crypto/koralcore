@@ -2,6 +2,7 @@ library;
 
 import 'dart:async';
 
+import '../../../data/repositories/schedule_repository_impl.dart';
 import '../../led_lighting/led_state.dart';
 import '../../../platform/contracts/led_repository.dart';
 
@@ -56,17 +57,46 @@ class ReadLedScheduleSnapshot {
 /// - Schedule types: daily program, custom window, scene-based
 class ReadLedScheduleUseCase {
   final LedRepository ledRepository;
+  final ScheduleRepositoryImpl? scheduleRepository;
 
-  const ReadLedScheduleUseCase({required this.ledRepository});
+  const ReadLedScheduleUseCase({
+    required this.ledRepository,
+    this.scheduleRepository,
+  });
 
   Future<List<ReadLedScheduleSnapshot>> execute({
     required String deviceId,
   }) async {
+    final List<ReadLedScheduleSnapshot> result = [];
     final LedState? state = await ledRepository.getLedState(deviceId);
-    if (state == null || state.schedules.isEmpty) {
-      return const <ReadLedScheduleSnapshot>[];
+    if (state != null && state.schedules.isNotEmpty) {
+      result.addAll(
+        state.schedules.map(_mapStateSchedule).toList(growable: false),
+      );
     }
-    return state.schedules.map(_mapStateSchedule).toList(growable: false);
+    if (scheduleRepository != null) {
+      final local = await scheduleRepository!.getSchedules(deviceId);
+      final existingIds = result.map((s) => s.id).toSet();
+      for (final r in local) {
+        if (!existingIds.contains(r.scheduleId)) {
+          result.add(
+            ReadLedScheduleSnapshot(
+              id: r.scheduleId,
+              title: r.title,
+              type: r.type,
+              recurrence: r.recurrence,
+              startMinutesFromMidnight: r.startMinutesFromMidnight,
+              endMinutesFromMidnight: r.endMinutesFromMidnight,
+              sceneName: r.sceneName,
+              isEnabled: r.isEnabled,
+              isDerived: false,
+              channels: r.channels,
+            ),
+          );
+        }
+      }
+    }
+    return result;
   }
 }
 

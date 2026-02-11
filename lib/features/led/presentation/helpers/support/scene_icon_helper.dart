@@ -21,6 +21,44 @@ import 'package:flutter_svg/flutter_svg.dart';
 class SceneIconHelper {
   SceneIconHelper._();
 
+  /// Parse "local_scene_N" to int N. Returns null for preset or invalid IDs.
+  static int? parseLocalSceneId(String? sceneId) {
+    if (sceneId == null || !sceneId.startsWith('local_scene_')) {
+      return null;
+    }
+    return int.tryParse(sceneId.substring('local_scene_'.length));
+  }
+
+  /// Map iconKey (e.g. "ic_none") to iconId (0-10). Returns 5 (ic_none) for null/unknown.
+  static int iconKeyToId(String? iconKey) {
+    switch (iconKey) {
+      case 'ic_thunder':
+        return 0;
+      case 'ic_cloudy':
+        return 1;
+      case 'ic_sunny':
+        return 2;
+      case 'ic_rainy':
+        return 3;
+      case 'ic_dizzle':
+        return 4;
+      case 'ic_none':
+        return 5;
+      case 'ic_moon':
+        return 6;
+      case 'ic_sunrise':
+        return 7;
+      case 'ic_sunset':
+        return 8;
+      case 'ic_mist':
+        return 9;
+      case 'ic_light_off':
+        return 10;
+      default:
+        return 5;
+    }
+  }
+
   /// Get the SVG asset path for a scene icon by ID.
   ///
   /// PARITY: Mirrors reef-b-app's getSceneIconById(id: Int): Int?

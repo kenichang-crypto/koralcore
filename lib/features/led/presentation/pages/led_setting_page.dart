@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../app/common/app_context.dart';
+import '../../../../app/common/app_error.dart';
+import '../../../../app/common/app_error_code.dart';
+import '../../../../app/common/app_session.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_text_styles.dart';
+import '../../../../shared/widgets/error_state_widget.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
 
 /// LedSettingPage
 ///
 /// Parity with reef-b-app LedSettingActivity (activity_led_setting.xml)
-/// Correction Mode: UI structure only, no behavior
 class LedSettingPage extends StatelessWidget {
   const LedSettingPage({super.key});
 
@@ -19,38 +24,120 @@ class LedSettingPage extends StatelessWidget {
   }
 }
 
-class _LedSettingView extends StatelessWidget {
+class _LedSettingView extends StatefulWidget {
   const _LedSettingView();
+
+  @override
+  State<_LedSettingView> createState() => _LedSettingViewState();
+}
+
+class _LedSettingViewState extends State<_LedSettingView> {
+  late TextEditingController _nameController;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final session = context.read<AppSession>();
+    if (_nameController.text.isEmpty && session.activeDeviceName != null) {
+      _nameController.text = session.activeDeviceName!;
+      _nameController.selection = TextSelection.collapsed(
+        offset: _nameController.text.length,
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final session = context.watch<AppSession>();
+    final appContext = context.read<AppContext>();
+    final deviceName = session.activeDeviceName ?? '';
+
+    if (_nameController.text.isEmpty && deviceName.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _nameController.text.isEmpty) {
+          _nameController.text = deviceName;
+        }
+      });
+    }
 
     return Stack(
       children: [
         Column(
           children: [
-            // A. Toolbar (fixed) ↔ toolbar_two_action.xml
-            _ToolbarTwoAction(l10n: l10n),
-
-            // B. Main content area (fixed, non-scrollable) ↔ layout_led_setting
+            _ToolbarTwoAction(
+              l10n: l10n,
+              session: session,
+              nameController: _nameController,
+              isSaving: _isSaving,
+              onCancel: () => Navigator.of(context).pop(),
+              onSave: () async {
+                final deviceId = session.activeDeviceId;
+                if (deviceId == null) return;
+                final name = _nameController.text.trim();
+                if (name.isEmpty) {
+                  showErrorSnackBar(
+                    context,
+                    AppErrorCode.invalidParam,
+                    customMessage: 'Device name must not be empty',
+                  );
+                  return;
+                }
+                setState(() => _isSaving = true);
+                try {
+                  await appContext.updateDeviceNameUseCase.execute(
+                    deviceId: deviceId,
+                    name: name,
+                  );
+                  if (mounted) {
+                    Navigator.of(context).pop(true);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.deviceSettingsSaved)),
+                    );
+                  }
+                } on AppError catch (e) {
+                  if (mounted) {
+                    showErrorSnackBar(context, e.code);
+                  }
+                } catch (_) {
+                  if (mounted) {
+                    showErrorSnackBar(context, AppErrorCode.unknownError);
+                  }
+                } finally {
+                  if (mounted) setState(() => _isSaving = false);
+                }
+              },
+            ),
             Expanded(
               child: Padding(
-                // PARITY: layout_led_setting padding 16/12/16/12dp
                 padding: const EdgeInsets.only(
-                  left: 16, // dp_16 paddingStart
-                  top: 12, // dp_12 paddingTop
-                  right: 16, // dp_16 paddingEnd
-                  bottom: 12, // dp_12 paddingBottom
+                  left: 16,
+                  top: 12,
+                  right: 16,
+                  bottom: 12,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // B1. Device Name Section
-                    _DeviceNameSection(l10n: l10n),
-
-                    // B2. Sink Position Section
-                    const SizedBox(height: 16), // marginTop: dp_16
+                    _DeviceNameSection(
+                      l10n: l10n,
+                      controller: _nameController,
+                      enabled: !_isSaving,
+                    ),
+                    const SizedBox(height: 16),
                     _SinkPositionSection(l10n: l10n),
                   ],
                 ),
@@ -58,11 +145,6 @@ class _LedSettingView extends StatelessWidget {
             ),
           ],
         ),
-
-        // C. Progress overlay ↔ progress.xml
-        // PARITY: visibility="gone" by default, controlled by loading state
-        // In Correction Mode, never show (no controller)
-        // if (controller.isLoading) const _ProgressOverlay(),
       ],
     );
   }
@@ -73,12 +155,27 @@ class _LedSettingView extends StatelessWidget {
 // ────────────────────────────────────────────────────────────────────────────
 
 class _ToolbarTwoAction extends StatelessWidget {
-  const _ToolbarTwoAction({required this.l10n});
+  const _ToolbarTwoAction({
+    required this.l10n,
+    required this.session,
+    required this.nameController,
+    required this.isSaving,
+    required this.onCancel,
+    required this.onSave,
+  });
 
   final AppLocalizations l10n;
+  final AppSession session;
+  final TextEditingController nameController;
+  final bool isSaving;
+  final VoidCallback onCancel;
+  final VoidCallback onSave;
 
   @override
   Widget build(BuildContext context) {
+    final canSave = session.isReady &&
+        !isSaving &&
+        nameController.text.trim().isNotEmpty;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -87,9 +184,8 @@ class _ToolbarTwoAction extends StatelessWidget {
           height: 56,
           child: Row(
             children: [
-              // Left: Cancel (text button, no behavior)
               TextButton(
-                onPressed: null, // No behavior in Correction Mode
+                onPressed: isSaving ? null : onCancel,
                 child: Text(
                   l10n.actionCancel,
                   style: AppTextStyles.body.copyWith(
@@ -98,8 +194,6 @@ class _ToolbarTwoAction extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              // Center: Title
-              // TODO(android @string/led_setting_title): Confirm exact Android string key
               Text(
                 l10n.ledSettingTitle,
                 style: AppTextStyles.headline.copyWith(
@@ -107,9 +201,8 @@ class _ToolbarTwoAction extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              // Right: Save (text button, no behavior)
               TextButton(
-                onPressed: null, // No behavior in Correction Mode
+                onPressed: canSave ? onSave : null,
                 child: Text(
                   l10n.actionSave,
                   style: AppTextStyles.body.copyWith(
@@ -120,7 +213,6 @@ class _ToolbarTwoAction extends StatelessWidget {
             ],
           ),
         ),
-        // Divider (2dp ↔ toolbar_two_action.xml MaterialDivider)
         Container(height: 2, color: AppColors.divider),
       ],
     );
@@ -132,16 +224,21 @@ class _ToolbarTwoAction extends StatelessWidget {
 // ────────────────────────────────────────────────────────────────────────────
 
 class _DeviceNameSection extends StatelessWidget {
-  const _DeviceNameSection({required this.l10n});
+  const _DeviceNameSection({
+    required this.l10n,
+    required this.controller,
+    required this.enabled,
+  });
 
   final AppLocalizations l10n;
+  final TextEditingController controller;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // tv_device_name_title ↔ @string/device_name, caption1
         Text(
           l10n.deviceName,
           style: AppTextStyles.caption1.copyWith(
@@ -150,18 +247,16 @@ class _DeviceNameSection extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-
-        const SizedBox(height: 4), // marginTop: dp_4
-        // layout_name (TextInputLayout) + edt_name (TextInputEditText)
-        // PARITY: TextInputLayout style - bg_aaa, 4dp cornerRadius, no border
+        const SizedBox(height: 4),
         TextField(
-          // No controller in Correction Mode
+          controller: controller,
+          enabled: enabled,
           decoration: InputDecoration(
             filled: true,
-            fillColor: AppColors.surfaceMuted, // bg_aaa (#F7F7F7)
+            fillColor: AppColors.surfaceMuted,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.xs), // dp_4
-              borderSide: BorderSide.none, // boxStrokeWidth 0dp
+              borderRadius: BorderRadius.circular(AppRadius.xs),
+              borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.xs),
@@ -172,13 +267,11 @@ class _DeviceNameSection extends StatelessWidget {
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16, // Standard padding
+              horizontal: 16,
               vertical: 12,
             ),
           ),
-          // PARITY: edt_name - body textAppearance, inputType text
           style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
-          enabled: false, // No interaction in Correction Mode
           maxLines: 1,
         ),
       ],

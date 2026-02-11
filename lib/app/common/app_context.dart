@@ -18,6 +18,7 @@ import '../../data/repositories/lighting_repository_impl.dart';
 import '../../data/repositories/pump_head_repository_impl.dart';
 import '../../data/repositories/sink_repository_impl.dart';
 import '../../data/repositories/scene_repository_impl.dart';
+import '../../data/repositories/schedule_repository_impl.dart';
 import '../../data/ble/led/led_command_builder.dart';
 import '../../platform/contracts/device_repository.dart';
 import '../../data/repositories/system_repository_impl.dart';
@@ -331,15 +332,21 @@ class AppContext {
         currentDeviceSession: currentDeviceSession,
       ),
       readCalibrationHistoryUseCase: const ReadCalibrationHistoryUseCase(),
-      readLedScenesUseCase: ReadLedScenesUseCase(ledRepository: ledRepository),
+      readLedScenesUseCase: ReadLedScenesUseCase(
+        ledRepository: ledRepository,
+        sceneRepository: SceneRepositoryImpl(),
+      ),
       readLedScheduleUseCase: ReadLedScheduleUseCase(
         ledRepository: ledRepository,
+        scheduleRepository: ScheduleRepositoryImpl(),
       ),
       readLedScheduleSummaryUseCase: ReadLedScheduleSummaryUseCase(
         ledPort: ledPort,
         currentDeviceSession: currentDeviceSession,
       ),
-      saveLedScheduleUseCase: const SaveLedScheduleUseCase.unavailable(),
+      saveLedScheduleUseCase: SaveLedScheduleUseCase.local(
+        ScheduleRepositoryImpl(),
+      ),
       readLightingStateUseCase: ReadLightingStateUseCase(
         ledRepository: ledRepository,
       ),

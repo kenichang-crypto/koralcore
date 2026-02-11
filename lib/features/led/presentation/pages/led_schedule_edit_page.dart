@@ -173,7 +173,7 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
         Text(l10n.ledScheduleEditTypeLabel, style: theme.textTheme.titleSmall),
         const SizedBox(height: AppSpacing.xs),
         DropdownButtonFormField<LedScheduleType>(
-          initialValue: _type,
+          value: _type,
           items: [
             DropdownMenuItem(
               value: LedScheduleType.dailyProgram,
@@ -239,7 +239,7 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
         ),
         const SizedBox(height: AppSpacing.xs),
         DropdownButtonFormField<LedScheduleRecurrence>(
-          initialValue: _recurrence,
+          value: _recurrence,
           items: [
             DropdownMenuItem(
               value: LedScheduleRecurrence.everyday,
@@ -349,8 +349,12 @@ class _LedScheduleEditPageState extends State<LedScheduleEditPage> {
 
     setState(() => _isSaving = true);
     try {
+      // Only pass scheduleId for local schedules; BLE schedules create new local copy
+      final scheduleId = widget.initialSchedule?.id;
+      final isLocalSchedule =
+          scheduleId != null && scheduleId.startsWith('local_schedule_');
       final SaveLedScheduleRequest request = SaveLedScheduleRequest(
-        scheduleId: widget.initialSchedule?.id,
+        scheduleId: isLocalSchedule ? scheduleId : null,
         title: trimmedName,
         type: _mapTypeToRead(_type),
         recurrence: _mapRecurrenceToRead(_recurrence),

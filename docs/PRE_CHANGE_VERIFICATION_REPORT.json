@@ -1,0 +1,88 @@
+{
+  "report_version": "1.0",
+  "generated_at": "2025-02-11",
+  "basis": "UX_PARITY_PRINCIPLES.md, UX_PARITY_AUDIT_REEF_B_PRINCIPLES_V1.md",
+  "scope": "Pages flagged Partial or Fail in parity report",
+  "pages": [
+    {
+      "page": "lib/features/doser/presentation/pages/pump_head_detail_page.dart",
+      "reef_reference": "activity_drop_head_main.xml",
+      "violations": [
+        {
+          "principle": "P14",
+          "reef_source": "activity_drop_head_main.xml layout_record (tv_record_type), DropHeadMainActivity.kt L153,180,203",
+          "koralcore_location": "lib/features/doser/presentation/pages/pump_head_detail_page.dart:324-327",
+          "description": "_getScheduleTypeText() always returns dosingScheduleTypeNone regardless of actual schedule; reef displays real record type (drop_record_type_24, drop_record_type_single, drop_record_type_custom)",
+          "severity": "High",
+          "current_snippet": "String _getScheduleTypeText(dynamic scheduleSummary) {\n    // TODO: 根據實際的 DosingScheduleSummary 結構返回正確的文字\n    return l10n.dosingScheduleTypeNone;\n  }"
+        },
+        {
+          "principle": "P14",
+          "reef_source": "activity_drop_head_main.xml layout_adjust (Line 351-475), DropHeadMainActivity adjust history",
+          "koralcore_location": "lib/features/doser/presentation/pages/pump_head_detail_page.dart:354-362",
+          "description": "_AdjustCard always shows dosingCalibrationHistoryEmptySubtitle when connected; reef shows actual calibration history data",
+          "severity": "High",
+          "current_snippet": "else\n              // TODO: 顯示校正歷史數據\n              // 需要 controller 支援 adjust history\n              Text(\n                l10n.dosingCalibrationHistoryEmptySubtitle,"
+        }
+      ]
+    },
+    {
+      "page": "lib/features/doser/presentation/pages/pump_head_record_time_setting_page.dart",
+      "reef_reference": "activity_drop_head_record_time_setting.xml",
+      "violations": [
+        {
+          "principle": "P14",
+          "reef_source": "activity_drop_head_record_time_setting.xml tools:text=\"08:00\" (placeholder), strings.xml no_eng for empty",
+          "koralcore_location": "lib/features/doser/presentation/pages/pump_head_record_time_setting_page.dart:149-151",
+          "description": "_formatTime returns hardcoded '08:00' when TimeOfDay is null; P14 forbids fake/placeholder values; reef uses no_eng (None) for empty",
+          "severity": "Medium",
+          "current_snippet": "String _formatTime(TimeOfDay? t) {\n    if (t == null) return '08:00';\n    return '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';\n  }"
+        }
+      ]
+    },
+    {
+      "page": "lib/features/led/presentation/pages/led_scene_edit_page.dart",
+      "reef_reference": "activity_led_scene_edit.xml, adapter_scene_icon.xml",
+      "violations": [
+        {
+          "principle": "A1",
+          "reef_source": "adapter_scene_icon.xml ShapeableImageView android:layout_width=\"@dimen/dp_40\" android:layout_height=\"@dimen/dp_40\"",
+          "koralcore_location": "lib/features/led/presentation/widgets/scene_icon_picker.dart:84-87, 98-102",
+          "description": "Reef icon is 40x40dp; koralcore SizedBox is 40x40 but inner SceneIconHelper.getSceneIcon renders 32x32, making visual icon smaller than reef",
+          "severity": "Medium",
+          "current_snippet": "child: SizedBox(\n              width: 40, // dp_40\n              height: 40, // dp_40\n              child: _getIconForId(iconId),\n            ),\n  ...\n  return SceneIconHelper.getSceneIcon(\n      iconId: id,\n      width: 32,\n      height: 32,"
+        },
+        {
+          "principle": "D1",
+          "reef_source": "activity_led_scene_edit.xml Slider app:trackColorActive=\"@color/xxx_light_color\" app:trackColorInactive=\"@color/bg_press\" app:trackHeight=\"@dimen/dp_2\"",
+          "koralcore_location": "lib/features/led/presentation/pages/led_scene_edit_page.dart:337-358",
+          "description": "Slider uses default RoundSliderThumbShape; reef Material Slider may use different thumb styling; track colors and height are aligned",
+          "severity": "Low",
+          "current_snippet": "SliderTheme(\n              data: SliderThemeData(\n                activeTrackColor: trackColor,\n                inactiveTrackColor: AppColors.surfacePressed,\n                thumbColor: trackColor,\n                trackHeight: 2,\n                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),"
+        }
+      ]
+    },
+    {
+      "page": "lib/features/led/presentation/pages/led_schedule_edit_page.dart",
+      "reef_reference": "activity_drop_head_record_setting.xml (schedule type), drop_record_type_menu.xml, DropHeadRecordSettingActivity.kt PopupMenu",
+      "violations": [
+        {
+          "principle": "A6",
+          "reef_source": "DropHeadRecordSettingActivity.kt L179-180 showMenu(menuRes=R.menu.drop_record_type_menu), PopupMenu anchored to MaterialButton",
+          "koralcore_location": "lib/features/led/presentation/pages/led_schedule_edit_page.dart:166-198",
+          "description": "Reef uses PopupMenu (button tap opens floating menu) for schedule/record type selection; koralcore uses DropdownButtonFormField (inline expanded list)",
+          "severity": "Medium",
+          "current_snippet": "DropdownButtonFormField<LedScheduleType>(\n          value: _type,\n          items: [\n            DropdownMenuItem(value: LedScheduleType.dailyProgram, ...),\n            DropdownMenuItem(value: LedScheduleType.customWindow, ...),\n            DropdownMenuItem(value: LedScheduleType.sceneBased, ...),\n          ],\n          onChanged: (value) { ... },"
+        },
+        {
+          "principle": "B6",
+          "reef_source": "reef has no independent activity_led_schedule_edit; LedRecordActivity/schedule structure",
+          "koralcore_location": "lib/features/led/presentation/pages/led_schedule_edit_page.dart",
+          "description": "Reef has no standalone LED schedule edit activity; UX_PARITY §6.5 flags led_schedule_edit_page for reef layout对照; schedule type options (Daily/Custom/Scene) may differ from reef LED model",
+          "severity": "Low",
+          "current_snippet": "N/A - page structure"
+        }
+      ]
+    }
+  ]
+}

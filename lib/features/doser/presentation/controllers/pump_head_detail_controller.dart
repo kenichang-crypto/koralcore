@@ -1,12 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 
 import '../../../../app/common/app_error.dart';
 import '../../../../app/common/app_error_code.dart';
 import '../../../../app/common/app_session.dart';
+import '../../../../domain/usecases/doser/observe_dosing_state_usecase.dart';
 import '../../../../domain/usecases/doser/read_dosing_schedule_summary_usecase.dart';
 import '../../../../domain/usecases/doser/read_today_total.dart';
 import '../../../../domain/usecases/doser/single_dose_immediate_usecase.dart';
 import '../../../../domain/usecases/doser/single_dose_timed_usecase.dart';
+import '../../../../domain/doser_dosing/dosing_state.dart';
+import '../../../../domain/doser_dosing/pump_head_adjust_history.dart';
 import '../../../../domain/doser_dosing/pump_speed.dart';
 import '../../../../domain/doser_dosing/today_dose_summary.dart';
 import '../../../../domain/doser_dosing/single_dose_immediate.dart';
@@ -23,12 +28,14 @@ class PumpHeadDetailController extends ChangeNotifier
 
   final String headId;
   final AppSession session;
+  final ObserveDosingStateUseCase observeDosingStateUseCase;
   final ReadTodayTotalUseCase readTodayTotalUseCase;
   final ReadDosingScheduleSummaryUseCase readDosingScheduleSummaryUseCase;
   final SingleDoseImmediateUseCase singleDoseImmediateUseCase;
   final SingleDoseTimedUseCase singleDoseTimedUseCase;
 
   PumpHeadSummary _summary;
+  StreamSubscription<DosingState>? _dosingStateSubscription;
   bool _isLoading = true;
   bool _isScheduleSummaryLoading = true;
   bool _isManualDoseInFlight = false;
@@ -36,6 +43,7 @@ class PumpHeadDetailController extends ChangeNotifier
   AppErrorCode? _lastErrorCode;
   TodayDoseReadState _todayDoseState = const TodayDoseReadState.idle();
   DosingScheduleSummary? _scheduleSummary;
+  List<PumpHeadAdjustHistory>? _calibrationHistory;
   Future<void>? _refreshInProgress;
   String? _refreshDeviceId;
   String? _activeDeviceId;
@@ -44,6 +52,7 @@ class PumpHeadDetailController extends ChangeNotifier
   PumpHeadDetailController({
     required this.headId,
     required this.session,
+    required this.observeDosingStateUseCase,
     required this.readTodayTotalUseCase,
     required this.readDosingScheduleSummaryUseCase,
     required this.singleDoseImmediateUseCase,
@@ -61,6 +70,7 @@ class PumpHeadDetailController extends ChangeNotifier
   bool get isTimedDoseInFlight => _isTimedDoseInFlight;
   TodayDoseSummary? get todayDoseSummary => _todayDoseState.summary;
   DosingScheduleSummary? get dosingScheduleSummary => _scheduleSummary;
+  List<PumpHeadAdjustHistory>? get calibrationHistory => _calibrationHistory;
   AppErrorCode? get lastErrorCode => _lastErrorCode;
 
   bool get canDisplayData => session.isBleConnected && !isLoading;
@@ -100,6 +110,12 @@ class PumpHeadDetailController extends ChangeNotifier
     if (deviceChanged) {
       _summary = _summary.copyWith(todayDispensedMl: 0);
       _scheduleSummary = null;
+      _calibrationHistory = null;
+      _dosingStateSubscription?.cancel();
+      _dosingStateSubscription = null;
+    }
+    if (_dosingStateSubscription == null) {
+      _subscribeDosingState(deviceId);
     }
     _notifyListenersIfActive();
 
@@ -137,8 +153,46 @@ class PumpHeadDetailController extends ChangeNotifier
     _isScheduleSummaryLoading = false;
     _todayDoseState = const TodayDoseReadState.idle();
     _scheduleSummary = null;
+    _calibrationHistory = null;
+    _dosingStateSubscription?.cancel();
+    _dosingStateSubscription = null;
     _setError(AppErrorCode.noActiveDevice);
     _notifyListenersIfActive();
+  }
+
+  void _subscribeDosingState(String deviceId) {
+    try {
+      _dosingStateSubscription = observeDosingStateUseCase
+          .execute(deviceId: deviceId)
+          .listen(
+            _onDosingStateReceived,
+            onError: (_) => _clearDosingStateSubscription(),
+            onDone: _clearDosingStateSubscription,
+          );
+    } on AppError {
+      // Ignore - noActiveDevice etc.
+    }
+  }
+
+  void _clearDosingStateSubscription() {
+    _dosingStateSubscription = null;
+  }
+
+  void _onDosingStateReceived(DosingState state) {
+    if (!_shouldApplyResult(state.deviceId)) {
+      return;
+    }
+    final int headNo = _headNoFromHeadId(headId);
+    final List<PumpHeadAdjustHistory>? raw =
+        state.getAdjustHistory(headNo);
+    _calibrationHistory = raw;
+    _notifyListenersIfActive();
+  }
+
+  int _headNoFromHeadId(String value) {
+    final String normalized = value.trim().toUpperCase();
+    if (normalized.isEmpty) return 0;
+    return (normalized.codeUnitAt(0) - 65).clamp(0, 3);
   }
 
   bool _shouldApplyResult(String deviceId) {
@@ -155,6 +209,8 @@ class PumpHeadDetailController extends ChangeNotifier
   @override
   void dispose() {
     _isDisposed = true;
+    _dosingStateSubscription?.cancel();
+    _dosingStateSubscription = null;
     WidgetsBinding.instance.removeObserver(this);
     session.removeListener(_handleSessionChanged);
     super.dispose();

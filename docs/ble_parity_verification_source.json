@@ -1,0 +1,211 @@
+{
+  "meta": {
+    "source": "Actual reef-b-app and koralcore source code only. No docs. No inference.",
+    "reef_android": "/Users/Kaylen/Documents/GitHub/reef-b-app/android/ReefB_Android/app/src/main/java/tw/com/crownelectronics/reefb",
+    "reef_ios": "/Users/Kaylen/Documents/GitHub/reef-b-app/ios/ReefB_iOS/Reefb"
+  },
+  "reef_checksum_logic": {
+    "android": {
+      "file": "CommandManager.kt",
+      "lines": "645-648",
+      "code": "fun dataSum(array: ByteArray): Byte { val data = array.copyOfRange(2, array.size); return data.sum().toByte() }",
+      "sum_start_index": 2,
+      "sum_end": "array.size (exclusive, so indices 2 through size-1)",
+      "includes_command_byte_index_0": false,
+      "includes_length_byte_index_1": false,
+      "includes_bytes_from_index_2": true,
+      "includes_length_byte_at_index_1": true,
+      "modulo": "Kotlin Byte truncation (equivalent to sum % 256 for low 8 bits)"
+    },
+    "ios": {
+      "file": "ReefBUtil.swift",
+      "lines": "126-131",
+      "code": "let data = Array(command[2..<command.count]); let sum = data.reduce(0) { $0 + Int($1) }; return UInt8(sum % 256)",
+      "sum_start_index": 2,
+      "includes_command_byte": false,
+      "includes_length_byte": true,
+      "modulo": 256
+    }
+  },
+  "commands": {
+    "0x20": {
+      "reef_android": {
+        "template": "CommandManager.kt:22-24",
+        "byteArrayOf": "[0x20, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]",
+        "builder": "getLedTimeCorrectionCommand",
+        "lines": "195-208",
+        "assignment": "command[2]=year, command[3]=month, command[4]=day, command[5]=hour, command[6]=minute, command[7]=second, command[8]=dataSum(command)",
+        "caller": "BluetoothViewModel.kt:228, LedMainViewModel.kt:447",
+        "caller_year_source": "ReefBUtil.kt:57-62 getNowTimeIntList() returns nowTime[0].toInt() - 2000",
+        "request_layout": [
+          {"index": 0, "value": "0x20", "meaning": "command"},
+          {"index": 1, "value": "0x06", "meaning": "length"},
+          {"index": 2, "meaning": "year-2000"},
+          {"index": 3, "meaning": "month"},
+          {"index": 4, "meaning": "day"},
+          {"index": 5, "meaning": "hour"},
+          {"index": 6, "meaning": "minute"},
+          {"index": 7, "meaning": "second"},
+          {"index": 8, "meaning": "checksum"}
+        ],
+        "payload_length": 6,
+        "length_matches_payload": true,
+        "total_packet_size": 9
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "163-186",
+        "calibrateLEDTimeCommand": " Uses getDateComponents() which returns year-2000 at index 0",
+        "assignment": "command[2]=dateComponent[0] (year-2000), command[3]=month, ..., command[8]=getCheckSum",
+        "year_encoding": "year-2000"
+      },
+      "koralcore": {
+        "file": "lib/data/ble/led/led_command_builder.dart",
+        "lines": "20-35",
+        "method": "timeCorrection(DateTime now)",
+        "layout": "[0x20, 0x06, (now.year-2000)&0xFF, month, day, hour, minute, second] + checksum",
+        "checksum": "buffer.sublist(2) summed, result & 0xFF"
+      },
+      "parity_status": "full_match",
+      "comparison": {
+        "payload_length_byte": "both 0x06",
+        "year_encoding": "both year-2000",
+        "field_order": "match",
+        "checksum_calculation": "match (sum from index 2, & 0xFF)"
+      }
+    },
+    "0x71": {
+      "reef_android": {
+        "template": "CommandManager.kt:101-105",
+        "byteArrayOf": "[0x71, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]",
+        "builder": "getDrop24RangeCommand",
+        "lines": "435-460",
+        "assignment": "command[2]=no, command[3]=startYear, command[4]=startMonth, command[5]=startDay, command[6]=endYear, command[7]=endMonth, command[8]=endDay, command[9]=volume>>8, command[10]=volume, command[11]=speed, command[12]=dataSum",
+        "caller": "DropHeadRecordSettingViewModel.kt:522",
+        "caller_year_source": "ReefBUtil.kt:72-77 getTimeListFromMilliSeconds returns time[0].toInt() - 2000",
+        "request_layout": [
+          {"index": 0, "value": "0x71", "meaning": "command"},
+          {"index": 1, "value": "0x0A", "meaning": "length"},
+          {"index": 2, "meaning": "headNo"},
+          {"index": 3, "meaning": "startYear-2000"},
+          {"index": 4, "meaning": "startMonth"},
+          {"index": 5, "meaning": "startDay"},
+          {"index": 6, "meaning": "endYear-2000"},
+          {"index": 7, "meaning": "endMonth"},
+          {"index": 8, "meaning": "endDay"},
+          {"index": 9, "meaning": "volume_H"},
+          {"index": 10, "meaning": "volume_L"},
+          {"index": 11, "meaning": "speed"},
+          {"index": 12, "meaning": "checksum"}
+        ],
+        "payload_length": 10,
+        "length_matches_payload": true,
+        "total_packet_size": 13
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "418-434",
+        "assignment": "command[3]=info.startYear-2000, command[6]=info.endYear-2000",
+        "year_encoding": "year-2000"
+      },
+      "koralcore": {
+        "file": "lib/data/ble/dosing/dosing_command_builder.dart",
+        "lines": "153-185",
+        "method": "h24DropRange",
+        "layout": "[0x71, 0x0A, headNo, (startYear-2000)&0xFF, startMonth, startDay, (endYear-2000)&0xFF, endMonth, endDay, volume_H, volume_L, speed] + checksum",
+        "checksum": "buffer.sublist(2) summed via _dataSum, result & 0xFF"
+      },
+      "parity_status": "full_match",
+      "comparison": {
+        "payload_length_byte": "both 0x0A",
+        "year_encoding": "both year-2000",
+        "field_order": "match",
+        "checksum_calculation": "match"
+      }
+    },
+    "0x73": {
+      "reef_android": {
+        "template": "CommandManager.kt:112-116",
+        "byteArrayOf": "[0x73, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]",
+        "builder": "getDropCustomRangeCommand",
+        "lines": "419-437",
+        "assignment": "command[2]=no, command[3]=startYear, command[4]=startMonth, command[5]=startDay, command[6]=endYear, command[7]=endMonth, command[8]=endDay, command[9]=count, command[10]=dataSum",
+        "caller": "DropHeadRecordSettingViewModel.kt:591",
+        "caller_year_source": "getTimeListFromMilliSeconds returns year-2000",
+        "request_layout": [
+          {"index": 0, "value": "0x73", "meaning": "command"},
+          {"index": 1, "value": "0x08", "meaning": "length"},
+          {"index": 2, "meaning": "headNo"},
+          {"index": 3, "meaning": "startYear-2000"},
+          {"index": 4, "meaning": "startMonth"},
+          {"index": 5, "meaning": "startDay"},
+          {"index": 6, "meaning": "endYear-2000"},
+          {"index": 7, "meaning": "endMonth"},
+          {"index": 8, "meaning": "endDay"},
+          {"index": 9, "meaning": "count"},
+          {"index": 10, "meaning": "checksum"}
+        ],
+        "payload_length": 8,
+        "length_matches_payload": true,
+        "total_packet_size": 11
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "453-466",
+        "assignment": "command[3]=info.startYear-2000, command[6]=info.endYear-2000",
+        "year_encoding": "year-2000"
+      },
+      "koralcore": {
+        "file": "lib/data/ble/dosing/dosing_command_builder.dart",
+        "lines": "214-242",
+        "method": "customDropRange",
+        "layout": "[0x73, 0x08, headNo, (startYear-2000)&0xFF, startMonth, startDay, (endYear-2000)&0xFF, endMonth, endDay, count] + checksum",
+        "checksum": "buffer.sublist(2) summed via _dataSum, result & 0xFF"
+      },
+      "parity_status": "full_match",
+      "comparison": {
+        "payload_length_byte": "both 0x08",
+        "year_encoding": "both year-2000",
+        "field_order": "match",
+        "checksum_calculation": "match"
+      }
+    }
+  },
+  "checksum_logic_detail": {
+    "reef_android_dataSum": {
+      "sum_start_index": 2,
+      "includes_command": false,
+      "includes_length": true,
+      "sum_range": "copyOfRange(2, array.size) = indices 2 through size-1",
+      "result": "data.sum().toByte() - Kotlin Byte truncation"
+    },
+    "reef_ios_getCheckSum": {
+      "sum_start_index": 2,
+      "includes_command": false,
+      "includes_length": true,
+      "sum_range": "command[2..<command.count]",
+      "result": "UInt8(sum % 256)"
+    },
+    "koralcore_led_checksum": {
+      "sum_range": "buffer.sublist(2) before checksum appended",
+      "formula": "sum = (sum + (value & 0xFF)) & 0xFF per byte",
+      "result": "checksum & 0xFF"
+    },
+    "koralcore_dosing_checksum": {
+      "sum_range": "buffer.sublist(2) before checksum appended",
+      "formula": "_dataSum: same as led",
+      "result": "checksum & 0xFF"
+    },
+    "parity": "full_match - all sum from index 2 (includes length byte), use modulo 256"
+  },
+  "summary_counts": {
+    "0x20": "full_match",
+    "0x71": "full_match",
+    "0x73": "full_match",
+    "total_verified": 3,
+    "full_matches": 3,
+    "payload_mismatches": 0,
+    "checksum_mismatches": 0,
+    "missing": 0
+  }
+}

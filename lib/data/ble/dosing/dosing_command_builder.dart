@@ -151,7 +151,8 @@ class DosingCommandBuilder {
   }
 
   /// 24h drop range command (0x71).
-  /// Format: [0x71, 0x0C, headNo, startYear, startMonth, startDay, endYear, endMonth, endDay, volume_H, volume_L, speed, checksum]
+  /// Format: [0x71, 0x0A, headNo, startYear-2000, startMonth, startDay, endYear-2000, endMonth, endDay, volume_H, volume_L, speed, checksum]
+  /// PARITY: reef-b-app CommandManager.kt:101-105, getDrop24RangeCommand
   Uint8List h24DropRange({
     required int headNo,
     required int startYear,
@@ -163,16 +164,18 @@ class DosingCommandBuilder {
     required int volume, // Pre-scaled (ml × 10)
     required int speed,
   }) {
+    final int startYearByte = (startYear - 2000) & 0xFF;
+    final int endYearByte = (endYear - 2000) & 0xFF;
     final int volumeHigh = (volume >> 8) & 0xFF;
     final int volumeLow = volume & 0xFF;
     return _build(<int>[
       0x71,
-      0x0C,
+      0x0A,
       headNo & 0xFF,
-      startYear & 0xFF,
+      startYearByte,
       startMonth & 0xFF,
       startDay & 0xFF,
-      endYear & 0xFF,
+      endYearByte,
       endMonth & 0xFF,
       endDay & 0xFF,
       volumeHigh,
@@ -210,7 +213,8 @@ class DosingCommandBuilder {
   }
 
   /// Custom drop range command (0x73).
-  /// Format: [0x73, 0x0A, headNo, startYear, startMonth, startDay, endYear, endMonth, endDay, count, checksum]
+  /// Format: [0x73, 0x08, headNo, startYear-2000, startMonth, startDay, endYear-2000, endMonth, endDay, count, checksum]
+  /// PARITY: reef-b-app CommandManager.kt:112-116, getDropCustomRangeCommand
   Uint8List customDropRange({
     required int headNo,
     required int startYear,
@@ -221,14 +225,16 @@ class DosingCommandBuilder {
     required int endDay,
     required int count,
   }) {
+    final int startYearByte = (startYear - 2000) & 0xFF;
+    final int endYearByte = (endYear - 2000) & 0xFF;
     return _build(<int>[
       0x73,
-      0x0A,
+      0x08,
       headNo & 0xFF,
-      startYear & 0xFF,
+      startYearByte,
       startMonth & 0xFF,
       startDay & 0xFF,
-      endYear & 0xFF,
+      endYearByte,
       endMonth & 0xFF,
       endDay & 0xFF,
       count & 0xFF,

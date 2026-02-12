@@ -17,6 +17,23 @@ const List<String> ledChannelOrder = <String>[
 class LedCommandBuilder {
   const LedCommandBuilder();
 
+  /// LED time correction command (0x20).
+  /// Format: [0x20, 0x06, year-2000, month, day, hour, minute, second, checksum]
+  /// PARITY: reef-b-app CommandManager.kt:22-24, getLedTimeCorrectionCommand
+  Uint8List timeCorrection(DateTime now) {
+    final int yearByte = (now.year - 2000) & 0xFF;
+    return _build(<int>[
+      0x20,
+      0x06,
+      yearByte,
+      now.month & 0xFF,
+      now.day & 0xFF,
+      now.hour & 0xFF,
+      now.minute & 0xFF,
+      now.second & 0xFF,
+    ]);
+  }
+
   Uint8List syncInformation() => _build(<int>[0x21, 0x00]);
 
   Uint8List preview({required bool start}) =>

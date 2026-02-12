@@ -1,0 +1,1662 @@
+{
+  "meta": {
+    "reef_source": "reef-b-app (Android + iOS)",
+    "koralcore_source": "koralcore (Flutter)",
+    "method": "Actual source code extraction only. No docs. No inference.",
+    "reef_android_path": "reef-b-app/android/ReefB_Android/app/src/main/java/tw/com/crownelectronics/reefb/ble/CommandManager.kt",
+    "reef_ios_path": "reef-b-app/ios/ReefB_iOS/Reefb/Util/ReefBUtil.swift",
+    "reef_ios_response_path": "reef-b-app/ios/ReefB_iOS/Reefb/Manager/BLE/Queue/Command.swift",
+    "koralcore_led_path": "lib/data/ble/led/led_command_builder.dart",
+    "koralcore_dosing_path": "lib/data/ble/dosing/dosing_command_builder.dart",
+    "koralcore_led_repo_path": "lib/data/led/ble_led_repository_impl.dart",
+    "koralcore_dosing_repo_path": "lib/data/dosing/ble_dosing_repository_impl.dart",
+    "checksum_rule": "dataSum: sum of bytes from index 2 to end (excluding checksum), last byte. reef Android: data.sum().toByte(); reef iOS: sum % 256; koralcore: (sum + value) & 0xFF"
+  },
+  "reef_commands": [
+    {
+      "command_id": "0x20",
+      "name": "LED time correction",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "22-24, 195-208",
+        "request_layout": "[0x20, 0x06, year, month, day, hour, minute, second, checksum]",
+        "request_bytes": 9,
+        "field_count": 8,
+        "endianness": "little (single bytes)"
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "14, 163-180",
+        "request_layout": "[0x20, 0x06, year-2000, month, day, hour, minute, second, checksum]",
+        "request_bytes": 9
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "518-530",
+        "layout": "[0x20, len, result, checksum] size=4",
+        "result_index": 2,
+        "values": "0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x21",
+      "name": "LED sync information",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "26-27",
+        "request_layout": "[0x21, 0x00, checksum]",
+        "request_bytes": 3
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "17, 184-188",
+        "request_layout": "[0x21, 0x00, checksum]",
+        "request_bytes": 3
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "531-552",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=START, 0x02=END"
+      }
+    },
+    {
+      "command_id": "0x27",
+      "name": "LED set record",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "29-31, 218-243",
+        "request_layout": "[0x27, 0x0B, hour, minute, coldWhite, royalBlue, blue, red, green, purple, uv, warmWhite, moon, checksum]",
+        "request_bytes": 14,
+        "channel_order": "coldWhite, royalBlue, blue, red, green, purple, uv, warmWhite, moon"
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "20, 198-211",
+        "request_layout": "[0x27, 0x0B, hour, minute, coldWhite, royalBlue, blue, red, green, purple, uv, warmWhite, moon, checksum]",
+        "request_bytes": 14
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "567-579",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x28",
+      "name": "LED use preset scene",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "34-35, 261-268",
+        "request_layout": "[0x28, 0x01, sceneCode, checksum]",
+        "request_bytes": 4
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "23, 214-219",
+        "request_layout": "[0x28, 0x01, sceneCode, checksum]",
+        "request_bytes": 4
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "614-628",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x29",
+      "name": "LED use custom scene",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "36-39, 271-288",
+        "request_layout": "[0x29, 0x09, coldWhite, royalBlue, blue, red, green, purple, uv, warmWhite, moon, checksum]",
+        "request_bytes": 12,
+        "channel_order": "coldWhite, royalBlue, blue, red, green, purple, uv, warmWhite, moon"
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "26-27, 222-234",
+        "request_layout": "[0x29, 0x09, coldWhite, royalBlue, blue, red, green, purple, uv, warmWhite, moon, checksum]",
+        "request_bytes": 12
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "641-655",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x2A",
+      "name": "LED preview",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "42-43, 291-296",
+        "request_layout": "[0x2A, 0x01, start/end, checksum]",
+        "request_bytes": 4,
+        "start_value": "0x01",
+        "end_value": "0x00"
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "30, 237-242",
+        "request_layout": "[0x2A, 0x01, state, checksum]",
+        "request_bytes": 4
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "656-671",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=START, 0x02=END"
+      }
+    },
+    {
+      "command_id": "0x2B",
+      "name": "LED start record",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "45-46",
+        "request_layout": "[0x2B, 0x00, checksum]",
+        "request_bytes": 3
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "33, 245-248",
+        "request_layout": "[0x2B, 0x00, checksum]",
+        "request_bytes": 3
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "629-643",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x2E",
+      "name": "LED reset",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "48-49",
+        "request_layout": "[0x2E, 0x00, checksum]",
+        "request_bytes": 3
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "36, 258-262",
+        "request_layout": "[0x2E, 0x00, checksum]",
+        "request_bytes": 3
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "580-593",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x2F",
+      "name": "LED delete record",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "51-52, 241-250",
+        "request_layout": "[0x2F, 0x02, hour, minute, checksum]",
+        "request_bytes": 5
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "39, 265-271",
+        "request_layout": "[0x2F, 0x02, hour, minute, checksum]",
+        "request_bytes": 5
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "594-607",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x30",
+      "name": "LED clear records",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "54-55",
+        "request_layout": "[0x30, 0x00, checksum]",
+        "request_bytes": 3
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "42, 274-278",
+        "request_layout": "[0x30, 0x00, checksum]",
+        "request_bytes": 3
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "608-623",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x32",
+      "name": "LED enter dimming mode",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "57-58",
+        "request_layout": "[0x32, 0x00, checksum]",
+        "request_bytes": 3
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "45, 281-285",
+        "request_layout": "[0x32, 0x00, checksum]",
+        "request_bytes": 3
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "673-686",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x33",
+      "name": "LED dimming",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "60-62, 307-325",
+        "request_layout": "[0x33, 0x09, coldWhite, royalBlue, blue, red, green, purple, uv, warmWhite, moon, checksum]",
+        "request_bytes": 12
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "48, 288-301",
+        "request_layout": "[0x33, 0x09, coldWhite, royalBlue, blue, red, green, purple, uv, warmWhite, moon, checksum]",
+        "request_bytes": 12
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "687-700",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x34",
+      "name": "LED exit dimming mode",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "64-65",
+        "request_layout": "[0x34, 0x00, checksum]",
+        "request_bytes": 3
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "51, 304-308",
+        "request_layout": "[0x34, 0x00, checksum]",
+        "request_bytes": 3
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "701-714",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x60",
+      "name": "Drop time correction",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "67-69, 311-323",
+        "request_layout": "[0x60, 0x07, year, month, day, hour, minute, second, weekday, checksum]",
+        "request_bytes": 10
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "54, 311-324",
+        "request_layout": "[0x60, 0x07, year-2000, month, day, hour, minute, second, weekday, checksum]",
+        "request_bytes": 10
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "715-728",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x61",
+      "name": "Drop set delay time",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "71-72, 341-349",
+        "request_layout": "[0x61, 0x02, highBit, lowBit, checksum]",
+        "request_bytes": 5,
+        "endianness": "big-endian (high byte first)"
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "57, 327-334",
+        "request_layout": "[0x61, 0x02, highBit, lowBit, checksum]",
+        "request_bytes": 5
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "956-966",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x62",
+      "name": "Drop set rotating speed",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "74-75, 352-358",
+        "request_layout": "[0x62, 0x02, headNo, speed, checksum]",
+        "request_bytes": 5
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "60, 337-343",
+        "request_layout": "[0x62, 0x02, headNo, speed, checksum]",
+        "request_bytes": 5
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "967-975",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x63",
+      "name": "Drop manual drop start",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "77-78, 334-339",
+        "request_layout": "[0x63, 0x01, headNo, checksum]",
+        "request_bytes": 4
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "63, 346-351",
+        "request_layout": "[0x63, 0x01, headNo, checksum]",
+        "request_bytes": 4
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "976-995",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS, 0x02=FAILED_ING"
+      }
+    },
+    {
+      "command_id": "0x64",
+      "name": "Drop manual drop end",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "80-81, 341-346",
+        "request_layout": "[0x64, 0x01, headNo, checksum]",
+        "request_bytes": 4
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "66, 354-359",
+        "request_layout": "[0x64, 0x01, headNo, checksum]",
+        "request_bytes": 4
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "996-1009",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x65",
+      "name": "Drop sync information",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "83-84",
+        "request_layout": "[0x65, 0x00, checksum]",
+        "request_bytes": 3
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "69, 362-364",
+        "request_layout": "[0x65, 0x00, checksum]",
+        "request_bytes": 3
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "729-746",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=START, 0x02=END"
+      }
+    },
+    {
+      "command_id": "0x6E",
+      "name": "Drop single drop immediately",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "86-87, 392-402",
+        "request_layout": "[0x6E, 0x04, headNo, volume_H, volume_L, speed, checksum]",
+        "request_bytes": 7,
+        "endianness": "volume big-endian"
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "72, 367-376",
+        "request_layout": "[0x6E, 0x04, headNo, volume_H, volume_L, speed, checksum]",
+        "request_bytes": 7
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "1053-1067",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x6F",
+      "name": "Drop single drop timely",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "89-92, 404-419",
+        "request_layout": "[0x6F, 0x09, headNo, year-2000, month, day, hour, minute, volume_H, volume_L, speed, checksum]",
+        "request_bytes": 12
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "76, 379-393",
+        "request_layout": "[0x6F, 0x09, headNo, year-2000, month, day, hour, minute, volume_H, volume_L, speed, checksum]",
+        "request_bytes": 12
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "1068-1083",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x70",
+      "name": "Drop 24h weekly",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "94-98, 367-389",
+        "request_layout": "[0x70, 0x0B, headNo, mon, tue, wed, thu, fri, sat, sun, volume_H, volume_L, speed, checksum]",
+        "request_bytes": 14
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "81, 396-412",
+        "request_layout": "[0x70, 0x0B, headNo, mon, tue, wed, thu, fri, sat, sun, volume_H, volume_L, speed, checksum]",
+        "request_bytes": 14
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "1084-1099",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x71",
+      "name": "Drop 24h range",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "101-105, 357-365",
+        "request_layout": "[0x71, 0x0A, headNo, startYear, startMonth, startDay, endYear, endMonth, endDay, volume_H, volume_L, speed, checksum]",
+        "request_bytes": 13,
+        "data_length": "0x0A (10 bytes payload)"
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "85, 415-431",
+        "request_layout": "[0x71, 0x0A, headNo, startYear-2000, startMonth, startDay, endYear-2000, endMonth, endDay, volume_H, volume_L, speed, checksum]",
+        "request_bytes": 13
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "1100-1115",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x72",
+      "name": "Drop custom weekly",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "107-110, 429-447",
+        "request_layout": "[0x72, 0x09, headNo, mon, tue, wed, thu, fri, sat, sun, count, checksum]",
+        "request_bytes": 12
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "89, 434-448",
+        "request_layout": "[0x72, 0x09, headNo, mon, tue, wed, thu, fri, sat, sun, count, checksum]",
+        "request_bytes": 12
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "1116-1131",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x73",
+      "name": "Drop custom range",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "112-116, 421-437",
+        "request_layout": "[0x73, 0x08, headNo, startYear, startMonth, startDay, endYear, endMonth, endDay, count, checksum]",
+        "request_bytes": 11,
+        "data_length": "0x08 (8 bytes payload)"
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "93, 451-464",
+        "request_layout": "[0x73, 0x08, headNo, startYear-2000, startMonth, startDay, endYear-2000, endMonth, endDay, count, checksum]",
+        "request_bytes": 11
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "1132-1147",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x74",
+      "name": "Drop custom detail",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "118-121, 449-468",
+        "request_layout": "[0x74, 0x09, headNo, startHour, startMinute, endHour, endMinute, times, volume_H, volume_L, speed, checksum]",
+        "request_bytes": 12
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "97, 467-482",
+        "request_layout": "[0x74, 0x09, headNo, startHour, startMinute, endHour, endMinute, times, volume_H, volume_L, speed, checksum]",
+        "request_bytes": 12
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "1148-1163",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x75",
+      "name": "Drop start adjust",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "123-124, 471-478",
+        "request_layout": "[0x75, 0x02, headNo, speed, checksum]",
+        "request_bytes": 5
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "100, 485-491",
+        "request_layout": "[0x75, 0x02, headNo, speed, checksum]",
+        "request_bytes": 5
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "1164-1181",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=START, 0x02=END"
+      }
+    },
+    {
+      "command_id": "0x76",
+      "name": "Drop adjust result",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "126-127, 481-493",
+        "request_layout": "[0x76, 0x04, headNo, speed, volume_H, volume_L, checksum]",
+        "request_bytes": 7
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "103, 494-503",
+        "request_layout": "[0x76, 0x04, headNo, speed, volume_H, volume_L, checksum]",
+        "request_bytes": 7
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "1182-1195",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x77",
+      "name": "Drop get adjust history",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "129-130, 496-502",
+        "request_layout": "[0x77, 0x01, headNo, checksum]",
+        "request_bytes": 4
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "106, 506-511",
+        "request_layout": "[0x77, 0x01, headNo, checksum]",
+        "request_bytes": 4
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "1196-1208",
+        "layout": "size=4, data[2]=count; START/END based on count"
+      }
+    },
+    {
+      "command_id": "0x79",
+      "name": "Drop clear record",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "133-134, 360-366",
+        "request_layout": "[0x79, 0x01, headNo, checksum]",
+        "request_bytes": 4
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "109, 514-519",
+        "request_layout": "[0x79, 0x01, headNo, checksum]",
+        "request_bytes": 4
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "1023-1037",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    },
+    {
+      "command_id": "0x7A",
+      "name": "Drop get today total volume",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "135-136, 326-331",
+        "request_layout": "[0x7A, 0x01, headNo, checksum]",
+        "request_bytes": 4
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "112, 522-527",
+        "request_layout": "[0x7A, 0x01, headNo, checksum]",
+        "request_bytes": 4
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "927-976",
+        "layout": "size=8, data[2]=headNo, data[3-4]=nonRecord raw, data[5-6]=record raw (big-endian)"
+      }
+    },
+    {
+      "command_id": "0x7B",
+      "name": "Drop abnormal warnings",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "CMD_DROP_GET_WARNING in enum only",
+        "request_layout": "NOT in Android CommandManager request templates"
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "115-118, 429-434",
+        "request_layout": "[0x7B, 0x01, headNo, checksum]",
+        "request_bytes": 4
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "NOT in parseCommand",
+        "layout": "No handler in Android"
+      }
+    },
+    {
+      "command_id": "0x7D",
+      "name": "Drop reset",
+      "reef_android": {
+        "file": "CommandManager.kt",
+        "lines": "140-141",
+        "request_layout": "[0x7D, 0x00, checksum]",
+        "request_bytes": 3
+      },
+      "reef_ios": {
+        "file": "ReefBUtil.swift",
+        "lines": "118, 437-439",
+        "request_layout": "[0x7D, 0x00, checksum]",
+        "request_bytes": 3
+      },
+      "reef_response": {
+        "file": "CommandManager.kt",
+        "lines": "990-1003",
+        "layout": "size=4, data[2]: 0x00=FAILED, 0x01=SUCCESS"
+      }
+    }
+  ],
+  "koralcore_commands": [
+    {
+      "command_id": "0x20",
+      "name": "LED time correction",
+      "file": "led_command_builder.dart",
+      "lines": "N/A",
+      "status": "missing_in_koralcore",
+      "note": "LedCommandBuilder has no timeCorrection() method. Response handler exists in ble_led_repository_impl.dart:730"
+    },
+    {
+      "command_id": "0x21",
+      "name": "LED sync information",
+      "file": "led_command_builder.dart",
+      "lines": "20",
+      "request_layout": "[0x21, 0x00] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x27",
+      "name": "LED set record",
+      "file": "led_command_builder.dart",
+      "lines": "48-60",
+      "request_layout": "[0x27, 0x0B, hour, minute, ...channels] + checksum",
+      "channel_order": "coldWhite, royalBlue, blue, red, green, purple, uv, warmWhite, moonLight",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x28",
+      "name": "LED use preset scene",
+      "file": "led_command_builder.dart",
+      "lines": "30-31",
+      "request_layout": "[0x28, 0x01, sceneCode] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x29",
+      "name": "LED use custom scene",
+      "file": "led_command_builder.dart",
+      "lines": "33-41",
+      "request_layout": "[0x29, 0x09, ...ordered] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x2A",
+      "name": "LED preview",
+      "file": "led_command_builder.dart",
+      "lines": "22-23",
+      "request_layout": "[0x2A, 0x01, start?0x01:0x00] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x2B",
+      "name": "LED start record",
+      "file": "led_command_builder.dart",
+      "lines": "44",
+      "request_layout": "[0x2B, 0x00] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x2E",
+      "name": "LED reset",
+      "file": "led_command_builder.dart",
+      "lines": "46",
+      "request_layout": "[0x2E, 0x00] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x2F",
+      "name": "LED delete record",
+      "file": "led_command_builder.dart",
+      "lines": "25-26",
+      "request_layout": "[0x2F, 0x02, hour, minute] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x30",
+      "name": "LED clear records",
+      "file": "led_command_builder.dart",
+      "lines": "28",
+      "request_layout": "[0x30, 0x00] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x32",
+      "name": "LED enter dimming mode",
+      "file": "led_command_builder.dart",
+      "lines": "96",
+      "request_layout": "[0x32, 0x00] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x33",
+      "name": "LED dimming",
+      "file": "led_command_builder.dart",
+      "lines": "99-105",
+      "request_layout": "[0x33, 0x09, ...ordered] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x34",
+      "name": "LED exit dimming mode",
+      "file": "led_command_builder.dart",
+      "lines": "98",
+      "request_layout": "[0x34, 0x00] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x60",
+      "name": "Drop time correction",
+      "file": "dosing_command_builder.dart",
+      "lines": "15-35",
+      "request_layout": "[0x60, 0x07, year, month, day, hour, minute, second, weekday] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x61",
+      "name": "Drop set delay",
+      "file": "dosing_command_builder.dart",
+      "lines": "43-47",
+      "request_layout": "[0x61, 0x02, highBit, lowBit] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x62",
+      "name": "Drop set speed",
+      "file": "dosing_command_builder.dart",
+      "lines": "51-57",
+      "request_layout": "[0x62, 0x02, headNo, speed] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x63",
+      "name": "Drop manual drop start",
+      "file": "dosing_command_builder.dart",
+      "lines": "62-63",
+      "request_layout": "[0x63, 0x01, headNo] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x64",
+      "name": "Drop manual drop end",
+      "file": "dosing_command_builder.dart",
+      "lines": "67-68",
+      "request_layout": "[0x64, 0x01, headNo] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x65",
+      "name": "Drop sync information",
+      "file": "dosing_command_builder.dart",
+      "lines": "38",
+      "request_layout": "[0x65, 0x00] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x6E",
+      "name": "Drop single drop immediately",
+      "file": "dosing_command_builder.dart",
+      "lines": "74-88",
+      "request_layout": "[0x6E, 0x04, headNo, volume_H, volume_L, speed] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x6F",
+      "name": "Drop single drop timely",
+      "file": "dosing_command_builder.dart",
+      "lines": "93-118",
+      "request_layout": "[0x6F, 0x09, headNo, yearOffset, month, day, hour, minute, volume_H, volume_L, speed] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x70",
+      "name": "Drop 24h weekly",
+      "file": "dosing_command_builder.dart",
+      "lines": "122-151",
+      "request_layout": "[0x70, 0x0B, headNo, mon, tue, wed, thu, fri, sat, sun, volume_H, volume_L, speed] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x71",
+      "name": "Drop 24h range",
+      "file": "dosing_command_builder.dart",
+      "lines": "154-183",
+      "request_layout": "[0x71, 0x0C, headNo, startYear, startMonth, startDay, endYear, endMonth, endDay, volume_H, volume_L, speed] + checksum",
+      "status": "payload_mismatch",
+      "mismatch_detail": "koralcore uses 0x0C (12) for data length; reef uses 0x0A (10). reef: [0x71, 0x0A, ...]; koralcore: [0x71, 0x0C, ...]. Year bytes: reef uses year-2000; koralcore uses raw year."
+    },
+    {
+      "command_id": "0x72",
+      "name": "Drop custom weekly",
+      "file": "dosing_command_builder.dart",
+      "lines": "185-211",
+      "request_layout": "[0x72, 0x09, headNo, mon..sun, count] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x73",
+      "name": "Drop custom range",
+      "file": "dosing_command_builder.dart",
+      "lines": "212-236",
+      "request_layout": "[0x73, 0x0A, headNo, startYear, startMonth, startDay, endYear, endMonth, endDay, count] + checksum",
+      "status": "payload_mismatch",
+      "mismatch_detail": "koralcore uses 0x0A (10) for data length; reef uses 0x08 (8). reef: [0x73, 0x08, ...]; koralcore: [0x73, 0x0A, ...]. Year bytes: reef uses year-2000; koralcore uses raw year."
+    },
+    {
+      "command_id": "0x74",
+      "name": "Drop custom detail",
+      "file": "dosing_command_builder.dart",
+      "lines": "240-266",
+      "request_layout": "[0x74, 0x09, headNo, startHour, startMinute, endHour, endMinute, times, volume_H, volume_L, speed] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x75",
+      "name": "Drop start adjust",
+      "file": "dosing_command_builder.dart",
+      "lines": "269-276",
+      "request_layout": "[0x75, 0x02, headNo, speed] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x76",
+      "name": "Drop adjust result",
+      "file": "dosing_command_builder.dart",
+      "lines": "280-297",
+      "request_layout": "[0x76, 0x04, headNo, speed, volume_H, volume_L] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x77",
+      "name": "Drop get adjust history",
+      "file": "dosing_command_builder.dart",
+      "lines": "299-301",
+      "request_layout": "[0x77, 0x01, headNo] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x79",
+      "name": "Drop clear record",
+      "file": "dosing_command_builder.dart",
+      "lines": "305-307",
+      "request_layout": "[0x79, 0x01, headNo] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x7A",
+      "name": "Drop get today total volume",
+      "file": "dosing_command_builder.dart",
+      "lines": "310-313",
+      "request_layout": "[0x7A, 0x01, headNo] + checksum",
+      "status": "full_match"
+    },
+    {
+      "command_id": "0x7E",
+      "name": "Drop get today total volume decimal",
+      "file": "dosing_command_builder.dart",
+      "lines": "315-319",
+      "request_layout": "[0x7E, 0x01, headNo] + checksum",
+      "status": "missing_in_reef",
+      "note": "reef-b-app Phase 3: 0x7E removed from Android. iOS has no 0x7E. koralcore still implements it."
+    },
+    {
+      "command_id": "0x7D",
+      "name": "Drop reset",
+      "file": "dosing_command_builder.dart",
+      "lines": "322-323",
+      "request_layout": "[0x7D, 0x00] + checksum",
+      "status": "full_match"
+    }
+  ],
+  "parity": [
+    {
+      "command_id": "0x20",
+      "status": "missing_in_koralcore",
+      "reef_request": {
+        "layout": "[0x20, 0x06, year, month, day, hour, minute, second, checksum]",
+        "file": "CommandManager.kt:22-24",
+        "ios_file": "ReefBUtil.swift:14,163-180"
+      },
+      "koralcore_request": {
+        "layout": null,
+        "file": "led_command_builder.dart",
+        "note": "No timeCorrection() method. Response handler at ble_led_repository_impl.dart:730"
+      },
+      "reef_response": {
+        "layout": "[0x20, len, result, checksum] size=4, result at index 2",
+        "file": "CommandManager.kt:518-530"
+      },
+      "koralcore_response": {
+        "layout": "Same, handled in ble_led_repository_impl.dart:730",
+        "file": "ble_led_repository_impl.dart:466-467,730-740"
+      }
+    },
+    {
+      "command_id": "0x21",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x21, 0x00, checksum]",
+        "file": "CommandManager.kt:26-27",
+        "ios_file": "ReefBUtil.swift:17"
+      },
+      "koralcore_request": {
+        "layout": "[0x21, 0x00] + checksum",
+        "file": "led_command_builder.dart:20"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01/0x02",
+        "file": "CommandManager.kt:531-552"
+      },
+      "koralcore_response": {
+        "layout": "Same, switch on data[2]",
+        "file": "ble_led_repository_impl.dart:409-434"
+      }
+    },
+    {
+      "command_id": "0x27",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x27, 0x0B, hour, minute, 9 channels, checksum]",
+        "file": "CommandManager.kt:29-31,218-243"
+      },
+      "koralcore_request": {
+        "layout": "[0x27, 0x0B, hour, minute, ...channels] + checksum",
+        "file": "led_command_builder.dart:48-60"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:567-579"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_led_repository_impl.dart:469"
+      }
+    },
+    {
+      "command_id": "0x28",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x28, 0x01, sceneCode, checksum]",
+        "file": "CommandManager.kt:34-35"
+      },
+      "koralcore_request": {
+        "layout": "[0x28, 0x01, sceneCode] + checksum",
+        "file": "led_command_builder.dart:30-31"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:614-628"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_led_repository_impl.dart:448"
+      }
+    },
+    {
+      "command_id": "0x29",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x29, 0x09, 9 channels, checksum]",
+        "file": "CommandManager.kt:36-39"
+      },
+      "koralcore_request": {
+        "layout": "[0x29, 0x09, ...ordered] + checksum",
+        "file": "led_command_builder.dart:33-41"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:641-655"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_led_repository_impl.dart:451"
+      }
+    },
+    {
+      "command_id": "0x2A",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x2A, 0x01, start/end, checksum]",
+        "file": "CommandManager.kt:42-43"
+      },
+      "koralcore_request": {
+        "layout": "[0x2A, 0x01, start?0x01:0x00] + checksum",
+        "file": "led_command_builder.dart:22-23"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01/0x02",
+        "file": "CommandManager.kt:656-671"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_led_repository_impl.dart:454,610-627"
+      }
+    },
+    {
+      "command_id": "0x2B",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x2B, 0x00, checksum]",
+        "file": "CommandManager.kt:45-46"
+      },
+      "koralcore_request": {
+        "layout": "[0x2B, 0x00] + checksum",
+        "file": "led_command_builder.dart:44"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:629-643"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_led_repository_impl.dart:472"
+      }
+    },
+    {
+      "command_id": "0x2E",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x2E, 0x00, checksum]",
+        "file": "CommandManager.kt:48-49"
+      },
+      "koralcore_request": {
+        "layout": "[0x2E, 0x00] + checksum",
+        "file": "led_command_builder.dart:46"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:580-593"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_led_repository_impl.dart:475"
+      }
+    },
+    {
+      "command_id": "0x2F",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x2F, 0x02, hour, minute, checksum]",
+        "file": "CommandManager.kt:51-52"
+      },
+      "koralcore_request": {
+        "layout": "[0x2F, 0x02, hour, minute] + checksum",
+        "file": "led_command_builder.dart:25-26"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:594-607"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_led_repository_impl.dart:629-649"
+      }
+    },
+    {
+      "command_id": "0x30",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x30, 0x00, checksum]",
+        "file": "CommandManager.kt:54-55"
+      },
+      "koralcore_request": {
+        "layout": "[0x30, 0x00] + checksum",
+        "file": "led_command_builder.dart:28"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:608-623"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_led_repository_impl.dart:460"
+      }
+    },
+    {
+      "command_id": "0x32",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x32, 0x00, checksum]",
+        "file": "CommandManager.kt:57-58"
+      },
+      "koralcore_request": {
+        "layout": "[0x32, 0x00] + checksum",
+        "file": "led_command_builder.dart:96"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:673-686"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_led_repository_impl.dart:478"
+      }
+    },
+    {
+      "command_id": "0x33",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x33, 0x09, 9 channels, checksum]",
+        "file": "CommandManager.kt:60-62"
+      },
+      "koralcore_request": {
+        "layout": "[0x33, 0x09, ...ordered] + checksum",
+        "file": "led_command_builder.dart:99-105"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:687-700"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_led_repository_impl.dart:463"
+      }
+    },
+    {
+      "command_id": "0x34",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x34, 0x00, checksum]",
+        "file": "CommandManager.kt:64-65"
+      },
+      "koralcore_request": {
+        "layout": "[0x34, 0x00] + checksum",
+        "file": "led_command_builder.dart:98"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:701-714"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_led_repository_impl.dart:481"
+      }
+    },
+    {
+      "command_id": "0x60",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x60, 0x07, year, month, day, hour, minute, second, weekday, checksum]",
+        "file": "CommandManager.kt:67-69"
+      },
+      "koralcore_request": {
+        "layout": "[0x60, 0x07, year, month, day, hour, minute, second, weekday] + checksum",
+        "file": "dosing_command_builder.dart:15-35"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:715-728"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:298-300,763"
+      }
+    },
+    {
+      "command_id": "0x61",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x61, 0x02, highBit, lowBit, checksum]",
+        "file": "CommandManager.kt:71-72"
+      },
+      "koralcore_request": {
+        "layout": "[0x61, 0x02, highBit, lowBit] + checksum",
+        "file": "dosing_command_builder.dart:43-47"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:956-966"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:303-304"
+      }
+    },
+    {
+      "command_id": "0x62",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x62, 0x02, headNo, speed, checksum]",
+        "file": "CommandManager.kt:74-75"
+      },
+      "koralcore_request": {
+        "layout": "[0x62, 0x02, headNo, speed] + checksum",
+        "file": "dosing_command_builder.dart:51-57"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:967-975"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:306-307"
+      }
+    },
+    {
+      "command_id": "0x63",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x63, 0x01, headNo, checksum]",
+        "file": "CommandManager.kt:77-78"
+      },
+      "koralcore_request": {
+        "layout": "[0x63, 0x01, headNo] + checksum",
+        "file": "dosing_command_builder.dart:62-63"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01/0x02",
+        "file": "CommandManager.kt:976-995"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:311-312"
+      }
+    },
+    {
+      "command_id": "0x64",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x64, 0x01, headNo, checksum]",
+        "file": "CommandManager.kt:80-81"
+      },
+      "koralcore_request": {
+        "layout": "[0x64, 0x01, headNo] + checksum",
+        "file": "dosing_command_builder.dart:67-68"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:996-1009"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:315-316"
+      }
+    },
+    {
+      "command_id": "0x65",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x65, 0x00, checksum]",
+        "file": "CommandManager.kt:83-84"
+      },
+      "koralcore_request": {
+        "layout": "[0x65, 0x00] + checksum",
+        "file": "dosing_command_builder.dart:38"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01/0x02",
+        "file": "CommandManager.kt:729-746"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:334-358"
+      }
+    },
+    {
+      "command_id": "0x6E",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x6E, 0x04, headNo, volume_H, volume_L, speed, checksum]",
+        "file": "CommandManager.kt:86-87"
+      },
+      "koralcore_request": {
+        "layout": "[0x6E, 0x04, headNo, volume_H, volume_L, speed] + checksum",
+        "file": "dosing_command_builder.dart:74-88"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:1053-1067"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:315-318"
+      }
+    },
+    {
+      "command_id": "0x6F",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x6F, 0x09, headNo, year-2000, month, day, hour, minute, volume_H, volume_L, speed, checksum]",
+        "file": "CommandManager.kt:89-92"
+      },
+      "koralcore_request": {
+        "layout": "[0x6F, 0x09, headNo, yearOffset, month, day, hour, minute, volume_H, volume_L, speed] + checksum",
+        "file": "dosing_command_builder.dart:93-118"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:1068-1083"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:319-320"
+      }
+    },
+    {
+      "command_id": "0x70",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x70, 0x0B, headNo, mon..sun, volume_H, volume_L, speed, checksum]",
+        "file": "CommandManager.kt:94-98"
+      },
+      "koralcore_request": {
+        "layout": "[0x70, 0x0B, headNo, mon..sun, volume_H, volume_L, speed] + checksum",
+        "file": "dosing_command_builder.dart:122-151"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:1084-1099"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:322-323"
+      }
+    },
+    {
+      "command_id": "0x71",
+      "status": "payload_mismatch",
+      "reef_request": {
+        "layout": "[0x71, 0x0A, headNo, startYear, startMonth, startDay, endYear, endMonth, endDay, volume_H, volume_L, speed, checksum]",
+        "file": "CommandManager.kt:101-105",
+        "data_length": "0x0A",
+        "year_format": "year-2000 for both start/end (reef iOS)"
+      },
+      "koralcore_request": {
+        "layout": "[0x71, 0x0C, headNo, startYear, startMonth, startDay, endYear, endMonth, endDay, volume_H, volume_L, speed] + checksum",
+        "file": "dosing_command_builder.dart:154-183",
+        "data_length": "0x0C (INCORRECT)",
+        "year_format": "raw year (potential overflow)"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:1100-1115"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:324-325"
+      },
+      "mismatch_detail": "Data length: reef 0x0A vs koralcore 0x0C. Year encoding: reef uses year-2000; koralcore uses raw year."
+    },
+    {
+      "command_id": "0x72",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x72, 0x09, headNo, mon..sun, count, checksum]",
+        "file": "CommandManager.kt:107-110"
+      },
+      "koralcore_request": {
+        "layout": "[0x72, 0x09, headNo, mon..sun, count] + checksum",
+        "file": "dosing_command_builder.dart:185-211"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:1116-1131"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:326-327"
+      }
+    },
+    {
+      "command_id": "0x73",
+      "status": "payload_mismatch",
+      "reef_request": {
+        "layout": "[0x73, 0x08, headNo, startYear, startMonth, startDay, endYear, endMonth, endDay, count, checksum]",
+        "file": "CommandManager.kt:112-116",
+        "data_length": "0x08",
+        "year_format": "year-2000 (reef iOS)"
+      },
+      "koralcore_request": {
+        "layout": "[0x73, 0x0A, headNo, startYear, startMonth, startDay, endYear, endMonth, endDay, count] + checksum",
+        "file": "dosing_command_builder.dart:212-236",
+        "data_length": "0x0A (INCORRECT)",
+        "year_format": "raw year"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:1132-1147"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:328-329"
+      },
+      "mismatch_detail": "Data length: reef 0x08 vs koralcore 0x0A. Year encoding: reef uses year-2000; koralcore uses raw year."
+    },
+    {
+      "command_id": "0x74",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x74, 0x09, headNo, startHour, startMinute, endHour, endMinute, times, volume_H, volume_L, speed, checksum]",
+        "file": "CommandManager.kt:118-121"
+      },
+      "koralcore_request": {
+        "layout": "[0x74, 0x09, headNo, startHour, startMinute, endHour, endMinute, times, volume_H, volume_L, speed] + checksum",
+        "file": "dosing_command_builder.dart:240-266"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:1148-1163"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:330-331"
+      }
+    },
+    {
+      "command_id": "0x75",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x75, 0x02, headNo, speed, checksum]",
+        "file": "CommandManager.kt:123-124"
+      },
+      "koralcore_request": {
+        "layout": "[0x75, 0x02, headNo, speed] + checksum",
+        "file": "dosing_command_builder.dart:269-276"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01/0x02",
+        "file": "CommandManager.kt:1164-1181"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:333-334"
+      }
+    },
+    {
+      "command_id": "0x76",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x76, 0x04, headNo, speed, volume_H, volume_L, checksum]",
+        "file": "CommandManager.kt:126-127"
+      },
+      "koralcore_request": {
+        "layout": "[0x76, 0x04, headNo, speed, volume_H, volume_L] + checksum",
+        "file": "dosing_command_builder.dart:280-297"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:1182-1195"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:336-337"
+      }
+    },
+    {
+      "command_id": "0x77",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x77, 0x01, headNo, checksum]",
+        "file": "CommandManager.kt:129-130"
+      },
+      "koralcore_request": {
+        "layout": "[0x77, 0x01, headNo] + checksum",
+        "file": "dosing_command_builder.dart:299-301"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]=count",
+        "file": "CommandManager.kt:1196-1208"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:340-341"
+      }
+    },
+    {
+      "command_id": "0x79",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x79, 0x01, headNo, checksum]",
+        "file": "CommandManager.kt:133-134"
+      },
+      "koralcore_request": {
+        "layout": "[0x79, 0x01, headNo] + checksum",
+        "file": "dosing_command_builder.dart:305-307"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:1023-1037"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:343-344"
+      }
+    },
+    {
+      "command_id": "0x7A",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x7A, 0x01, headNo, checksum]",
+        "file": "CommandManager.kt:135-136"
+      },
+      "koralcore_request": {
+        "layout": "[0x7A, 0x01, headNo] + checksum",
+        "file": "dosing_command_builder.dart:310-313"
+      },
+      "reef_response": {
+        "layout": "size=8, data[2]=headNo, data[3-4]=nonRecord, data[5-6]=record (big-endian)",
+        "file": "CommandManager.kt:927-976"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:348-387"
+      }
+    },
+    {
+      "command_id": "0x7D",
+      "status": "full_match",
+      "reef_request": {
+        "layout": "[0x7D, 0x00, checksum]",
+        "file": "CommandManager.kt:140-141"
+      },
+      "koralcore_request": {
+        "layout": "[0x7D, 0x00] + checksum",
+        "file": "dosing_command_builder.dart:322-323"
+      },
+      "reef_response": {
+        "layout": "size=4, data[2]: 0x00/0x01",
+        "file": "CommandManager.kt:990-1003"
+      },
+      "koralcore_response": {
+        "layout": "Same",
+        "file": "ble_dosing_repository_impl.dart:346-347"
+      }
+    }
+  ],
+  "counts": {
+    "reef_total": 35,
+    "koralcore_total": 34,
+    "full_matches": 31,
+    "payload_mismatches": 2,
+    "response_mismatches": 0,
+    "missing_in_koralcore": 1,
+    "missing_in_reef": 1,
+    "notes": [
+      "0x20: koralcore missing REQUEST builder (response handler exists)",
+      "0x71: koralcore uses 0x0C, reef uses 0x0A; year encoding differs",
+      "0x73: koralcore uses 0x0A, reef uses 0x08; year encoding differs",
+      "0x7B: reef iOS has request; reef Android has enum only, no request template",
+      "0x7E: reef removed (Phase 3); koralcore still implements"
+    ]
+  }
+}

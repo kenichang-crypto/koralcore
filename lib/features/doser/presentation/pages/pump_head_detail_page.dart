@@ -19,6 +19,8 @@ import '../../../../app/common/app_session.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
+import '../../../../domain/doser_dosing/dosing_schedule_summary.dart';
+import '../../../../domain/doser_dosing/pump_head_adjust_history.dart';
 import '../controllers/pump_head_detail_controller.dart';
 import 'pump_head_settings_page.dart';
 import 'pump_head_schedule_page.dart';
@@ -49,6 +51,7 @@ class PumpHeadDetailPage extends StatelessWidget {
       create: (_) => PumpHeadDetailController(
         headId: headId,
         session: session,
+        observeDosingStateUseCase: appContext.observeDosingStateUseCase,
         readTodayTotalUseCase: appContext.readTodayTotalUseCase,
         readDosingScheduleSummaryUseCase:
             appContext.readDosingScheduleSummaryUseCase,
@@ -156,6 +159,7 @@ class _PumpHeadDetailPageContentState
                       ),
                       const SizedBox(height: 4),
                       _AdjustCard(
+                        controller: controller,
                         isConnected: session.isBleConnected,
                         l10n: l10n,
                       ),
@@ -441,19 +445,31 @@ class _RecordCard extends StatelessWidget {
     );
   }
 
-  String _getScheduleTypeText(dynamic scheduleSummary) {
-    // TODO: 根據實際的 DosingScheduleSummary 結構返回正確的文字
-    return l10n.dosingScheduleTypeNone;
+  String _getScheduleTypeText(DosingScheduleSummary scheduleSummary) {
+    switch (scheduleSummary.mode) {
+      case DosingScheduleMode.none:
+        return l10n.dosingScheduleTypeNone;
+      case DosingScheduleMode.dailyAverage:
+        return l10n.dosingScheduleType24h;
+      case DosingScheduleMode.customWindow:
+        return l10n.dosingScheduleTypeCustom;
+    }
   }
 }
 
 /// PARITY: layout_adjust (Line 351-475)
 /// CardView for Adjust Information
+/// layout_adjust_connect: low/middle/high speed rows with last calibration time
 class _AdjustCard extends StatelessWidget {
+  final PumpHeadDetailController controller;
   final bool isConnected;
   final AppLocalizations l10n;
 
-  const _AdjustCard({required this.isConnected, required this.l10n});
+  const _AdjustCard({
+    required this.controller,
+    required this.isConnected,
+    required this.l10n,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -463,6 +479,7 @@ class _AdjustCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (!isConnected)
               Text(
@@ -472,18 +489,90 @@ class _AdjustCard extends StatelessWidget {
                 ),
               )
             else
-              // TODO: 顯示校正歷史數據
-              // 需要 controller 支援 adjust history
-              Text(
-                l10n.dosingCalibrationHistoryEmptySubtitle,
-                style: AppTextStyles.body.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-                textAlign: TextAlign.center,
-              ),
+              _buildCalibrationContent(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildCalibrationContent() {
+    final List<PumpHeadAdjustHistory>? history = controller.calibrationHistory;
+    final Map<int, String> lastBySpeed = _lastCalibrationTimeBySpeed(history);
+
+    if (lastBySpeed.isEmpty) {
+      return Text(
+        l10n.dosingCalibrationHistoryEmptySubtitle,
+        style: AppTextStyles.body.copyWith(
+          color: AppColors.textSecondary,
+        ),
+        textAlign: TextAlign.center,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _CalibrationRow(
+          label: l10n.pumpHeadSpeedLow,
+          time: lastBySpeed[1] ?? l10n.generalNone,
+        ),
+        const SizedBox(height: 8),
+        _CalibrationRow(
+          label: l10n.pumpHeadSpeedMedium,
+          time: lastBySpeed[2] ?? l10n.generalNone,
+        ),
+        const SizedBox(height: 8),
+        _CalibrationRow(
+          label: l10n.pumpHeadSpeedHigh,
+          time: lastBySpeed[3] ?? l10n.generalNone,
+        ),
+      ],
+    );
+  }
+
+  Map<int, String> _lastCalibrationTimeBySpeed(
+    List<PumpHeadAdjustHistory>? history,
+  ) {
+    if (history == null || history.isEmpty) return {};
+    final Map<int, String> result = {};
+    for (final entry in history) {
+      result[entry.rotatingSpeed] = entry.timeString;
+    }
+    return result;
+  }
+}
+
+class _CalibrationRow extends StatelessWidget {
+  final String label;
+  final String time;
+
+  const _CalibrationRow({required this.label, required this.time});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: AppTextStyles.caption1Accent.copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Text(
+            time,
+            style: AppTextStyles.caption1.copyWith(
+              color: AppColors.textTertiary,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.end,
+          ),
+        ),
+      ],
     );
   }
 }

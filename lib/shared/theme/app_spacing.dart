@@ -25,6 +25,7 @@ class AppSpacing {
       48; // dp_48 (Material Design min touch target)
   static const double largeButton = 60; // dp_60
   static const double largeImage = 80; // dp_80
+  static const double ledRecordChartHeight = 242; // dp_242 (reef line_chart)
 
   // Legacy alias for toolbar height
   static const double gutter = 56; // dp_56 (deprecated, use toolbarHeight)

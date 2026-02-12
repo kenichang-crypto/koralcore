@@ -46,17 +46,16 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sectionLedTitle => 'Lighting';
 
   @override
-  String get bleDisconnectedWarning => 'Connect via Bluetooth to continue.';
+  String get bleDisconnectedWarning => 'กรุณาเปิดใช้งานบลูทูธ';
 
   @override
   String get bleGuardDialogTitle => 'Bluetooth required';
 
   @override
-  String get bleGuardDialogMessage =>
-      'Connect to a device to access this feature.';
+  String get bleGuardDialogMessage => 'กรุณาเปิดใช้งานบลูทูธ';
 
   @override
-  String get bleGuardDialogButton => 'Got it';
+  String get bleGuardDialogButton => 'ฉันเข้าใจแล้ว';
 
   @override
   String get bleOnboardingPermissionTitle => 'เปิดใช้งานการเข้าถึงบลูทูธ';
@@ -269,7 +268,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get dosingEntryManual => 'Manual dose';
 
   @override
-  String get dosingEntryCalibration => 'Calibration';
+  String get dosingEntryCalibration => 'การสอดสอย';
 
   @override
   String get dosingEntryHistory => 'Dose history';
@@ -345,7 +344,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get dosingManualDoseInputLabel => 'Dose amount';
 
   @override
-  String get dosingManualDoseInputHint => 'Enter the amount in milliliters.';
+  String get dosingManualDoseInputHint => 'โปรดป้อนปริมาณการให้ยา';
 
   @override
   String get dosingManualConfirmTitle => 'Send manual dose?';
@@ -355,7 +354,8 @@ class AppLocalizationsTh extends AppLocalizations {
       'This dose will start immediately. Make sure your dosing line is ready.';
 
   @override
-  String get dosingManualInvalidDose => 'Enter a dose greater than zero.';
+  String get dosingManualInvalidDose =>
+      'ปริมาณการให้ยาทุกครั้งต้องไม่น้อยกว่า 1 มล.';
 
   @override
   String get ledHeader => 'Lighting';
@@ -424,7 +424,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get ledScheduleEditNameHint => 'Enter a label';
 
   @override
-  String get ledScheduleEditInvalidName => 'Enter a schedule name.';
+  String get ledScheduleEditInvalidName => 'ชื่อต้องไม่ว่างเปล่า';
 
   @override
   String get ledScheduleEditTypeLabel => 'Schedule type';
@@ -454,7 +454,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get ledScheduleEditSave => 'Save schedule';
 
   @override
-  String get ledScheduleEditSuccess => 'Lighting schedule saved.';
+  String get ledScheduleEditSuccess => 'การตั้งค่าสำเร็จ';
 
   @override
   String get ledScheduleEditInvalidWindow =>
@@ -497,10 +497,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get actionRetry => 'Retry';
 
   @override
-  String get errorDeviceBusy => 'Device is busy. Try again shortly.';
+  String get errorDeviceBusy =>
+      'หัวปั้มนี้กำลังใช้งานอยู่ โปรดลองอีกครั้งในภายหลัง';
 
   @override
-  String get errorNoDevice => 'No active device.';
+  String get errorNoDevice => 'อุปกรณ์ไม่ได้เชื่อมต่อ';
 
   @override
   String get errorNotSupported =>
@@ -535,10 +536,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get errorGeneric => 'Something went wrong. Please retry.';
 
   @override
-  String get snackbarDeviceRemoved => 'Devices removed.';
+  String get snackbarDeviceRemoved => 'ลบอุปกรณ์เรียบร้อยแล้ว';
 
   @override
-  String get snackbarDeviceConnected => 'Device connected.';
+  String get snackbarDeviceConnected => 'การเชื่อมต่อสำเร็จ';
 
   @override
   String get snackbarDeviceDisconnected => 'Device disconnected.';
@@ -577,19 +578,19 @@ class AppLocalizationsTh extends AppLocalizations {
   String get dosingPumpHeadManualDose => 'Manual dose';
 
   @override
-  String get dosingPumpHeadManualDoseSuccess => 'Manual dose sent.';
+  String get dosingPumpHeadManualDoseSuccess => 'การตั้งค่าสำเร็จ';
 
   @override
   String get dosingPumpHeadTimedDose => 'Schedule timed dose';
 
   @override
-  String get dosingPumpHeadTimedDoseSuccess => 'Timed dose scheduled.';
+  String get dosingPumpHeadTimedDoseSuccess => 'การตั้งค่าสำเร็จ';
 
   @override
   String get dosingPumpHeadCalibrate => 'Calibrate head';
 
   @override
-  String get dosingPumpHeadPlaceholder => 'No dosing data yet.';
+  String get dosingPumpHeadPlaceholder => 'ไม่มีงานที่กำหนด';
 
   @override
   String get dosingScheduleOverviewTitle => 'Schedules';
@@ -611,7 +612,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get dosingTodayTotalManual => 'Manual';
 
   @override
-  String get dosingTodayTotalEmpty => 'No dosing data yet.';
+  String get dosingTodayTotalEmpty => 'ไม่มีงานที่กำหนด';
 
   @override
   String get dosingScheduleSummaryTitle => 'Schedule summary';
@@ -636,21 +637,19 @@ class AppLocalizationsTh extends AppLocalizations {
   String get dosingScheduleApplyDailyAverage => 'Apply 24h average schedule';
 
   @override
-  String get dosingScheduleApplyDailyAverageSuccess =>
-      '24h average schedule sent.';
+  String get dosingScheduleApplyDailyAverageSuccess => 'การตั้งค่าสำเร็จ';
 
   @override
   String get dosingScheduleApplyCustomWindow => 'Apply custom window schedule';
 
   @override
-  String get dosingScheduleApplyCustomWindowSuccess =>
-      'Custom window schedule sent.';
+  String get dosingScheduleApplyCustomWindowSuccess => 'การตั้งค่าสำเร็จ';
 
   @override
   String get dosingScheduleViewButton => 'View schedules';
 
   @override
-  String get dosingScheduleEmptyTitle => 'No schedule configured';
+  String get dosingScheduleEmptyTitle => 'ไม่มีงานที่กำหนด';
 
   @override
   String get dosingScheduleEmptySubtitle =>
@@ -914,7 +913,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get dosingPumpHeadSettingsNameHint => 'Enter a custom label';
 
   @override
-  String get dosingPumpHeadSettingsNameEmpty => 'Name can\'t be empty.';
+  String get dosingPumpHeadSettingsNameEmpty => 'ชื่อต้องไม่ว่างเปล่า';
 
   @override
   String get dosingPumpHeadSettingsTankLabel => 'Tank / additive';
@@ -941,13 +940,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get dosingPumpHeadSettingsUnsavedDiscard => 'Discard';
 
   @override
-  String get dosingPumpHeadSettingsUnsavedStay => 'Keep editing';
+  String get dosingPumpHeadSettingsUnsavedStay => 'ยกเลิก';
 
   @override
-  String get dosingPumpHeadSettingsSave => 'Save';
+  String get dosingPumpHeadSettingsSave => 'บันทึก';
 
   @override
-  String get dosingPumpHeadSettingsCancel => 'Cancel';
+  String get dosingPumpHeadSettingsCancel => 'ยกเลิก';
 
   @override
   String dosingPumpHeadSettingsDelayOption(int seconds) {
@@ -958,7 +957,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get dosingScheduleStatusEnabled => 'Enabled';
 
   @override
-  String get dosingScheduleStatusDisabled => 'Paused';
+  String get dosingScheduleStatusDisabled => 'กำลังหยุดตารางเวลา';
+
+  @override
+  String get dosingScheduleDeleteConfirmMessage => 'Delete this schedule?';
+
+  @override
+  String get dosingScheduleDeleted => 'Schedule deleted.';
 
   @override
   String get ledSceneStatusEnabled => 'Enabled';
@@ -1065,6 +1070,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deviceSettingsSaved => 'Settings saved';
 
   @override
+  String get deviceSettingsDeleteConfirm =>
+      'Are you sure you want to remove this device?';
+
+  @override
+  String get deviceSettingsDeleteDevice => 'Delete Device';
+
+  @override
   String get deviceActionEdit => 'Edit';
 
   @override
@@ -1093,6 +1105,16 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get ledMasterSettingTitle => 'Master-Slave Pairing';
+
+  @override
+  String get ledSetMaster => 'Set as Master Light';
+
+  @override
+  String get ledMoveGroup => 'Move Group';
+
+  @override
+  String get ledMasterSettingMenuPlaceholder =>
+      'Requires device and sink configuration.';
 
   @override
   String get ledRecordTimeSettingTimeLabel => 'Time';
@@ -1156,6 +1178,19 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get toastSettingSuccessful => 'การตั้งค่าสำเร็จ';
+
+  @override
+  String get toastSettingFailed => 'Settings failed.';
+
+  @override
+  String get toastSetTimeError =>
+      'Time points must be at least 10 minutes apart.';
+
+  @override
+  String get toastSetTimeIsExist => 'This time period has already been set.';
+
+  @override
+  String get hintSelectTime => 'Please select a time.';
 
   @override
   String get toastSceneNameIsExist => 'ชื่อฉากนี้มีอยู่แล้ว';
@@ -1363,6 +1398,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sinkDeleteMessage => 'Are you sure you want to delete this sink?';
 
   @override
+  String get sinkEditSuccess => 'Sink updated.';
+
+  @override
+  String get sinkDeleteSuccess => 'Sink deleted.';
+
+  @override
   String sinkDeviceCount(int count) {
     return '$count devices';
   }
@@ -1498,10 +1539,42 @@ class AppLocalizationsTh extends AppLocalizations {
   String get dosingCalibrationAdjustListTitle => 'Adjustment List';
 
   @override
-  String get dosingResetDevice => 'Reset Device';
+  String get dosingResetDevice => 'เรียกคืนการตั้งค่าเริ่มต้น';
 
   @override
-  String get dosingResetDeviceSuccess => 'Device reset successfully';
+  String get dosingResetDeviceSuccess =>
+      'เรียกคืนการตั้งค่าเริ่มต้นเรียบร้อยแล้ว';
+
+  @override
+  String get dosingResetDeviceFailed =>
+      'ไม่สามารถเรียกคืนการตั้งค่าเริ่มต้นได้';
+
+  @override
+  String get dosingResetDeviceConfirm =>
+      'อุปกรณ์นี้จะกลายเป็นอุปกรณ์ที่ไม่ได้จัดสรรและลบการตั้งค่าหัวปั๊มและบันทึกการสอบเทียบทั้งหมดในปัจจุบัน';
+
+  @override
+  String get dosingDeleteDeviceConfirm => 'คุณต้องการลบปั๊มการให้ยานี้หรือไม่?';
+
+  @override
+  String get dosingDeleteDeviceSuccess => 'ลบอุปกรณ์เรียบร้อยแล้ว';
+
+  @override
+  String get dosingTodayDropOutOfRangeTitle => 'ปริมาณการให้ยาสูงสุดรายวัน';
+
+  @override
+  String get dosingTodayDropOutOfRangeContent =>
+      'ปริมาณการให้ยาวันนี้เกินจากปริมาณการให้ยาสูงสุดต่อวัน';
+
+  @override
+  String get dosingDropHeadIsDropping =>
+      'หัวปั้มนี้กำลังใช้งานอยู่ โปรดลองอีกครั้งในภายหลัง';
+
+  @override
+  String get dosingDeleteDeviceFailed => 'ไม่สามารถลบอุปกรณ์ได้';
+
+  @override
+  String get actionReset => 'เรียกคืน';
 
   @override
   String get dosingNoPumpHeads => 'No pump heads';
@@ -1510,7 +1583,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get dosingHistorySubtitle => 'History';
 
   @override
-  String get dosingAdjustListTitle => 'Adjustment List';
+  String get dosingAdjustListTitle => 'Calibration Log';
 
   @override
   String get dosingAdjustListStartAdjust => 'Start Adjustment';
@@ -1539,6 +1612,32 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get delayTimeRequiresConnection =>
       'Connection required for delay time';
+
+  @override
+  String get delay15Sec => '15 sec';
+
+  @override
+  String get delay30Sec => '30 sec';
+
+  @override
+  String get delay1Min => '1 min';
+
+  @override
+  String get delay2Min => '2 min';
+
+  @override
+  String get delay3Min => '3 min';
+
+  @override
+  String get delay4Min => '4 min';
+
+  @override
+  String get delay5Min => '5 min';
+
+  @override
+  String delaySecondsFallback(int seconds) {
+    return '$seconds วินาที';
+  }
 
   @override
   String get sinkPositionFeatureComingSoon => 'Coming soon';
@@ -1621,6 +1720,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get led => 'LED';
 
   @override
+  String get drop => 'ปั๊มวัด';
+
+  @override
   String get masterSlave => 'Master/Slave';
 
   @override
@@ -1661,13 +1763,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get dosingDropVolume => 'Drop Volume';
 
   @override
-  String get dosingAdjustVolumeHint => 'Enter actual drop volume';
+  String get dosingAdjustVolumeHint => '1 ~ 15; one decimal place';
 
   @override
   String get dosingCompleteAdjust => 'Complete Calibration';
 
   @override
-  String get dosingAdjusting => 'Calibrating';
+  String get dosingAdjusting => 'Calibrating...';
 
   @override
   String get dosingAdjustVolumeEmpty => 'Drop volume cannot be empty';
@@ -1811,7 +1913,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pumpHeadRecordSettingsTitle => 'Schedule Settings';
 
   @override
-  String get pumpHeadRecordTimeSettingsTitle => 'Time Setting';
+  String get pumpHeadRecordTimeSettingsTitle => 'Period Settings';
 
   @override
   String get pumpHeadAdjustListTitle => 'Adjust List';
@@ -1879,4 +1981,82 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get sinkEmptyMessage =>
       'Tap the add button at the bottom right to add a tank.';
+
+  @override
+  String get bottomSheetAddSinkTitle => 'Add Tank';
+
+  @override
+  String get bottomSheetAddSinkFieldTitle => 'Tank Name';
+
+  @override
+  String get bottomSheetEditSinkTitle => 'Tank Settings';
+
+  @override
+  String get bottomSheetEditSinkFieldTitle => 'Tank Name';
+
+  @override
+  String get bottomSheetAddDropTypeTitle => 'Add Custom Dosing';
+
+  @override
+  String get bottomSheetAddDropTypeFieldTitle => 'Dosing Name';
+
+  @override
+  String get bottomSheetEditDropTypeTitle => 'Edit Custom Dosing';
+
+  @override
+  String get bottomSheetEditDropTypeFieldTitle => 'Dosing Name';
+
+  @override
+  String get dosingVolumeRangeHint => '1 ~ 500';
+
+  @override
+  String get dropRecordTypeNone => 'No Scheduled Tasks';
+
+  @override
+  String get dosingAdjustDateTitle => 'Calibration Date';
+
+  @override
+  String get dosingAdjustVolumeTitle => 'Measured Volume';
+
+  @override
+  String get groupPlaceholder => 'Group A';
+
+  @override
+  String get ledChartPlaceholder => 'Chart Placeholder';
+
+  @override
+  String get ledSpectrumChartPlaceholder => 'Spectrum Chart Placeholder';
+
+  @override
+  String get ledTimePlaceholder => '07:27';
+
+  @override
+  String get dosingRecordTimePlaceholder => '08:00';
+
+  @override
+  String get dosingRecordEndTimePlaceholder => '10:00';
+
+  @override
+  String get dosingRecordDetailPlaceholder => '50 ml / 5 times';
+
+  @override
+  String get dosingTypeNamePlaceholder => 'Type A';
+
+  @override
+  String get dosingTypeNamePlaceholderB => 'Type B';
+
+  @override
+  String get dosingTypeNamePlaceholderC => 'Type C';
+
+  @override
+  String get dosingRecordTimeRangePlaceholder => '2022-10-14 ~ 2022-10-31';
+
+  @override
+  String get dosingRecordTimePointPlaceholder => '2022-10-14 10:20:13';
+
+  @override
+  String get dosingAdjustDatePlaceholder => '2024-01-01 12:00:00';
+
+  @override
+  String get dosingAdjustVolumePlaceholder => '10.0 ml';
 }

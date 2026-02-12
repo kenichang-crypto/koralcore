@@ -33,7 +33,7 @@ class _LedRecordTimeSettingView extends StatelessWidget {
         Column(
           children: [
             // A. Toolbar (fixed) ↔ toolbar_two_action.xml
-            _ToolbarTwoAction(l10n: l10n),
+            _ToolbarTwoAction(l10n: l10n, controller: controller),
 
             // B. ScrollView content (scrollable) ↔ layout_led_record_time_setting
             Expanded(
@@ -46,13 +46,13 @@ class _LedRecordTimeSettingView extends StatelessWidget {
                 ),
                 children: [
                   // B1. Time selection section
-                  _TimeSelectionSection(l10n: l10n),
+                  _TimeSelectionSection(l10n: l10n, controller: controller),
                   const SizedBox(height: 24), // marginTop before chart
                   // B2. Spectrum chart section
                   _SpectrumChartSection(l10n: l10n),
                   const SizedBox(height: 24), // marginTop before sliders
                   // B3. Channel sliders (9 channels)
-                  _ChannelSlidersSection(l10n: l10n),
+                  _ChannelSlidersSection(l10n: l10n, controller: controller),
                 ],
               ),
             ),
@@ -71,9 +71,13 @@ class _LedRecordTimeSettingView extends StatelessWidget {
 // ────────────────────────────────────────────────────────────────────────────
 
 class _ToolbarTwoAction extends StatelessWidget {
-  const _ToolbarTwoAction({required this.l10n});
+  const _ToolbarTwoAction({
+    required this.l10n,
+    required this.controller,
+  });
 
   final AppLocalizations l10n;
+  final LedRecordTimeSettingController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -85,9 +89,14 @@ class _ToolbarTwoAction extends StatelessWidget {
           height: 56,
           child: Row(
             children: [
-              // Left: Cancel (text button, no behavior)
+              // Left: Cancel (PARITY: clickBtnBack → bleExitDimmingMode → finish)
               TextButton(
-                onPressed: null, // No behavior in Correction Mode
+                onPressed: controller.isLoading
+                    ? null
+                    : () async {
+                        await controller.exitDimmingMode();
+                        if (context.mounted) Navigator.of(context).pop();
+                      },
                 child: Text(
                   l10n.actionCancel,
                   style: AppTextStyles.body.copyWith(
@@ -97,7 +106,6 @@ class _ToolbarTwoAction extends StatelessWidget {
               ),
               const Spacer(),
               // Center: Title (activity_led_record_time_setting_title → @string/record_time)
-              // TODO(android @string/record_time → "Scheduled Time Point")
               Text(
                 l10n.ledRecordTimeSettingTitle,
                 style: AppTextStyles.headline.copyWith(
@@ -105,9 +113,39 @@ class _ToolbarTwoAction extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              // Right: Save (text button, no behavior)
+              // Right: Save (PARITY: clickBtnRight → bleSetRecord)
               TextButton(
-                onPressed: null, // No behavior in Correction Mode
+                onPressed: controller.isLoading
+                    ? null
+                    : () async {
+                        final record = await controller.saveRecord(
+                          onTimeError: () {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(l10n.toastSetTimeError)),
+                              );
+                            }
+                          },
+                          onTimeExists: () {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(l10n.toastSetTimeIsExist)),
+                              );
+                            }
+                          },
+                        );
+                        if (!context.mounted) return;
+                        if (record != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(l10n.toastSettingSuccessful)),
+                          );
+                          Navigator.of(context).pop();
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(l10n.toastSettingFailed)),
+                          );
+                        }
+                      },
                 child: Text(
                   l10n.actionSave,
                   style: AppTextStyles.body.copyWith(
@@ -130,9 +168,13 @@ class _ToolbarTwoAction extends StatelessWidget {
 // ────────────────────────────────────────────────────────────────────────────
 
 class _TimeSelectionSection extends StatelessWidget {
-  const _TimeSelectionSection({required this.l10n});
+  const _TimeSelectionSection({
+    required this.l10n,
+    required this.controller,
+  });
 
   final AppLocalizations l10n;
+  final LedRecordTimeSettingController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -147,9 +189,28 @@ class _TimeSelectionSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4), // marginTop: dp_4
-        // MaterialButton (BackgroundMaterialButton style)
+        // MaterialButton (PARITY: btnTime → MaterialTimePicker)
         MaterialButton(
-          onPressed: null, // No behavior in Correction Mode
+          onPressed: () async {
+            final time = await showTimePicker(
+              context: context,
+              initialTime: TimeOfDay(
+                hour: controller.timeHour,
+                minute: controller.timeMinute,
+              ),
+              builder: (context, child) {
+                return MediaQuery(
+                  data: MediaQuery.of(context).copyWith(
+                    alwaysUse24HourFormat: true,
+                  ),
+                  child: child!,
+                );
+              },
+            );
+            if (time != null) {
+              controller.setTime(time.hour, time.minute);
+            }
+          },
           color: AppColors.surfaceMuted, // bg_aaa
           textColor: AppColors.textPrimary,
           elevation: 0,
@@ -158,14 +219,12 @@ class _TimeSelectionSection extends StatelessWidget {
           child: Row(
             children: [
               Text(
-                '05 : 00', // Placeholder time from XML
+                controller.timeLabel,
                 style: AppTextStyles.body.copyWith(
                   color: AppColors.textPrimary,
                 ),
               ),
               const Spacer(),
-              // ic_down icon (24x24dp)
-              // TODO(android @drawable/ic_down)
               CommonIconHelper.getDownIcon(size: 24),
             ],
           ),
@@ -199,7 +258,7 @@ class _SpectrumChartSection extends StatelessWidget {
           ),
           child: Center(
             child: Text(
-              'Spectrum Chart Placeholder',
+              l10n.ledSpectrumChartPlaceholder,
               style: AppTextStyles.body.copyWith(color: AppColors.textTertiary),
             ),
           ),
@@ -214,13 +273,17 @@ class _SpectrumChartSection extends StatelessWidget {
 // ────────────────────────────────────────────────────────────────────────────
 
 class _ChannelSlidersSection extends StatelessWidget {
-  const _ChannelSlidersSection({required this.l10n});
+  const _ChannelSlidersSection({
+    required this.l10n,
+    required this.controller,
+  });
 
   final AppLocalizations l10n;
+  final LedRecordTimeSettingController controller;
 
   @override
   Widget build(BuildContext context) {
-    // Channel order from Android XML
+    // Channel order from Android XML (PARITY: slUvLight, slPurpleLight, etc.)
     final channels = [
       _ChannelInfo('uv', l10n.lightUv, AppColors.ultraviolet),
       _ChannelInfo('purple', l10n.lightPurple, AppColors.purple),
@@ -240,6 +303,7 @@ class _ChannelSlidersSection extends StatelessWidget {
               channelId: channel.id,
               label: channel.label,
               trackColor: channel.color,
+              controller: controller,
             ),
           )
           .toList(),
@@ -260,14 +324,17 @@ class _ChannelSlider extends StatelessWidget {
     required this.channelId,
     required this.label,
     required this.trackColor,
+    required this.controller,
   });
 
   final String channelId;
   final String label;
   final Color trackColor;
+  final LedRecordTimeSettingController controller;
 
   @override
   Widget build(BuildContext context) {
+    final value = controller.getChannelLevel(channelId).toDouble();
     return Padding(
       padding: const EdgeInsets.only(
         bottom: 0,
@@ -292,11 +359,11 @@ class _ChannelSlider extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 4), // marginStart: dp_4
-                // Value text (caption1, text_aaa)
+                // Value text (caption1, text_aaa) PARITY: binding.tvUvLight etc
                 Padding(
                   padding: const EdgeInsets.only(right: 6), // marginEnd: dp_6
                   child: Text(
-                    '0', // Placeholder value
+                    '${controller.getChannelLevel(channelId)}',
                     style: AppTextStyles.caption1.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -305,7 +372,7 @@ class _ChannelSlider extends StatelessWidget {
               ],
             ),
           ),
-          // Slider
+          // Slider (PARITY: slUvLight.addOnChangeListener etc)
           SliderTheme(
             data: SliderThemeData(
               activeTrackColor: trackColor,
@@ -316,10 +383,10 @@ class _ChannelSlider extends StatelessWidget {
               overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
             ),
             child: Slider(
-              value: 0, // Placeholder value
+              value: value,
               min: 0,
               max: 100,
-              onChanged: null, // No behavior in Correction Mode
+              onChanged: (v) => controller.setChannelLevel(channelId, v.round()),
             ),
           ),
         ],

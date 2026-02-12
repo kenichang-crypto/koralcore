@@ -8,8 +8,13 @@ import '../../../../shared/assets/common_icon_helper.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_text_styles.dart';
+import '../controllers/led_scene_edit_controller.dart';
 import '../controllers/led_scene_list_controller.dart';
+import '../helpers/support/scene_icon_helper.dart';
 import '../models/led_scene_summary.dart';
+import 'led_scene_add_page.dart';
+import 'led_scene_delete_page.dart';
+import 'led_scene_edit_page.dart';
 
 /// LedScenePage
 ///
@@ -68,23 +73,84 @@ class _LedSceneView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _ToolbarTwoAction(
-                  title: l10n.ledScene, // @string/led_scene
-                  // toolbar_two_action.xml 的 btn_left/btn_right 由 Activity 控制顯示
-                  // UI parity only: 僅保留結構，不接行為。
-                  //
-                  // TODO(android @string/menu_delete): Android 可能顯示「刪除」動作
+                  title: l10n.ledScene,
                   leftText: l10n.actionDelete,
-                  // TODO(android @string/led_scene_add): Android 新增場景行為；此處僅結構占位
                   rightText: l10n.actionAdd,
+                  controller: controller,
+                  onBack: () => Navigator.of(context).pop(),
+                  onLeft: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => LedSceneDeletePage(
+                        listController: controller,
+                      ),
+                    ),
+                  ).then((_) {
+                    if (context.mounted) controller.refresh();
+                  }),
+                  onRight: () {
+                    if (controller.staticScenes.length >= 5) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.ledSceneLimitReached)),
+                      );
+                      return;
+                    }
+                    final appContext = context.read<AppContext>();
+                    final session = context.read<AppSession>();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (ctx) => ChangeNotifierProvider(
+                          create: (_) => LedSceneEditController(
+                            session: session,
+                            addSceneUseCase: appContext.addSceneUseCase,
+                            updateSceneUseCase: appContext.updateSceneUseCase,
+                            enterDimmingModeUseCase: appContext.enterDimmingModeUseCase,
+                            exitDimmingModeUseCase: appContext.exitDimmingModeUseCase,
+                            setChannelIntensityUseCase: appContext.setChannelIntensityUseCase,
+                            applySceneUseCase: appContext.applySceneUseCase,
+                          ),
+                          child: const LedSceneAddPage(),
+                        ),
+                      ),
+                    ).then((_) {
+                      if (context.mounted) controller.refresh();
+                    });
+                  },
                 ),
                 Expanded(
                   child: _SceneList(
-                    dynamicTitle:
-                        l10n.ledDynamicScene, // @string/led_dynamic_scene
-                    staticTitle:
-                        l10n.ledStaticScene, // @string/led_static_scene
+                    dynamicTitle: l10n.ledDynamicScene,
+                    staticTitle: l10n.ledStaticScene,
                     dynamicScenes: controller.dynamicScenes,
                     staticScenes: controller.staticScenes,
+                    controller: controller,
+                    onAddScene: () {
+                      if (controller.staticScenes.length >= 5) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.ledSceneLimitReached)),
+                        );
+                        return;
+                      }
+                      final appContext = context.read<AppContext>();
+                      final session = context.read<AppSession>();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ChangeNotifierProvider(
+                            create: (_) => LedSceneEditController(
+                              session: session,
+                              addSceneUseCase: appContext.addSceneUseCase,
+                              updateSceneUseCase: appContext.updateSceneUseCase,
+                              enterDimmingModeUseCase: appContext.enterDimmingModeUseCase,
+                              exitDimmingModeUseCase: appContext.exitDimmingModeUseCase,
+                              setChannelIntensityUseCase: appContext.setChannelIntensityUseCase,
+                              applySceneUseCase: appContext.applySceneUseCase,
+                            ),
+                            child: const LedSceneAddPage(),
+                          ),
+                        ),
+                      ).then((_) {
+                        if (context.mounted) controller.refresh();
+                      });
+                    },
                   ),
                 ),
               ],
@@ -97,20 +163,29 @@ class _LedSceneView extends StatelessWidget {
   }
 }
 
-/// Toolbar – mirrors `toolbar_two_action.xml` (white background + 2dp divider).
+/// Toolbar – mirrors `toolbar_two_action.xml` (PARITY: btnBack, btnEdit, btnAddScene).
 class _ToolbarTwoAction extends StatelessWidget {
   final String title;
   final String leftText;
   final String rightText;
+  final LedSceneListController controller;
+  final VoidCallback onBack;
+  final VoidCallback onLeft;
+  final VoidCallback onRight;
 
   const _ToolbarTwoAction({
     required this.title,
     required this.leftText,
     required this.rightText,
+    required this.controller,
+    required this.onBack,
+    required this.onLeft,
+    required this.onRight,
   });
 
   @override
   Widget build(BuildContext context) {
+    final enabled = !controller.isLoading && !controller.isBusy;
     return Material(
       color: AppColors.surface,
       child: Column(
@@ -120,21 +195,23 @@ class _ToolbarTwoAction extends StatelessWidget {
             width: double.infinity,
             child: Row(
               children: [
-                // Left: back icon area exists in toolbar_two_action.xml (btn_back 56x44)
-                SizedBox(
-                  width: 56,
-                  height: 44,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                    child: CommonIconHelper.getBackIcon(
-                      size: 24,
-                      color: AppColors.textPrimary,
+                GestureDetector(
+                  onTap: onBack,
+                  behavior: HitTestBehavior.opaque,
+                  child: SizedBox(
+                    width: 56,
+                    height: 44,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      child: CommonIconHelper.getBackIcon(
+                        size: 24,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                   ),
                 ),
-                // Left text action (btn_left) placeholder
                 TextButton(
-                  onPressed: null,
+                  onPressed: enabled ? onLeft : null,
                   child: Text(
                     leftText,
                     style: AppTextStyles.bodyAccent.copyWith(
@@ -154,11 +231,10 @@ class _ToolbarTwoAction extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                // Right text action (btn_right) placeholder
                 Padding(
                   padding: const EdgeInsets.only(right: 16),
                   child: TextButton(
-                    onPressed: null,
+                    onPressed: enabled ? onRight : null,
                     child: Text(
                       rightText,
                       style: AppTextStyles.bodyAccent.copyWith(
@@ -186,17 +262,20 @@ class _SceneList extends StatelessWidget {
   final String staticTitle;
   final List<LedSceneSummary> dynamicScenes;
   final List<LedSceneSummary> staticScenes;
+  final LedSceneListController controller;
+  final VoidCallback onAddScene;
 
   const _SceneList({
     required this.dynamicTitle,
     required this.staticTitle,
     required this.dynamicScenes,
     required this.staticScenes,
+    required this.controller,
+    required this.onAddScene,
   });
 
   @override
   Widget build(BuildContext context) {
-    // PARITY: layout_led_scene paddingStart/Top/End/Bottom = 16/14/16/14dp
     final items = <_SceneListItem>[
       _SceneListItem.sectionTitle(dynamicTitle),
       for (final s in dynamicScenes) _SceneListItem.scene(s),
@@ -213,9 +292,9 @@ class _SceneList extends StatelessWidget {
           return _SectionTitle(text: item.text!);
         }
         if (item.kind == _SceneListItemKind.sectionHeaderWithAdd) {
-          return _StaticHeaderWithAdd(text: item.text!);
+          return _StaticHeaderWithAdd(text: item.text!, onAdd: onAddScene);
         }
-        return _SceneTile(scene: item.scene!);
+        return _SceneTile(scene: item.scene!, controller: controller);
       },
     );
   }
@@ -258,12 +337,12 @@ class _SectionTitle extends StatelessWidget {
 
 class _StaticHeaderWithAdd extends StatelessWidget {
   final String text;
+  final VoidCallback onAdd;
 
-  const _StaticHeaderWithAdd({required this.text});
+  const _StaticHeaderWithAdd({required this.text, required this.onAdd});
 
   @override
   Widget build(BuildContext context) {
-    // PARITY: tv_static_scene + btn_add_scene (ic_add_btn, 24x24)
     return Padding(
       padding: const EdgeInsets.only(top: 24),
       child: Row(
@@ -279,10 +358,13 @@ class _StaticHeaderWithAdd extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          // TODO(android @drawable/ic_add_btn): 若資源尚未移入，需補齊；此處僅結構占位
-          CommonIconHelper.getAddRoundedIcon(
-            size: 24,
-            color: AppColors.textPrimary,
+          GestureDetector(
+            onTap: onAdd,
+            behavior: HitTestBehavior.opaque,
+            child: CommonIconHelper.getAddRoundedIcon(
+              size: 24,
+              color: AppColors.textPrimary,
+            ),
           ),
         ],
       ),
@@ -290,63 +372,96 @@ class _StaticHeaderWithAdd extends StatelessWidget {
   }
 }
 
-/// Scene tile – mirrors `adapter_scene.xml` (icon + name + play + favorite).
+/// Scene tile – mirrors `adapter_scene.xml` (PARITY: onClickScene, onClickPlayScene, onClickFavoriteScene).
 class _SceneTile extends StatelessWidget {
   final LedSceneSummary scene;
+  final LedSceneListController controller;
 
-  const _SceneTile({required this.scene});
+  const _SceneTile({required this.scene, required this.controller});
 
   @override
   Widget build(BuildContext context) {
-    // adapter_scene.xml:
-    // - MaterialCardView: marginTop 8dp, bg_aaa, corner 8dp, elevation 0
-    // - Padding: start 8, top 6, end 12, bottom 6
-    // - img_icon 24dp, tv_name body, btn_play 20dp, btn_favorite 20dp
+    final enabled = !controller.isLoading && !controller.isBusy;
     return Card(
       margin: const EdgeInsets.only(top: 8),
-      color: AppColors.surfaceMuted, // bg_aaa
+      color: AppColors.surfaceMuted,
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 6, 12, 6),
-        child: Row(
-          children: [
-            // img_icon (24dp)
-            // TODO(android @id/img_icon): Android uses scene icon drawable (e.g. ic_sunrise). Repo 內未完整映射。
-            SizedBox(
-              width: 24,
-              height: 24,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(AppRadius.xs),
+      child: InkWell(
+        onTap: enabled
+            ? () {
+                final appContext = context.read<AppContext>();
+                final session = context.read<AppSession>();
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => ChangeNotifierProvider(
+                      create: (_) => LedSceneEditController(
+                        session: session,
+                        addSceneUseCase: appContext.addSceneUseCase,
+                        updateSceneUseCase: appContext.updateSceneUseCase,
+                        enterDimmingModeUseCase: appContext.enterDimmingModeUseCase,
+                        exitDimmingModeUseCase: appContext.exitDimmingModeUseCase,
+                        setChannelIntensityUseCase: appContext.setChannelIntensityUseCase,
+                        applySceneUseCase: appContext.applySceneUseCase,
+                        initialSceneId: SceneIconHelper.parseLocalSceneId(scene.id),
+                        initialName: scene.name,
+                        initialChannelLevels: Map.from(scene.channelLevels),
+                        initialIconId: SceneIconHelper.iconKeyToId(scene.iconKey),
+                      ),
+                      child: LedSceneEditPage(sceneId: scene.id),
+                    ),
+                  ),
+                ).then((_) {
+                  if (context.mounted) controller.refresh();
+                });
+              }
+            : null,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 6, 12, 6),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(AppRadius.xs),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                scene.name,
-                style: AppTextStyles.body.copyWith(
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  scene.name,
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: enabled ? () => controller.applyScene(scene.id) : null,
+                behavior: HitTestBehavior.opaque,
+                child: CommonIconHelper.getPlayUnselectIcon(
+                  size: 20,
                   color: AppColors.textPrimary,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            const SizedBox(width: 8),
-            // btn_play (ic_play_unselect, 20dp)
-            CommonIconHelper.getPlayUnselectIcon(
-              size: 20,
-              color: AppColors.textPrimary,
-            ),
-            const SizedBox(width: 8),
-            // btn_favorite (ic_favorite_unselect, 20dp)
-            CommonIconHelper.getFavoriteUnselectIcon(
-              size: 20,
-              color: AppColors.textPrimary,
-            ),
-          ],
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: enabled ? () => controller.toggleFavoriteScene(scene.id) : null,
+                behavior: HitTestBehavior.opaque,
+                child: CommonIconHelper.getFavoriteUnselectIcon(
+                  size: 20,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

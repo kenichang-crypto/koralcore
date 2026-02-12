@@ -198,22 +198,6 @@ class PumpHeadSettingsController extends ChangeNotifier {
     return normalized.codeUnitAt(0) - 65; // A=0, B=1, C=2, D=3
   }
 
-  /// Get formatted rotating speed string
-  ///
-  /// PARITY: DropHeadSettingActivity.setObserver() rotatingSpeedLiveData (Line 173-187)
-  String getRotatingSpeedText() {
-    switch (_rotatingSpeed) {
-      case 1:
-        return '低速'; // TODO(l10n): Use l10n.lowRotatingSpeed
-      case 2:
-        return '中速'; // TODO(l10n): Use l10n.middleRotatingSpeed
-      case 3:
-        return '高速'; // TODO(l10n): Use l10n.highRotatingSpeed
-      default:
-        return '中速';
-    }
-  }
-
   /// Get available rotating speed options
   static List<int> getRotatingSpeedOptions() {
     return [1, 2, 3]; // 低速, 中速, 高速

@@ -1,0 +1,48 @@
+--- a/lib/app/common/app_session.dart
++++ b/lib/app/common/app_session.dart
+@@ -140,6 +140,16 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
+ 
+   void _onSavedDevices(List<DeviceSnapshot> devices) {
+     _savedDevices = devices;
++    // KC-A-FINAL: When active device is deleted, clear session.
++    // Covers case where user setActiveDevice(id) then deletes from Device tab.
++    if (_activeDeviceId != null &&
++        !devices.any((d) => d.id == _activeDeviceId)) {
++      _activeDeviceId = null;
++      _activeDeviceName = null;
++      context.currentDeviceSession.clear();
++      _resubscribePumpHeads(null);
++      _resubscribeLedState(null);
++    }
+     notifyListeners();
+   }
+ 
+--- a/lib/app/device/remove_device_usecase.dart
++++ b/lib/app/device/remove_device_usecase.dart
+@@ -48,7 +48,8 @@ class RemoveDeviceUseCase {
+     final String? currentDeviceId = await deviceRepository.getCurrentDevice();
+     await deviceRepository.removeDevice(deviceId);
+ 
+-    if (currentDeviceId == deviceId) {
++    if (currentDeviceId == deviceId ||
++        currentDeviceSession.context?.deviceId == deviceId) {
+       currentDeviceSession.clear();
+     }
+ 
+--- a/lib/app/main_shell_page.dart
++++ b/lib/app/main_shell_page.dart
+@@ -65,7 +65,15 @@ class MainShellPage extends StatelessWidget {
+       bottomNavigationBar: BottomNavigationBar(
+         currentIndex: controller.index,
+-        onTap: context.read<NavigationController>().select,
++        onTap: (index) {
++          final nav = context.read<NavigationController>();
++          final prevIndex = nav.index;
++          nav.select(index);
++          if (prevIndex == 2 && index != 2) {
++            context.read<DeviceListController>().exitSelectionMode();
++          }
++        },
+         type: BottomNavigationBarType.fixed,
+         items: [
+           for (final item in items)

@@ -190,7 +190,7 @@ abstract class AppLocalizations {
   /// No description provided for @bleDisconnectedWarning.
   ///
   /// In en, this message translates to:
-  /// **'Connect via Bluetooth to continue.'**
+  /// **'Please enable Bluetooth.'**
   String get bleDisconnectedWarning;
 
   /// No description provided for @bleGuardDialogTitle.
@@ -202,13 +202,13 @@ abstract class AppLocalizations {
   /// No description provided for @bleGuardDialogMessage.
   ///
   /// In en, this message translates to:
-  /// **'Connect to a device to access this feature.'**
+  /// **'Please enable Bluetooth.'**
   String get bleGuardDialogMessage;
 
   /// No description provided for @bleGuardDialogButton.
   ///
   /// In en, this message translates to:
-  /// **'Got it'**
+  /// **'I understood'**
   String get bleGuardDialogButton;
 
   /// No description provided for @bleOnboardingPermissionTitle.
@@ -742,7 +742,7 @@ abstract class AppLocalizations {
   /// No description provided for @dosingManualDoseInputHint.
   ///
   /// In en, this message translates to:
-  /// **'Enter the amount in milliliters.'**
+  /// **'Please enter the dosing volume.'**
   String get dosingManualDoseInputHint;
 
   /// No description provided for @dosingManualConfirmTitle.
@@ -760,7 +760,7 @@ abstract class AppLocalizations {
   /// No description provided for @dosingManualInvalidDose.
   ///
   /// In en, this message translates to:
-  /// **'Enter a dose greater than zero.'**
+  /// **'Each dosing volume cannot be less than 1ml.'**
   String get dosingManualInvalidDose;
 
   /// No description provided for @ledHeader.
@@ -892,7 +892,7 @@ abstract class AppLocalizations {
   /// No description provided for @ledScheduleEditInvalidName.
   ///
   /// In en, this message translates to:
-  /// **'Enter a schedule name.'**
+  /// **'Name cannot be empty.'**
   String get ledScheduleEditInvalidName;
 
   /// No description provided for @ledScheduleEditTypeLabel.
@@ -952,7 +952,7 @@ abstract class AppLocalizations {
   /// No description provided for @ledScheduleEditSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Lighting schedule saved.'**
+  /// **'Settings successful.'**
   String get ledScheduleEditSuccess;
 
   /// No description provided for @ledScheduleEditInvalidWindow.
@@ -1030,13 +1030,13 @@ abstract class AppLocalizations {
   /// No description provided for @errorDeviceBusy.
   ///
   /// In en, this message translates to:
-  /// **'Device is busy. Try again shortly.'**
+  /// **'This pump head is currently dosing, please try again later.'**
   String get errorDeviceBusy;
 
   /// No description provided for @errorNoDevice.
   ///
   /// In en, this message translates to:
-  /// **'No active device.'**
+  /// **'Device not connected'**
   String get errorNoDevice;
 
   /// No description provided for @errorNotSupported.
@@ -1096,13 +1096,13 @@ abstract class AppLocalizations {
   /// No description provided for @snackbarDeviceRemoved.
   ///
   /// In en, this message translates to:
-  /// **'Devices removed.'**
+  /// **'Successfully deleted device.'**
   String get snackbarDeviceRemoved;
 
   /// No description provided for @snackbarDeviceConnected.
   ///
   /// In en, this message translates to:
-  /// **'Device connected.'**
+  /// **'Connection successful.'**
   String get snackbarDeviceConnected;
 
   /// No description provided for @snackbarDeviceDisconnected.
@@ -1174,7 +1174,7 @@ abstract class AppLocalizations {
   /// No description provided for @dosingPumpHeadManualDoseSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Manual dose sent.'**
+  /// **'Settings successful.'**
   String get dosingPumpHeadManualDoseSuccess;
 
   /// No description provided for @dosingPumpHeadTimedDose.
@@ -1186,7 +1186,7 @@ abstract class AppLocalizations {
   /// No description provided for @dosingPumpHeadTimedDoseSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Timed dose scheduled.'**
+  /// **'Settings successful.'**
   String get dosingPumpHeadTimedDoseSuccess;
 
   /// No description provided for @dosingPumpHeadCalibrate.
@@ -1198,7 +1198,7 @@ abstract class AppLocalizations {
   /// No description provided for @dosingPumpHeadPlaceholder.
   ///
   /// In en, this message translates to:
-  /// **'No dosing data yet.'**
+  /// **'No scheduled tasks'**
   String get dosingPumpHeadPlaceholder;
 
   /// No description provided for @dosingScheduleOverviewTitle.
@@ -1240,7 +1240,7 @@ abstract class AppLocalizations {
   /// No description provided for @dosingTodayTotalEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No dosing data yet.'**
+  /// **'No scheduled tasks'**
   String get dosingTodayTotalEmpty;
 
   /// No description provided for @dosingScheduleSummaryTitle.
@@ -1282,7 +1282,7 @@ abstract class AppLocalizations {
   /// No description provided for @dosingScheduleApplyDailyAverageSuccess.
   ///
   /// In en, this message translates to:
-  /// **'24h average schedule sent.'**
+  /// **'Settings successful.'**
   String get dosingScheduleApplyDailyAverageSuccess;
 
   /// No description provided for @dosingScheduleApplyCustomWindow.
@@ -1294,7 +1294,7 @@ abstract class AppLocalizations {
   /// No description provided for @dosingScheduleApplyCustomWindowSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Custom window schedule sent.'**
+  /// **'Settings successful.'**
   String get dosingScheduleApplyCustomWindowSuccess;
 
   /// No description provided for @dosingScheduleViewButton.
@@ -1306,7 +1306,7 @@ abstract class AppLocalizations {
   /// No description provided for @dosingScheduleEmptyTitle.
   ///
   /// In en, this message translates to:
-  /// **'No schedule configured'**
+  /// **'No scheduled tasks'**
   String get dosingScheduleEmptyTitle;
 
   /// No description provided for @dosingScheduleEmptySubtitle.
@@ -1786,7 +1786,7 @@ abstract class AppLocalizations {
   /// No description provided for @dosingPumpHeadSettingsNameEmpty.
   ///
   /// In en, this message translates to:
-  /// **'Name can\'t be empty.'**
+  /// **'Name cannot be empty.'**
   String get dosingPumpHeadSettingsNameEmpty;
 
   /// No description provided for @dosingPumpHeadSettingsTankLabel.
@@ -1834,7 +1834,7 @@ abstract class AppLocalizations {
   /// No description provided for @dosingPumpHeadSettingsUnsavedStay.
   ///
   /// In en, this message translates to:
-  /// **'Keep editing'**
+  /// **'Cancel'**
   String get dosingPumpHeadSettingsUnsavedStay;
 
   /// No description provided for @dosingPumpHeadSettingsSave.
@@ -1864,8 +1864,20 @@ abstract class AppLocalizations {
   /// No description provided for @dosingScheduleStatusDisabled.
   ///
   /// In en, this message translates to:
-  /// **'Paused'**
+  /// **'The schedule is paused.'**
   String get dosingScheduleStatusDisabled;
+
+  /// No description provided for @dosingScheduleDeleteConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this schedule?'**
+  String get dosingScheduleDeleteConfirmMessage;
+
+  /// No description provided for @dosingScheduleDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule deleted.'**
+  String get dosingScheduleDeleted;
 
   /// Label shown next to an LED scene when it is enabled.
   ///
@@ -2071,6 +2083,18 @@ abstract class AppLocalizations {
   /// **'Settings saved'**
   String get deviceSettingsSaved;
 
+  /// No description provided for @deviceSettingsDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove this device?'**
+  String get deviceSettingsDeleteConfirm;
+
+  /// No description provided for @deviceSettingsDeleteDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Device'**
+  String get deviceSettingsDeleteDevice;
+
   /// No description provided for @deviceActionEdit.
   ///
   /// In en, this message translates to:
@@ -2130,6 +2154,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Master-Slave Pairing'**
   String get ledMasterSettingTitle;
+
+  /// No description provided for @ledSetMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Set as Master Light'**
+  String get ledSetMaster;
+
+  /// No description provided for @ledMoveGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Move Group'**
+  String get ledMoveGroup;
+
+  /// No description provided for @ledMasterSettingMenuPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Requires device and sink configuration.'**
+  String get ledMasterSettingMenuPlaceholder;
 
   /// No description provided for @ledRecordTimeSettingTimeLabel.
   ///
@@ -2256,6 +2298,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings successful.'**
   String get toastSettingSuccessful;
+
+  /// No description provided for @toastSettingFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings failed.'**
+  String get toastSettingFailed;
+
+  /// No description provided for @toastSetTimeError.
+  ///
+  /// In en, this message translates to:
+  /// **'Time points must be at least 10 minutes apart.'**
+  String get toastSetTimeError;
+
+  /// No description provided for @toastSetTimeIsExist.
+  ///
+  /// In en, this message translates to:
+  /// **'This time period has already been set.'**
+  String get toastSetTimeIsExist;
+
+  /// No description provided for @hintSelectTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a time.'**
+  String get hintSelectTime;
 
   /// No description provided for @toastSceneNameIsExist.
   ///
@@ -2653,6 +2719,18 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to delete this sink?'**
   String get sinkDeleteMessage;
 
+  /// No description provided for @sinkEditSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Sink updated.'**
+  String get sinkEditSuccess;
+
+  /// No description provided for @sinkDeleteSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Sink deleted.'**
+  String get sinkDeleteSuccess;
+
   /// No description provided for @sinkDeviceCount.
   ///
   /// In en, this message translates to:
@@ -2923,6 +3001,60 @@ abstract class AppLocalizations {
   /// **'Device reset successfully'**
   String get dosingResetDeviceSuccess;
 
+  /// No description provided for @dosingResetDeviceFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to reset device'**
+  String get dosingResetDeviceFailed;
+
+  /// No description provided for @dosingResetDeviceConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This device will become unassigned and clear all current pump settings and calibration records.'**
+  String get dosingResetDeviceConfirm;
+
+  /// No description provided for @dosingDeleteDeviceConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to delete this dosing pump?'**
+  String get dosingDeleteDeviceConfirm;
+
+  /// No description provided for @dosingDeleteDeviceSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Device deleted successfully'**
+  String get dosingDeleteDeviceSuccess;
+
+  /// No description provided for @dosingTodayDropOutOfRangeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Max Dosing Volume'**
+  String get dosingTodayDropOutOfRangeTitle;
+
+  /// No description provided for @dosingTodayDropOutOfRangeContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s dosing volume has reached the maximum daily dosing volume.'**
+  String get dosingTodayDropOutOfRangeContent;
+
+  /// No description provided for @dosingDropHeadIsDropping.
+  ///
+  /// In en, this message translates to:
+  /// **'This pump head is currently dosing, please try again later.'**
+  String get dosingDropHeadIsDropping;
+
+  /// No description provided for @dosingDeleteDeviceFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete device'**
+  String get dosingDeleteDeviceFailed;
+
+  /// No description provided for @actionReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get actionReset;
+
   /// No description provided for @dosingNoPumpHeads.
   ///
   /// In en, this message translates to:
@@ -2938,7 +3070,7 @@ abstract class AppLocalizations {
   /// No description provided for @dosingAdjustListTitle.
   ///
   /// In en, this message translates to:
-  /// **'Adjustment List'**
+  /// **'Calibration Log'**
   String get dosingAdjustListTitle;
 
   /// No description provided for @dosingAdjustListStartAdjust.
@@ -2994,6 +3126,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connection required for delay time'**
   String get delayTimeRequiresConnection;
+
+  /// No description provided for @delay15Sec.
+  ///
+  /// In en, this message translates to:
+  /// **'15 sec'**
+  String get delay15Sec;
+
+  /// No description provided for @delay30Sec.
+  ///
+  /// In en, this message translates to:
+  /// **'30 sec'**
+  String get delay30Sec;
+
+  /// No description provided for @delay1Min.
+  ///
+  /// In en, this message translates to:
+  /// **'1 min'**
+  String get delay1Min;
+
+  /// No description provided for @delay2Min.
+  ///
+  /// In en, this message translates to:
+  /// **'2 min'**
+  String get delay2Min;
+
+  /// No description provided for @delay3Min.
+  ///
+  /// In en, this message translates to:
+  /// **'3 min'**
+  String get delay3Min;
+
+  /// No description provided for @delay4Min.
+  ///
+  /// In en, this message translates to:
+  /// **'4 min'**
+  String get delay4Min;
+
+  /// No description provided for @delay5Min.
+  ///
+  /// In en, this message translates to:
+  /// **'5 min'**
+  String get delay5Min;
+
+  /// No description provided for @delaySecondsFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} sec'**
+  String delaySecondsFallback(int seconds);
 
   /// No description provided for @sinkPositionFeatureComingSoon.
   ///
@@ -3151,6 +3331,12 @@ abstract class AppLocalizations {
   /// **'LED'**
   String get led;
 
+  /// No description provided for @drop.
+  ///
+  /// In en, this message translates to:
+  /// **'Dosing Pump'**
+  String get drop;
+
   /// No description provided for @masterSlave.
   ///
   /// In en, this message translates to:
@@ -3232,7 +3418,7 @@ abstract class AppLocalizations {
   /// No description provided for @dosingAdjustVolumeHint.
   ///
   /// In en, this message translates to:
-  /// **'Enter actual drop volume'**
+  /// **'1 ~ 15; one decimal place'**
   String get dosingAdjustVolumeHint;
 
   /// No description provided for @dosingCompleteAdjust.
@@ -3244,7 +3430,7 @@ abstract class AppLocalizations {
   /// No description provided for @dosingAdjusting.
   ///
   /// In en, this message translates to:
-  /// **'Calibrating'**
+  /// **'Calibrating...'**
   String get dosingAdjusting;
 
   /// No description provided for @dosingAdjustVolumeEmpty.
@@ -3514,7 +3700,7 @@ abstract class AppLocalizations {
   /// Pump head record time settings page title
   ///
   /// In en, this message translates to:
-  /// **'Time Setting'**
+  /// **'Period Settings'**
   String get pumpHeadRecordTimeSettingsTitle;
 
   /// Pump head adjust list page title
@@ -3648,6 +3834,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap the add button at the bottom right to add a tank.'**
   String get sinkEmptyMessage;
+
+  /// Bottom sheet title for adding tank
+  ///
+  /// In en, this message translates to:
+  /// **'Add Tank'**
+  String get bottomSheetAddSinkTitle;
+
+  /// Field label for tank name
+  ///
+  /// In en, this message translates to:
+  /// **'Tank Name'**
+  String get bottomSheetAddSinkFieldTitle;
+
+  /// Bottom sheet title for editing tank
+  ///
+  /// In en, this message translates to:
+  /// **'Tank Settings'**
+  String get bottomSheetEditSinkTitle;
+
+  /// Field label for tank name
+  ///
+  /// In en, this message translates to:
+  /// **'Tank Name'**
+  String get bottomSheetEditSinkFieldTitle;
+
+  /// Bottom sheet title for adding dosing type
+  ///
+  /// In en, this message translates to:
+  /// **'Add Custom Dosing'**
+  String get bottomSheetAddDropTypeTitle;
+
+  /// Field label for dosing type name
+  ///
+  /// In en, this message translates to:
+  /// **'Dosing Name'**
+  String get bottomSheetAddDropTypeFieldTitle;
+
+  /// Bottom sheet title for editing dosing type
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Custom Dosing'**
+  String get bottomSheetEditDropTypeTitle;
+
+  /// Field label for dosing type name
+  ///
+  /// In en, this message translates to:
+  /// **'Dosing Name'**
+  String get bottomSheetEditDropTypeFieldTitle;
+
+  /// No description provided for @dosingVolumeRangeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'1 ~ 500'**
+  String get dosingVolumeRangeHint;
+
+  /// No description provided for @dropRecordTypeNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No Scheduled Tasks'**
+  String get dropRecordTypeNone;
+
+  /// No description provided for @dosingAdjustDateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Calibration Date'**
+  String get dosingAdjustDateTitle;
+
+  /// No description provided for @dosingAdjustVolumeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Measured Volume'**
+  String get dosingAdjustVolumeTitle;
+
+  /// No description provided for @groupPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Group A'**
+  String get groupPlaceholder;
+
+  /// No description provided for @ledChartPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart Placeholder'**
+  String get ledChartPlaceholder;
+
+  /// No description provided for @ledSpectrumChartPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Spectrum Chart Placeholder'**
+  String get ledSpectrumChartPlaceholder;
+
+  /// No description provided for @ledTimePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'07:27'**
+  String get ledTimePlaceholder;
+
+  /// No description provided for @dosingRecordTimePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'08:00'**
+  String get dosingRecordTimePlaceholder;
+
+  /// No description provided for @dosingRecordEndTimePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'10:00'**
+  String get dosingRecordEndTimePlaceholder;
+
+  /// No description provided for @dosingRecordDetailPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'50 ml / 5 times'**
+  String get dosingRecordDetailPlaceholder;
+
+  /// No description provided for @dosingTypeNamePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Type A'**
+  String get dosingTypeNamePlaceholder;
+
+  /// No description provided for @dosingTypeNamePlaceholderB.
+  ///
+  /// In en, this message translates to:
+  /// **'Type B'**
+  String get dosingTypeNamePlaceholderB;
+
+  /// No description provided for @dosingTypeNamePlaceholderC.
+  ///
+  /// In en, this message translates to:
+  /// **'Type C'**
+  String get dosingTypeNamePlaceholderC;
+
+  /// No description provided for @dosingRecordTimeRangePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'2022-10-14 ~ 2022-10-31'**
+  String get dosingRecordTimeRangePlaceholder;
+
+  /// No description provided for @dosingRecordTimePointPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'2022-10-14 10:20:13'**
+  String get dosingRecordTimePointPlaceholder;
+
+  /// No description provided for @dosingAdjustDatePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'2024-01-01 12:00:00'**
+  String get dosingAdjustDatePlaceholder;
+
+  /// No description provided for @dosingAdjustVolumePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'10.0 ml'**
+  String get dosingAdjustVolumePlaceholder;
 }
 
 class _AppLocalizationsDelegate

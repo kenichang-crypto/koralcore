@@ -39,11 +39,10 @@ class _ManualDosingView extends StatefulWidget {
 }
 
 class _ManualDosingViewState extends State<_ManualDosingView> {
-  static const List<String> _headIds = ['A', 'B', 'C', 'D'];
   static const double _stepAmount = 0.5;
 
   late TextEditingController _doseController;
-  String _selectedHead = _headIds.first;
+  String _selectedHead = 'A';
   String? _doseError;
 
   @override
@@ -66,6 +65,18 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
         final theme = Theme.of(context);
         final bool isConnected = session.isBleConnected;
         final bool isReady = session.isReady;
+        final List<String> headIds = session.pumpHeads
+            .map((h) => h.headId.trim().toUpperCase())
+            .where((id) => id.isNotEmpty)
+            .toSet()
+            .toList()
+          ..sort();
+        if (headIds.isEmpty) {
+          headIds.add('A');
+        }
+        if (!headIds.contains(_selectedHead)) {
+          _selectedHead = headIds.first;
+        }
         final PumpHeadSummary summary = PumpHeadSummary.demo(_selectedHead);
 
         return Scaffold(
@@ -89,7 +100,7 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    _buildHeadCard(theme, l10n, summary),
+                    _buildHeadCard(theme, l10n, summary, headIds),
                     const SizedBox(height: AppSpacing.md),
                     if (!isConnected) ...[
                       const BleGuardBanner(),
@@ -146,6 +157,7 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
     ThemeData theme,
     AppLocalizations l10n,
     PumpHeadSummary summary,
+    List<String> headIds,
   ) {
     return Card(
       child: Padding(
@@ -154,12 +166,12 @@ class _ManualDosingViewState extends State<_ManualDosingView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             DropdownButtonFormField<String>(
-              initialValue: _selectedHead,
+              value: _selectedHead,
               decoration: InputDecoration(
                 labelText: l10n.dosingPumpHeadsHeader,
                 labelStyle: theme.textTheme.titleSmall,
               ),
-              items: _headIds
+              items: headIds
                   .map(
                     (head) => DropdownMenuItem(
                       value: head,

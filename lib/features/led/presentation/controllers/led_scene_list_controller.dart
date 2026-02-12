@@ -254,16 +254,13 @@ class LedSceneListController extends ChangeNotifier {
       return;
     }
 
-    // Start preview from first record if available
-    if (_records.isEmpty) {
-      return;
-    }
-
+    // PARITY: reef-b-app clickBtnPreview() – no record check; sends BLE command regardless.
+    // getLedPreviewCommand(state) does not include recordId.
     await _runAction(() async {
       try {
         await startLedPreviewUseCase.execute(
           deviceId: deviceId,
-          recordId: _records.first.id,
+          recordId: _records.isNotEmpty ? _records.first.id : null,
         );
       } on AppError catch (error) {
         _setError(error.code);

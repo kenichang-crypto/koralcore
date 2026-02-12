@@ -2,10 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/common/app_context.dart';
+import '../../../../app/common/app_error_code.dart';
+import '../../../../app/common/app_session.dart';
+import '../../../../domain/led_lighting/led_record.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
+import '../../../../shared/widgets/confirmation_dialog.dart';
+import '../../../../shared/widgets/error_state_widget.dart';
 import '../controllers/led_record_controller.dart';
+import '../controllers/led_record_time_setting_controller.dart';
+import 'led_record_setting_page.dart';
+import 'led_record_time_setting_page.dart';
 
 /// LedRecordPage
 ///
@@ -27,13 +36,18 @@ class _LedRecordView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final controller = context.watch<LedRecordController>();
+    _maybeShowError(context, controller);
+    _maybeShowEvent(context, controller);
 
     return Stack(
       children: [
         Column(
           children: [
             // A. Toolbar (fixed) ↔ toolbar_two_action.xml
-            _ToolbarTwoAction(l10n: l10n),
+            _ToolbarTwoAction(
+              l10n: l10n,
+              controller: controller,
+            ),
 
             // B–D. Content area (B+C fixed, D scrollable)
             Expanded(
@@ -42,23 +56,25 @@ class _LedRecordView extends StatelessWidget {
                 child: Column(
                   children: [
                     // B. Record overview card (fixed, non-scrollable)
-                    _RecordOverviewCard(l10n: l10n),
+                    _RecordOverviewCard(l10n: l10n, controller: controller),
 
                     // C. Record list header (fixed, non-scrollable)
-                    _RecordListHeader(l10n: l10n),
+                    _RecordListHeader(l10n: l10n, controller: controller),
 
                     // D. Record list (only scrollable region)
                     Expanded(
-                      child: ListView(
+                      child: ListView.builder(
                         padding: EdgeInsets.zero,
-                        children: [
-                          // Record list items (placeholder)
-                          // TODO(android @layout/adapter_led_record.xml)
-                          _RecordTile(timeText: '07:00'),
-                          _RecordTile(timeText: '12:00'),
-                          _RecordTile(timeText: '18:00'),
-                          _RecordTile(timeText: '22:00'),
-                        ],
+                        itemCount: controller.records.length,
+                        itemBuilder: (context, index) {
+                          final record = controller.records[index];
+                          final timeText = _formatRecordTime(record.minutesFromMidnight);
+                          return _RecordTile(
+                            timeText: timeText,
+                            onTap: () => _openRecordTimeSetting(context, record),
+                            onLongPress: () => _showDeleteRecordDialog(context, controller, record),
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -75,14 +91,179 @@ class _LedRecordView extends StatelessWidget {
   }
 }
 
+String _formatRecordTime(int minutesFromMidnight) {
+  final hour = (minutesFromMidnight ~/ 60) % 24;
+  final minute = minutesFromMidnight % 60;
+  return '${hour.toString().padLeft(2, '0')} : ${minute.toString().padLeft(2, '0')}';
+}
+
+Future<void> _openRecordTimeSetting(
+  BuildContext context,
+  LedRecord? record, {
+  int? hour,
+  int? minute,
+}) async {
+  final appContext = context.read<AppContext>();
+  final session = context.read<AppSession>();
+  await Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => ChangeNotifierProvider<LedRecordTimeSettingController>(
+        create: (_) => LedRecordTimeSettingController(
+          session: session,
+          ledRecordRepository: appContext.ledRecordRepository,
+          initialRecord: record,
+          initialHour: record?.hour ?? hour,
+          initialMinute: record?.minute ?? minute,
+        ),
+        child: const LedRecordTimeSettingPage(),
+      ),
+    ),
+  );
+  if (context.mounted) {
+    final recordController = context.read<LedRecordController>();
+    await recordController.refresh();
+  }
+}
+
+Future<void> _openAddTimeSetting(BuildContext context) async {
+  final controller = context.read<LedRecordController>();
+  final (hour, minute) = controller.selectedHourMinute;
+  final appContext = context.read<AppContext>();
+  final session = context.read<AppSession>();
+  await Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => ChangeNotifierProvider<LedRecordTimeSettingController>(
+        create: (_) => LedRecordTimeSettingController(
+          session: session,
+          ledRecordRepository: appContext.ledRecordRepository,
+          initialHour: hour,
+          initialMinute: minute,
+        ),
+        child: const LedRecordTimeSettingPage(),
+      ),
+    ),
+  );
+  if (context.mounted) {
+    final recordController = context.read<LedRecordController>();
+    await recordController.refresh();
+  }
+}
+
+Future<void> _showDeleteRecordDialog(
+  BuildContext context,
+  LedRecordController controller,
+  LedRecord record,
+) async {
+  final l10n = AppLocalizations.of(context);
+  final confirmed = await ConfirmationDialog.show(
+    context: context,
+    title: l10n.ledRecordsDeleteConfirmTitle,
+    content: l10n.ledRecordsDeleteConfirmMessage,
+    confirmText: l10n.actionDelete,
+    cancelText: l10n.actionCancel,
+  );
+  if (confirmed == true && context.mounted) {
+    await controller.deleteRecord(record.id);
+  }
+}
+
+void _maybeShowError(
+  BuildContext context,
+  LedRecordController controller,
+) {
+  final code = controller.lastErrorCode;
+  if (code == null) return;
+  showErrorSnackBar(context, code);
+  controller.clearError();
+}
+
+void _maybeShowEvent(
+  BuildContext context,
+  LedRecordController controller,
+) {
+  final event = controller.consumeEvent();
+  if (event == null) return;
+
+  final l10n = AppLocalizations.of(context);
+  switch (event.type) {
+    case LedRecordEventType.deleteSuccess:
+      showSuccessSnackBar(context, l10n.ledRecordsSnackDeleted);
+      break;
+    case LedRecordEventType.deleteFailure:
+      showErrorSnackBar(
+        context,
+        event.errorCode ?? AppErrorCode.unknownError,
+      );
+      break;
+    case LedRecordEventType.clearSuccess:
+      showSuccessSnackBar(context, l10n.ledRecordsSnackCleared);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => const LedRecordSettingPage(),
+            ),
+          );
+        }
+      });
+      break;
+    case LedRecordEventType.clearFailure:
+      showErrorSnackBar(
+        context,
+        event.errorCode ?? AppErrorCode.unknownError,
+      );
+      break;
+    case LedRecordEventType.missingSelection:
+      showErrorSnackBar(
+        context,
+        null,
+        customMessage: l10n.ledRecordsSnackMissingSelection,
+      );
+      break;
+    case LedRecordEventType.previewStarted:
+      showSuccessSnackBar(context, l10n.ledRecordsSnackPreviewStarted);
+      break;
+    case LedRecordEventType.previewStopped:
+      showSuccessSnackBar(context, l10n.ledRecordsSnackPreviewStopped);
+      break;
+    case LedRecordEventType.previewFailed:
+      showErrorSnackBar(
+        context,
+        event.errorCode ?? AppErrorCode.unknownError,
+      );
+      break;
+  }
+}
+
+Future<void> _onClearTap(
+  BuildContext context,
+  LedRecordController controller,
+  AppLocalizations l10n,
+) async {
+  final confirmed = await ConfirmationDialog.show(
+    context: context,
+    title: l10n.ledRecordsClearConfirmTitle,
+    content: l10n.ledRecordsClearConfirmMessage,
+    confirmText: l10n.actionConfirm,
+    cancelText: l10n.cancel,
+  );
+  if (confirmed == true && context.mounted) {
+    await controller.clearRecords();
+  }
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 // A. Toolbar (fixed) ↔ toolbar_two_action.xml
 // ────────────────────────────────────────────────────────────────────────────
 
 class _ToolbarTwoAction extends StatelessWidget {
-  const _ToolbarTwoAction({required this.l10n});
+  const _ToolbarTwoAction({
+    required this.l10n,
+    required this.controller,
+  });
 
   final AppLocalizations l10n;
+  final LedRecordController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -94,15 +275,13 @@ class _ToolbarTwoAction extends StatelessWidget {
           height: 56,
           child: Row(
             children: [
-              // Left: Back (icon button, no behavior)
-              // TODO(android toolbar left button → uses back icon)
+              // Left: Back
               IconButton(
-                onPressed: null, // No behavior in Correction Mode
+                onPressed: () => Navigator.of(context).pop(),
                 icon: CommonIconHelper.getBackIcon(size: 24),
               ),
               const Spacer(),
               // Center: Title (activity_led_record_title → @string/led_record)
-              // TODO(android @string/led_record → "LED Record" / "LED 記錄")
               Text(
                 l10n.ledRecordsTitle,
                 style: AppTextStyles.headline.copyWith(
@@ -110,9 +289,18 @@ class _ToolbarTwoAction extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              // Right: No icon/button in Android toolbar_two_action.xml
-              // Android: toolbar_two_action has btn_right (text button), NOT an icon button
-              // REMOVED: Icons.settings (violated L3-1 - not in Android)
+              // Right: Clear button (PARITY: reef-b-app btnIcon / iOS resetBarButtonItem)
+              IconButton(
+                onPressed:
+                    controller.canClear ? () => _onClearTap(context, controller, l10n) : null,
+                icon: CommonIconHelper.getResetIcon(
+                  size: 24,
+                  color: controller.canClear
+                      ? AppColors.textPrimary
+                      : AppColors.textPrimary.withValues(alpha: 0.5),
+                ),
+                tooltip: l10n.ledRecordsClearConfirmTitle,
+              ),
             ],
           ),
         ),
@@ -125,89 +313,107 @@ class _ToolbarTwoAction extends StatelessWidget {
 
 // ────────────────────────────────────────────────────────────────────────────
 // B. Record overview card (fixed) ↔ layout_chart
+// PARITY: reef btnAdd->add at clock time, btnMinus->delete selected, btnPrev/Next->navigate, btnPreview->preview
 // ────────────────────────────────────────────────────────────────────────────
 
 class _RecordOverviewCard extends StatelessWidget {
-  const _RecordOverviewCard({required this.l10n});
+  const _RecordOverviewCard({required this.l10n, required this.controller});
 
   final AppLocalizations l10n;
+  final LedRecordController controller;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(
-        left: 16, // dp_16 marginStart
-        top: 12, // dp_12 marginTop
-        right: 16, // dp_16 marginEnd
+        left: 16,
+        top: 12,
+        right: 16,
       ),
-      padding: const EdgeInsets.only(
-        top: 16, // dp_16 paddingTop
-        bottom: 24, // dp_24 paddingBottom
-      ),
+      padding: const EdgeInsets.only(top: 16, bottom: 24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8), // background_white_radius
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         children: [
-          // Clock display (tv_clock) ↔ headline, text_aaaa
           Text(
-            '07:27', // Placeholder time
+            controller.selectedTimeLabel,
             style: AppTextStyles.headline.copyWith(
               color: AppColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 8), // margin before chart
-          // Chart placeholder (line_chart) ↔ no hardcoded size, flexible
-          // TODO(android @layout/line_chart → 242dp in XML, but use flexible here)
+          const SizedBox(height: 8),
           Padding(
-            padding: const EdgeInsets.all(8), // dp_8 margin
-            child: AspectRatio(
-              aspectRatio: 16 / 9, // Flexible chart area
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceMuted,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Center(
-                  child: Text(
-                    'Chart Placeholder',
-                    style: AppTextStyles.body.copyWith(
-                      color: AppColors.textTertiary,
+            padding: const EdgeInsets.all(8),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 242),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceMuted,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Center(
+                    child: Text(
+                      l10n.ledChartPlaceholder,
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.textTertiary,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-
-          const SizedBox(height: 16), // marginTop before buttons
-          // Control buttons row (layout_btn) ↔ 5 ImageView buttons, 24x24dp each
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // btn_add (ic_add_black)
-              // TODO(android @drawable/ic_add_black)
-              _ControlButton(icon: CommonIconHelper.getAddIcon(size: 24), onPressed: null),
-              const SizedBox(width: 24), // marginStart + marginEnd = 24dp
-              // btn_minus (ic_minus)
-              // TODO(android @drawable/ic_minus)
-              _ControlButton(icon: CommonIconHelper.getMinusIcon(size: 24), onPressed: null),
+              _ControlButton(
+                icon: CommonIconHelper.getAddIcon(size: 24),
+                onPressed: controller.canAdd
+                    ? () => _openRecordTimeSetting(
+                          context,
+                          null,
+                          hour: controller.selectedHourMinute.$1,
+                          minute: controller.selectedHourMinute.$2,
+                        )
+                    : null,
+              ),
               const SizedBox(width: 24),
-
-              // btn_prev (ic_back)
-              // TODO(android @drawable/ic_back)
-              _ControlButton(icon: CommonIconHelper.getBackIcon(size: 24), onPressed: null),
+              _ControlButton(
+                icon: CommonIconHelper.getMinusIcon(size: 24),
+                onPressed: controller.canDeleteSelected
+                    ? () => _showDeleteRecordDialog(
+                          context,
+                          controller,
+                          controller.selectedRecord!,
+                        )
+                    : null,
+              ),
               const SizedBox(width: 24),
-
-              // btn_next (ic_next)
-              // TODO(android @drawable/ic_next)
-              _ControlButton(icon: CommonIconHelper.getNextIcon(size: 24), onPressed: null),
+              _ControlButton(
+                icon: CommonIconHelper.getBackIcon(size: 24),
+                onPressed: controller.canNavigate
+                    ? () => controller.goToPreviousRecord()
+                    : null,
+              ),
               const SizedBox(width: 24),
-
-              // btn_preview (ic_preview)
-              // TODO(android @drawable/ic_preview)
-              _ControlButton(icon: CommonIconHelper.getPlayIcon(size: 24), onPressed: null),
+              _ControlButton(
+                icon: CommonIconHelper.getNextIcon(size: 24),
+                onPressed: controller.canNavigate
+                    ? () => controller.goToNextRecord()
+                    : null,
+              ),
+              const SizedBox(width: 24),
+              _ControlButton(
+                icon: CommonIconHelper.getPlayIcon(size: 24),
+                onPressed: controller.canPreview || controller.isPreviewing
+                    ? () => controller.togglePreview()
+                    : null,
+              ),
             ],
           ),
         ],
@@ -240,24 +446,21 @@ class _ControlButton extends StatelessWidget {
 
 // ────────────────────────────────────────────────────────────────────────────
 // C. Record list header (fixed) ↔ tv_time_title + btn_add_time
+// PARITY: reef btnAddTime->LedRecordTimeSettingActivity (records < 24)
 // ────────────────────────────────────────────────────────────────────────────
 
 class _RecordListHeader extends StatelessWidget {
-  const _RecordListHeader({required this.l10n});
+  const _RecordListHeader({required this.l10n, required this.controller});
 
   final AppLocalizations l10n;
+  final LedRecordController controller;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(
-        left: 16, // dp_16 marginStart
-        top: 24, // dp_24 marginTop
-        right: 16, // dp_16 marginEnd
-      ),
+      padding: const EdgeInsets.only(left: 16, top: 24, right: 16),
       child: Row(
         children: [
-          // Title: @string/time
           Expanded(
             child: Text(
               l10n.time,
@@ -266,10 +469,8 @@ class _RecordListHeader extends StatelessWidget {
               ),
             ),
           ),
-          // btn_add_time (ic_add_btn, 24x24dp)
-          // TODO(android @drawable/ic_add_btn)
           IconButton(
-            onPressed: null, // No behavior in Correction Mode
+            onPressed: controller.canAddTime ? () => _openAddTimeSetting(context) : null,
             icon: CommonIconHelper.getAddBtnIcon(size: 24),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
@@ -282,21 +483,29 @@ class _RecordListHeader extends StatelessWidget {
 
 // ────────────────────────────────────────────────────────────────────────────
 // D. Record list items ↔ adapter_led_record.xml
+// PARITY: reef tap->edit, longPress->delete
 // ────────────────────────────────────────────────────────────────────────────
 
 class _RecordTile extends StatelessWidget {
-  const _RecordTile({required this.timeText});
+  const _RecordTile({
+    required this.timeText,
+    this.onTap,
+    this.onLongPress,
+  });
 
   final String timeText;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white, // bg_aaaa
+      color: Colors.white,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: null, // No behavior in Correction Mode
+          onTap: onTap,
+          onLongPress: onLongPress,
           child: Padding(
             padding: const EdgeInsets.only(
               left: 16, // dp_16 paddingStart

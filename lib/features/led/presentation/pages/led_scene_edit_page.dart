@@ -231,7 +231,7 @@ class _SpectrumChartSection extends StatelessWidget {
           ),
           child: Center(
             child: Text(
-              'Spectrum Chart Placeholder',
+              l10n.ledSpectrumChartPlaceholder,
               style: AppTextStyles.body.copyWith(color: AppColors.textTertiary),
             ),
           ),

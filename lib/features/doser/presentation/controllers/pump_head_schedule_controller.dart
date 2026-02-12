@@ -9,6 +9,7 @@ import '../../../../domain/usecases/doser/read_schedule.dart';
 import '../../../../domain/usecases/doser/schedule_result.dart';
 import '../../../../domain/doser_dosing/custom_window_schedule_definition.dart';
 import '../../../../domain/doser_dosing/daily_average_schedule_definition.dart';
+import '../../../../platform/contracts/dosing_repository.dart';
 import '../models/pump_head_schedule_entry.dart';
 
 class PumpHeadScheduleController extends ChangeNotifier {
@@ -16,6 +17,7 @@ class PumpHeadScheduleController extends ChangeNotifier {
   final AppSession session;
   final ReadScheduleUseCase readScheduleUseCase;
   final ApplyScheduleUseCase applyScheduleUseCase;
+  final DosingRepository dosingRepository;
 
   List<PumpHeadScheduleEntry> _entries = const [];
   List<PumpHeadScheduleEntry> _remoteEntries = const [];
@@ -29,6 +31,7 @@ class PumpHeadScheduleController extends ChangeNotifier {
     required this.session,
     required this.readScheduleUseCase,
     required this.applyScheduleUseCase,
+    required this.dosingRepository,
   });
 
   List<PumpHeadScheduleEntry> get entries => _entries;
@@ -225,6 +228,58 @@ class PumpHeadScheduleController extends ChangeNotifier {
     _localOverrides[entry.id] = entry;
     _mergeEntries();
     notifyListeners();
+  }
+
+  void deleteLocalEntry(String id) {
+    _localOverrides.remove(id);
+    _remoteEntries =
+        _remoteEntries.where((e) => e.id != id).toList(growable: false);
+    _mergeEntries();
+    notifyListeners();
+  }
+
+  /// Clears this head's schedule on device (BLE 0x79) and refreshes.
+  Future<bool> clearRecordOnDevice() async {
+    final String? deviceId = session.activeDeviceId;
+    if (deviceId == null || !session.isReady) {
+      return false;
+    }
+    try {
+      final int headNo = _headIdToPumpNo(headId);
+      await dosingRepository.clearRecord(deviceId, headNo);
+      await refresh();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  int _headIdToPumpNo(String h) {
+    final String n = h.trim().toUpperCase();
+    if (n.isEmpty) return 1;
+    return (n.codeUnitAt(0) - 64).clamp(1, 4);
+  }
+
+  void toggleLocalEnabled(String id, bool enabled) {
+    PumpHeadScheduleEntry? target;
+    for (final e in _entries) {
+      if (e.id == id) {
+        target = PumpHeadScheduleEntry(
+          id: e.id,
+          type: e.type,
+          doseMlPerEvent: e.doseMlPerEvent,
+          eventsPerDay: e.eventsPerDay,
+          startTime: e.startTime,
+          endTime: e.endTime,
+          recurrence: e.recurrence,
+          isEnabled: enabled,
+        );
+        break;
+      }
+    }
+    if (target != null) {
+      upsertLocalEntry(target);
+    }
   }
 
   void clearError() {

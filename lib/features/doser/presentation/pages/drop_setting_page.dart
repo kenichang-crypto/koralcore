@@ -23,6 +23,8 @@ import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
 import '../controllers/drop_setting_controller.dart';
+import '../../../sink/presentation/pages/sink_position_page.dart';
+import '../../../../shared/widgets/app_error_presenter.dart';
 
 /// DropSettingPage - Dosing 設備設定頁面
 ///
@@ -201,7 +203,7 @@ class _DropSettingPageContentState extends State<_DropSettingPageContent> {
                         ),
                         const SizedBox(height: 4),
                         _BackgroundMaterialButton(
-                          text: controller.getDelayTimeText(),
+                          text: _getDelayTimeLabel(l10n, controller.delayTimeSeconds),
                           icon: CommonIconHelper.getMenuIcon(
                             size: 20,
                             color: AppColors.textPrimary,
@@ -248,21 +250,9 @@ class _DropSettingPageContentState extends State<_DropSettingPageContent> {
     } else {
       // Error: Show error message
       final errorCode = controller.lastErrorCode;
-      String errorMessage;
-
-      if (errorCode == AppErrorCode.invalidParam) {
-        // Name is empty
-        errorMessage =
-            'TODO(l10n): Name is empty'; // TODO(l10n): Use l10n.toastNameIsEmpty
-      } else if (errorCode == AppErrorCode.sinkFull) {
-        // Sink is full
-        errorMessage =
-            'TODO(l10n): Sink is full'; // TODO(l10n): Use l10n.toastSinkIsFull
-      } else {
-        // Generic error
-        errorMessage =
-            'TODO(l10n): Setting failed'; // TODO(l10n): Use l10n.toastSettingFailed
-      }
+      final errorMessage = errorCode == AppErrorCode.invalidParam
+          ? l10n.toastNameIsEmpty
+          : describeAppError(l10n, errorCode ?? AppErrorCode.unknownError);
 
       ScaffoldMessenger.of(
         currentContext,
@@ -274,40 +264,48 @@ class _DropSettingPageContentState extends State<_DropSettingPageContent> {
   ///
   /// PARITY: DropSettingActivity.setListener() btnPosition (Line 89-94)
   Future<void> _selectSinkPosition() async {
-    // TODO: Navigate to SinkPositionPage
-    // For now, show placeholder
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('TODO: Navigate to SinkPositionPage')),
+    final controller = context.read<DropSettingController>();
+    final result = await Navigator.of(context).push<String?>(
+      MaterialPageRoute(
+        builder: (context) => SinkPositionPage(
+          initialSinkId: controller.sinkId,
+        ),
+      ),
     );
+    if (result != null && context.mounted) {
+      await controller.updateSinkId(result);
+    }
+  }
 
-    // Example of how it should work:
-    // final result = await Navigator.of(context).push(
-    //   MaterialPageRoute(
-    //     builder: (context) => SinkPositionPage(
-    //       currentSinkId: controller.sinkId,
-    //     ),
-    //   ),
-    // );
-    // if (result != null && result is String) {
-    //   await controller.updateSinkId(result);
-    // }
+  String _getDelayTimeLabel(AppLocalizations l10n, int seconds) {
+    final labels = {
+      15: l10n.delay15Sec,
+      30: l10n.delay30Sec,
+      60: l10n.delay1Min,
+      120: l10n.delay2Min,
+      180: l10n.delay3Min,
+      240: l10n.delay4Min,
+      300: l10n.delay5Min,
+    };
+    return labels[seconds] ?? l10n.delaySecondsFallback(seconds);
   }
 
   /// Select delay time
   ///
   /// PARITY: DropSettingActivity.setListener() btnDelayTime (Line 95-124)
   Future<void> _selectDelayTime() async {
+    final l10n = AppLocalizations.of(context);
     final controller = context.read<DropSettingController>();
 
     final options = DropSettingController.getDelayTimeOptions();
     final labels = {
-      15: '15 秒', // TODO(l10n): Use l10n.delay15Sec
-      30: '30 秒', // TODO(l10n): Use l10n.delay30Sec
-      60: '1 分鐘', // TODO(l10n): Use l10n.delay1Min
-      120: '2 分鐘', // TODO(l10n): Use l10n.delay2Min
-      180: '3 分鐘', // TODO(l10n): Use l10n.delay3Min
-      240: '4 分鐘', // TODO(l10n): Use l10n.delay4Min
-      300: '5 分鐘', // TODO(l10n): Use l10n.delay5Min
+      15: l10n.delay15Sec,
+      30: l10n.delay30Sec,
+      60: l10n.delay1Min,
+      120: l10n.delay2Min,
+      180: l10n.delay3Min,
+      240: l10n.delay4Min,
+      300: l10n.delay5Min,
     };
 
     await showModalBottomSheet(
@@ -317,9 +315,12 @@ class _DropSettingPageContentState extends State<_DropSettingPageContent> {
           mainAxisSize: MainAxisSize.min,
           children: options.map((seconds) {
             return ListTile(
-              title: Text(labels[seconds] ?? '$seconds秒'),
+              title: Text(labels[seconds] ?? l10n.delaySecondsFallback(seconds)),
               trailing: controller.delayTimeSeconds == seconds
-                  ? Icon(Icons.check, color: AppColors.primaryStrong)
+                  ? CommonIconHelper.getCheckIcon(
+                      size: 24,
+                      color: AppColors.primaryStrong,
+                    )
                   : null,
               onTap: () {
                 controller.updateDelayTime(seconds);

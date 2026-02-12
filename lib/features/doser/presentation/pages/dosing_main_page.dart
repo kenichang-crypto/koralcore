@@ -24,6 +24,7 @@ import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
 import '../../../../shared/widgets/reef_icon_button.dart';
+import '../../../../shared/widgets/error_state_widget.dart';
 import '../controllers/dosing_main_controller.dart';
 import '../widgets/dosing_main_pump_head_list.dart';
 import 'pump_head_detail_page.dart';
@@ -96,6 +97,16 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
     final deviceName = controller.deviceName ?? l10n.dosingHeader;
     final positionName = controller.sinkName ?? l10n.unassignedDevice;
 
+    // KC-A-FINAL: Redirect when active device was deleted (e.g. from Device tab).
+    if (session.activeDeviceId == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
+      });
+      return const SizedBox.shrink();
+    }
+
     // Handle errors
     if (controller.lastErrorCode != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -146,14 +157,32 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
                             // PARITY: DropMainActivity.onClickDropHead() -> navigate to DropHeadMainActivity
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (_) =>
-                                    const PumpHeadDetailPage(headId: ''),
+                                builder: (_) => PumpHeadDetailPage(
+                                  headId: headId,
+                                ),
                               ),
                             );
                           },
                           onHeadPlay: session.isReady
                               ? (headId) {
                                   // KC-A-FINAL: Only when ready
+                                  // PARITY: DropMainViewModel.clickPlayDropHead() - check maxDrop before start
+                                  final matches = session.pumpHeads
+                                      .where(
+                                        (h) =>
+                                            h.headId.toUpperCase() ==
+                                            headId.toUpperCase(),
+                                      );
+                                  final pumpHead = matches.isNotEmpty
+                                      ? matches.first
+                                      : null;
+                                  if (pumpHead != null &&
+                                      pumpHead.maxDrop != null &&
+                                      pumpHead.todayDispensedMl >=
+                                          pumpHead.maxDrop!) {
+                                    _showDropOutOfRangeDialog(context);
+                                    return;
+                                  }
                                   final int index = _headIdToIndex(headId);
                                   controller.toggleManualDrop(index);
                                 }
@@ -187,7 +216,10 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
           children: [
             // Edit
             ListTile(
-              leading: const Icon(Icons.edit),
+              leading: CommonIconHelper.getEditIcon(
+                size: 24,
+                color: AppColors.textPrimary,
+              ),
               title: Text(l10n.actionEdit),
               onTap: () async {
                 Navigator.of(context).pop();
@@ -204,8 +236,15 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
             ),
             // Delete
             ListTile(
-              leading: const Icon(Icons.delete),
-              title: const Text('Delete'), // TODO: Add to ARB (actionDelete)
+              leading: SizedBox(
+                width: 24,
+                height: 24,
+                child: CommonIconHelper.getDeleteIcon(
+                  size: 24,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              title: Text(l10n.actionDelete),
               onTap: () {
                 Navigator.of(context).pop();
                 _showDeleteDialog(context, controller);
@@ -213,17 +252,20 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
             ),
             // Reset
             ListTile(
-              leading: const Icon(Icons.refresh),
-              title: const Text('Reset'), // TODO: Add to ARB (actionReset)
-                onTap: () {
+              leading: CommonIconHelper.getResetIcon(
+                size: 24,
+                color: AppColors.textPrimary,
+              ),
+              title: Text(l10n.actionReset),
+              onTap: () {
                 Navigator.of(modalContext).pop();
                 if (controller.isConnected && session.isReady) {
                   _showResetDialog(context, controller);
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Device is not connected'),
-                    ), // TODO: Add to ARB
+                  showErrorSnackBar(
+                    context,
+                    null,
+                    customMessage: l10n.deviceNotConnected,
                   );
                 }
               },
@@ -240,16 +282,15 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
     BuildContext context,
     DosingMainController controller,
   ) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        content: const Text(
-          'Are you sure you want to delete this device?',
-        ), // TODO: Add to ARB
+        content: Text(l10n.dosingDeleteDeviceConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'), // TODO: Add to ARB
+            child: Text(l10n.actionCancel),
           ),
           TextButton(
             onPressed: () async {
@@ -258,21 +299,36 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
               if (!context.mounted) return;
 
               if (success) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Device deleted successfully'),
-                  ), // TODO: Add to ARB
-                );
+                showSuccessSnackBar(context, l10n.dosingDeleteDeviceSuccess);
                 Navigator.of(context).pop(); // Return to previous page
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Failed to delete device'),
-                  ), // TODO: Add to ARB
+                showErrorSnackBar(
+                  context,
+                  null,
+                  customMessage: l10n.dosingDeleteDeviceFailed,
                 );
               }
             },
-            child: const Text('Delete'), // TODO: Add to ARB
+            child: Text(l10n.actionDelete),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Show Drop Out Of Range Dialog
+  /// PARITY: DropMainActivity.createDropOutOfRangeDialog() Line 270-278
+  void _showDropOutOfRangeDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.dosingTodayDropOutOfRangeTitle),
+        content: Text(l10n.dosingTodayDropOutOfRangeContent),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.deviceDeleteLedMasterPositive),
           ),
         ],
       ),
@@ -282,17 +338,16 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
   /// Show Reset Confirmation Dialog
   /// PARITY: DropMainActivity.createResetDropDialog() Line 285-296
   void _showResetDialog(BuildContext context, DosingMainController controller) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reset Device'), // TODO: Add to ARB
-        content: const Text(
-          'Are you sure you want to reset this device to factory settings?',
-        ), // TODO: Add to ARB
+        title: Text(l10n.dosingResetDevice),
+        content: Text(l10n.dosingResetDeviceConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'), // TODO: Add to ARB
+            child: Text(l10n.actionCancel),
           ),
           TextButton(
             onPressed: () async {
@@ -301,21 +356,17 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
               if (!context.mounted) return;
 
               if (success) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Device reset successfully'),
-                  ), // TODO: Add to ARB
-                );
+                showSuccessSnackBar(context, l10n.dosingResetDeviceSuccess);
                 Navigator.of(context).pop(); // Return to previous page
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Failed to reset device'),
-                  ), // TODO: Add to ARB
+                showErrorSnackBar(
+                  context,
+                  null,
+                  customMessage: l10n.dosingResetDeviceFailed,
                 );
               }
             },
-            child: const Text('Reset'), // TODO: Add to ARB
+            child: Text(l10n.actionConfirm),
           ),
         ],
       ),
@@ -324,23 +375,7 @@ class _DosingMainPageContentState extends State<_DosingMainPageContent> {
 
   /// Show error toast
   void _showErrorToast(BuildContext context, AppErrorCode errorCode) {
-    String message;
-
-    switch (errorCode) {
-      case AppErrorCode.deviceBusy:
-        message = 'Pump head is busy'; // TODO: Add to ARB
-        break;
-      case AppErrorCode.noActiveDevice:
-      case AppErrorCode.noDeviceSelected:
-        message = 'Device is not connected'; // TODO: Add to ARB
-        break;
-      default:
-        message = 'An error occurred'; // TODO: Add to ARB
-    }
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    showErrorSnackBar(context, errorCode);
   }
 
   /// Convert head ID (A/B/C/D) to index (0/1/2/3)

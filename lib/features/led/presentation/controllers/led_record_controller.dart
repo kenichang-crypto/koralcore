@@ -43,6 +43,8 @@ class LedRecordController extends ChangeNotifier {
   bool _isPerformingAction = false;
   AppErrorCode? _lastErrorCode;
   LedRecordEvent? _pendingEvent;
+  /// Captured at initialize() from session.activeDeviceId. Guard: must match
+  /// session before use-case calls (device may be deleted/switched).
   String? _deviceId;
   String? _selectedRecordId;
   int? _selectedMinutes;
@@ -175,9 +177,11 @@ class LedRecordController extends ChangeNotifier {
 
   Future<void> deleteRecord(String recordId) async {
     await _stopPreviewIfNeeded();
+    final deviceId = _deviceIdMatchingSession();
+    if (deviceId == null) return;
     await _runAction(() async {
       try {
-        await deleteLedRecordUseCase.execute(deviceId: _deviceId!, recordId: recordId);
+        await deleteLedRecordUseCase.execute(deviceId: deviceId, recordId: recordId);
         _emitEvent(const LedRecordEvent.deleteSuccess());
       } on AppError catch (error) {
         _setError(error.code);
@@ -195,10 +199,12 @@ class LedRecordController extends ChangeNotifier {
       _emitEvent(const LedRecordEvent.missingSelection());
       return;
     }
+    final deviceId = _deviceIdMatchingSession();
+    if (deviceId == null) return;
     await _runAction(() async {
       try {
         await deleteLedRecordUseCase.execute(
-          deviceId: _deviceId!,
+          deviceId: deviceId,
           recordId: record.id,
         );
         _emitEvent(const LedRecordEvent.deleteSuccess());
@@ -209,12 +215,12 @@ class LedRecordController extends ChangeNotifier {
   }
 
   Future<void> clearRecords() async {
-    if (!canClear) {
-      return;
-    }
+    if (!canClear) return;
+    final deviceId = _deviceIdMatchingSession();
+    if (deviceId == null) return;
     await _runAction(() async {
       try {
-        await clearLedRecordsUseCase.execute(deviceId: _deviceId!);
+        await clearLedRecordsUseCase.execute(deviceId: deviceId);
         _emitEvent(const LedRecordEvent.clearSuccess());
       } on AppError catch (error) {
         _emitEvent(LedRecordEvent.clearFailure(error.code));
@@ -223,17 +229,13 @@ class LedRecordController extends ChangeNotifier {
   }
 
   Future<void> togglePreview() async {
-    if (!canPreview && !isPreviewing) {
-      return;
-    }
-    if (_deviceId == null) {
-      return;
-    }
-
+    if (!canPreview && !isPreviewing) return;
     if (isPreviewing) {
       await _stopPreviewIfNeeded();
       return;
     }
+    final deviceId = _deviceIdMatchingSession();
+    if (deviceId == null) return;
 
     final LedRecord? record = selectedRecord ?? records.firstOrNull;
     if (record == null) {
@@ -244,7 +246,7 @@ class LedRecordController extends ChangeNotifier {
     await _runAction(() async {
       try {
         await startLedPreviewUseCase.execute(
-          deviceId: _deviceId!,
+          deviceId: deviceId,
           recordId: record.id,
         );
         _emitEvent(const LedRecordEvent.previewStarted());
@@ -270,8 +272,9 @@ class LedRecordController extends ChangeNotifier {
   @override
   void dispose() {
     _subscription?.cancel();
-    if (isPreviewing && _deviceId != null) {
-      unawaited(stopLedPreviewUseCase.execute(deviceId: _deviceId!));
+    final deviceId = _deviceIdMatchingSession();
+    if (isPreviewing && deviceId != null) {
+      unawaited(stopLedPreviewUseCase.execute(deviceId: deviceId));
     }
     super.dispose();
   }
@@ -322,10 +325,16 @@ class LedRecordController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Returns _deviceId only if it matches session.activeDeviceId.
+  /// Aborts when device was deleted or switched (avoids use-case calls with stale id).
+  String? _deviceIdMatchingSession() {
+    final current = session.activeDeviceId;
+    if (current == null || _deviceId != current) return null;
+    return _deviceId;
+  }
+
   Future<void> _runAction(Future<void> Function() action) async {
-    if (_deviceId == null) {
-      return;
-    }
+    if (_deviceIdMatchingSession() == null) return;
     _isPerformingAction = true;
     notifyListeners();
     try {
@@ -337,11 +346,10 @@ class LedRecordController extends ChangeNotifier {
   }
 
   Future<void> _stopPreviewIfNeeded() async {
-    if (!isPreviewing || _deviceId == null) {
-      return;
-    }
+    final deviceId = _deviceIdMatchingSession();
+    if (!isPreviewing || deviceId == null) return;
     try {
-      await stopLedPreviewUseCase.execute(deviceId: _deviceId!);
+      await stopLedPreviewUseCase.execute(deviceId: deviceId);
       _emitEvent(const LedRecordEvent.previewStopped());
     } on AppError catch (error) {
       _emitEvent(LedRecordEvent.previewFailed(error.code));

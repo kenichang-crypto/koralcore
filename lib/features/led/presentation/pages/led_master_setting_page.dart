@@ -40,10 +40,9 @@ class _LedMasterSettingView extends StatelessWidget {
                   // B1. Header section (layout_title)
                   _HeaderSection(l10n: l10n),
 
-                  // B2-B6. Group sections (5 RecyclerViews)
-                  _GroupASection(),
-                  _GroupBSection(),
-                  _GroupCSection(),
+                  _GroupASection(l10n: l10n),
+                  _GroupBSection(l10n: l10n),
+                  _GroupCSection(l10n: l10n),
                   _GroupDSection(),
                   _GroupESection(),
                 ],
@@ -80,9 +79,9 @@ class _ToolbarTwoAction extends StatelessWidget {
           height: 56,
           child: Row(
             children: [
-              // Left: Cancel (text button, no behavior)
+              // Left: Cancel (PARITY: btnBack → finish)
               TextButton(
-                onPressed: null, // No behavior in Correction Mode
+                onPressed: () => Navigator.of(context).pop(),
                 child: Text(
                   l10n.actionCancel,
                   style: AppTextStyles.body.copyWith(
@@ -100,9 +99,9 @@ class _ToolbarTwoAction extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              // Right: Done (text button, no behavior)
+              // Right: Done (PARITY: btnRight → finish)
               TextButton(
-                onPressed: null, // No behavior in Correction Mode
+                onPressed: () => Navigator.of(context).pop(),
                 child: Text(
                   l10n.actionDone,
                   style: AppTextStyles.body.copyWith(
@@ -250,7 +249,9 @@ class _HeaderSection extends StatelessWidget {
 // Each wrapped in a LinearLayout with specific marginTop
 
 class _GroupASection extends StatelessWidget {
-  const _GroupASection();
+  const _GroupASection({required this.l10n});
+
+  final AppLocalizations l10n;
 
   @override
   Widget build(BuildContext context) {
@@ -258,16 +259,17 @@ class _GroupASection extends StatelessWidget {
     // No marginTop for first group
     return Column(
       children: [
-        // Placeholder items (adapter_master_setting.xml)
-        _DeviceTile(groupId: 'A', deviceName: 'Device 1', isMaster: true),
-        _DeviceTile(groupId: 'A', deviceName: 'Device 2', isMaster: false),
+        _DeviceTile(groupId: 'A', deviceName: 'Device 1', isMaster: true, l10n: l10n),
+        _DeviceTile(groupId: 'A', deviceName: 'Device 2', isMaster: false, l10n: l10n),
       ],
     );
   }
 }
 
 class _GroupBSection extends StatelessWidget {
-  const _GroupBSection();
+  const _GroupBSection({required this.l10n});
+
+  final AppLocalizations l10n;
 
   @override
   Widget build(BuildContext context) {
@@ -275,15 +277,17 @@ class _GroupBSection extends StatelessWidget {
     // marginTop: 16dp
     return Column(
       children: [
-        const SizedBox(height: 16), // dp_16 marginTop
-        _DeviceTile(groupId: 'B', deviceName: 'Device 3', isMaster: true),
+        const SizedBox(height: 16),
+        _DeviceTile(groupId: 'B', deviceName: 'Device 3', isMaster: true, l10n: l10n),
       ],
     );
   }
 }
 
 class _GroupCSection extends StatelessWidget {
-  const _GroupCSection();
+  const _GroupCSection({required this.l10n});
+
+  final AppLocalizations l10n;
 
   @override
   Widget build(BuildContext context) {
@@ -291,8 +295,8 @@ class _GroupCSection extends StatelessWidget {
     // marginTop: 16dp
     return Column(
       children: [
-        const SizedBox(height: 16), // dp_16 marginTop
-        _DeviceTile(groupId: 'C', deviceName: 'Device 4', isMaster: false),
+        const SizedBox(height: 16),
+        _DeviceTile(groupId: 'C', deviceName: 'Device 4', isMaster: false, l10n: l10n),
       ],
     );
   }
@@ -341,11 +345,13 @@ class _DeviceTile extends StatelessWidget {
     required this.groupId,
     required this.deviceName,
     required this.isMaster,
+    required this.l10n,
   });
 
   final String groupId;
   final String deviceName;
   final bool isMaster;
+  final AppLocalizations l10n;
 
   @override
   Widget build(BuildContext context) {
@@ -402,14 +408,24 @@ class _DeviceTile extends StatelessWidget {
           SizedBox(
             width: 24,
             height: 24,
-            child: IconButton(
+            child: PopupMenuButton<String>(
               padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              onPressed: null, // No behavior in Correction Mode
+              constraints: const BoxConstraints(minWidth: 160),
               icon: CommonIconHelper.getMenuIcon(
                 size: 24,
                 color: AppColors.textPrimary,
               ),
+              onSelected: (value) {
+                // PARITY: reef action_set_master / action_move_group
+                // Placeholder - full impl requires sink/device/group data
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l10n.ledMasterSettingMenuPlaceholder)),
+                );
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(value: 'set_master', child: Text(l10n.ledSetMaster)),
+                PopupMenuItem(value: 'move_group', child: Text(l10n.ledMoveGroup)),
+              ],
             ),
           ),
         ],

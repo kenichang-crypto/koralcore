@@ -6,6 +6,7 @@ String describeAppError(AppLocalizations l10n, AppErrorCode code) {
     case AppErrorCode.deviceBusy:
       return l10n.errorDeviceBusy;
     case AppErrorCode.noActiveDevice:
+    case AppErrorCode.noDeviceSelected:
       return l10n.errorNoDevice;
     case AppErrorCode.notSupported:
       return l10n.errorNotSupported;
@@ -19,6 +20,8 @@ String describeAppError(AppLocalizations l10n, AppErrorCode code) {
       return l10n.errorSinkFull;
     case AppErrorCode.connectLimit:
       return l10n.errorConnectLimit;
+    case AppErrorCode.deviceNotReady:
+      return l10n.deviceNotConnected;
     case AppErrorCode.unknownError:
     default:
       return l10n.errorGeneric;

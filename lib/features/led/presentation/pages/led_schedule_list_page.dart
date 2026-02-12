@@ -65,6 +65,24 @@ class _LedScheduleListViewState extends State<_LedScheduleListView> {
 
         return Scaffold(
           appBar: ReefAppBar(title: Text(l10n.ledScheduleListTitle)),
+          floatingActionButton: session.isReady && !controller.isBusy
+              ? FloatingActionButton(
+                  onPressed: () async {
+                    final result = await Navigator.of(context).push<bool>(
+                      MaterialPageRoute(
+                        builder: (_) => const LedScheduleEditPage(),
+                      ),
+                    );
+                    if (result == true && context.mounted) {
+                      controller.refresh();
+                    }
+                  },
+                  child: CommonIconHelper.getAddIcon(
+                    size: 24,
+                    color: Colors.white,
+                  ),
+                )
+              : null,
           body: RefreshIndicator(
             onRefresh: controller.refresh,
             child: ListView(

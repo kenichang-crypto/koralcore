@@ -4,12 +4,13 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/common/app_context.dart';
 import '../../../../app/common/app_session.dart';
+import '../../../device/presentation/pages/device_settings_page.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../controllers/led_scene_list_controller.dart';
-import '../models/led_scene_summary.dart';
+import '../widgets/led_main_favorite_scene_card.dart';
 import '../widgets/led_main_record_chart_section.dart';
 import 'led_scene_list_page.dart';
 
@@ -80,7 +81,24 @@ class _LedMainView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // A. Toolbar (fixed) - toolbar_device.xml
-                _ToolbarDevice(title: deviceName),
+                _ToolbarDevice(
+                  title: deviceName,
+                  onBack: () => Navigator.of(context).pop(),
+                  onMenu: session.isReady
+                      ? () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const DeviceSettingsPage(),
+                            ),
+                          )
+                      : null,
+                  onFavorite: session.isReady && !controller.isBusy
+                      ? () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const LedSceneListPage(),
+                            ),
+                          )
+                      : null,
+                ),
 
                 // B. Device identification section (fixed) - tv_name / btn_ble / tv_position / tv_group
                 _DeviceIdentificationSection(
@@ -131,8 +149,16 @@ class _LedMainView extends StatelessWidget {
                           )
                       : null,
                 ),
-                // E. Scene list (only scrollable region)
-                Expanded(child: _SceneList(scenes: controller.scenes)),
+                // E. Favorite scene list (only scrollable region)
+                // PARITY: reef-b-app rv_favorite_scene – favorite scenes, clickable when connected.
+                Expanded(
+                  child: _FavoriteSceneArea(
+                    controller: controller,
+                    isConnected: isConnected,
+                    featuresEnabled: session.isReady,
+                    l10n: l10n,
+                  ),
+                ),
               ],
             ),
 
@@ -147,10 +173,19 @@ class _LedMainView extends StatelessWidget {
 }
 
 /// A. Toolbar – mirrors `toolbar_device.xml` (white background + 2dp divider).
+/// PARITY: back/menu/favorite buttons wired per UX Parity Principles (P4).
 class _ToolbarDevice extends StatelessWidget {
   final String title;
+  final VoidCallback? onBack;
+  final VoidCallback? onMenu;
+  final VoidCallback? onFavorite;
 
-  const _ToolbarDevice({required this.title});
+  const _ToolbarDevice({
+    required this.title,
+    this.onBack,
+    this.onMenu,
+    this.onFavorite,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -164,14 +199,17 @@ class _ToolbarDevice extends StatelessWidget {
             child: Row(
               children: [
                 // btn_back (56x44dp, padding 16/8/16/8)
-                SizedBox(
-                  width: 56,
-                  height: 44,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                    child: CommonIconHelper.getBackIcon(
-                      size: 24,
-                      color: AppColors.textPrimary,
+                InkWell(
+                  onTap: onBack,
+                  child: SizedBox(
+                    width: 56,
+                    height: 44,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      child: CommonIconHelper.getBackIcon(
+                        size: 24,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                   ),
                 ),
@@ -240,6 +278,7 @@ class _DeviceIdentificationSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     // Layout notes (activity_led_main.xml):
     // - tv_name: marginStart 16dp, marginTop 8dp, marginEnd 4dp
     // - btn_ble: 48x32dp, marginEnd 16dp, aligned with tv_name/tv_position
@@ -297,7 +336,7 @@ class _DeviceIdentificationSection extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Text(
-                    '群組Ａ', // Placeholder text from Android XML tools:text
+                    l10n.groupPlaceholder,
                     style: AppTextStyles.caption2.copyWith(
                       color: AppColors.textTertiary, // text_aa
                     ),
@@ -351,53 +390,56 @@ class _SceneHeader extends StatelessWidget {
   }
 }
 
-/// E. Scene list – only scrollable region. Mirrors `rv_favorite_scene` (RecyclerView).
-class _SceneList extends StatelessWidget {
-  final List<LedSceneSummary> scenes;
+/// E. Favorite scene area – mirrors reef-b-app rv_favorite_scene.
+/// FavoriteSceneAdapter.setEnabled(true) when connected; chips call onClickScene to apply.
+class _FavoriteSceneArea extends StatelessWidget {
+  final LedSceneListController controller;
+  final bool isConnected;
+  final bool featuresEnabled;
+  final AppLocalizations l10n;
 
-  const _SceneList({required this.scenes});
+  const _FavoriteSceneArea({
+    required this.controller,
+    required this.isConnected,
+    required this.featuresEnabled,
+    required this.l10n,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // NOTE: activity_led_main.xml defines rv_favorite_scene with paddingStart/End 8dp, clipToPadding=false.
-    // This implementation keeps padding and makes this the only scrollable region.
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      itemCount: scenes.length,
-      itemBuilder: (context, index) {
-        final scene = scenes[index];
-        final String name = scene.name;
-        return Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: _SceneChip(label: name),
+    final favoriteScenes =
+        controller.scenes.where((scene) => scene.isFavorite).toList();
+
+    if (favoriteScenes.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            l10n.ledFavoriteScenesSubtitle,
+            style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+            textAlign: TextAlign.center,
           ),
-        );
-      },
-    );
-  }
-}
+        ),
+      );
+    }
 
-class _SceneChip extends StatelessWidget {
-  final String label;
-
-  const _SceneChip({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    // PARITY: adapter_favorite_scene.xml uses a disabled MaterialButton with icon (ic_none) and text.
-    // TODO(android @drawable/ic_none): repo 內未發現對應 drawable，暫不顯示 icon。
-    return ElevatedButton(
-      onPressed: null, // disabled (enabled="false" in XML)
-      style: ElevatedButton.styleFrom(
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      child: Text(
-        label,
-        style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
+    // PARITY: rv_favorite_scene – horizontal LinearLayoutManager, padding 8dp
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (int i = 0; i < favoriteScenes.length; i++) ...[
+            LedMainFavoriteSceneCard(
+              scene: favoriteScenes[i],
+              l10n: l10n,
+              isConnected: isConnected,
+              featuresEnabled: featuresEnabled,
+              controller: controller,
+            ),
+            if (i < favoriteScenes.length - 1) const SizedBox(width: 8),
+          ],
+        ],
       ),
     );
   }

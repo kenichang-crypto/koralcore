@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
-import 'package:koralcore/shared/assets/reef_icons.dart'; // TODO: 確認 assets 路徑
+import 'package:koralcore/shared/assets/reef_icon_assets.dart';
 
 import '../../../../app/device/device_snapshot.dart';
 import '../../../../shared/theme/app_colors.dart';
@@ -67,8 +67,8 @@ class DeviceCard extends StatelessWidget {
                         alignment: Alignment.topLeft,
                         child: Image.asset(
                           deviceKind == _DeviceKind.led
-                              ? kDeviceLedIcon
-                              : kDeviceDoserIcon,
+                              ? ReefIconAssets.deviceLed
+                              : ReefIconAssets.deviceDoser,
                           width: double.infinity,
                           height: 50, // dp_50
                           fit: BoxFit.fitWidth,

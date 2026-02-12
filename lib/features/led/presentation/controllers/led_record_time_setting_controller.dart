@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../../../app/common/app_error_code.dart';
 import '../../../../app/common/app_session.dart';
 import '../../../../domain/led_lighting/led_record.dart';
+import '../../../../domain/led_lighting/led_record_state.dart';
 import '../../../../platform/contracts/led_record_repository.dart';
 
 /// Controller for LED record time setting page.
@@ -62,6 +63,8 @@ class LedRecordTimeSettingController extends ChangeNotifier {
   bool get isEditMode => _isEditMode;
   int get timeHour => _timeHour;
   int get timeMinute => _timeMinute;
+  String get timeLabel =>
+      '${_timeHour.toString().padLeft(2, '0')} : ${_timeMinute.toString().padLeft(2, '0')}';
   Map<String, int> get channelLevels => Map.unmodifiable(_channelLevels);
   AppErrorCode? get lastErrorCode => _lastErrorCode;
 
@@ -162,33 +165,66 @@ class LedRecordTimeSettingController extends ChangeNotifier {
       return null;
     }
 
-    // Validate time
-    final int minutesFromMidnight = _timeHour * 60 + _timeMinute;
-    if (minutesFromMidnight < 0 || minutesFromMidnight >= 1440) {
+    // Validate time range
+    final int selectTime = _timeHour * 60 + _timeMinute;
+    if (selectTime < 0 || selectTime >= 1440) {
       onTimeError();
       return null;
     }
 
-    // TODO: Check if time already exists (if not in edit mode)
-    // This requires checking existing records
+    // Fetch existing records and validate (PARITY: reef-b-app canAddRecord)
+    final LedRecordState state =
+        await ledRecordRepository.getState(deviceId);
+    final records = List<LedRecord>.from(state.records)
+      ..sort((a, b) => a.minutesFromMidnight.compareTo(b.minutesFromMidnight));
+
+    // In edit mode, exclude the record being edited for validation
+    final recordsForValidation = _isEditMode && initialRecord != null
+        ? records.where((r) => r.id != initialRecord!.id).toList()
+        : records;
+
+    for (var i = 0; i < recordsForValidation.length; i++) {
+      final nowRecordTime = recordsForValidation[i].minutesFromMidnight;
+      final nextRecordTime = i == recordsForValidation.length - 1
+          ? 1440
+          : recordsForValidation[i + 1].minutesFromMidnight;
+
+      if (selectTime == nowRecordTime) {
+        if (_isEditMode) {
+          // In edit mode, same time as another record - still invalid
+          onTimeExists();
+          return null;
+        }
+        // Could be our own record in edit - but we excluded it, so this is another
+        onTimeExists();
+        return null;
+      }
+
+      if (selectTime > nowRecordTime && selectTime < nextRecordTime) {
+        if (selectTime < nowRecordTime + 10 || selectTime > nextRecordTime - 10) {
+          onTimeError();
+          return null;
+        }
+      }
+    }
 
     _isLoading = true;
     notifyListeners();
 
     try {
-      // TODO: Send BLE SET_RECORD command (0x27)
-      // For now, simulate
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      // Create record
-      final LedRecord record = LedRecord(
-        id: 'record-${DateTime.now().millisecondsSinceEpoch}',
-        minutesFromMidnight: minutesFromMidnight,
+      await ledRecordRepository.setRecord(
+        deviceId: deviceId,
+        hour: _timeHour,
+        minute: _timeMinute,
         channelLevels: Map<String, int>.from(_channelLevels),
       );
 
       _clearError();
-      return record;
+      return LedRecord(
+        id: 'record-$selectTime',
+        minutesFromMidnight: selectTime,
+        channelLevels: Map.unmodifiable(_channelLevels),
+      );
     } catch (e) {
       _setError(AppErrorCode.unknownError);
       return null;

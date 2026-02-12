@@ -1,148 +1,299 @@
 // PARITY: 100% Android activity_drop_type.xml
 // android/ReefB_Android/app/src/main/res/layout/activity_drop_type.xml
-// Mode: Correction (路徑 B：完全 Parity 化)
 //
-// Android 結構：
-// - Root: ConstraintLayout
-// - Toolbar: include toolbar_two_action (固定)
-// - RecyclerView: rv_drop_type (可捲動)
-// - FloatingActionButton: fab_add_drop_type (固定右下)
-// - Progress: include progress (visibility=gone)
-//
-// 所有業務邏輯已移除，僅保留 UI 結構。
+// PARITY: reef DropTypeActivity - back->finish, right->setResult+finish, FAB->add,
+// tap->edit, longPress->delete (with isUsed check)
 
 import 'package:flutter/material.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../app/common/app_context.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
+import '../../../../shared/widgets/edit_text_bottom_sheet.dart';
+import '../controllers/drop_type_controller.dart';
 
-/// DropTypePage (Parity Mode)
+class _DropTypeListItem {
+  final int id;
+  final String name;
+  final bool isPreset;
+
+  _DropTypeListItem({
+    required this.id,
+    required this.name,
+    required this.isPreset,
+  });
+}
+
+/// DropTypePage - PARITY with reef DropTypeActivity
 ///
-/// PARITY: android/ReefB_Android/app/src/main/res/layout/activity_drop_type.xml
-///
-/// 此頁面為純 UI Parity 實作，無業務邏輯。
-/// - 所有按鈕 onPressed = null
-/// - 不實作 Add/Edit/Delete
-/// - 不實作 Controller、State
+/// reef: back->finish, right->setResult(drop_type_id)+finish, FAB->add,
+/// tap->edit, longPress->delete
 class DropTypePage extends StatelessWidget {
-  const DropTypePage({super.key});
+  /// Initial drop type id when opened as selector (e.g. from pump head settings).
+  final int? initialDropTypeId;
+
+  const DropTypePage({super.key, this.initialDropTypeId});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final appContext = context.read<AppContext>();
 
-    return Scaffold(
-      backgroundColor: AppColors.surfaceMuted,
-      // PARITY: Stack for overlay
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              // PARITY: toolbar_two_action (Line 8-13)
-              _ToolbarTwoAction(l10n: l10n),
-              // PARITY: rv_drop_type (Line 15-23)
-              // RecyclerView with layout_height="0dp" (fills remaining space)
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.zero,
-                  children: [
-                    // Item 0: "No" (無)
-                    _DropTypeItem(
-                      name:
-                          'TODO(android @string/no)', // TODO(android @string/no)
-                      isSelected: false,
-                      onTap: null,
-                      onEditPressed: null, // No edit button for "No" option
-                    ),
-                    // Item 1-N: Drop types
-                    _DropTypeItem(
-                      name: 'Type A', // Placeholder
-                      isSelected: true,
-                      onTap: null,
-                      onEditPressed: null,
-                    ),
-                    _DropTypeItem(
-                      name: 'Type B', // Placeholder
-                      isSelected: false,
-                      onTap: null,
-                      onEditPressed: null,
-                    ),
-                    _DropTypeItem(
-                      name: 'Type C', // Placeholder
-                      isSelected: false,
-                      onTap: null,
-                      onEditPressed: null,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          // PARITY: fab_add_drop_type (Line 25-33)
-          // FloatingActionButton fixed at bottom-right
-          Positioned(
-            right: 16, // dp_16 margin
-            bottom: 16, // dp_16 margin
-            child: FloatingActionButton(
-              onPressed: null, // Disabled in Parity Mode
-              child: CommonIconHelper.getAddIcon(size: 24, 
-                size: 24,
-                color: AppColors.onPrimary,
-              ),
-            ),
-          ),
-          // PARITY: progress (Line 35-40, visibility="gone")
-          _ProgressOverlay(visible: false),
-        ],
-      ),
+    return ChangeNotifierProvider<DropTypeController>(
+      create: (_) => DropTypeController(
+        dropTypeRepository: appContext.dropTypeRepository,
+        pumpHeadRepository: appContext.pumpHeadRepository,
+        initialDropTypeId: initialDropTypeId,
+      )..initialize(),
+      child: const _DropTypePageContent(),
     );
   }
 }
 
-/// PARITY: toolbar_two_action.xml
-/// - Title: activity_drop_type_title
-/// - Left: btn_back (ic_close)
-/// - Right: btn_right (activity_sink_position_toolbar_right_btn = "完成")
+class _DropTypePageContent extends StatelessWidget {
+  const _DropTypePageContent();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Consumer<DropTypeController>(
+      builder: (context, controller, _) {
+        // reef: prepend DropType(0, "No")
+        final List<_DropTypeListItem> items = [
+          _DropTypeListItem(id: 0, name: l10n.generalNone, isPreset: true),
+          ...controller.dropTypes.map((dt) => _DropTypeListItem(
+                id: dt.id,
+                name: dt.name,
+                isPreset: dt.isPreset,
+              )),
+        ];
+        final selectedId = controller.selectedDropTypeId ?? 0;
+
+        return Scaffold(
+          backgroundColor: AppColors.surfaceMuted,
+          body: Stack(
+            children: [
+              Column(
+                children: [
+                  _ToolbarTwoAction(
+                    l10n: l10n,
+                    onBack: () => Navigator.of(context).pop(),
+                    onConfirm: () => Navigator.of(context).pop(selectedId),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        final item = items[index];
+                        final isNo = item.id == 0;
+                        return _DropTypeItem(
+                          id: item.id,
+                          name: item.name,
+                          selectedId: selectedId,
+                          onTap: () =>
+                              controller.setSelectedDropTypeId(item.id),
+                          onEditPressed: isNo
+                              ? null
+                              : () => _showEditDropTypeBottomSheet(
+                                    context,
+                                    controller,
+                                    item.id,
+                                    item.name,
+                                  ),
+                          onLongPress: isNo
+                              ? null
+                              : () => _showDeleteDropTypeDialog(
+                                    context,
+                                    controller,
+                                    item.id,
+                                  ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              Positioned(
+                right: 16,
+                bottom: 16,
+                child: FloatingActionButton(
+                  onPressed: () =>
+                      _showAddDropTypeBottomSheet(context, controller),
+                  child: CommonIconHelper.getAddIcon(
+                    size: 24,
+                    color: AppColors.onPrimary,
+                  ),
+                ),
+              ),
+              _ProgressOverlay(visible: controller.isLoading),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+Future<void> _showAddDropTypeBottomSheet(
+  BuildContext context,
+  DropTypeController controller,
+) async {
+  final result = await EditTextBottomSheet.show(
+    context,
+    type: EditTextBottomSheetType.addDropType,
+  );
+  if (context.mounted && result != null && result.trim().isNotEmpty) {
+    final success = await controller.addDropType(result.trim());
+    if (context.mounted && success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).dropTypeAddSuccess),
+        ),
+      );
+    } else if (context.mounted && !success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).dropTypeNameExists),
+        ),
+      );
+    }
+  }
+}
+
+Future<void> _showEditDropTypeBottomSheet(
+  BuildContext context,
+  DropTypeController controller,
+  int id,
+  String currentName,
+) async {
+  final result = await EditTextBottomSheet.show(
+    context,
+    type: EditTextBottomSheetType.editDropType,
+    initialValue: currentName,
+  );
+  if (context.mounted && result != null && result.trim().isNotEmpty) {
+    final success = await controller.editDropType(id, result.trim());
+    if (context.mounted && success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).dropTypeEditSuccess),
+        ),
+      );
+    } else if (context.mounted && !success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).dropTypeNameExists),
+        ),
+      );
+    }
+  }
+}
+
+Future<void> _showDeleteDropTypeDialog(
+  BuildContext context,
+  DropTypeController controller,
+  int id,
+) async {
+  final l10n = AppLocalizations.of(context);
+  final isUsed = await controller.isDropTypeUsed(id);
+  if (!context.mounted) return;
+
+  if (isUsed) {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.dropTypeDeleteUsedTitle),
+        content: Text(l10n.dropTypeDeleteUsedContent),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.actionCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.actionDelete),
+          ),
+        ],
+      ),
+    );
+    if (context.mounted && confirmed == true) {
+      await controller.deleteDropType(id);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.dropTypeDeleteSuccess)),
+        );
+      }
+    }
+  } else {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.dropTypeDeleteTitle),
+        content: Text(l10n.dropTypeDeleteContent),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.actionCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.actionDelete),
+          ),
+        ],
+      ),
+    );
+    if (context.mounted && confirmed == true) {
+      await controller.deleteDropType(id);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.dropTypeDeleteSuccess)),
+        );
+      }
+    }
+  }
+}
+
 class _ToolbarTwoAction extends StatelessWidget {
   final AppLocalizations l10n;
+  final VoidCallback onBack;
+  final VoidCallback onConfirm;
 
-  const _ToolbarTwoAction({required this.l10n});
+  const _ToolbarTwoAction({
+    required this.l10n,
+    required this.onBack,
+    required this.onConfirm,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: AppColors.primary,
-      padding: const EdgeInsets.only(
-        top: 40,
-        bottom: 8,
-      ), // Status bar + padding
+      padding: const EdgeInsets.only(top: 40, bottom: 8),
       child: Row(
         children: [
-          // btn_back (ic_close)
           IconButton(
             icon: CommonIconHelper.getCloseIcon(
               size: 24,
               color: AppColors.onPrimary,
             ),
-            onPressed: null, // Disabled in Parity Mode
+            onPressed: onBack,
           ),
-          // toolbar_title
           Expanded(
             child: Text(
-              'TODO(android @string/activity_drop_type_title)', // TODO(android @string/activity_drop_type_title)
+              l10n.dosingTypeTitle,
               style: AppTextStyles.title2.copyWith(color: AppColors.onPrimary),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          // btn_right ("完成")
           TextButton(
-            onPressed: null, // Disabled in Parity Mode
+            onPressed: onConfirm,
             child: Text(
-              'TODO(android @string/activity_sink_position_toolbar_right_btn)', // TODO(android @string/activity_sink_position_toolbar_right_btn)
+              l10n.actionConfirm,
               style: AppTextStyles.body.copyWith(color: AppColors.onPrimary),
             ),
           ),
@@ -152,66 +303,60 @@ class _ToolbarTwoAction extends StatelessWidget {
   }
 }
 
-/// PARITY: adapter_drop_type.xml
-/// - ConstraintLayout (padding 16/0/16/0dp)
-/// - RadioButton
-/// - tv_name (body, text_aaaa)
-/// - btn_edit (24x24dp, optional)
-/// - Divider (bg_press)
 class _DropTypeItem extends StatelessWidget {
+  final int id;
   final String name;
-  final bool isSelected;
+  final int selectedId;
   final VoidCallback? onTap;
   final VoidCallback? onEditPressed;
+  final VoidCallback? onLongPress;
 
   const _DropTypeItem({
+    required this.id,
     required this.name,
-    required this.isSelected,
-    required this.onTap,
+    required this.selectedId,
+    this.onTap,
     this.onEditPressed,
+    this.onLongPress,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-            ), // dp_16 paddingStart/End
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                // RadioButton
-                Radio<bool>(
-                  value: true,
-                  groupValue: isSelected,
-                  onChanged: null, // Disabled in Parity Mode
+                Radio<int>(
+                  value: id,
+                  groupValue: selectedId,
+                  onChanged: onTap != null ? (_) => onTap!() : null,
                 ),
-                const SizedBox(width: 16), // dp_16 marginEnd
-                // tv_name (body, text_aaaa)
+                const SizedBox(width: 16),
                 Expanded(
                   child: Text(
                     name,
                     style: AppTextStyles.body.copyWith(
-                      color: AppColors.textPrimary, // text_aaaa
+                      color: AppColors.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                // btn_edit (24x24dp, optional)
                 if (onEditPressed != null) ...[
-                  const SizedBox(width: 16), // dp_16 marginEnd
+                  const SizedBox(width: 16),
                   IconButton(
-                    icon: CommonIconHelper.getEditIcon(size: 24, 
+                    icon: CommonIconHelper.getEditIcon(
                       size: 24,
                       color: AppColors.textPrimary,
                     ),
-                    onPressed: null, // Disabled in Parity Mode
+                    onPressed: onEditPressed,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(
                       minWidth: 24,
@@ -222,11 +367,10 @@ class _DropTypeItem extends StatelessWidget {
               ],
             ),
           ),
-          // Divider (bg_press)
           Divider(
-            height: 1, // dp_1
-            thickness: 1, // dp_1
-            color: AppColors.surfacePressed, // bg_press
+            height: 1,
+            thickness: 1,
+            color: AppColors.surfacePressed,
           ),
         ],
       ),
@@ -234,8 +378,6 @@ class _DropTypeItem extends StatelessWidget {
   }
 }
 
-/// PARITY: progress.xml (include layout)
-/// Full-screen overlay with CircularProgressIndicator
 class _ProgressOverlay extends StatelessWidget {
   final bool visible;
 
@@ -246,7 +388,7 @@ class _ProgressOverlay extends StatelessWidget {
     return Visibility(
       visible: visible,
       child: Container(
-        color: Colors.black.withValues(alpha: 0.3), // Semi-transparent overlay
+        color: Colors.black.withValues(alpha: 0.3),
         child: const Center(child: CircularProgressIndicator()),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
@@ -13,6 +14,7 @@ import '../controllers/device_list_controller.dart';
 import '../widgets/device_card.dart';
 import '../../../led/presentation/pages/led_main_page.dart';
 import '../../../doser/presentation/pages/dosing_main_page.dart';
+import 'add_device_page.dart';
 
 class DeviceTabPage extends StatelessWidget {
   const DeviceTabPage({super.key});
@@ -53,7 +55,10 @@ class DeviceTabPage extends StatelessWidget {
             itemCount: devices.length,
             itemBuilder: (context, index) {
               final device = devices[index];
-              return _DeviceCardWithSink(device: device);
+              return _DeviceCardWithSink(
+                device: device,
+                controller: controller,
+              );
             },
           ),
         ),
@@ -66,8 +71,12 @@ class DeviceTabPage extends StatelessWidget {
 /// PARITY: reef-b-app DeviceAdapter.bind() gets sink name from dbSink.getSinkById()
 class _DeviceCardWithSink extends StatelessWidget {
   final DeviceSnapshot device;
+  final DeviceListController controller;
 
-  const _DeviceCardWithSink({required this.device});
+  const _DeviceCardWithSink({
+    required this.device,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -87,11 +96,14 @@ class _DeviceCardWithSink extends StatelessWidget {
       }
     }
 
+    final selectionMode = controller.selectionMode;
     return DeviceCard(
       device: device,
-      selectionMode: false,
-      isSelected: false,
-      onSelect: null,
+      selectionMode: selectionMode,
+      isSelected: controller.selectedIds.contains(device.id),
+      onSelect: selectionMode
+          ? () => controller.toggleSelection(device.id)
+          : null,
       onTap: () => _navigateToDeviceMainPage(context, device),
       sinkName: sinkName,
     );
@@ -137,11 +149,9 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // PARITY: img_device_robot - 172x199dp
-          // NOTE: Flutter 目前使用既有 assets 內的 device_empty.png 代替（結構對齊，視覺資源待補）
-          // TODO(android @drawable/img_device_robot): 導入/轉換 Android img_device_robot 資源
-          Image.asset(
-            'assets/icons/device_empty.png',
+          // PARITY: img_device_robot - 172x199dp (fragment_device.xml)
+          SvgPicture.asset(
+            'assets/icons/img_device_robot.svg',
             width: 172.0, // dp_172
             height: 199.0, // dp_199
             fit: BoxFit.contain,
@@ -163,14 +173,12 @@ class _EmptyState extends StatelessWidget {
               bottom: 8.0, // dp_8 marginBottom
             ),
             child: FilledButton(
-              // TODO: Navigate to AddDevicePage (第五階段實現)
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('功能開發中 / Feature under development'),
-                  ),
-                );
-              },
+              // PARITY: btn_add_device → AddDevicePage (UX Parity P4)
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const AddDevicePage(),
+                ),
+              ),
               child: Text(
                 l10n.deviceActionAdd,
               ), // PARITY: add_device (@string/add_device)

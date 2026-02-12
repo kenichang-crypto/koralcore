@@ -1,0 +1,253 @@
+diff --git a/lib/app/main_shell_page.dart b/lib/app/main_shell_page.dart
+index 535fdc9..810b778 100644
+--- a/lib/app/main_shell_page.dart
++++ b/lib/app/main_shell_page.dart
+@@ -4,9 +4,13 @@ import 'package:provider/provider.dart';
+ 
+ import '../l10n/app_localizations.dart';
+ import '../shared/theme/app_colors.dart';
++import '../shared/theme/app_text_styles.dart';
++import '../shared/assets/common_icon_helper.dart';
+ import '../features/home/presentation/pages/home_tab_page.dart';
+ import '../features/bluetooth/presentation/pages/bluetooth_tab_page.dart';
+ import '../features/device/presentation/pages/device_tab_page.dart';
++import '../app/device/device_snapshot.dart';
++import '../features/device/presentation/controllers/device_list_controller.dart';
+ import 'navigation_controller.dart';
+ 
+ /// Main shell page mirroring reef-b-app's MainActivity layout structure.
+@@ -43,7 +47,7 @@ class MainShellPage extends StatelessWidget {
+       // Top: toolbar_app (structural placeholder; actual buttons are fragment-specific on Android)
+       body: Column(
+         children: [
+-          const _MainToolbarApp(),
++          _MainToolbarApp(navIndex: controller.index),
+           Expanded(
+             // Middle: fragment host => tab content
+             child: IndexedStack(
+@@ -78,11 +82,20 @@ class MainShellPage extends StatelessWidget {
+   }
+ }
+ 
++/// PARITY: toolbar_app.xml - white toolbar, optional controls per fragment.
++/// When Device tab active: btn_choose (Select) + btn_delete (when selection mode).
+ class _MainToolbarApp extends StatelessWidget {
+-  const _MainToolbarApp();
++  final int navIndex;
++
++  const _MainToolbarApp({required this.navIndex});
+ 
+   @override
+   Widget build(BuildContext context) {
++    // PARITY: reef-b-app hides toolbar for HomeFragment
++    if (navIndex == 0) {
++      return const SizedBox.shrink();
++    }
++
+     // PARITY: docs/reef_b_app_res/layout/toolbar_app.xml
+     // - White toolbar background + 2dp bottom divider (bg_press)
+     return Material(
+@@ -92,12 +105,7 @@ class _MainToolbarApp extends StatelessWidget {
+           SizedBox(
+             height: kToolbarHeight,
+             width: double.infinity,
+-            child: Row(
+-              children: const [
+-                // Intentionally empty: Android toolbar_app shows/uses optional controls
+-                // depending on the active fragment. Gate: do not invent UI here.
+-              ],
+-            ),
++            child: _ToolbarContent(navIndex: navIndex),
+           ),
+           Container(
+             height: 2,
+@@ -109,6 +117,141 @@ class _MainToolbarApp extends StatelessWidget {
+   }
+ }
+ 
++class _ToolbarContent extends StatelessWidget {
++  final int navIndex;
++
++  const _ToolbarContent({required this.navIndex});
++
++  @override
++  Widget build(BuildContext context) {
++    final l10n = AppLocalizations.of(context);
++
++    // Device tab (index 2): show Select + Delete when devices exist
++    if (navIndex == 2) {
++      final deviceListController = context.watch<DeviceListController>();
++      final devices = deviceListController.savedDevices;
++      final selectionMode = deviceListController.selectionMode;
++
++      if (devices.isEmpty) {
++        return _buildTitleRow(context, l10n.deviceHeader);
++      }
++
++      return Row(
++        children: [
++          // btn_choose: Select / Cancel - toggles selection mode
++          TextButton(
++            onPressed: () {
++              if (selectionMode) {
++                deviceListController.exitSelectionMode();
++              } else {
++                deviceListController.enterSelectionMode();
++              }
++            },
++            child: Text(
++              l10n.deviceSelectMode, // PARITY: btn_choose always shows fragment_device_select
++              style: AppTextStyles.caption1.copyWith(color: AppColors.primaryStrong),
++            ),
++          ),
++          if (selectionMode) ...[
++            const SizedBox(width: 8),
++            // btn_delete: delete icon - visible only in selection mode
++            IconButton(
++              icon: CommonIconHelper.getDeleteIcon(size: 24, color: AppColors.textPrimary),
++              onPressed: deviceListController.selectedIds.isEmpty
++                  ? null
++                  : () => _onDeletePressed(context, deviceListController),
++              padding: EdgeInsets.zero,
++              constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
++            ),
++          ],
++          const Spacer(),
++        ],
++      );
++    }
++
++    // Bluetooth tab (index 1)
++    return _buildTitleRow(context, l10n.bluetoothOtherDevice);
++  }
++
++  Widget _buildTitleRow(BuildContext context, String title) {
++    return Align(
++      alignment: Alignment.centerLeft,
++      child: Padding(
++        padding: const EdgeInsets.symmetric(horizontal: 16),
++        child: Text(
++          title,
++          style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
++        ),
++      ),
++    );
++  }
++
++  Future<void> _onDeletePressed(BuildContext context, DeviceListController deviceListController) async {
++    final l10n = AppLocalizations.of(context);
++    final selectedIds = deviceListController.selectedIds.toList();
++    if (selectedIds.isEmpty) return;
++
++    final devices = deviceListController.savedDevices;
++    for (final id in selectedIds) {
++      DeviceSnapshot? device;
++      for (final d in devices) {
++        if (d.id == id) {
++          device = d;
++          break;
++        }
++      }
++      if (device != null &&
++          (device.type?.toLowerCase().contains('led') ?? false) &&
++          !(await deviceListController.canDeleteDevice(id))) {
++        if (context.mounted) {
++          await showDialog<void>(
++            context: context,
++            builder: (ctx) => AlertDialog(
++              title: Text(l10n.deviceDeleteLedMasterTitle),
++              content: Text(l10n.deviceDeleteLedMasterContent),
++              actions: [
++                FilledButton(
++                  onPressed: () => Navigator.of(ctx).pop(),
++                  child: Text(l10n.deviceDeleteLedMasterPositive),
++                ),
++              ],
++            ),
++          );
++          deviceListController.exitSelectionMode();
++        }
++        return;
++      }
++    }
++
++    if (!context.mounted) return;
++    final confirmed = await showDialog<bool>(
++      context: context,
++      builder: (ctx) => AlertDialog(
++        content: Text(l10n.deviceDeleteConfirmMessage),
++        actions: [
++          TextButton(
++            onPressed: () => Navigator.of(ctx).pop(false),
++            child: Text(l10n.deviceDeleteConfirmSecondary),
++          ),
++          FilledButton(
++            onPressed: () => Navigator.of(ctx).pop(true),
++            child: Text(l10n.deviceDeleteConfirmPrimary),
++          ),
++        ],
++      ),
++    );
++
++    if (confirmed == true && context.mounted) {
++      await deviceListController.removeSelected();
++      if (context.mounted) {
++        ScaffoldMessenger.of(context).showSnackBar(
++          SnackBar(content: Text(l10n.snackbarDeviceRemoved)),
++        );
++      }
++    }
++  }
++}
++
+ class _NavItem {
+   final String label;
+   final String asset;
+diff --git a/lib/features/device/presentation/pages/device_tab_page.dart b/lib/features/device/presentation/pages/device_tab_page.dart
+index c23f122..1608723 100644
+--- a/lib/features/device/presentation/pages/device_tab_page.dart
++++ b/lib/features/device/presentation/pages/device_tab_page.dart
+@@ -53,7 +53,10 @@ class DeviceTabPage extends StatelessWidget {
+             itemCount: devices.length,
+             itemBuilder: (context, index) {
+               final device = devices[index];
+-              return _DeviceCardWithSink(device: device);
++              return _DeviceCardWithSink(
++                device: device,
++                controller: controller,
++              );
+             },
+           ),
+         ),
+@@ -66,8 +69,12 @@ class DeviceTabPage extends StatelessWidget {
+ /// PARITY: reef-b-app DeviceAdapter.bind() gets sink name from dbSink.getSinkById()
+ class _DeviceCardWithSink extends StatelessWidget {
+   final DeviceSnapshot device;
++  final DeviceListController controller;
+ 
+-  const _DeviceCardWithSink({required this.device});
++  const _DeviceCardWithSink({
++    required this.device,
++    required this.controller,
++  });
+ 
+   @override
+   Widget build(BuildContext context) {
+@@ -87,11 +94,14 @@ class _DeviceCardWithSink extends StatelessWidget {
+       }
+     }
+ 
++    final selectionMode = controller.selectionMode;
+     return DeviceCard(
+       device: device,
+-      selectionMode: false,
+-      isSelected: false,
+-      onSelect: null,
++      selectionMode: selectionMode,
++      isSelected: controller.selectedIds.contains(device.id),
++      onSelect: selectionMode
++          ? () => controller.toggleSelection(device.id)
++          : null,
+       onTap: () => _navigateToDeviceMainPage(context, device),
+       sinkName: sinkName,
+     );

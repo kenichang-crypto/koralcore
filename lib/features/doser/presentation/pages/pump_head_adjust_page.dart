@@ -33,8 +33,13 @@ import '../widgets/pump_head_adjust_loading_overlay.dart';
 /// 6. Click "Complete Calibration" to submit result
 class PumpHeadAdjustPage extends StatelessWidget {
   final String headId;
+  final int? initialSpeed;
 
-  const PumpHeadAdjustPage({super.key, required this.headId});
+  const PumpHeadAdjustPage({
+    super.key,
+    required this.headId,
+    this.initialSpeed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +50,7 @@ class PumpHeadAdjustPage extends StatelessWidget {
         headId: headId,
         session: session,
         bleAdapter: appContext.bleAdapter,
+        initialSpeed: initialSpeed,
       ),
       child: _PumpHeadAdjustView(headId: headId),
     );

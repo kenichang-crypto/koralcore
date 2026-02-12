@@ -7,6 +7,7 @@ import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
 import '../controllers/sink_manager_controller.dart';
+import 'sink_manager_page.dart';
 
 /// Sink position selection page.
 ///
@@ -39,32 +40,35 @@ class _SinkPositionView extends StatefulWidget {
 }
 
 class _SinkPositionViewState extends State<_SinkPositionView> {
+  String? _selectedSinkId;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedSinkId = widget.initialSinkId;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final controller = context.watch<SinkManagerController>();
-    final String? selectedSinkId = widget.initialSinkId;
 
     // PARITY: activity_sink_position.xml
-    // - include toolbar_two_action
-    // - rv_sink (RecyclerView) as main scrollable content
-    // - fab_add_sink (ic_add_white) bottom-end, margin 16dp
-    // - include progress overlay (gone by default)
     return Scaffold(
-      backgroundColor: AppColors.surfaceMuted, // matches sink manager bg_aaa
+      backgroundColor: AppColors.surfaceMuted,
       body: SafeArea(
         child: Stack(
           children: [
             Column(
               children: [
                 _ToolbarTwoAction(
-                  // TODO(android @string/sink_position): 若 ARB 缺少對應翻譯，請補齊後改用正確字串
                   title: l10n.sinkPositionTitle,
-                  rightText: l10n.actionConfirm, // @string/confirm
+                  rightText: l10n.actionConfirm,
+                  onBack: () => Navigator.of(context).pop(),
+                  onConfirm: () => Navigator.of(context).pop(_selectedSinkId),
                 ),
                 Expanded(
                   child: ListView.builder(
-                    // PARITY: rv_sink
                     padding: EdgeInsets.zero,
                     itemCount: controller.sinks.length,
                     itemBuilder: (context, index) {
@@ -72,9 +76,8 @@ class _SinkPositionViewState extends State<_SinkPositionView> {
                       return _SinkSelectTile(
                         name: sink.name,
                         isSelected:
-                            selectedSinkId != null && selectedSinkId == sink.id,
-                        // UI parity only: no onTap behavior
-                        onTap: null,
+                            _selectedSinkId != null && _selectedSinkId == sink.id,
+                        onTap: () => setState(() => _selectedSinkId = sink.id),
                       );
                     },
                   ),
@@ -85,8 +88,16 @@ class _SinkPositionViewState extends State<_SinkPositionView> {
               right: 16,
               bottom: 16,
               child: FloatingActionButton(
-                // UI parity only: no onTap behavior
-                onPressed: null,
+                onPressed: () {
+                  // PARITY: fab_add_sink - navigate to add sink (SinkManagerPage handles add)
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const SinkManagerPage(),
+                    ),
+                  ).then((_) {
+                    if (context.mounted) controller.reload();
+                  });
+                },
                 backgroundColor: AppColors.primary,
                 child: CommonIconHelper.getAddWhiteIcon(size: 24),
               ),
@@ -102,15 +113,18 @@ class _SinkPositionViewState extends State<_SinkPositionView> {
 class _ToolbarTwoAction extends StatelessWidget {
   final String title;
   final String rightText;
+  final VoidCallback? onBack;
+  final VoidCallback? onConfirm;
 
-  const _ToolbarTwoAction({required this.title, required this.rightText});
+  const _ToolbarTwoAction({
+    required this.title,
+    required this.rightText,
+    this.onBack,
+    this.onConfirm,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // PARITY: toolbar_two_action.xml
-    // - White background, centered title
-    // - Right text button visible for confirm
-    // - 2dp bottom divider
     return Material(
       color: AppColors.surface,
       child: Column(
@@ -120,15 +134,17 @@ class _ToolbarTwoAction extends StatelessWidget {
             width: double.infinity,
             child: Row(
               children: [
-                // Left placeholder for back icon area (56x44dp)
-                SizedBox(
-                  width: 56,
-                  height: 44,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                    child: CommonIconHelper.getBackIcon(
-                      size: 24,
-                      color: AppColors.textPrimary,
+                InkWell(
+                  onTap: onBack,
+                  child: SizedBox(
+                    width: 56,
+                    height: 44,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      child: CommonIconHelper.getBackIcon(
+                        size: 24,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                   ),
                 ),
@@ -144,12 +160,10 @@ class _ToolbarTwoAction extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                // Right: btn_right (text button)
                 Padding(
                   padding: const EdgeInsets.only(right: 16),
                   child: TextButton(
-                    // UI parity only: no onTap behavior
-                    onPressed: null,
+                    onPressed: onConfirm,
                     child: Text(
                       rightText,
                       style: AppTextStyles.caption1.copyWith(

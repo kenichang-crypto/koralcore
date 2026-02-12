@@ -18,6 +18,7 @@ import '../../../device/presentation/controllers/device_list_controller.dart';
 import '../controllers/home_controller.dart';
 import '../../../led/presentation/pages/led_main_page.dart';
 import '../../../doser/presentation/pages/dosing_main_page.dart';
+import '../../../sink/presentation/pages/sink_manager_page.dart';
 
 class HomeTabPage extends StatelessWidget {
   const HomeTabPage({super.key});
@@ -53,14 +54,11 @@ class _HomePageView extends StatelessWidget {
           child: _HomeFixedHeaderLayout(
             header: _SinkSelectorBar(
               controller: controller,
-              // TODO: Navigate to SinkManagerPage (第二階段實現)
-              onManagerTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('功能開發中 / Feature under development'),
-                  ),
-                );
-              },
+              onManagerTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const SinkManagerPage(),
+                ),
+              ),
               l10n: l10n,
             ),
             body: controller.selectionType == SinkSelectionType.allSinks

@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../app/common/app_context.dart';
+import '../../../../app/common/app_session.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
+import 'dart:math' as math;
+
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/theme/app_text_styles.dart';
+import '../controllers/led_record_controller.dart';
 import '../controllers/led_scene_list_controller.dart';
 import '../widgets/led_record_line_chart.dart';
 import '../pages/led_record_page.dart';
@@ -105,14 +111,41 @@ class LedMainRecordChartSection extends StatelessWidget {
                       iconSize: 24,
                       tooltip: l10n.ledEntryRecords,
                       onPressed: featuresEnabled
-                          ? () {
-                              // PARITY: reef-b-app logic
-                              // If records are empty, navigate to record setting page
-                              // Otherwise, navigate to record list page
+                          ? () async {
+                              // PARITY: reef-b-app clickBtnRecordMore
+                              // If previewing, stop preview only (no navigation)
+                              if (controller.isPreviewing) {
+                                await controller.stopPreview();
+                                return;
+                              }
+                              // Else: empty → Setting, has records → Record
+                              if (!context.mounted) return;
                               if (controller.hasRecords) {
+                                final session = context.read<AppSession>();
+                                final appContext = context.read<AppContext>();
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (_) => const LedRecordPage(),
+                                    builder: (ctx) =>
+                                        ChangeNotifierProvider<LedRecordController>(
+                                      create: (_) => LedRecordController(
+                                        session: session,
+                                        observeLedRecordStateUseCase:
+                                            appContext.observeLedRecordStateUseCase,
+                                        readLedRecordStateUseCase:
+                                            appContext.readLedRecordStateUseCase,
+                                        refreshLedRecordStateUseCase:
+                                            appContext.refreshLedRecordStateUseCase,
+                                        deleteLedRecordUseCase:
+                                            appContext.deleteLedRecordUseCase,
+                                        clearLedRecordsUseCase:
+                                            appContext.clearLedRecordsUseCase,
+                                        startLedPreviewUseCase:
+                                            appContext.startLedPreviewUseCase,
+                                        stopLedPreviewUseCase:
+                                            appContext.stopLedPreviewUseCase,
+                                      )..initialize(),
+                                      child: const LedRecordPage(),
+                                    ),
                                   ),
                                 );
                               } else {
@@ -130,13 +163,13 @@ class LedMainRecordChartSection extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.md),
-            // PARITY: line_chart height=242dp in reef-b-app
-            // Using AspectRatio or LayoutBuilder for responsive height
+            // PARITY: line_chart height=242dp in reef-b-app (activity_led_main.xml)
             LayoutBuilder(
               builder: (context, constraints) {
-                // Calculate height based on available width, maintaining aspect ratio
-                // reef-b-app uses 242dp height, which is roughly 1.5:1 ratio for typical screen width
-                final double chartHeight = constraints.maxWidth * 0.6;
+                final double chartHeight = math.max(
+                  AppSpacing.ledRecordChartHeight,
+                  constraints.maxWidth * 0.6,
+                );
                 return LedRecordLineChart(
                   records: controller.records,
                   height: chartHeight,

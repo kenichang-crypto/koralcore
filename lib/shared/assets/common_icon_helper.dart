@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'reef_icon_assets.dart';
+
 /// CommonIconHelper
 ///
 /// Helper class for getting common icons from reef-b-app.
-/// PARITY: All icons are converted from reef-b-app's XML drawables.
+/// PARITY: All icons sourced from reef-b-app res/drawable (XML→SVG).
+///
+/// **Unified registry**: [ReefIconAssets] for path constants and reef source mapping.
 class CommonIconHelper {
   const CommonIconHelper._();
 
   /// Get add icon (black)
   static SvgPicture getAddIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_add_black.svg',
+      ReefIconAssets.ic_add_black,
       width: size,
       height: size,
       colorFilter: color != null
@@ -23,7 +27,7 @@ class CommonIconHelper {
   /// Get back icon
   static SvgPicture getBackIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_back.svg',
+      ReefIconAssets.ic_back,
       width: size,
       height: size,
       colorFilter: color != null
@@ -35,7 +39,7 @@ class CommonIconHelper {
   /// Get delete icon
   static SvgPicture getDeleteIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_delete.svg',
+      ReefIconAssets.ic_delete,
       width: size,
       height: size,
       colorFilter: color != null
@@ -47,7 +51,7 @@ class CommonIconHelper {
   /// Get edit icon
   static SvgPicture getEditIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_edit.svg',
+      ReefIconAssets.ic_edit,
       width: size,
       height: size,
       colorFilter: color != null
@@ -59,7 +63,7 @@ class CommonIconHelper {
   /// Get close icon
   static SvgPicture getCloseIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_close.svg',
+      ReefIconAssets.ic_close,
       width: size,
       height: size,
       colorFilter: color != null
@@ -71,7 +75,7 @@ class CommonIconHelper {
   /// Get minus icon
   static SvgPicture getMinusIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_minus.svg',
+      ReefIconAssets.ic_minus,
       width: size,
       height: size,
       colorFilter: color != null
@@ -95,7 +99,7 @@ class CommonIconHelper {
   /// Get play icon (enabled)
   static SvgPicture getPlayIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_play_enabled.svg',
+      ReefIconAssets.ic_play_enabled,
       width: size,
       height: size,
       colorFilter: color != null
@@ -107,7 +111,7 @@ class CommonIconHelper {
   /// Get stop icon
   static SvgPicture getStopIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_stop.svg',
+      ReefIconAssets.ic_stop,
       width: size,
       height: size,
       colorFilter: color != null
@@ -119,7 +123,7 @@ class CommonIconHelper {
   /// Get pause icon
   static SvgPicture getPauseIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_pause.svg',
+      ReefIconAssets.ic_pause,
       width: size,
       height: size,
       colorFilter: color != null
@@ -143,7 +147,7 @@ class CommonIconHelper {
   /// Get menu icon
   static SvgPicture getMenuIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_menu.svg',
+      ReefIconAssets.ic_menu,
       width: size,
       height: size,
       colorFilter: color != null
@@ -156,7 +160,7 @@ class CommonIconHelper {
   /// 30×30dp icon with rounded rectangle background and three horizontal lines
   static SvgPicture getManagerIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_manager.svg',
+      ReefIconAssets.ic_manager,
       width: size,
       height: size,
       colorFilter: color != null
@@ -168,7 +172,7 @@ class CommonIconHelper {
   /// Get bluetooth icon
   static SvgPicture getBluetoothIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_bluetooth.svg',
+      ReefIconAssets.ic_bluetooth,
       width: size,
       height: size,
       colorFilter: color != null
@@ -194,7 +198,7 @@ class CommonIconHelper {
   /// 14×14dp icon for BLE disconnected state
   static SvgPicture getDisconnectIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_disconnect.svg',
+      ReefIconAssets.ic_disconnect,
       width: size,
       height: size,
       colorFilter: color != null
@@ -206,7 +210,7 @@ class CommonIconHelper {
   /// Get device icon
   static SvgPicture getDeviceIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_device.svg',
+      ReefIconAssets.ic_device,
       width: size,
       height: size,
       colorFilter: color != null
@@ -218,7 +222,7 @@ class CommonIconHelper {
   /// Get home icon
   static SvgPicture getHomeIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_home.svg',
+      ReefIconAssets.ic_home,
       width: size,
       height: size,
       colorFilter: color != null
@@ -230,7 +234,7 @@ class CommonIconHelper {
   /// Get warning icon
   static SvgPicture getWarningIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_warning.svg',
+      ReefIconAssets.ic_warning,
       width: size,
       height: size,
       colorFilter: color != null
@@ -242,7 +246,7 @@ class CommonIconHelper {
   /// Get reset icon
   static SvgPicture getResetIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_reset.svg',
+      ReefIconAssets.ic_reset,
       width: size,
       height: size,
       colorFilter: color != null
@@ -254,7 +258,7 @@ class CommonIconHelper {
   /// Get connect background icon (48×32dp)
   static SvgPicture getConnectBackgroundIcon({double? width, double? height}) {
     return SvgPicture.asset(
-      'assets/icons/ic_connect_background.svg',
+      ReefIconAssets.ic_connect_background,
       width: width ?? 48,
       height: height ?? 32,
     );
@@ -266,7 +270,7 @@ class CommonIconHelper {
     double? height,
   }) {
     return SvgPicture.asset(
-      'assets/icons/ic_disconnect_background.svg',
+      ReefIconAssets.ic_disconnect_background,
       width: width ?? 48,
       height: height ?? 32,
     );
@@ -275,7 +279,7 @@ class CommonIconHelper {
   /// Get master icon
   static SvgPicture getMasterIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_master.svg',
+      ReefIconAssets.ic_master,
       width: size,
       height: size,
       colorFilter: color != null
@@ -287,7 +291,7 @@ class CommonIconHelper {
   /// Get master icon (big)
   static SvgPicture getMasterBigIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_master_big.svg',
+      ReefIconAssets.ic_master_big,
       width: size,
       height: size,
       colorFilter: color != null
@@ -299,7 +303,7 @@ class CommonIconHelper {
   /// Get zoom in icon
   static SvgPicture getZoomInIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_zoom_in.svg',
+      ReefIconAssets.ic_zoom_in,
       width: size,
       height: size,
       colorFilter: color != null
@@ -311,7 +315,7 @@ class CommonIconHelper {
   /// Get zoom out icon
   static SvgPicture getZoomOutIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_zoom_out.svg',
+      ReefIconAssets.ic_zoom_out,
       width: size,
       height: size,
       colorFilter: color != null
@@ -323,7 +327,7 @@ class CommonIconHelper {
   /// Get calendar icon
   static SvgPicture getCalendarIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_calendar.svg',
+      ReefIconAssets.ic_calendar,
       width: size,
       height: size,
       colorFilter: color != null
@@ -335,7 +339,7 @@ class CommonIconHelper {
   /// Get preview icon
   static SvgPicture getPreviewIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_preview.svg',
+      ReefIconAssets.ic_preview,
       width: size,
       height: size,
       colorFilter: color != null
@@ -347,7 +351,7 @@ class CommonIconHelper {
   /// Get more icon (enable)
   static SvgPicture getMoreEnableIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_more_enable.svg',
+      ReefIconAssets.ic_more_enable,
       width: size,
       height: size,
       colorFilter: color != null
@@ -359,7 +363,7 @@ class CommonIconHelper {
   /// Get favorite icon (selected)
   static SvgPicture getFavoriteSelectIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_favorite_select.svg',
+      ReefIconAssets.ic_favorite_select,
       width: size,
       height: size,
       colorFilter: color != null
@@ -371,7 +375,7 @@ class CommonIconHelper {
   /// Get favorite icon (unselected)
   static SvgPicture getFavoriteUnselectIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_favorite_unselect.svg',
+      ReefIconAssets.ic_favorite_unselect,
       width: size,
       height: size,
       colorFilter: color != null
@@ -383,7 +387,7 @@ class CommonIconHelper {
   /// Get play icon (selected)
   static SvgPicture getPlaySelectIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_play_select.svg',
+      ReefIconAssets.ic_play_select,
       width: size,
       height: size,
       colorFilter: color != null
@@ -395,7 +399,7 @@ class CommonIconHelper {
   /// Get play icon (unselected)
   static SvgPicture getPlayUnselectIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_play_unselect.svg',
+      ReefIconAssets.ic_play_unselect,
       width: size,
       height: size,
       colorFilter: color != null
@@ -408,7 +412,7 @@ class CommonIconHelper {
   /// 24×24dp icon
   static SvgPicture getAddBtnIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_add_btn.svg',
+      ReefIconAssets.ic_add_btn,
       width: size,
       height: size,
       colorFilter: color != null
@@ -421,7 +425,7 @@ class CommonIconHelper {
   /// 24×24dp icon
   static SvgPicture getAddRoundedIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_add_rounded.svg',
+      ReefIconAssets.ic_add_rounded,
       width: size,
       height: size,
       colorFilter: color != null
@@ -434,7 +438,7 @@ class CommonIconHelper {
   /// 24×24dp icon
   static SvgPicture getAddWhiteIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_add_white.svg',
+      ReefIconAssets.ic_add_white,
       width: size,
       height: size,
       colorFilter: color != null
@@ -447,7 +451,7 @@ class CommonIconHelper {
   /// Green checkmark icon
   static SvgPicture getGreenCheckIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_green_check.svg',
+      ReefIconAssets.ic_green_check,
       width: size,
       height: size,
       colorFilter: color != null
@@ -460,7 +464,7 @@ class CommonIconHelper {
   /// 24×24dp disabled more button icon
   static SvgPicture getMoreDisableIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_more_disable.svg',
+      ReefIconAssets.ic_more_disable,
       width: size,
       height: size,
       colorFilter: color != null
@@ -473,7 +477,7 @@ class CommonIconHelper {
   /// 60×60dp disabled play button icon
   static SvgPicture getPlayDisableIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_play_disable.svg',
+      ReefIconAssets.ic_play_disable,
       width: size,
       height: size,
       colorFilter: color != null
@@ -486,7 +490,7 @@ class CommonIconHelper {
   /// Dropdown arrow icon (used for spinners/dropdowns)
   static SvgPicture getDownIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_down.svg',
+      ReefIconAssets.ic_down,
       width: size,
       height: size,
       colorFilter: color != null
@@ -499,7 +503,7 @@ class CommonIconHelper {
   /// Water drop icon (used for dosing/pump head)
   static SvgPicture getDropIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_drop.svg',
+      ReefIconAssets.ic_drop,
       width: size,
       height: size,
       colorFilter: color != null
@@ -512,7 +516,7 @@ class CommonIconHelper {
   /// Moon icon (used for moon light/night mode)
   static SvgPicture getMoonRoundIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_moon_round.svg',
+      ReefIconAssets.ic_moon_round,
       width: size,
       height: size,
       colorFilter: color != null
@@ -525,7 +529,7 @@ class CommonIconHelper {
   /// LED device type icon
   static SvgPicture getLedIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/icon_led.svg',
+      ReefIconAssets.icon_led,
       width: size,
       height: size,
       colorFilter: color != null
@@ -538,7 +542,33 @@ class CommonIconHelper {
   /// Dosing device type icon
   static SvgPicture getDosingIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/icon_dosing.svg',
+      ReefIconAssets.icon_dosing,
+      width: size,
+      height: size,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
+    );
+  }
+
+  /// Get none/block icon (PARITY: ic_none.xml from reef-b-app)
+  /// Used for scene fallback, blocked state
+  static SvgPicture getNoneIcon({double? size, Color? color}) {
+    return SvgPicture.asset(
+      ReefIconAssets.ic_none,
+      width: size,
+      height: size,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
+    );
+  }
+
+  /// Get strength thumb icon (PARITY: ic_strength_thumb.xml from reef-b-app)
+  /// Used for calibration/adjust UI
+  static SvgPicture getStrengthThumbIcon({double? size, Color? color}) {
+    return SvgPicture.asset(
+      ReefIconAssets.ic_strength_thumb,
       width: size,
       height: size,
       colorFilter: color != null
@@ -550,7 +580,7 @@ class CommonIconHelper {
   /// Get slow start icon (20×20dp)
   static SvgPicture getSlowStartIcon({double? size, Color? color}) {
     return SvgPicture.asset(
-      'assets/icons/ic_slow_start.svg',
+      ReefIconAssets.ic_slow_start,
       width: size,
       height: size,
       colorFilter: color != null

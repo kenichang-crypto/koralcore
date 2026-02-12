@@ -19,26 +19,79 @@
 
 import 'package:flutter/material.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../app/common/app_session.dart';
 import '../../../../shared/theme/app_colors.dart';
+import 'pump_head_adjust_page.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
 import '../../../led/presentation/helpers/support/led_record_icon_helper.dart';
 
-/// PumpHeadCalibrationPage (Parity Mode)
+/// PumpHeadCalibrationPage - PARITY with reef activity_drop_head_adjust
 ///
-/// PARITY: android/ReefB_Android/app/src/main/res/layout/activity_drop_head_adjust.xml
-///
-/// 此頁面為純 UI Parity 實作，無業務邏輯。
-/// - 所有按鈕 onPressed = null
-/// - 不實作 BLE、DB、Navigation
-/// - Main Content 為固定高度，不可捲動
-class PumpHeadCalibrationPage extends StatelessWidget {
-  const PumpHeadCalibrationPage({super.key});
+/// Intro page for calibration flow. Speed button selects speed, Next navigates
+/// to PumpHeadAdjustPage with selected speed.
+class PumpHeadCalibrationPage extends StatefulWidget {
+  final String headId;
+
+  const PumpHeadCalibrationPage({super.key, required this.headId});
+
+  @override
+  State<PumpHeadCalibrationPage> createState() =>
+      _PumpHeadCalibrationPageState();
+}
+
+class _PumpHeadCalibrationPageState extends State<PumpHeadCalibrationPage> {
+  int _selectedSpeed = 1; // 1=Low, 2=Medium, 3=High
+
+  String _speedLabel(AppLocalizations l10n) {
+    switch (_selectedSpeed) {
+      case 1:
+        return l10n.pumpHeadSpeedLow;
+      case 2:
+        return l10n.pumpHeadSpeedMedium;
+      case 3:
+        return l10n.pumpHeadSpeedHigh;
+      default:
+        return l10n.pumpHeadSpeedMedium;
+    }
+  }
+
+  Future<void> _showSpeedPicker(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final result = await showModalBottomSheet<int>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text(l10n.pumpHeadSpeedLow),
+              onTap: () => Navigator.of(ctx).pop(1),
+            ),
+            ListTile(
+              title: Text(l10n.pumpHeadSpeedMedium),
+              onTap: () => Navigator.of(ctx).pop(2),
+            ),
+            ListTile(
+              title: Text(l10n.pumpHeadSpeedHigh),
+              onTap: () => Navigator.of(ctx).pop(3),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (result != null && mounted) {
+      setState(() => _selectedSpeed = result);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final session = context.watch<AppSession>();
+    final isReady = session.isReady;
 
     return Scaffold(
       backgroundColor: AppColors.surfaceMuted, // bg_aaa (#F7F7F7)
@@ -58,7 +111,7 @@ class PumpHeadCalibrationPage extends StatelessWidget {
                     children: [
                       // PARITY: tv_adjust_description_title (Line 26-37)
                       Text(
-                        'TODO(android @string/adjust_description)', // TODO(android @string/adjust_description)
+                        l10n.dosingAdjustDescription,
                         style: AppTextStyles.title2.copyWith(
                           color: AppColors.textPrimary, // text_aaaa
                         ),
@@ -68,7 +121,7 @@ class PumpHeadCalibrationPage extends StatelessWidget {
                       const SizedBox(height: 4), // dp_4 marginTop (Line 43)
                       // PARITY: tv_adjust_step (Line 39-50)
                       Text(
-                        'TODO(android @string/adjust_step)', // TODO(android @string/adjust_step)
+                        l10n.dosingAdjustStep,
                         style: AppTextStyles.body.copyWith(
                           color: AppColors.textTertiary, // text_aaa
                         ),
@@ -76,7 +129,7 @@ class PumpHeadCalibrationPage extends StatelessWidget {
                       const SizedBox(height: 24), // dp_24 marginTop (Line 57)
                       // PARITY: tv_rotating_speed_title + btn_rotating_speed (Line 52-78)
                       Text(
-                        'TODO(android @string/drop_head_rotating_speed)', // TODO(android @string/drop_head_rotating_speed)
+                        l10n.pumpHeadSpeed,
                         style: AppTextStyles.caption1.copyWith(
                           color: AppColors.textPrimary, // text_aaaa
                         ),
@@ -85,8 +138,8 @@ class PumpHeadCalibrationPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 4), // dp_4 marginTop (Line 71)
                       _BackgroundMaterialButton(
-                        text: '低速', // Placeholder
-                        onPressed: null,
+                        text: _speedLabel(l10n),
+                        onPressed: isReady ? () => _showSpeedPicker(context) : null,
                       ),
                       const SizedBox(height: 16), // dp_16 marginTop (Line 86)
                       // PARITY: tv_adjust_drop_volume_title + layout_adjust_drop_volume (Line 80-114)
@@ -100,7 +153,7 @@ class PumpHeadCalibrationPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'TODO(android @string/drop_volume)', // TODO(android @string/drop_volume)
+                              l10n.dosingVolume,
                               style: AppTextStyles.caption1.copyWith(
                                 color: AppColors
                                     .textPrimary, // text_color_selector
@@ -115,7 +168,7 @@ class PumpHeadCalibrationPage extends StatelessWidget {
                               enabled: false, // Disabled in Parity Mode
                               decoration: InputDecoration(
                                 hintText:
-                                    'TODO(android @string/adjust_volume_hint)', // TODO(android @string/adjust_volume_hint)
+                                    l10n.dosingAdjustVolumeHint,
                                 border: OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.numberWithOptions(
@@ -126,27 +179,12 @@ class PumpHeadCalibrationPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 24), // dp_24 marginTop (Line 121)
-                      // PARITY: img_adjust (Line 116-125)
+                      // PARITY: img_adjust (Line 116-125) - reef uses PNG; koralcore uses ic_strength_thumb
                       Expanded(
                         child: Center(
-                          child: Image.asset(
-                            'TODO(android @drawable/img_adjust)', // TODO(android @drawable/img_adjust)
-                            // Placeholder image
-                            width: 200,
-                            height: 200,
-                            errorBuilder: (context, error, stackTrace) => Container(
-                              width: 200,
-                              height: 200,
-                              color: AppColors.surfaceMuted,
-                              child: Icon(
-                                // TODO(L3): Icons.tune is only used as error placeholder
-                                // Android uses @drawable/img_adjust (PNG image)
-                                // This can remain as-is since it's fallback UI
-                                Icons.tune,
-                                size: 80,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
+                          child: CommonIconHelper.getStrengthThumbIcon(
+                            size: 120,
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ),
@@ -154,33 +192,40 @@ class PumpHeadCalibrationPage extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // btn_prev ("取消", Line 140-153)
                           TextButton(
-                            onPressed: null, // Disabled in Parity Mode
+                            onPressed: () => Navigator.of(context).pop(),
                             style: TextButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 10, // dp_10 paddingStart/End
-                                vertical: 12, // dp_12 paddingTop/Bottom
+                                horizontal: 10,
+                                vertical: 12,
                               ),
                             ),
                             child: Text(
-                              'TODO(android @string/cancel)', // TODO(android @string/cancel)
+                              l10n.actionCancel,
                               style: AppTextStyles.caption1.copyWith(
-                                color: AppColors.textPrimary, // text_aaaa
+                                color: AppColors.textPrimary,
                               ),
                             ),
                           ),
-                          // btn_next ("下一步", Line 127-138)
                           MaterialButton(
-                            onPressed: null, // Disabled in Parity Mode
+                            onPressed: () {
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (_) => PumpHeadAdjustPage(
+                                    headId: widget.headId,
+                                    initialSpeed: _selectedSpeed,
+                                  ),
+                                ),
+                              );
+                            },
                             color: AppColors.primary,
                             textColor: AppColors.onPrimary,
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 43, // dp_43 paddingStart/End
-                              vertical: 12, // dp_12 paddingTop/Bottom
+                              horizontal: 43,
+                              vertical: 12,
                             ),
                             child: Text(
-                              'TODO(android @string/next)', // TODO(android @string/next)
+                              l10n.actionNext,
                               style: AppTextStyles.caption1,
                             ),
                           ),
@@ -203,7 +248,7 @@ class PumpHeadCalibrationPage extends StatelessWidget {
                               vertical: 12, // dp_12 paddingTop/Bottom
                             ),
                             child: Text(
-                              'TODO(android @string/complete_adjust)', // TODO(android @string/complete_adjust)
+                              l10n.dosingCompleteAdjust,
                               style: AppTextStyles.caption1,
                             ),
                           ),
@@ -244,18 +289,17 @@ class _ToolbarTwoAction extends StatelessWidget {
       ), // Status bar + padding
       child: Row(
         children: [
-          // btn_back
           IconButton(
             icon: CommonIconHelper.getBackIcon(
               size: 24,
               color: AppColors.onPrimary,
             ),
-            onPressed: null, // Disabled in Parity Mode
+            onPressed: () => Navigator.of(context).maybePop(),
           ),
           // toolbar_title
           Expanded(
             child: Text(
-              'TODO(android @string/activity_drop_head_adjust_title)', // TODO(android @string/activity_drop_head_adjust_title)
+              l10n.dosingAdjustTitle,
               style: AppTextStyles.title2.copyWith(color: AppColors.onPrimary),
               textAlign: TextAlign.center,
               maxLines: 1,
@@ -334,6 +378,7 @@ class _LoadingOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Visibility(
       visible: visible,
       child: Container(
@@ -351,7 +396,7 @@ class _LoadingOverlay extends StatelessWidget {
                 const CircularProgressIndicator(),
                 const SizedBox(height: 16),
                 Text(
-                  'TODO(android @string/adjusting)', // TODO(android @string/adjusting)
+                  l10n.dosingAdjusting,
                   style: AppTextStyles.body,
                 ),
               ],

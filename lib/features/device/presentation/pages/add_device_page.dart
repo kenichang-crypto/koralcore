@@ -9,7 +9,9 @@ import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
+import '../../../../shared/widgets/app_error_presenter.dart';
 import '../controllers/add_device_controller.dart';
+import '../../../sink/presentation/pages/sink_position_page.dart';
 
 /// Add device page.
 ///
@@ -50,10 +52,41 @@ class _AddDeviceView extends StatelessWidget {
             Column(
               children: [
                 _ToolbarTwoAction(
-                  title: l10n.addDeviceTitle, // @string/add_device
-                  // TODO(android @string/skip): 若此 locale 缺少翻譯，需補齊 ARB（本任務禁止修改 ARB）
+                  title: l10n.addDeviceTitle,
                   leftText: l10n.actionSkip,
-                  rightText: l10n.actionDone, // @string/complete
+                  rightText: l10n.actionDone,
+                  onLeftPressed: controller.isLoading
+                      ? null
+                      : () async {
+                          final ok = await controller.skip();
+                          if (ok && context.mounted) {
+                            Navigator.of(context).pop();
+                          } else if (context.mounted && controller.lastErrorCode != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  describeAppError(l10n, controller.lastErrorCode!),
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                  onRightPressed: controller.isLoading
+                      ? null
+                      : () async {
+                          final ok = await controller.addDevice();
+                          if (ok && context.mounted) {
+                            Navigator.of(context).pop();
+                          } else if (context.mounted && controller.lastErrorCode != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  describeAppError(l10n, controller.lastErrorCode!),
+                                ),
+                              ),
+                            );
+                          }
+                        },
                 ),
                 Expanded(
                   // PARITY: layout_add_device paddings 16/12/16/12
@@ -61,9 +94,9 @@ class _AddDeviceView extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        _DeviceNameSection(),
-                        _SinkPositionSection(),
+                      children: [
+                        _DeviceNameSection(controller: controller),
+                        _SinkPositionSection(controller: controller),
                       ],
                     ),
                   ),
@@ -83,20 +116,20 @@ class _ToolbarTwoAction extends StatelessWidget {
   final String title;
   final String leftText;
   final String rightText;
+  final VoidCallback? onLeftPressed;
+  final VoidCallback? onRightPressed;
 
   const _ToolbarTwoAction({
     required this.title,
     required this.leftText,
     required this.rightText,
+    this.onLeftPressed,
+    this.onRightPressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    // PARITY: toolbar_two_action.xml
-    // - White toolbar background
-    // - Left/Right text buttons (visible in AddDeviceActivity)
-    // - Center title
-    // - 2dp bottom divider (bg_press)
+    // PARITY: toolbar_two_action.xml (Skip/Done wired per UX Parity P4)
     return Material(
       color: AppColors.surface,
       child: Column(
@@ -109,8 +142,7 @@ class _ToolbarTwoAction extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 16),
                   child: TextButton(
-                    // UI parity only: no onPressed behavior
-                    onPressed: null,
+                    onPressed: onLeftPressed,
                     child: Text(
                       leftText,
                       style: AppTextStyles.bodyAccent.copyWith(
@@ -123,7 +155,7 @@ class _ToolbarTwoAction extends StatelessWidget {
                   child: Text(
                     title,
                     style: AppTextStyles.body.copyWith(
-                      color: AppColors.textPrimary, // text_aaaa
+                      color: AppColors.textPrimary,
                       fontWeight: FontWeight.normal,
                     ),
                     textAlign: TextAlign.center,
@@ -134,8 +166,7 @@ class _ToolbarTwoAction extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(right: 16),
                   child: TextButton(
-                    // UI parity only: no onPressed behavior
-                    onPressed: null,
+                    onPressed: onRightPressed,
                     child: Text(
                       rightText,
                       style: AppTextStyles.bodyAccent.copyWith(
@@ -154,8 +185,33 @@ class _ToolbarTwoAction extends StatelessWidget {
   }
 }
 
-class _DeviceNameSection extends StatelessWidget {
-  const _DeviceNameSection();
+class _DeviceNameSection extends StatefulWidget {
+  final AddDeviceController controller;
+
+  const _DeviceNameSection({required this.controller});
+
+  @override
+  State<_DeviceNameSection> createState() => _DeviceNameSectionState();
+}
+
+class _DeviceNameSectionState extends State<_DeviceNameSection> {
+  late TextEditingController _textController;
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = widget.controller.deviceName.isEmpty
+        ? (widget.controller.connectedDeviceName ?? '')
+        : widget.controller.deviceName;
+    _textController = TextEditingController(text: initial);
+    if (initial.isNotEmpty) widget.controller.setDeviceName(initial);
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -166,14 +222,15 @@ class _DeviceNameSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          l10n.deviceName, // @string/device_name
+          l10n.deviceName,
           style: AppTextStyles.caption1.copyWith(
             color: AppColors.textSecondary,
           ),
         ),
-        const SizedBox(height: 4), // dp_4 marginTop
+        const SizedBox(height: 4),
         TextField(
-          // UI parity only: no onChanged behavior
+          controller: _textController,
+          onChanged: widget.controller.setDeviceName,
           decoration: InputDecoration(
             filled: true,
             fillColor: AppColors.surfaceMuted, // TextInputLayout bg_aaa
@@ -203,28 +260,29 @@ class _DeviceNameSection extends StatelessWidget {
 }
 
 class _SinkPositionSection extends StatelessWidget {
-  const _SinkPositionSection();
+  final AddDeviceController controller;
+
+  const _SinkPositionSection({required this.controller});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final text = controller.selectedSinkName ?? l10n.sinkPositionNotSet;
 
-    // PARITY: tv_sink_position_title (marginTop 16dp) + layout_sink_position (TextInputLayout) + view_sink_position overlay
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 16), // dp_16 marginTop
+        const SizedBox(height: 16),
         Text(
-          l10n.sinkPosition, // @string/sink_position
+          l10n.sinkPosition,
           style: AppTextStyles.caption1.copyWith(
             color: AppColors.textSecondary,
           ),
         ),
-        const SizedBox(height: 4), // dp_4 marginTop
+        const SizedBox(height: 4),
         Stack(
           children: [
-            TextField(
-              enabled: false, // edt_sink_position enabled="false"
+            InputDecorator(
               decoration: InputDecoration(
                 filled: true,
                 fillColor: AppColors.surfaceMuted,
@@ -244,22 +302,32 @@ class _SinkPositionSection extends StatelessWidget {
                   horizontal: AppSpacing.md,
                   vertical: AppSpacing.sm,
                 ),
-                // PARITY: endIconDrawable="@drawable/ic_next", endIconTint="@color/text_aaa"
                 suffixIcon: CommonIconHelper.getNextIcon(
                   size: 20,
-                  color: AppColors.textSecondary, // text_aaa
+                  color: AppColors.textSecondary,
                 ),
               ),
-              style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
-              maxLines: 1,
+              child: Text(
+                text,
+                style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
+              ),
             ),
-            // PARITY: view_sink_position - selectableItemBackground overlay
             Positioned.fill(
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  // UI parity only: no onTap behavior
-                  onTap: null,
+                  onTap: () async {
+                    final result = await Navigator.of(context).push<String?>(
+                      MaterialPageRoute(
+                        builder: (_) => SinkPositionPage(
+                          initialSinkId: controller.selectedSinkId,
+                        ),
+                      ),
+                    );
+                    if (result != null) {
+                      await controller.setSelectedSinkId(result);
+                    }
+                  },
                   borderRadius: BorderRadius.circular(AppRadius.xs),
                 ),
               ),

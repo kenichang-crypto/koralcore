@@ -3,6 +3,7 @@ import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/system/ble_readiness_controller.dart';
+import '../assets/common_icon_helper.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
@@ -45,7 +46,7 @@ class BleGuardBanner extends StatelessWidget {
                       color: model.accentColor.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(AppRadius.md),
                     ),
-                    child: Icon(model.icon, color: model.accentColor),
+                    child: Center(child: model.icon),
                   ),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
@@ -135,7 +136,7 @@ class _BleGuardActions extends StatelessWidget {
 }
 
 class _BleBannerModel {
-  final IconData icon;
+  final Widget icon;
   final Color accentColor;
   final String title;
   final String message;
@@ -160,7 +161,7 @@ class _BleBannerModel {
     switch (snapshot.blockingReason) {
       case BleBlockingReason.permissionPermanentlyDenied:
         return _BleBannerModel(
-          icon: Icons.settings_applications,
+          icon: CommonIconHelper.getMenuIcon(size: 24, color: AppColors.danger),
           accentColor: AppColors.danger,
           title: l10n.bleOnboardingSettingsTitle,
           message: l10n.bleOnboardingSettingsCopy,
@@ -169,7 +170,7 @@ class _BleBannerModel {
         );
       case BleBlockingReason.locationRequired:
         return _BleBannerModel(
-          icon: Icons.location_on_outlined,
+          icon: CommonIconHelper.getWarningIcon(size: 24, color: AppColors.warning),
           accentColor: AppColors.warning,
           title: l10n.bleOnboardingLocationTitle,
           message: l10n.bleOnboardingLocationCopy,
@@ -178,7 +179,7 @@ class _BleBannerModel {
         );
       case BleBlockingReason.permissionsNeeded:
         return _BleBannerModel(
-          icon: Icons.bluetooth_searching,
+          icon: CommonIconHelper.getBluetoothIcon(size: 24, color: AppColors.info),
           accentColor: AppColors.info,
           title: l10n.bleOnboardingPermissionTitle,
           message: l10n.bleOnboardingPermissionCopy,
@@ -187,7 +188,7 @@ class _BleBannerModel {
         );
       case BleBlockingReason.bluetoothOff:
         return _BleBannerModel(
-          icon: Icons.bluetooth_disabled,
+          icon: CommonIconHelper.getBluetoothIcon(size: 24, color: AppColors.textSecondary),
           accentColor: AppColors.textSecondary,
           title: l10n.bleOnboardingBluetoothOffTitle,
           message: l10n.bleOnboardingBluetoothOffCopy,
@@ -196,14 +197,14 @@ class _BleBannerModel {
         );
       case BleBlockingReason.bluetoothRestricted:
         return _BleBannerModel(
-          icon: Icons.block,
+          icon: CommonIconHelper.getNoneIcon(size: 24, color: AppColors.textDisabled),
           accentColor: AppColors.textDisabled,
           title: l10n.bleOnboardingUnavailableTitle,
           message: l10n.bleOnboardingUnavailableCopy,
         );
       case BleBlockingReason.none:
         return _BleBannerModel(
-          icon: Icons.info_outline,
+          icon: CommonIconHelper.getBluetoothIcon(size: 24, color: AppColors.info),
           accentColor: AppColors.info,
           title: l10n.bleOnboardingPermissionTitle,
           message: l10n.bleOnboardingPermissionCopy,
@@ -258,13 +259,13 @@ Future<void> showBleOnboardingSheet(BuildContext context) {
                     ),
                     const SizedBox(height: AppSpacing.xl),
                     _BleSheetStep(
-                      icon: Icons.radar,
+                      icon: CommonIconHelper.getBluetoothIcon(size: 24, color: AppColors.primary),
                       title: l10n.bleOnboardingSheetSearchTitle,
                       message: l10n.bleOnboardingSheetSearchCopy,
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     _BleSheetStep(
-                      icon: Icons.settings_remote,
+                      icon: CommonIconHelper.getDeviceIcon(size: 24, color: AppColors.primary),
                       title: l10n.bleOnboardingSheetControlTitle,
                       message: l10n.bleOnboardingSheetControlCopy,
                     ),
@@ -299,7 +300,7 @@ Future<void> showBleGuardDialog(BuildContext context) {
 }
 
 class _BleSheetStep extends StatelessWidget {
-  final IconData icon;
+  final Widget icon;
   final String title;
   final String message;
 
@@ -321,7 +322,7 @@ class _BleSheetStep extends StatelessWidget {
             color: AppColors.primary.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
-          child: Icon(icon, color: AppColors.primary),
+          child: Center(child: icon),
         ),
         const SizedBox(width: AppSpacing.md),
         Expanded(

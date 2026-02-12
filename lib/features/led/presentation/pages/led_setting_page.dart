@@ -11,6 +11,7 @@ import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../../../../shared/widgets/error_state_widget.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
+import '../../../sink/presentation/pages/sink_position_page.dart';
 
 /// LedSettingPage
 ///
@@ -34,6 +35,8 @@ class _LedSettingView extends StatefulWidget {
 class _LedSettingViewState extends State<_LedSettingView> {
   late TextEditingController _nameController;
   bool _isSaving = false;
+  String? _sinkId;
+  String? _sinkName;
 
   @override
   void initState() {
@@ -50,6 +53,26 @@ class _LedSettingViewState extends State<_LedSettingView> {
       _nameController.selection = TextSelection.collapsed(
         offset: _nameController.text.length,
       );
+    }
+    _loadDeviceSink(session.activeDeviceId);
+  }
+
+  Future<void> _loadDeviceSink(String? deviceId) async {
+    if (deviceId == null) return;
+    final appContext = context.read<AppContext>();
+    final deviceData = await appContext.deviceRepository.getDevice(deviceId);
+    if (!mounted) return;
+    final sinkId = deviceData?['sinkId']?.toString();
+    if (sinkId != _sinkId) {
+      setState(() {
+        _sinkId = sinkId;
+        if (sinkId != null) {
+          final sinks = appContext.sinkRepository.getCurrentSinks();
+          _sinkName = sinks.where((s) => s.id == sinkId).firstOrNull?.name;
+        } else {
+          _sinkName = null;
+        }
+      });
     }
   }
 
@@ -138,7 +161,60 @@ class _LedSettingViewState extends State<_LedSettingView> {
                       enabled: !_isSaving,
                     ),
                     const SizedBox(height: 16),
-                    _SinkPositionSection(l10n: l10n),
+                    _SinkPositionSection(
+                      l10n: l10n,
+                      sinkName: _sinkName,
+                      enabled: !_isSaving,
+                      onTap: () async {
+                        final deviceId = session.activeDeviceId;
+                        if (deviceId == null) return;
+                        final result = await Navigator.of(context).push<String?>(
+                          MaterialPageRoute(
+                            builder: (_) => SinkPositionPage(
+                              initialSinkId: _sinkId,
+                            ),
+                          ),
+                        );
+                        if (!mounted || result == null) return;
+                        final deviceData =
+                            await appContext.deviceRepository.getDevice(deviceId);
+                        try {
+                          await appContext.updateDeviceSinkUseCase.execute(
+                            deviceId: deviceId,
+                            newSinkId: result.isEmpty ? null : result,
+                            currentSinkId: _sinkId,
+                            deviceType: 'LED',
+                            currentGroup: deviceData?['group']?.toString(),
+                            currentMaster: deviceData?['isMaster'] as bool?,
+                          );
+                          if (mounted) {
+                            setState(() {
+                              _sinkId = result.isEmpty ? null : result;
+                              if (_sinkId != null) {
+                                final sinks =
+                                    appContext.sinkRepository.getCurrentSinks();
+                                _sinkName = sinks
+                                    .where((s) => s.id == _sinkId)
+                                    .firstOrNull
+                                    ?.name;
+                              } else {
+                                _sinkName = null;
+                              }
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(l10n.deviceSettingsSaved)),
+                            );
+                          }
+                        } on AppError catch (e) {
+                          if (mounted) showErrorSnackBar(context, e.code);
+                        } catch (_) {
+                          if (mounted) {
+                            showErrorSnackBar(
+                                context, AppErrorCode.unknownError);
+                          }
+                        }
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -284,16 +360,24 @@ class _DeviceNameSection extends StatelessWidget {
 // ────────────────────────────────────────────────────────────────────────────
 
 class _SinkPositionSection extends StatelessWidget {
-  const _SinkPositionSection({required this.l10n});
+  const _SinkPositionSection({
+    required this.l10n,
+    required this.sinkName,
+    required this.enabled,
+    required this.onTap,
+  });
 
   final AppLocalizations l10n;
+  final String? sinkName;
+  final bool enabled;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final displayText = sinkName ?? l10n.sinkPositionNotSet;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // tv_device_position_title ↔ @string/sink_position, caption1
         Text(
           l10n.sinkPosition,
           style: AppTextStyles.caption1.copyWith(
@@ -302,26 +386,14 @@ class _SinkPositionSection extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-
-        const SizedBox(height: 4), // marginTop: dp_4
-        // btn_position (MaterialButton)
-        // PARITY: BackgroundMaterialButton style
-        // - bg_aaa background
-        // - 4dp cornerRadius
-        // - elevation 0dp
-        // - body textAppearance
-        // - icon at end (ic_next)
-        // - textAlignment textStart
-        // - maxLines 1, ellipsize end
+        const SizedBox(height: 4),
         MaterialButton(
-          onPressed: null, // No behavior in Correction Mode
-          color: AppColors.surfaceMuted, // bg_aaa background
-          elevation: 0, // elevation 0dp
+          onPressed: enabled ? onTap : null,
+          color: AppColors.surfaceMuted,
+          elevation: 0,
           disabledColor: AppColors.surfaceMuted,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              AppRadius.xs,
-            ), // 4dp cornerRadius
+            borderRadius: BorderRadius.circular(AppRadius.xs),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
@@ -329,8 +401,7 @@ class _SinkPositionSection extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  // Placeholder text (no data in Correction Mode)
-                  l10n.sinkPositionNotSet,
+                  displayText,
                   style: AppTextStyles.body.copyWith(
                     color: AppColors.textPrimary,
                   ),
@@ -339,8 +410,6 @@ class _SinkPositionSection extends StatelessWidget {
                   textAlign: TextAlign.start,
                 ),
               ),
-              // icon: ic_next (20dp from Android drawable)
-              // TODO(android @drawable/ic_next)
               CommonIconHelper.getNextIcon(
                 size: 20,
                 color: AppColors.textPrimary,

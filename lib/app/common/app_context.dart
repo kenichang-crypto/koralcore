@@ -325,7 +325,9 @@ class AppContext {
       updateDeviceSinkUseCase: UpdateDeviceSinkUseCase(
         deviceRepository: deviceRepository,
       ),
-      readScheduleUseCase: const ReadScheduleUseCase(),
+      readScheduleUseCase: ReadScheduleUseCase(
+        dosingRepository: dosingRepository,
+      ),
       readTodayTotalUseCase: readTodayTotalUseCase,
       readDosingScheduleSummaryUseCase: ReadDosingScheduleSummaryUseCase(
         dosingPort: dosingPort,
@@ -344,9 +346,8 @@ class AppContext {
         ledPort: ledPort,
         currentDeviceSession: currentDeviceSession,
       ),
-      saveLedScheduleUseCase: SaveLedScheduleUseCase.local(
-        ScheduleRepositoryImpl(),
-      ),
+      // PARITY: reef-b-app does not store LED schedules locally (LedInformation/LedDevice in-memory only)
+      saveLedScheduleUseCase: const SaveLedScheduleUseCase.unavailable(),
       readLightingStateUseCase: ReadLightingStateUseCase(
         ledRepository: ledRepository,
       ),

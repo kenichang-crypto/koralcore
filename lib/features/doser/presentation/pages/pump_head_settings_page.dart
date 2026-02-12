@@ -19,8 +19,11 @@ import '../../../../app/common/app_session.dart';
 import '../../../../data/ble/dosing/dosing_command_builder.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
+import '../../../../app/common/app_error_code.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
+import '../../../../shared/widgets/app_error_presenter.dart';
 import '../controllers/pump_head_settings_controller.dart';
+import 'drop_type_page.dart';
 
 /// PumpHeadSettingsPage - 泵頭設定頁面
 ///
@@ -123,7 +126,7 @@ class _PumpHeadSettingsPageContent extends StatelessWidget {
                         // UI Block 2: Rotating Speed
                         const SizedBox(height: 16),
                         Text(
-                          'Init Rotating Speed', // TODO(l10n): Use l10n.initRotatingSpeed
+                          l10n.pumpHeadSpeed,
                           style: AppTextStyles.caption1.copyWith(
                             color: controller.isConnected
                                 ? AppColors.textSecondary
@@ -134,7 +137,7 @@ class _PumpHeadSettingsPageContent extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         _BackgroundMaterialButton(
-                          text: controller.getRotatingSpeedText(),
+                          text: _rotatingSpeedLabel(controller.rotatingSpeed, l10n),
                           icon: CommonIconHelper.getMenuIcon(
                             size: 20,
                             color: controller.isConnected
@@ -184,7 +187,7 @@ class _PumpHeadSettingsPageContent extends StatelessWidget {
     } else {
       ScaffoldMessenger.of(currentContext).showSnackBar(
         SnackBar(
-          content: Text('TODO(l10n): Setting failed'), // TODO(l10n): Use l10n.toastSettingFailed
+          content: Text(describeAppError(l10n, AppErrorCode.unknownError)),
         ),
       );
     }
@@ -192,24 +195,32 @@ class _PumpHeadSettingsPageContent extends StatelessWidget {
 
   /// Select drop type
   ///
-  /// PARITY: DropHeadSettingActivity.setListener() btnDropType (Line 103-108)
+  /// PARITY: DropHeadSettingActivity.setListener() btnDropType, DropTypeActivity setResult
   Future<void> _selectDropType(BuildContext context) async {
-    // TODO: Navigate to DropTypePage
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('TODO: Navigate to DropTypePage')),
+    final settingsController = context.read<PumpHeadSettingsController>();
+    final result = await Navigator.of(context).push<int>(
+      MaterialPageRoute(
+        builder: (context) => DropTypePage(
+          initialDropTypeId: settingsController.dropTypeId,
+        ),
+      ),
     );
+    if (context.mounted && result != null) {
+      await settingsController.updateDropTypeId(result == 0 ? null : result);
+    }
+  }
 
-    // Example:
-    // final result = await Navigator.of(context).push(
-    //   MaterialPageRoute(
-    //     builder: (context) => DropTypePage(
-    //       currentDropTypeId: controller.dropTypeId,
-    //     ),
-    //   ),
-    // );
-    // if (result != null && result is int) {
-    //   await controller.updateDropTypeId(result);
-    // }
+  String _rotatingSpeedLabel(int speed, AppLocalizations l10n) {
+    switch (speed) {
+      case 1:
+        return l10n.pumpHeadSpeedLow;
+      case 2:
+        return l10n.pumpHeadSpeedMedium;
+      case 3:
+        return l10n.pumpHeadSpeedHigh;
+      default:
+        return l10n.pumpHeadSpeedMedium;
+    }
   }
 
   /// Select rotating speed
@@ -217,28 +228,32 @@ class _PumpHeadSettingsPageContent extends StatelessWidget {
   /// PARITY: DropHeadSettingActivity.setListener() btnRotatingSpeed (Line 113-130)
   Future<void> _selectRotatingSpeed(BuildContext context) async {
     final controller = context.read<PumpHeadSettingsController>();
+    final l10n = AppLocalizations.of(context);
 
     final options = PumpHeadSettingsController.getRotatingSpeedOptions();
     final labels = {
-      1: '低速', // TODO(l10n): Use l10n.lowRotatingSpeed
-      2: '中速', // TODO(l10n): Use l10n.middleRotatingSpeed
-      3: '高速', // TODO(l10n): Use l10n.highRotatingSpeed
+      1: l10n.pumpHeadSpeedLow,
+      2: l10n.pumpHeadSpeedMedium,
+      3: l10n.pumpHeadSpeedHigh,
     };
 
     await showModalBottomSheet(
       context: context,
-      builder: (context) => SafeArea(
+      builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: options.map((speed) {
             return ListTile(
               title: Text(labels[speed] ?? '$speed'),
               trailing: controller.rotatingSpeed == speed
-                  ? Icon(Icons.check, color: AppColors.primaryStrong)
+                  ? CommonIconHelper.getCheckIcon(
+                      size: 24,
+                      color: AppColors.primaryStrong,
+                    )
                   : null,
               onTap: () {
                 controller.updateRotatingSpeed(speed);
-                Navigator.of(context).pop();
+                Navigator.of(ctx).pop();
               },
             );
           }).toList(),

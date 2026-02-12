@@ -1,201 +1,228 @@
-// PARITY: 100% Android activity_drop_head_record_time_setting.xml
-// android/ReefB_Android/app/src/main/res/layout/activity_drop_head_record_time_setting.xml
-// Mode: Correction (路徑 B：完全 Parity 化)
-//
-// Android 結構：
-// - Root: ConstraintLayout
-// - Toolbar: include toolbar_two_action (固定)
-// - Main Content: ConstraintLayout (固定高度，不可捲動，margin 16/12/16/12)
-//   - tv_start_time_title + btn_start_time
-//   - tv_end_time_title + btn_end_time (marginTop 16dp)
-//   - tv_drop_times_title + btn_drop_times (marginTop 16dp)
-//   - tv_drop_volume_title + layout_drop_volume (TextInputLayout, marginTop 16dp)
-//   - tv_rotating_speed_title + btn_rotating_speed (marginTop 16dp, enabled=false)
-// - Progress: include progress (visibility=gone)
-//
-// 所有業務邏輯已移除，僅保留 UI 結構。
+// PARITY: activity_drop_head_record_time_setting.xml
+// DropHeadRecordTimeSettingActivity.kt - Feature mode with CTA parity
 
 import 'package:flutter/material.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../app/common/app_session.dart';
+import '../../../../domain/doser_dosing/pump_head_record_detail.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
+import '../../../../shared/widgets/error_state_widget.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
+import '../controllers/pump_head_record_time_setting_controller.dart';
 import '../../../led/presentation/helpers/support/led_record_icon_helper.dart';
 
-/// PumpHeadRecordTimeSettingPage (Parity Mode)
-///
-/// PARITY: android/ReefB_Android/app/src/main/res/layout/activity_drop_head_record_time_setting.xml
-///
-/// 此頁面為純 UI Parity 實作，無業務邏輯。
-/// - 所有按鈕 onPressed = null / enabled = false
-/// - 不實作 BLE、DB、Navigation
-/// - Main Content 為固定高度，不可捲動
+/// PumpHeadRecordTimeSettingPage - PARITY with DropHeadRecordTimeSettingActivity
+/// Add/edit a custom time slot. Returns PumpHeadRecordDetail on save.
 class PumpHeadRecordTimeSettingPage extends StatelessWidget {
-  const PumpHeadRecordTimeSettingPage({super.key});
+  final String headId;
+  final List<PumpHeadRecordDetail> existingDetails;
+  final PumpHeadRecordDetail? initialDetail;
+
+  const PumpHeadRecordTimeSettingPage({
+    super.key,
+    required this.headId,
+    this.existingDetails = const [],
+    this.initialDetail,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final session = context.read<AppSession>();
+    return ChangeNotifierProvider(
+      create: (_) => PumpHeadRecordTimeSettingController(
+        headId: headId,
+        session: session,
+        existingDetails: existingDetails,
+        initialDetail: initialDetail,
+      ),
+      child: const _PumpHeadRecordTimeSettingContent(),
+    );
+  }
+}
+
+class _PumpHeadRecordTimeSettingContent extends StatelessWidget {
+  const _PumpHeadRecordTimeSettingContent();
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final controller = context.watch<PumpHeadRecordTimeSettingController>();
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceMuted, // bg_aaa (#F7F7F7)
+      backgroundColor: AppColors.surfaceMuted,
       body: Stack(
         children: [
           Column(
             children: [
-              // PARITY: toolbar_drop_head_record_time_setting (Line 8-14)
-              _ToolbarTwoAction(l10n: l10n),
-              // PARITY: layout_drop_head_record_time_setting (Line 16-170)
-              // ConstraintLayout with layout_height="0dp" (fills remaining space)
-              // margin 16/12/16/12 (Line 20-23)
+              _ToolbarTwoAction(
+                l10n: l10n,
+                onBack: () => Navigator.of(context).pop(),
+                onSave: () => _onSave(context, controller, l10n),
+              ),
+              // UX A3: reef activity_drop_head_record_time_setting 無 ScrollView → 單頁固定
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(
-                    left: 16, // dp_16 marginStart
-                    top: 12, // dp_12 marginTop
-                    right: 16, // dp_16 marginEnd
-                    bottom: 12, // dp_12 marginBottom
+                    left: 16, top: 12, right: 16, bottom: 12,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // PARITY: tv_start_time_title + btn_start_time (Line 29-53)
-                      Text(
-                        'TODO(android @string/drop_start_time)', // TODO(android @string/drop_start_time)
-                        style: AppTextStyles.caption1.copyWith(
-                          color: AppColors.textSecondary,
+                        Text(
+                          l10n.dosingStartTime,
+                          style: AppTextStyles.caption1.copyWith(color: AppColors.textSecondary),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4), // dp_4 marginTop (Line 46)
-                      _BackgroundMaterialButton(
-                        text: '08:00', // Placeholder
-                        onPressed: null,
-                      ),
-                      const SizedBox(height: 16), // dp_16 marginTop (Line 60)
-                      // PARITY: tv_end_time_title + btn_end_time (Line 55-80)
-                      Text(
-                        'TODO(android @string/drop_end_time)', // TODO(android @string/drop_end_time)
-                        style: AppTextStyles.caption1.copyWith(
-                          color: AppColors.textSecondary,
+                        const SizedBox(height: 4),
+                        _TimePickerButton(
+                          label: _formatTime(controller.startTime),
+                          onPressed: () => _showTimePicker(
+                            context,
+                            controller.startTime ?? const TimeOfDay(hour: 8, minute: 0),
+                            (t) => controller.setStartTime(t),
+                          ),
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4), // dp_4 marginTop (Line 73)
-                      _BackgroundMaterialButton(
-                        text: '10:00', // Placeholder
-                        onPressed: null,
-                      ),
-                      const SizedBox(height: 16), // dp_16 marginTop (Line 87)
-                      // PARITY: tv_drop_times_title + btn_drop_times (Line 82-107)
-                      Text(
-                        'TODO(android @string/drop_times)', // TODO(android @string/drop_times)
-                        style: AppTextStyles.caption1.copyWith(
-                          color: AppColors.textSecondary,
+                        const SizedBox(height: 16),
+                        Text(
+                          l10n.dosingEndTime,
+                          style: AppTextStyles.caption1.copyWith(color: AppColors.textSecondary),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4), // dp_4 marginTop (Line 100)
-                      _BackgroundMaterialButton(
-                        text: '3', // Placeholder
-                        onPressed: null,
-                      ),
-                      const SizedBox(height: 16), // dp_16 marginTop (Line 114)
-                      // PARITY: tv_drop_volume_title + layout_drop_volume (Line 109-142)
-                      Text(
-                        'TODO(android @string/drop_volume)', // TODO(android @string/drop_volume)
-                        style: AppTextStyles.caption1.copyWith(
-                          color: AppColors.textPrimary, // text_color_selector
+                        const SizedBox(height: 4),
+                        _TimePickerButton(
+                          label: _formatTime(controller.endTime),
+                          onPressed: () => _showTimePicker(
+                            context,
+                            controller.endTime ?? const TimeOfDay(hour: 10, minute: 0),
+                            (t) => controller.setEndTime(t),
+                          ),
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4), // dp_4 marginTop (Line 128)
-                      // layout_drop_volume (TextInputLayout, Line 123-142)
-                      TextField(
-                        enabled: false, // Disabled in Parity Mode
-                        decoration: InputDecoration(
-                          hintText: '1 ~ 500',
-                          border: OutlineInputBorder(),
+                        const SizedBox(height: 16),
+                        Text(
+                          l10n.dosingFrequency,
+                          style: AppTextStyles.caption1.copyWith(color: AppColors.textSecondary),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        keyboardType: TextInputType.number,
-                      ),
-                      const SizedBox(height: 16), // dp_16 marginTop (Line 149)
-                      // PARITY: tv_rotating_speed_title + btn_rotating_speed (Line 144-169)
-                      // enabled=false (Line 150)
-                      Text(
-                        'TODO(android @string/drop_head_rotating_speed)', // TODO(android @string/drop_head_rotating_speed)
-                        style: AppTextStyles.caption1.copyWith(
-                          color: AppColors.textDisabled, // enabled=false
+                        const SizedBox(height: 4),
+                        _DropTimesPicker(
+                          controller: controller,
+                          l10n: l10n,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4), // dp_4 marginTop (Line 163)
-                      _BackgroundMaterialButton(
-                        text: '中速', // Placeholder
-                        onPressed: null,
-                      ),
+                        const SizedBox(height: 16),
+                        Text(
+                          l10n.dosingVolume,
+                          style: AppTextStyles.caption1.copyWith(color: AppColors.textPrimary),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        _VolumeTextField(
+                          controller: controller,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          l10n.pumpHeadSpeed,
+                          style: AppTextStyles.caption1.copyWith(color: AppColors.textDisabled),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        _SpeedPicker(controller: controller, l10n: l10n),
                     ],
                   ),
                 ),
               ),
             ],
           ),
-          // PARITY: progress (Line 172-177, visibility="gone")
-          _ProgressOverlay(visible: false),
+          _ProgressOverlay(visible: controller.isLoading),
         ],
       ),
     );
   }
+
+  String _formatTime(TimeOfDay? t) {
+    if (t == null) return '08:00';
+    return '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _showTimePicker(
+    BuildContext context,
+    TimeOfDay initial,
+    void Function(TimeOfDay) onSelected,
+  ) async {
+    final t = await showTimePicker(context: context, initialTime: initial);
+    if (t != null) onSelected(t);
+  }
+
+  void _onSave(
+    BuildContext context,
+    PumpHeadRecordTimeSettingController controller,
+    AppLocalizations l10n,
+  ) {
+    final detail = controller.save(
+      onDropVolumeTooLittle: () => showErrorSnackBar(
+        context,
+        null,
+        customMessage: l10n.dosingScheduleEditErrorVolumeTooLittleNew,
+      ),
+      onDropVolumeTooMuch: () => showErrorSnackBar(
+        context,
+        null,
+        customMessage: l10n.dosingScheduleEditErrorVolumeTooMuch,
+      ),
+      onTimeExists: () => showErrorSnackBar(
+        context,
+        null,
+        customMessage: l10n.dosingScheduleEditErrorTimeExists,
+      ),
+    );
+    if (detail != null && context.mounted) {
+      Navigator.of(context).pop(detail);
+    }
+  }
 }
 
-/// PARITY: toolbar_two_action.xml
-/// - Title: activity_drop_head_record_time_setting_title
-/// - Left: btn_back (ic_close)
-/// - Right: btn_right (activity_drop_head_record_time_setting_toolbar_right_btn = "儲存")
 class _ToolbarTwoAction extends StatelessWidget {
   final AppLocalizations l10n;
+  final VoidCallback? onBack;
+  final VoidCallback? onSave;
 
-  const _ToolbarTwoAction({required this.l10n});
+  const _ToolbarTwoAction({
+    required this.l10n,
+    this.onBack,
+    this.onSave,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: AppColors.primary,
-      padding: const EdgeInsets.only(
-        top: 40,
-        bottom: 8,
-      ), // Status bar + padding
+      padding: const EdgeInsets.only(top: 40, bottom: 8),
       child: Row(
         children: [
-          // btn_back (ic_close)
           IconButton(
-            icon: CommonIconHelper.getCloseIcon(
-              size: 24,
-              color: AppColors.onPrimary,
-            ),
-            onPressed: null, // Disabled in Parity Mode
+            icon: CommonIconHelper.getCloseIcon(size: 24, color: AppColors.onPrimary),
+            onPressed: onBack,
           ),
-          // toolbar_title
           Expanded(
             child: Text(
-              'TODO(android @string/activity_drop_head_record_time_setting_title)', // TODO(android @string/activity_drop_head_record_time_setting_title)
+              l10n.pumpHeadRecordTimeSettingsTitle,
               style: AppTextStyles.title2.copyWith(color: AppColors.onPrimary),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          // btn_right ("儲存")
           TextButton(
-            onPressed: null, // Disabled in Parity Mode
+            onPressed: onSave,
             child: Text(
-              'TODO(android @string/activity_drop_head_record_time_setting_toolbar_right_btn)', // TODO(android @string/activity_drop_head_record_time_setting_toolbar_right_btn)
+              l10n.actionSave,
               style: AppTextStyles.body.copyWith(color: AppColors.onPrimary),
             ),
           ),
@@ -205,16 +232,11 @@ class _ToolbarTwoAction extends StatelessWidget {
   }
 }
 
-/// PARITY: BackgroundMaterialButton style
-/// Common button style for MaterialButton
-class _BackgroundMaterialButton extends StatelessWidget {
-  final String text;
+class _TimePickerButton extends StatelessWidget {
+  final String label;
   final VoidCallback? onPressed;
 
-  const _BackgroundMaterialButton({
-    required this.text,
-    required this.onPressed,
-  });
+  const _TimePickerButton({required this.label, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -222,17 +244,15 @@ class _BackgroundMaterialButton extends StatelessWidget {
       width: double.infinity,
       child: MaterialButton(
         onPressed: onPressed,
-        color: AppColors.surfaceMuted, // bg_aaa background
+        color: AppColors.surfaceMuted,
         textColor: AppColors.textPrimary,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4), // dp_4 cornerRadius
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(text, textAlign: TextAlign.start, style: AppTextStyles.body),
+            Text(label, textAlign: TextAlign.start, style: AppTextStyles.body),
             LedRecordIconHelper.getDownIcon(width: 20, height: 20),
           ],
         ),
@@ -241,8 +261,153 @@ class _BackgroundMaterialButton extends StatelessWidget {
   }
 }
 
-/// PARITY: progress.xml (include layout)
-/// Full-screen overlay with CircularProgressIndicator
+class _DropTimesPicker extends StatelessWidget {
+  final PumpHeadRecordTimeSettingController controller;
+  final AppLocalizations l10n;
+
+  const _DropTimesPicker({required this.controller, required this.l10n});
+
+  @override
+  Widget build(BuildContext context) {
+    final range = controller.dropTimesRange;
+    return PopupMenuButton<int>(
+      onSelected: controller.setDropTimes,
+      offset: Offset.zero,
+      child: SizedBox(
+        width: double.infinity,
+        child: MaterialButton(
+          onPressed: null,
+          color: AppColors.surfaceMuted,
+          textColor: AppColors.textPrimary,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                controller.dropTimes.toString(),
+                textAlign: TextAlign.start,
+                style: AppTextStyles.body,
+              ),
+              LedRecordIconHelper.getDownIcon(width: 20, height: 20),
+            ],
+          ),
+        ),
+      ),
+      itemBuilder: (ctx) => range.map((v) => PopupMenuItem(
+        value: v,
+        child: Text('$v'),
+      )).toList(),
+    );
+  }
+}
+
+class _VolumeTextField extends StatefulWidget {
+  final PumpHeadRecordTimeSettingController controller;
+
+  const _VolumeTextField({required this.controller});
+
+  @override
+  State<_VolumeTextField> createState() => _VolumeTextFieldState();
+}
+
+class _VolumeTextFieldState extends State<_VolumeTextField> {
+  late TextEditingController _textController;
+
+  @override
+  void initState() {
+    super.initState();
+    _textController = TextEditingController(
+      text: widget.controller.dropVolume?.toString() ?? '',
+    );
+  }
+
+  @override
+  void didUpdateWidget(_VolumeTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      _textController.text = widget.controller.dropVolume?.toString() ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return TextField(
+      controller: _textController,
+      decoration: InputDecoration(
+        hintText: l10n.dosingVolumeRangeHint,
+        border: const OutlineInputBorder(),
+      ),
+      keyboardType: TextInputType.number,
+      onChanged: (v) {
+        final n = int.tryParse(v);
+        widget.controller.setDropVolume(n);
+      },
+    );
+  }
+}
+
+class _SpeedPicker extends StatelessWidget {
+  final PumpHeadRecordTimeSettingController controller;
+  final AppLocalizations l10n;
+
+  const _SpeedPicker({required this.controller, required this.l10n});
+
+  String _speedLabel(int speed) {
+    switch (speed) {
+      case 1:
+        return l10n.pumpHeadSpeedLow;
+      case 3:
+        return l10n.pumpHeadSpeedHigh;
+      default:
+        return l10n.pumpHeadSpeedMedium;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<int>(
+      onSelected: controller.setRotatingSpeed,
+      offset: Offset.zero,
+      child: SizedBox(
+        width: double.infinity,
+        child: MaterialButton(
+          onPressed: null,
+          color: AppColors.surfaceMuted,
+          textColor: AppColors.textPrimary,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                _speedLabel(controller.rotatingSpeed),
+                textAlign: TextAlign.start,
+                style: AppTextStyles.body,
+              ),
+              LedRecordIconHelper.getDownIcon(width: 20, height: 20),
+            ],
+          ),
+        ),
+      ),
+      itemBuilder: (ctx) => [
+        PopupMenuItem(value: 1, child: Text(l10n.pumpHeadSpeedLow)),
+        PopupMenuItem(value: 2, child: Text(l10n.pumpHeadSpeedMedium)),
+        PopupMenuItem(value: 3, child: Text(l10n.pumpHeadSpeedHigh)),
+      ],
+    );
+  }
+}
+
 class _ProgressOverlay extends StatelessWidget {
   final bool visible;
 
@@ -253,7 +418,7 @@ class _ProgressOverlay extends StatelessWidget {
     return Visibility(
       visible: visible,
       child: Container(
-        color: Colors.black.withValues(alpha: 0.3), // Semi-transparent overlay
+        color: Colors.black.withValues(alpha: 0.3),
         child: const Center(child: CircularProgressIndicator()),
       ),
     );

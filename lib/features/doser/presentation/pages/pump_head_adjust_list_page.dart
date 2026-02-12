@@ -16,17 +16,15 @@ import 'package:koralcore/l10n/app_localizations.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
+import 'pump_head_calibration_page.dart';
 
-/// PumpHeadAdjustListPage (Parity Mode)
+/// PumpHeadAdjustListPage - PARITY with reef DropHeadAdjustListActivity
 ///
-/// PARITY: android/ReefB_Android/app/src/main/res/layout/activity_drop_head_adjust_list.xml
-///
-/// 此頁面為純 UI Parity 實作，無業務邏輯。
-/// - 所有按鈕 onPressed = null
-/// - 不實作 BLE、DB、Navigation
-/// - RecyclerView 可捲動
+/// reef: back->finish, right->start DropHeadAdjustActivity (PumpHeadCalibrationPage)
 class PumpHeadAdjustListPage extends StatelessWidget {
-  const PumpHeadAdjustListPage({super.key});
+  final String headId;
+
+  const PumpHeadAdjustListPage({super.key, required this.headId});
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +36,15 @@ class PumpHeadAdjustListPage extends StatelessWidget {
         children: [
           Column(
             children: [
-              // PARITY: toolbar_drop_head_adjust_list (Line 8-13)
-              _ToolbarTwoAction(l10n: l10n),
+              _ToolbarTwoAction(
+                l10n: l10n,
+                onBack: () => Navigator.of(context).pop(),
+                onRight: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => PumpHeadCalibrationPage(headId: headId),
+                      ),
+                    ),
+              ),
               // PARITY: rv_adjust (Line 15-29)
               // RecyclerView with layout_height="0dp" (fills remaining space)
               // padding 16/8/16/8 (Line 20-23), clipToPadding=false (Line 19)
@@ -70,48 +75,45 @@ class PumpHeadAdjustListPage extends StatelessWidget {
   }
 }
 
-/// PARITY: toolbar_two_action.xml
-/// - Title: activity_drop_head_adjust_list_title
-/// - Left: btn_back
-/// - Right: btn_right (activity_drop_head_adjust_list_toolbar_right_btn = "開始校準")
+/// PARITY: toolbar_two_action - reef: back->finish, right->start calibration
 class _ToolbarTwoAction extends StatelessWidget {
   final AppLocalizations l10n;
+  final VoidCallback onBack;
+  final VoidCallback onRight;
 
-  const _ToolbarTwoAction({required this.l10n});
+  const _ToolbarTwoAction({
+    required this.l10n,
+    required this.onBack,
+    required this.onRight,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: AppColors.primary,
-      padding: const EdgeInsets.only(
-        top: 40,
-        bottom: 8,
-      ), // Status bar + padding
+      padding: const EdgeInsets.only(top: 40, bottom: 8),
       child: Row(
         children: [
-          // btn_back
           IconButton(
-            icon: CommonIconHelper.getBackIcon(size: 24, 
+            icon: CommonIconHelper.getBackIcon(
               size: 24,
               color: AppColors.onPrimary,
             ),
-            onPressed: null, // Disabled in Parity Mode
+            onPressed: onBack,
           ),
-          // toolbar_title
           Expanded(
             child: Text(
-              'TODO(android @string/activity_drop_head_adjust_list_title)', // TODO(android @string/activity_drop_head_adjust_list_title)
+              l10n.dosingAdjustListTitle,
               style: AppTextStyles.title2.copyWith(color: AppColors.onPrimary),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          // btn_right ("開始校準")
           TextButton(
-            onPressed: null, // Disabled in Parity Mode
+            onPressed: onRight,
             child: Text(
-              'TODO(android @string/activity_drop_head_adjust_list_toolbar_right_btn)', // TODO(android @string/activity_drop_head_adjust_list_toolbar_right_btn)
+              l10n.dosingAdjustListStartAdjust,
               style: AppTextStyles.body.copyWith(color: AppColors.onPrimary),
             ),
           ),
@@ -130,6 +132,7 @@ class _ToolbarTwoAction extends StatelessWidget {
 class _AdjustHistoryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.only(
         top: 4, // dp_4 marginTop
@@ -156,7 +159,7 @@ class _AdjustHistoryItem extends StatelessWidget {
             children: [
               // tv_speed_title (caption1_accent, text_aaa)
               Text(
-                'TODO(android @string/rotating_speed)', // TODO(android @string/rotating_speed)
+                l10n.rotatingSpeed,
                 style: AppTextStyles.caption1Accent.copyWith(
                   color: AppColors.textTertiary, // text_aaa
                 ),
@@ -165,7 +168,7 @@ class _AdjustHistoryItem extends StatelessWidget {
               // tv_speed (caption1, bg_secondary)
               Expanded(
                 child: Text(
-                  '中速', // Placeholder
+                  l10n.pumpHeadSpeedMedium,
                   style: AppTextStyles.caption1.copyWith(
                     color: AppColors.textSecondary, // bg_secondary
                   ),
@@ -180,7 +183,7 @@ class _AdjustHistoryItem extends StatelessWidget {
             children: [
               // tv_date_title (caption1_accent, text_aaa)
               Text(
-                'TODO(android @string/date)', // TODO(android @string/date)
+                l10n.dosingAdjustDateTitle,
                 style: AppTextStyles.caption1Accent.copyWith(
                   color: AppColors.textTertiary, // text_aaa
                 ),
@@ -189,7 +192,7 @@ class _AdjustHistoryItem extends StatelessWidget {
               // tv_date (caption1)
               Expanded(
                 child: Text(
-                  '2024-01-01 12:00:00', // Placeholder
+                  l10n.dosingAdjustDatePlaceholder,
                   style: AppTextStyles.caption1.copyWith(
                     color: AppColors.textPrimary,
                   ),
@@ -213,7 +216,7 @@ class _AdjustHistoryItem extends StatelessWidget {
               // tv_volume (caption1)
               Expanded(
                 child: Text(
-                  '10.0 ml', // Placeholder
+                  l10n.dosingAdjustVolumePlaceholder,
                   style: AppTextStyles.caption1.copyWith(
                     color: AppColors.textPrimary,
                   ),

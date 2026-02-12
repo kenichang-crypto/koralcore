@@ -212,40 +212,30 @@ class _EditTextBottomSheetState extends State<EditTextBottomSheet> {
       case EditTextBottomSheetType.addSink:
         // Line 53-56
         return _BottomSheetConfig(
-          title: 'TODO(android @string/bottom_sheet_add_sink_title)', // TODO
-          edtTitle:
-              'TODO(android @string/bottom_sheet_add_sink_edittext_title)', // TODO
-          btnText:
-              'TODO(android @string/bottom_sheet_add_sink_button_text)', // TODO
+          title: l10n.bottomSheetAddSinkTitle,
+          edtTitle: l10n.bottomSheetAddSinkFieldTitle,
+          btnText: l10n.actionSave,
         );
       case EditTextBottomSheetType.editSink:
         // Line 58-61
         return _BottomSheetConfig(
-          title: 'TODO(android @string/bottom_sheet_edit_sink_title)', // TODO
-          edtTitle:
-              'TODO(android @string/bottom_sheet_edit_sink_edittext_title)', // TODO
-          btnText:
-              'TODO(android @string/bottom_sheet_edit_sink_button_text)', // TODO
+          title: l10n.bottomSheetEditSinkTitle,
+          edtTitle: l10n.bottomSheetEditSinkFieldTitle,
+          btnText: l10n.actionSave,
         );
       case EditTextBottomSheetType.addDropType:
         // Line 63-67
         return _BottomSheetConfig(
-          title:
-              'TODO(android @string/bottom_sheet_add_drop_type_title)', // TODO
-          edtTitle:
-              'TODO(android @string/bottom_sheet_add_drop_type_edittext_title)', // TODO
-          btnText:
-              'TODO(android @string/bottom_sheet_add_drop_type_button_text)', // TODO
+          title: l10n.bottomSheetAddDropTypeTitle,
+          edtTitle: l10n.bottomSheetAddDropTypeFieldTitle,
+          btnText: l10n.actionSave,
         );
       case EditTextBottomSheetType.editDropType:
         // Line 69-73
         return _BottomSheetConfig(
-          title:
-              'TODO(android @string/bottom_sheet_edit_drop_type_title)', // TODO
-          edtTitle:
-              'TODO(android @string/bottom_sheet_edit_drop_type_edittext_title)', // TODO
-          btnText:
-              'TODO(android @string/bottom_sheet_edit_drop_type_button_text)', // TODO
+          title: l10n.bottomSheetEditDropTypeTitle,
+          edtTitle: l10n.bottomSheetEditDropTypeFieldTitle,
+          btnText: l10n.actionSave,
         );
     }
   }

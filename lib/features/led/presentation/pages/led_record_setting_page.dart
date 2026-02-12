@@ -1,21 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../app/common/app_context.dart';
+import '../../../../app/common/app_session.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
+import '../controllers/led_record_controller.dart';
+import '../controllers/led_record_setting_controller.dart';
+import 'led_record_page.dart';
 
-/// LedRecordSettingPage
+/// LedRecordSettingPage - PARITY with reef LedRecordSettingActivity
 ///
-/// Parity with reef-b-app LedRecordSettingActivity (activity_led_record_setting.xml)
-/// Correction Mode: UI structure only, no behavior
+/// reef: Cancel->finish(), Save->viewModel.saveLedRecord(), on success->LedRecordActivity+finish
 class LedRecordSettingPage extends StatelessWidget {
   const LedRecordSettingPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const _LedRecordSettingView();
+    final appContext = context.read<AppContext>();
+    final session = context.read<AppSession>();
+
+    return ChangeNotifierProvider<LedRecordSettingController>(
+      create: (_) => LedRecordSettingController(
+        session: session,
+        ledRecordRepository: appContext.ledRecordRepository,
+        initLedRecordUseCase: appContext.initLedRecordUseCase,
+      ),
+      child: const _LedRecordSettingView(),
+    );
   }
 }
 
@@ -25,13 +40,13 @@ class _LedRecordSettingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final controller = context.watch<LedRecordSettingController>();
 
     return Stack(
       children: [
         Column(
           children: [
-            // A. Toolbar (fixed) ↔ toolbar_two_action.xml
-            _ToolbarTwoAction(l10n: l10n),
+            _ToolbarTwoAction(l10n: l10n, controller: controller),
 
             // B. Main content (fixed, non-scrollable) ↔ layout_led_record_setting
             Expanded(
@@ -48,16 +63,11 @@ class _LedRecordSettingView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // C1. Init Strength Section
-                    _InitStrengthSection(l10n: l10n),
-                    const SizedBox(
-                      height: 16,
-                    ), // marginTop before sunrise/sunset
-                    // C2. Sunrise/Sunset Section
-                    _SunriseSunsetSection(l10n: l10n),
-                    const SizedBox(height: 16), // marginTop before slow start
-                    // C3. Slow Start & Moon Light Section
-                    _SlowStartMoonLightSection(l10n: l10n),
+                    _InitStrengthSection(l10n: l10n, controller: controller),
+                    const SizedBox(height: 16),
+                    _SunriseSunsetSection(l10n: l10n, controller: controller),
+                    const SizedBox(height: 16),
+                    _SlowStartMoonLightSection(l10n: l10n, controller: controller),
                   ],
                 ),
               ),
@@ -65,10 +75,7 @@ class _LedRecordSettingView extends StatelessWidget {
           ],
         ),
 
-        // D. Progress overlay ↔ progress.xml
-        // Note: In Correction Mode, no controller to trigger loading
-        // Placeholder for structure only
-        // if (isLoading) const _ProgressOverlay(),
+        if (controller.isLoading) const _ProgressOverlay(),
       ],
     );
   }
@@ -78,10 +85,12 @@ class _LedRecordSettingView extends StatelessWidget {
 // A. Toolbar (fixed) ↔ toolbar_two_action.xml
 // ────────────────────────────────────────────────────────────────────────────
 
+/// PARITY: reef btnBack->finish, btnRight->saveLedRecord, success->LedRecordActivity+finish
 class _ToolbarTwoAction extends StatelessWidget {
-  const _ToolbarTwoAction({required this.l10n});
+  const _ToolbarTwoAction({required this.l10n, required this.controller});
 
   final AppLocalizations l10n;
+  final LedRecordSettingController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -93,9 +102,8 @@ class _ToolbarTwoAction extends StatelessWidget {
           height: 56,
           child: Row(
             children: [
-              // Left: Cancel / Back (text button, no behavior)
               TextButton(
-                onPressed: null, // No behavior in Correction Mode
+                onPressed: controller.isLoading ? null : () => Navigator.of(context).pop(),
                 child: Text(
                   l10n.actionCancel,
                   style: AppTextStyles.body.copyWith(
@@ -104,8 +112,6 @@ class _ToolbarTwoAction extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              // Center: Title (@string/record_setting or similar)
-              // TODO(android @string/record_setting → "Record Setting" / "記錄設定")
               Text(
                 l10n.ledRecordSettingTitle,
                 style: AppTextStyles.headline.copyWith(
@@ -113,9 +119,10 @@ class _ToolbarTwoAction extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              // Right: Save (text button, no behavior)
               TextButton(
-                onPressed: null, // No behavior in Correction Mode
+                onPressed: controller.isLoading
+                    ? null
+                    : () => _onSave(context, controller, l10n),
                 child: Text(
                   l10n.actionSave,
                   style: AppTextStyles.body.copyWith(
@@ -126,9 +133,51 @@ class _ToolbarTwoAction extends StatelessWidget {
             ],
           ),
         ),
-        // Divider (2dp ↔ toolbar_two_action.xml MaterialDivider)
         Container(height: 2, color: AppColors.divider),
       ],
+    );
+  }
+}
+
+Future<void> _onSave(
+  BuildContext context,
+  LedRecordSettingController controller,
+  AppLocalizations l10n,
+) async {
+  final success = await controller.saveLedRecord(
+    onTimeError: () {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.ledRecordSettingErrorSunTime)),
+      );
+    },
+  );
+  if (!context.mounted) return;
+  if (success) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.toastSettingSuccessful)),
+    );
+    final appContext = context.read<AppContext>();
+    final session = context.read<AppSession>();
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider<LedRecordController>(
+          create: (_) => LedRecordController(
+            session: session,
+            observeLedRecordStateUseCase: appContext.observeLedRecordStateUseCase,
+            readLedRecordStateUseCase: appContext.readLedRecordStateUseCase,
+            refreshLedRecordStateUseCase: appContext.refreshLedRecordStateUseCase,
+            deleteLedRecordUseCase: appContext.deleteLedRecordUseCase,
+            clearLedRecordsUseCase: appContext.clearLedRecordsUseCase,
+            startLedPreviewUseCase: appContext.startLedPreviewUseCase,
+            stopLedPreviewUseCase: appContext.stopLedPreviewUseCase,
+          )..initialize(),
+          child: const LedRecordPage(),
+        ),
+      ),
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.toastSettingFailed)),
     );
   }
 }
@@ -137,31 +186,27 @@ class _ToolbarTwoAction extends StatelessWidget {
 // C1. Init Strength Section ↔ img_sun + tv_sun_title + db_strength + tv_strength + sl_strength
 // ────────────────────────────────────────────────────────────────────────────
 
+/// PARITY: reef slStrength, slSlowStart, slMoonLight onChange->viewModel.set*
 class _InitStrengthSection extends StatelessWidget {
-  const _InitStrengthSection({required this.l10n});
+  const _InitStrengthSection({required this.l10n, required this.controller});
 
   final AppLocalizations l10n;
+  final LedRecordSettingController controller;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Row: img_sun + tv_sun_title
         Row(
           children: [
-            // img_sun (20x20dp)
-            // TODO(android @drawable/ic_sun)
             SvgPicture.asset('assets/icons/ic_sun.svg', width: 20, height: 20),
-            const SizedBox(width: 4), // marginStart: dp_4
-            // tv_sun_title (@string/init_strength)
-            // TODO(android @string/init_strength → "Initial Intensity" / "初始強度")
-            // Using closest available: ledRecordSettingTitle or placeholder
+            const SizedBox(width: 4),
             Expanded(
               child: Text(
-                'Initial Intensity', // TODO(android @string/init_strength)
+                l10n.ledInitialIntensity,
                 style: AppTextStyles.body.copyWith(
-                  color: AppColors.textPrimary, // text_aaaa
+                  color: AppColors.textPrimary,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -169,13 +214,10 @@ class _InitStrengthSection extends StatelessWidget {
             ),
           ],
         ),
-        // db_strength (CustomDashBoard, 123dp height) + tv_strength (centered)
         SizedBox(
-          height: 123, // dp_123
+          height: 123,
           child: Stack(
             children: [
-              // Dashboard placeholder (CustomDashBoard is a custom view)
-              // TODO(android CustomDashBoard implementation)
               Center(
                 child: Container(
                   width: 120,
@@ -183,40 +225,37 @@ class _InitStrengthSection extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: AppColors
-                          .surfacePressed, // dashboard_progress as placeholder
+                      color: AppColors.surfacePressed,
                       width: 8,
                     ),
                   ),
                 ),
               ),
-              // tv_strength (centered, "50 %", headline, text_aaa)
               Center(
                 child: Text(
-                  '50 %',
+                  '${controller.initStrength} %',
                   style: AppTextStyles.headline.copyWith(
-                    color: AppColors.textSecondary, // text_aaa
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ),
             ],
           ),
         ),
-        // sl_strength (Slider, 0-100, value=50)
         SliderTheme(
           data: SliderThemeData(
-            activeTrackColor: AppColors.surfacePressed, // dashboard_progress
-            inactiveTrackColor: AppColors.textTertiary, // text_aa
+            activeTrackColor: AppColors.surfacePressed,
+            inactiveTrackColor: AppColors.textTertiary,
             thumbColor: AppColors.surfacePressed,
-            trackHeight: 2, // dp_2
+            trackHeight: 2,
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
             overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
           ),
           child: Slider(
-            value: 50,
+            value: controller.initStrength.toDouble(),
             min: 0,
             max: 100,
-            onChanged: null, // No behavior in Correction Mode
+            onChanged: controller.isLoading ? null : (v) => controller.setInitStrength(v.round()),
           ),
         ),
       ],
@@ -228,120 +267,141 @@ class _InitStrengthSection extends StatelessWidget {
 // C2. Sunrise/Sunset Section ↔ layout_sunrise_sunset
 // ────────────────────────────────────────────────────────────────────────────
 
+/// PARITY: reef btnSunrise/btnSunset->MaterialTimePicker
 class _SunriseSunsetSection extends StatelessWidget {
-  const _SunriseSunsetSection({required this.l10n});
+  const _SunriseSunsetSection({required this.l10n, required this.controller});
 
   final AppLocalizations l10n;
+  final LedRecordSettingController controller;
+
+  String _formatTime(int hour, int minute) {
+    return '${hour.toString().padLeft(2, '0')} : ${minute.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _showTimePicker(
+    BuildContext context,
+    int initialHour,
+    int initialMinute,
+    void Function(int, int) onSelected,
+  ) async {
+    final TimeOfDay? result = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: initialHour, minute: initialMinute),
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
+    );
+    if (result != null) {
+      onSelected(result.hour, result.minute);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white, // background_white_radius
+        color: Colors.white,
         borderRadius: BorderRadius.circular(8),
       ),
-      padding: const EdgeInsets.all(12), // dp_12
+      padding: const EdgeInsets.all(12),
       child: Column(
         children: [
-          // Sunrise row
           Row(
             children: [
-              // img_sunrise (20x20dp)
-              // TODO(android @drawable/ic_sunrise)
               SvgPicture.asset(
                 'assets/icons/ic_sunrise.svg',
                 width: 20,
                 height: 20,
               ),
-              const SizedBox(width: 4), // marginStart: dp_4
-              // tv_sunrise_title (@string/sunrise)
-              // TODO(android @string/sunrise → "Sunrise" / "日出")
+              const SizedBox(width: 4),
               Expanded(
                 child: Text(
-                  'Sunrise', // TODO(android @string/sunrise)
+                  l10n.ledSunrise,
                   style: AppTextStyles.caption1.copyWith(
-                    color: AppColors.textPrimary, // text_aaaa
+                    color: AppColors.textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: 4), // marginStart before button
-              // btn_sunrise (MaterialButton, "06 : 00", icon ic_down)
+              const SizedBox(width: 4),
               MaterialButton(
-                onPressed: null, // No behavior in Correction Mode
-                color: AppColors.surfaceMuted, // BackgroundMaterialButton
-                textColor: AppColors.textPrimary,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '06 : 00',
-                      style: AppTextStyles.body.copyWith(
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    // ic_down
-                    // TODO(android @drawable/ic_down)
-                    CommonIconHelper.getDownIcon(size: 24),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8), // marginTop: dp_8
-          // Sunset row
-          Row(
-            children: [
-              // img_sunset (20x20dp)
-              // TODO(android @drawable/ic_sunset)
-              SvgPicture.asset(
-                'assets/icons/ic_sunset.svg',
-                width: 20,
-                height: 20,
-              ),
-              const SizedBox(width: 4), // marginStart: dp_4
-              // tv_sunset_title (@string/sunset)
-              // TODO(android @string/sunset → "Sunset" / "日落")
-              Expanded(
-                child: Text(
-                  'Sunset', // TODO(android @string/sunset)
-                  style: AppTextStyles.caption1.copyWith(
-                    color: AppColors.textPrimary, // text_aaaa
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(width: 4), // marginStart before button
-              // btn_sunset (MaterialButton, "18 : 00", icon ic_down)
-              MaterialButton(
-                onPressed: null, // No behavior in Correction Mode
+                onPressed: controller.isLoading
+                    ? null
+                    : () => _showTimePicker(
+                          context,
+                          controller.sunriseHour,
+                          controller.sunriseMinute,
+                          controller.setSunrise,
+                        ),
                 color: AppColors.surfaceMuted,
                 textColor: AppColors.textPrimary,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4),
                 ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '18 : 00',
+                      _formatTime(controller.sunriseHour, controller.sunriseMinute),
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    CommonIconHelper.getDownIcon(size: 24),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              SvgPicture.asset(
+                'assets/icons/ic_sunset.svg',
+                width: 20,
+                height: 20,
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  l10n.ledSunset,
+                  style: AppTextStyles.caption1.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 4),
+              MaterialButton(
+                onPressed: controller.isLoading
+                    ? null
+                    : () => _showTimePicker(
+                          context,
+                          controller.sunsetHour,
+                          controller.sunsetMinute,
+                          controller.setSunset,
+                        ),
+                color: AppColors.surfaceMuted,
+                textColor: AppColors.textPrimary,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _formatTime(controller.sunsetHour, controller.sunsetMinute),
                       style: AppTextStyles.body.copyWith(
                         color: AppColors.textPrimary,
                       ),
@@ -363,72 +423,69 @@ class _SunriseSunsetSection extends StatelessWidget {
 // C3. Slow Start & Moon Light Section ↔ layout_slow_start_moon_light
 // ────────────────────────────────────────────────────────────────────────────
 
+/// PARITY: reef slSlowStart, slMoonLight onChange->viewModel.set*
 class _SlowStartMoonLightSection extends StatelessWidget {
-  const _SlowStartMoonLightSection({required this.l10n});
+  const _SlowStartMoonLightSection({required this.l10n, required this.controller});
 
   final AppLocalizations l10n;
+  final LedRecordSettingController controller;
 
   @override
   Widget build(BuildContext context) {
+    final slowStart = controller.slowStart.clamp(10, 60);
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
       ),
-      padding: const EdgeInsets.all(12), // dp_12
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Slow Start row (icon + title + value)
           Row(
             children: [
-              // img_slow_start (20x20dp)
-              // TODO(android @drawable/ic_slow_start)
               CommonIconHelper.getSlowStartIcon(
-                size: 20, // dp_20
+                size: 20,
                 color: Colors.grey,
-              ), // Placeholder
-              const SizedBox(width: 4), // marginStart: dp_4
-              // tv_slow_start_title (@string/slow_start)
-              // TODO(android @string/slow_start → "Slow Start" / "緩啟動")
+              ),
+              const SizedBox(width: 4),
               Expanded(
                 child: Text(
-                  'Slow Start', // TODO(android @string/slow_start)
+                  l10n.ledSlowStart,
                   style: AppTextStyles.caption1.copyWith(
-                    color: AppColors.textPrimary, // text_aaaa
+                    color: AppColors.textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: 4), // marginStart before value
-              // tv_slow_start (@string/init_minute)
-              // TODO(android @string/init_minute → "30 min" format)
+              const SizedBox(width: 4),
               Text(
-                '30 ${l10n.minute}', // Assuming l10n.minute exists for "min" / "分鐘"
+                '$slowStart ${l10n.minute}',
                 style: AppTextStyles.caption1.copyWith(
-                  color: AppColors.textSecondary, // text_aaa
+                  color: AppColors.textSecondary,
                 ),
               ),
             ],
           ),
-          // sl_slow_start (Slider, 10-60, stepSize 10, value=30)
           SliderTheme(
             data: SliderThemeData(
-              activeTrackColor: AppColors.primary, // bg_primary
-              inactiveTrackColor: AppColors.surfacePressed, // bg_press
+              activeTrackColor: AppColors.primary,
+              inactiveTrackColor: AppColors.surfacePressed,
               thumbColor: AppColors.primary,
-              trackHeight: 2, // dp_2
+              trackHeight: 2,
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
               overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
             ),
             child: Slider(
-              value: 30,
+              value: slowStart.toDouble(),
               min: 10,
               max: 60,
-              divisions: 5, // stepSize 10 → 5 divisions (10,20,30,40,50,60)
-              onChanged: null, // No behavior in Correction Mode
+              divisions: 5,
+              onChanged: controller.isLoading
+                  ? null
+                  : (v) => controller.setSlowStart(v.round()),
             ),
           ),
           // Progress labels (10, 20, 30, 40, 50, 60)
@@ -479,49 +536,45 @@ class _SlowStartMoonLightSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16), // marginTop: dp_16 before moon light
-          // Moon Light row (icon + title + value)
           Row(
             children: [
-              // img_moon_light (20x20dp)
-              // TODO(android @drawable/ic_moon_round)
               CommonIconHelper.getMoonRoundIcon(size: 20, color: Colors.grey),
-              const SizedBox(width: 6), // marginStart: dp_6
-              // tv_moon_light_title (@string/moon_light)
+              const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   l10n.lightMoon,
                   style: AppTextStyles.caption1.copyWith(
-                    color: AppColors.textPrimary, // text_aaaa
+                    color: AppColors.textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: 4), // marginStart before value
-              // tv_moon_light ("0 %")
+              const SizedBox(width: 4),
               Text(
-                '0 %',
+                '${controller.moonlight} %',
                 style: AppTextStyles.caption1.copyWith(
-                  color: AppColors.textSecondary, // text_aaa
+                  color: AppColors.textSecondary,
                 ),
               ),
             ],
           ),
-          // sl_moon_light (Slider, 0-100, value=0)
           SliderTheme(
             data: SliderThemeData(
-              activeTrackColor: AppColors.moonLight, // moon_light_color
-              inactiveTrackColor: AppColors.surfacePressed, // bg_press
+              activeTrackColor: AppColors.moonLight,
+              inactiveTrackColor: AppColors.surfacePressed,
               thumbColor: AppColors.moonLight,
-              trackHeight: 2, // dp_2
+              trackHeight: 2,
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
               overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
             ),
             child: Slider(
-              value: 0,
+              value: controller.moonlight.toDouble(),
               min: 0,
               max: 100,
-              onChanged: null, // No behavior in Correction Mode
+              onChanged: controller.isLoading
+                  ? null
+                  : (v) => controller.setMoonlight(v.round()),
             ),
           ),
           // Progress labels (0, 100)

@@ -1,13 +1,13 @@
 library;
 
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../../../../app/common/app_error.dart';
-import '../../../../app/common/app_error_code.dart';
+import '../ble/ble_scan_service.dart';
+import '../../app/common/app_error.dart';
+import '../../app/common/app_error_code.dart';
 import '../../domain/sink/sink.dart';
 import '../../data/database/database_helper.dart';
 import '../../platform/contracts/device_repository.dart';
@@ -22,7 +22,7 @@ class DeviceRepositoryImpl extends DeviceRepository {
   final List<_DeviceRecord> _discoveredRecords = <_DeviceRecord>[];
   final StreamController<List<Map<String, dynamic>>> _savedController;
   final StreamController<List<Map<String, dynamic>>> _discoveredController;
-  final Random _random = Random();
+  final BleScanService _bleScanService = BleScanService();
 
   String? _currentDeviceId;
   bool _initialized = false;
@@ -111,29 +111,58 @@ class DeviceRepositoryImpl extends DeviceRepository {
 
   @override
   Future<List<Map<String, dynamic>>> scanDevices({Duration? timeout}) async {
-    // TODO: This is a mock implementation. Real BLE scanning needs to be implemented via platform channels.
-    await Future<void>.delayed(timeout ?? const Duration(seconds: 2));
-    _discoveredRecords
-      ..clear()
-      ..addAll(_generateDiscovered());
-    
-    // TODO: Temporarily disabled name filtering for development
-    // PARITY: Filter devices by name (matches reef-b-app's scanResult filtering)
-    // Only include devices with names matching "koralDOSE", "coralDOSE", "koralLED", "coralLED"
-    // _discoveredRecords.removeWhere((record) {
-    //   return !_matchesDeviceNameFilter(record.name);
-    // });
-    
-    // PARITY: reef-b-app BLEManager.scanLeDevice() -> Log.d("$TAG - 藍芽掃描", "掃描到裝置...")
-    debugPrint('DeviceRepository - 藍芽掃描: 生成 ${_discoveredRecords.length} 個測試設備供掃描');
-    for (final record in _discoveredRecords) {
-      debugPrint('DeviceRepository - 藍芽掃描: 測試設備 id=${record.id}, name="${record.name}", rssi=${record.rssi}');
-    }
-    
+    _discoveredRecords.clear();
+
+    final results = await _bleScanService.runScan(
+      timeout: timeout ?? const Duration(seconds: 10),
+      onUpdate: (list) {
+        _discoveredRecords.clear();
+        _discoveredRecords.addAll(
+          list.map(
+            (r) => _DeviceRecord(
+              id: r.deviceId,
+              name: r.name,
+              rssi: r.rssi,
+              state: 'disconnected',
+              provisioned: false,
+              isMaster: false,
+              type: _inferType(r.name),
+            ),
+          ),
+        );
+        _emitDiscovered();
+      },
+    );
+
+    _discoveredRecords.clear();
+    _discoveredRecords.addAll(
+      results.map(
+        (r) => _DeviceRecord(
+          id: r.deviceId,
+          name: r.name,
+          rssi: r.rssi,
+          state: 'disconnected',
+          provisioned: false,
+          isMaster: false,
+          type: _inferType(r.name),
+        ),
+      ),
+    );
     _emitDiscovered();
+
+    debugPrint(
+      'DeviceRepository - 藍芽掃描: 掃描完成 ${_discoveredRecords.length} 個裝置',
+    );
     return _discoveredRecords
         .map((record) => record.toMap())
         .toList(growable: false);
+  }
+
+  static String? _inferType(String name) {
+    final lower = name.toLowerCase();
+    if (lower.contains('led')) return 'LED';
+    if (lower.contains('dose')) return 'DROP';
+    return null;
   }
 
   /// Check if device name matches the filter criteria.
@@ -434,34 +463,6 @@ class DeviceRepositoryImpl extends DeviceRepository {
         .toList(growable: false);
   }
 
-  List<_DeviceRecord> _generateDiscovered() {
-    final List<_DeviceRecord> generated = <_DeviceRecord>[];
-    // Generate test devices with various names (no name filtering during development)
-    // TODO: Replace with real BLE scan results from platform
-    final List<Map<String, dynamic>> testDevices = [
-      {'name': 'koralDOSE 4H', 'type': 'DROP'},
-      {'name': 'coralDOSE 2H', 'type': 'DROP'},
-      {'name': 'koralLED EX', 'type': 'LED'},
-      {'name': 'Test Device 1', 'type': null},
-    ];
-    
-    for (int i = 0; i < testDevices.length; i++) {
-      final device = testDevices[i];
-      generated.add(
-        _DeviceRecord(
-          id: 'test-device-${DateTime.now().millisecondsSinceEpoch + i}',
-          name: device['name'] as String, // record.name is the device name variable
-          rssi: (-45 - _random.nextInt(35)),
-          state: 'disconnected',
-          provisioned: false,
-          isMaster: false,
-          type: device['type'] as String?,
-        ).withRandomizedRssi(_random),
-      );
-    }
-    return generated;
-  }
-
   void _syncDefaultSink() {
     final SinkRepository? repository = _sinkRepository;
     if (repository == null) {
@@ -598,12 +599,6 @@ class _DeviceRecord {
       group: group ?? this.group,
       delayTime: delayTime ?? this.delayTime,
     );
-  }
-
-  _DeviceRecord withRandomizedRssi(Random random) {
-    final int delta = random.nextInt(10) - 5;
-    final int next = (rssi + delta).clamp(-90, -40).toInt();
-    return copyWith(rssi: next);
   }
 
   Map<String, dynamic> toMap() {

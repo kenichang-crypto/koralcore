@@ -143,7 +143,7 @@ class DosingMainPumpHeadCard extends StatelessWidget {
                   // Verify CommonIconHelper.getPlayIcon() matches Android ic_play_enabled.xml
                   if (onPlay != null)
                     IconButton(
-                      icon: CommonIconHelper.getPlayIcon(size: 60, 
+                      icon: CommonIconHelper.getPlayIcon(
                         size: 60,
                         color: AppColors.primary,
                       ),

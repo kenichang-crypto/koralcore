@@ -16,5 +16,9 @@ abstract class DosingRepository {
 
   /// Reset device to default settings.
   Future<DosingState> resetToDefault(String deviceId);
+
+  /// Clear a single pump head's schedule (BLE 0x79).
+  /// headNo: 1-based pump index (A=1, B=2, C=3, D=4).
+  Future<void> clearRecord(String deviceId, int headNo);
 }
 

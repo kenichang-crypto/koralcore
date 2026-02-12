@@ -226,13 +226,80 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
             ),
 
             // Note: Device Info Section removed to match activity_led_setting.xml pattern
-            // (activity_led_setting.xml only has device name and position sections)
             // Note: Position (Sink) management will be added in future phases
-            // as it requires SinkRepository integration
+
+            // PARITY: Delete Device danger zone (UX Parity Device settings)
+            const SizedBox(height: AppSpacing.xl),
+            Text(
+              l10n.deviceSettingsDeleteDevice,
+              style: AppTextStyles.caption1.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            OutlinedButton(
+              onPressed: !_isLoading && session.isBleConnected
+                  ? () => _showDeleteConfirmDialog(context)
+                  : null,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.danger,
+                side: BorderSide(color: AppColors.danger),
+              ),
+              child: Text(l10n.deviceSettingsDeleteDevice),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  void _showDeleteConfirmDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.deviceDeleteConfirmPrimary),
+        content: Text(l10n.deviceSettingsDeleteConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.actionCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.danger,
+            ),
+            child: Text(l10n.deviceDeleteConfirmPrimary),
+          ),
+        ],
+      ),
+    ).then((confirmed) async {
+      if (confirmed != true || !context.mounted) return;
+      final appContext = context.read<AppContext>();
+      final session = context.read<AppSession>();
+      final deviceId = session.activeDeviceId;
+      if (deviceId == null) return;
+
+      setState(() => _isLoading = true);
+      try {
+        await appContext.removeDeviceUseCase.execute(deviceId: deviceId);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.toastDeleteDeviceSuccessful)),
+          );
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
+      } catch (_) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.toastDeleteDeviceFailed)),
+          );
+        }
+      } finally {
+        if (context.mounted) setState(() => _isLoading = false);
+      }
+    });
   }
 }
 

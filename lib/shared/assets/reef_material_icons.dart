@@ -1,8 +1,14 @@
-/// Material Icons mapping for reef-b-app XML drawable icons.
+/// @Deprecated Material Icons fallback – use asset-based icons instead.
 ///
-/// This file provides a mapping from reef-b-app's XML drawable icons
-/// to Flutter Material Icons, allowing easy replacement of Android
-/// vector drawables with Flutter's built-in icons.
+/// **Do not use.** Icons should come from reef-b-app res via [ReefIconAssets]
+/// and [CommonIconHelper]. This file exists only for migration reference.
+///
+/// Replace: `Icon(ReefMaterialIcons.xxx)` → `CommonIconHelper.getXxxIcon()`
+/// See [ReefIconAssets] and [CommonIconHelper] for reef parity icons.
+@Deprecated(
+  'Use CommonIconHelper / ReefIconAssets for reef-b-app parity. '
+  'Material Icons are not reef-sourced.',
+)
 library;
 
 import 'package:flutter/material.dart';

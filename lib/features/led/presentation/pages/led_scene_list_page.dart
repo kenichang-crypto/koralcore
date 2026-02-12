@@ -592,20 +592,8 @@ class _SceneSwatch extends StatelessWidget {
       ),
       child: Stack(
         children: [
+          // PARITY: reef uses scene icon directly, no overlay for dynamic
           Center(child: Icon(icon, size: 28, color: Colors.white)),
-          if (isDynamic)
-            Positioned(
-              right: 6,
-              bottom: 6,
-              child: Icon(
-                // TODO(L3): Icons.auto_awesome is indicator for dynamic scenes
-                // Android doesn't have this overlay icon, it uses scene icon directly
-                // VIOLATION: Material Icon not in Android
-                Icons.auto_awesome,
-                size: 16,
-                color: Colors.white.withValues(alpha: 0.85),
-              ),
-            ),
         ],
       ),
     );
@@ -663,12 +651,10 @@ Widget _sceneIcon(String? iconKey, bool isPreset) {
       height: 24,
     );
   }
-  // Fallback for preset or custom scenes without iconKey
-  return Icon(
-    // TODO(L3): Icons.auto_awesome_motion and Icons.pie_chart_outline are fallbacks
-    // Android uses getSceneIconById() to load drawable resources
-    // VIOLATION: Material Icons not in Android
-    isPreset ? Icons.auto_awesome_motion : Icons.pie_chart_outline,
-    size: 24,
+  // Fallback: PARITY reef ic_none for preset/custom scenes without iconKey
+  return SceneIconHelper.getSceneIconByKey(
+    iconKey: null,
+    width: 24,
+    height: 24,
   );
 }

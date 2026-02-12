@@ -18,10 +18,10 @@
   "homeNoDeviceCopy": "Pair your Koral doser or LED controller to manage schedules and lighting.",
   "sectionDosingTitle": "Dosing",
   "sectionLedTitle": "Lighting",
-  "bleDisconnectedWarning": "Connect via Bluetooth to continue.",
+  "bleDisconnectedWarning": "Please enable Bluetooth.",
   "bleGuardDialogTitle": "Bluetooth required",
-  "bleGuardDialogMessage": "Connect to a device to access this feature.",
-  "bleGuardDialogButton": "Got it",
+  "bleGuardDialogMessage": "Please enable Bluetooth.",
+  "bleGuardDialogButton": "I understood",
   "bleOnboardingPermissionTitle": "Enable Bluetooth access",
   "bleOnboardingPermissionCopy": "We use Bluetooth to discover and control your Koral hardware nearby.",
   "bleOnboardingPermissionCta": "Allow access",
@@ -117,10 +117,10 @@
   "dosingScheduleEditTemplateCustom": "Use custom window template",
   "dosingManualPageSubtitle": "Run an on-demand dose from this pump head.",
   "dosingManualDoseInputLabel": "Dose amount",
-  "dosingManualDoseInputHint": "Enter the amount in milliliters.",
+  "dosingManualDoseInputHint": "Please enter the dosing volume.",
   "dosingManualConfirmTitle": "Send manual dose?",
   "dosingManualConfirmMessage": "This dose will start immediately. Make sure your dosing line is ready.",
-  "dosingManualInvalidDose": "Enter a dose greater than zero.",
+  "dosingManualInvalidDose": "Each dosing volume cannot be less than 1ml.",
   "ledHeader": "Lighting",
   "ledSubHeader": "Tune spectrums and schedules.",
   "ledEntryIntensity": "Adjust intensity",
@@ -142,7 +142,7 @@
   "ledScheduleEditDescription": "Configure time windows and intensity levels.",
   "ledScheduleEditNameLabel": "Schedule name",
   "ledScheduleEditNameHint": "Enter a label",
-  "ledScheduleEditInvalidName": "Enter a schedule name.",
+  "ledScheduleEditInvalidName": "Name cannot be empty.",
   "ledScheduleEditTypeLabel": "Schedule type",
   "ledScheduleEditStartLabel": "Start time",
   "ledScheduleEditEndLabel": "End time",
@@ -152,7 +152,7 @@
   "ledScheduleEditChannelWhite": "Cool white",
   "ledScheduleEditChannelBlue": "Royal blue",
   "ledScheduleEditSave": "Save schedule",
-  "ledScheduleEditSuccess": "Lighting schedule saved.",
+  "ledScheduleEditSuccess": "Settings successful.",
   "ledScheduleEditInvalidWindow": "End time must be after start time.",
   "ledControlTitle": "Intensity & spectrum",
   "ledControlSubtitle": "Adjust each lighting channel, then apply when ready.",
@@ -170,21 +170,21 @@
   "comingSoon": "Coming soon",
   "actionApply": "Apply",
   "actionCancel": "Cancel",
-  "actionConfirm": "Confirm",
+  "actionConfirm": "OK",
   "actionRetry": "Retry",
-  "errorDeviceBusy": "Device is busy. Try again shortly.",
-  "errorNoDevice": "No active device.",
+  "errorDeviceBusy": "This pump head is currently dosing, please try again later.",
+  "errorNoDevice": "Device not connected",
   "errorNotSupported": "This action is not supported on the connected device.",
   "errorInvalidParam": "Invalid parameters for this use case.",
   "errorTransport": "Bluetooth transport error. Check the signal and retry.",
-  "errorSinkFull": "Sink is full. Maximum 4 DROP devices per sink.",
+  "errorSinkFull": "Tank is full.",
   "errorSinkGroupsFull": "All LED groups in this sink are full. Maximum 4 devices per group.",
   "errorConnectLimit": "Maximum 1 device can be connected simultaneously.",
   "errorLedMasterCannotDelete": "To delete the master light, please modify the master-slave settings and set other slave lights as the master.",
   "errorDeleteFailed": "Failed to delete device.",
   "errorGeneric": "Something went wrong. Please retry.",
-  "snackbarDeviceRemoved": "Devices removed.",
-  "snackbarDeviceConnected": "Device connected.",
+  "snackbarDeviceRemoved": "Successfully deleted device.",
+  "snackbarDeviceConnected": "Connection successful.",
   "snackbarDeviceDisconnected": "Device disconnected.",
   "dosingPumpHeadsHeader": "Pump heads",
   "dosingPumpHeadsSubheader": "Tap a head to review flow and totals.",
@@ -196,11 +196,11 @@
   "dosingPumpHeadLastDose": "Last dose",
   "dosingPumpHeadFlowRate": "Calibrated flow",
   "dosingPumpHeadManualDose": "Manual dose",
-  "dosingPumpHeadManualDoseSuccess": "Manual dose sent.",
+  "dosingPumpHeadManualDoseSuccess": "Settings successful.",
   "dosingPumpHeadTimedDose": "Schedule timed dose",
-  "dosingPumpHeadTimedDoseSuccess": "Timed dose scheduled.",
+  "dosingPumpHeadTimedDoseSuccess": "Settings successful.",
   "dosingPumpHeadCalibrate": "Calibrate head",
-  "dosingPumpHeadPlaceholder": "No dosing data yet.",
+  "dosingPumpHeadPlaceholder": "No scheduled tasks",
   "@dosingPumpHeadSummaryTitle": {
     "placeholders": {
       "head": {
@@ -214,7 +214,7 @@
   "dosingTodayTotalTotal": "Total",
   "dosingTodayTotalScheduled": "Scheduled",
   "dosingTodayTotalManual": "Manual",
-  "dosingTodayTotalEmpty": "No dosing data yet.",
+  "dosingTodayTotalEmpty": "No scheduled tasks",
   "dosingScheduleSummaryTitle": "Schedule summary",
   "dosingScheduleSummaryEmpty": "No schedule",
   "dosingScheduleSummaryTotalLabel": "Total / day",
@@ -235,11 +235,11 @@
     }
   },
   "dosingScheduleApplyDailyAverage": "Apply 24h average schedule",
-  "dosingScheduleApplyDailyAverageSuccess": "24h average schedule sent.",
+  "dosingScheduleApplyDailyAverageSuccess": "Settings successful.",
   "dosingScheduleApplyCustomWindow": "Apply custom window schedule",
-  "dosingScheduleApplyCustomWindowSuccess": "Custom window schedule sent.",
+  "dosingScheduleApplyCustomWindowSuccess": "Settings successful.",
   "dosingScheduleViewButton": "View schedules",
-  "dosingScheduleEmptyTitle": "No schedule configured",
+  "dosingScheduleEmptyTitle": "No scheduled tasks",
   "dosingScheduleEmptySubtitle": "Add a schedule with the Reef B app to see it here.",
   "dosingScheduleTypeDaily": "24-hour program",
   "dosingScheduleTypeSingle": "Single dose",
@@ -340,7 +340,7 @@
   "dosingPumpHeadSettingsSubtitle": "Rename the head or adjust execution delay.",
   "dosingPumpHeadSettingsNameLabel": "Pump head name",
   "dosingPumpHeadSettingsNameHint": "Enter a custom label",
-  "dosingPumpHeadSettingsNameEmpty": "Name can't be empty.",
+  "dosingPumpHeadSettingsNameEmpty": "Name cannot be empty.",
   "dosingPumpHeadSettingsTankLabel": "Tank / additive",
   "dosingPumpHeadSettingsTankPlaceholder": "Link additives from the Reef B app.",
   "dosingPumpHeadSettingsDelayLabel": "Dose delay",
@@ -348,7 +348,7 @@
   "dosingPumpHeadSettingsUnsavedTitle": "Discard changes?",
   "dosingPumpHeadSettingsUnsavedMessage": "You have unsaved changes.",
   "dosingPumpHeadSettingsUnsavedDiscard": "Discard",
-  "dosingPumpHeadSettingsUnsavedStay": "Keep editing",
+  "dosingPumpHeadSettingsUnsavedStay": "Cancel",
   "dosingPumpHeadSettingsSave": "Save",
   "dosingPumpHeadSettingsCancel": "Cancel",
   "dosingPumpHeadSettingsDelayOption": "{seconds} seconds",
@@ -360,7 +360,9 @@
     }
   },
   "dosingScheduleStatusEnabled": "Enabled",
-  "dosingScheduleStatusDisabled": "Paused",
+  "dosingScheduleStatusDisabled": "The schedule is paused.",
+  "dosingScheduleDeleteConfirmMessage": "Delete this schedule?",
+  "dosingScheduleDeleted": "Schedule deleted.",
   "ledSceneStatusEnabled": "Enabled",
   "@ledSceneStatusEnabled": {
     "description": "Label shown next to an LED scene when it is enabled."
@@ -414,6 +416,8 @@
   "deviceInfo": "Device Info",
   "deviceSettingsTitle": "Device Settings",
   "deviceSettingsSaved": "Settings saved",
+  "deviceSettingsDeleteConfirm": "Are you sure you want to remove this device?",
+  "deviceSettingsDeleteDevice": "Delete Device",
   "deviceActionEdit": "Edit",
   "deviceActionAdd": "Add Device",
   "deviceState": "State",
@@ -424,6 +428,9 @@
   "ledSceneEditTitle": "Edit Scene",
   "ledSceneDeleteTitle": "Delete Scene",
   "ledMasterSettingTitle": "Master-Slave Pairing",
+  "ledSetMaster": "Set as Master Light",
+  "ledMoveGroup": "Move Group",
+  "ledMasterSettingMenuPlaceholder": "Requires device and sink configuration.",
   "ledRecordTimeSettingTimeLabel": "Time",
   "ledRecordTimeSettingSpectrumLabel": "Spectrum",
   "ledRecordTimeSettingChannelsLabel": "Channels",
@@ -445,12 +452,15 @@
   "ledSceneAddSuccess": "Successfully added scene.",
   "toastNameIsEmpty": "Name cannot be empty.",
   "toastSettingSuccessful": "Settings successful.",
+  "toastSettingFailed": "Settings failed.",
+  "toastSetTimeError": "Time points must be at least 10 minutes apart.",
+  "toastSetTimeIsExist": "This time period has already been set.",
+  "hintSelectTime": "Please select a time.",
   "toastSceneNameIsExist": "Scene name already exists.",
   "ledSceneNameIsExist": "Scene name already exists.",
   "ledSceneDeleteDescription": "Select scenes to delete",
   "ledSceneDeleteEmpty": "No scenes to delete",
   "ledSceneDeleteConfirmTitle": "Delete Scene?",
-  "ledSceneDeleteConfirmMessage": "Do you want to delete the scene?",
   "@ledSceneDeleteConfirmMessage": {
     "placeholders": {
       "name": {
@@ -504,7 +514,6 @@
   "ledScenesActionAdd": "Add Scene",
   "ledScenesActionUnfavorite": "Remove Favorite",
   "ledScenesActionFavorite": "Add Favorite",
-  "ledScenesActionUnfavorite": "Remove Favorite",
   "deviceActionFavorite": "Favorite",
   "deviceActionUnfavorite": "Unfavorite",
   "deviceFavorited": "Device favorited",
@@ -517,7 +526,7 @@
   "actionPlay": "Run",
   "ledResetDevice": "Reset Device",
   "sinkTypeDefault": "Default",
-  "sinkPosition": "Sink Position",
+  "sinkPosition": "Tank Location",
   "sinkPositionTitle": "Sink Position",
   "sinkPositionNotSet": "Not Set",
   "errorLedMasterCannotMove": "To move this device to another tank, please first modify the master-slave settings and set other slave lights as the master light.",
@@ -534,6 +543,8 @@
   "sinkEditTitle": "Edit Sink",
   "sinkDeleteTitle": "Delete Sink",
   "sinkDeleteMessage": "Are you sure you want to delete this sink?",
+  "sinkEditSuccess": "Sink updated.",
+  "sinkDeleteSuccess": "Sink deleted.",
   "sinkDeviceCount": "{count} devices",
   "@sinkDeviceCount": {
     "placeholders": {
@@ -564,7 +575,6 @@
   "addDeviceTitle": "Add Device",
   "addDeviceSuccess": "Device added",
   "addDeviceFailed": "Failed to add device",
-  "errorSinkFull": "Tank is full.",
   "dosingScheduleEditTitle": "Edit Schedule",
   "dosingScheduleTypeLabel": "Schedule Type",
   "dosingScheduleTypeNone": "No Schedule",
@@ -594,9 +604,18 @@
   "dosingCalibrationAdjustListTitle": "Adjustment List",
   "dosingResetDevice": "Reset Device",
   "dosingResetDeviceSuccess": "Device reset successfully",
+  "dosingResetDeviceFailed": "Failed to reset device",
+  "dosingResetDeviceConfirm": "This device will become unassigned and clear all current pump settings and calibration records.",
+  "dosingDeleteDeviceConfirm": "Do you want to delete this dosing pump?",
+  "dosingDeleteDeviceSuccess": "Device deleted successfully",
+  "dosingTodayDropOutOfRangeTitle": "Daily Max Dosing Volume",
+  "dosingTodayDropOutOfRangeContent": "Today's dosing volume has reached the maximum daily dosing volume.",
+  "dosingDropHeadIsDropping": "This pump head is currently dosing, please try again later.",
+  "dosingDeleteDeviceFailed": "Failed to delete device",
+  "actionReset": "Reset",
   "dosingNoPumpHeads": "No pump heads",
   "dosingHistorySubtitle": "History",
-  "dosingAdjustListTitle": "Adjustment List",
+  "dosingAdjustListTitle": "Calibration Log",
   "dosingAdjustListStartAdjust": "Start Adjustment",
   "dosingRotatingSpeedLow": "Low",
   "dosingRotatingSpeedMedium": "Medium",
@@ -606,6 +625,21 @@
   "dropSettingTitle": "Drop Settings",
   "delayTime": "Delay Time",
   "delayTimeRequiresConnection": "Connection required for delay time",
+  "delay15Sec": "15 sec",
+  "delay30Sec": "30 sec",
+  "delay1Min": "1 min",
+  "delay2Min": "2 min",
+  "delay3Min": "3 min",
+  "delay4Min": "4 min",
+  "delay5Min": "5 min",
+  "delaySecondsFallback": "{seconds} sec",
+  "@delaySecondsFallback": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "sinkPositionFeatureComingSoon": "Coming soon",
   "dropTypeTitle": "Drop Types",
   "dropTypeSubtitle": "Manage drop types",
@@ -632,6 +666,7 @@
   "weekdaySaturday": "Saturday",
   "group": "Group",
   "led": "LED",
+  "drop": "Dosing Pump",
   "masterSlave": "Master/Slave",
   "time": "Time Point",
   "record": "Schedule",
@@ -645,9 +680,9 @@
   "dosingAdjustStep": "1. Prepare the included measuring cup and some tubes\n2. Start manual operation to fill the tubes with liquid\n3. Select the speed for calibration",
   "dosingRotatingSpeedTitle": "Rotating Speed",
   "dosingDropVolume": "Drop Volume",
-  "dosingAdjustVolumeHint": "Enter actual drop volume",
+  "dosingAdjustVolumeHint": "1 ~ 15; one decimal place",
   "dosingCompleteAdjust": "Complete Calibration",
-  "dosingAdjusting": "Calibrating",
+  "dosingAdjusting": "Calibrating...",
   "dosingAdjustVolumeEmpty": "Drop volume cannot be empty",
   "dosingStartAdjustFailed": "Failed to start calibration",
   "dosingAdjustSuccessful": "Calibration successful",
@@ -811,7 +846,6 @@
     "description": "Hint for max dosing volume setting",
     "androidSource": "@string/max_drop_volume_hint"
   },
-  "delayTime": "Delay Time",
   "@delayTime": {
     "description": "Delay time setting",
     "androidSource": "@string/delay_time"
@@ -836,7 +870,7 @@
     "description": "Pump head record settings page title",
     "androidSource": "@string/record"
   },
-  "pumpHeadRecordTimeSettingsTitle": "Time Setting",
+  "pumpHeadRecordTimeSettingsTitle": "Period Settings",
   "@pumpHeadRecordTimeSettingsTitle": {
     "description": "Pump head record time settings page title",
     "androidSource": "@string/time_setting"
@@ -921,22 +955,18 @@
     "description": "LED record continue message",
     "androidSource": "@string/continue_record"
   },
-  "actionConfirm": "OK",
   "@actionConfirm": {
     "description": "Confirm action button",
     "androidSource": "@string/confirm"
   },
-  "actionCancel": "Cancel",
   "@actionCancel": {
     "description": "Cancel action button",
     "androidSource": "@string/cancel"
   },
-  "actionNext": "Next",
   "@actionNext": {
     "description": "Next step button",
     "androidSource": "@string/next"
   },
-  "actionSave": "Save",
   "@actionSave": {
     "description": "Save button",
     "androidSource": "@string/save"
@@ -946,12 +976,10 @@
     "description": "Edit action button",
     "androidSource": "@string/edit"
   },
-  "actionDelete": "Delete",
   "@actionDelete": {
     "description": "Delete action button",
     "androidSource": "@string/delete"
   },
-  "actionSkip": "Skip",
   "@actionSkip": {
     "description": "Skip step button",
     "androidSource": "@string/skip"
@@ -971,7 +999,6 @@
     "description": "Run/Execute action button",
     "androidSource": "@string/run"
   },
-  "deviceName": "Device Name",
   "@deviceName": {
     "description": "Device name label",
     "androidSource": "@string/device_name"
@@ -981,7 +1008,6 @@
     "description": "Device not connected message",
     "androidSource": "@string/device_is_not_connect"
   },
-  "sinkPosition": "Tank Location",
   "@sinkPosition": {
     "description": "Tank/sink position setting",
     "androidSource": "@string/sink_position"
@@ -990,5 +1016,63 @@
   "@sinkEmptyMessage": {
     "description": "Empty state message for sink list",
     "androidSource": "@string/text_no_sink_content"
-  }
+  },
+  "bottomSheetAddSinkTitle": "Add Tank",
+  "@bottomSheetAddSinkTitle": {
+    "description": "Bottom sheet title for adding tank",
+    "androidSource": "@string/bottom_sheet_add_sink_title"
+  },
+  "bottomSheetAddSinkFieldTitle": "Tank Name",
+  "@bottomSheetAddSinkFieldTitle": {
+    "description": "Field label for tank name",
+    "androidSource": "@string/sink_name"
+  },
+  "bottomSheetEditSinkTitle": "Tank Settings",
+  "@bottomSheetEditSinkTitle": {
+    "description": "Bottom sheet title for editing tank",
+    "androidSource": "@string/bottom_sheet_edit_sink_title"
+  },
+  "bottomSheetEditSinkFieldTitle": "Tank Name",
+  "@bottomSheetEditSinkFieldTitle": {
+    "description": "Field label for tank name",
+    "androidSource": "@string/sink_name"
+  },
+  "bottomSheetAddDropTypeTitle": "Add Custom Dosing",
+  "@bottomSheetAddDropTypeTitle": {
+    "description": "Bottom sheet title for adding dosing type",
+    "androidSource": "@string/add_drop_type"
+  },
+  "bottomSheetAddDropTypeFieldTitle": "Dosing Name",
+  "@bottomSheetAddDropTypeFieldTitle": {
+    "description": "Field label for dosing type name",
+    "androidSource": "@string/drop_type_name"
+  },
+  "bottomSheetEditDropTypeTitle": "Edit Custom Dosing",
+  "@bottomSheetEditDropTypeTitle": {
+    "description": "Bottom sheet title for editing dosing type",
+    "androidSource": "@string/edit_drop_type"
+  },
+  "bottomSheetEditDropTypeFieldTitle": "Dosing Name",
+  "@bottomSheetEditDropTypeFieldTitle": {
+    "description": "Field label for dosing type name",
+    "androidSource": "@string/drop_type_name"
+  },
+  "dosingVolumeRangeHint": "1 ~ 500",
+  "dropRecordTypeNone": "No Scheduled Tasks",
+  "dosingAdjustDateTitle": "Calibration Date",
+  "dosingAdjustVolumeTitle": "Measured Volume",
+  "groupPlaceholder": "Group A",
+  "ledChartPlaceholder": "Chart Placeholder",
+  "ledSpectrumChartPlaceholder": "Spectrum Chart Placeholder",
+  "ledTimePlaceholder": "07:27",
+  "dosingRecordTimePlaceholder": "08:00",
+  "dosingRecordEndTimePlaceholder": "10:00",
+  "dosingRecordDetailPlaceholder": "50 ml / 5 times",
+  "dosingTypeNamePlaceholder": "Type A",
+  "dosingTypeNamePlaceholderB": "Type B",
+  "dosingTypeNamePlaceholderC": "Type C",
+  "dosingRecordTimeRangePlaceholder": "2022-10-14 ~ 2022-10-31",
+  "dosingRecordTimePointPlaceholder": "2022-10-14 10:20:13",
+  "dosingAdjustDatePlaceholder": "2024-01-01 12:00:00",
+  "dosingAdjustVolumePlaceholder": "10.0 ml"
 }

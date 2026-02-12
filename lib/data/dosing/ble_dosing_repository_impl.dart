@@ -112,6 +112,14 @@ class BleDosingRepositoryImpl implements DosingRepository {
     return session.state;
   }
 
+  @override
+  Future<void> clearRecord(String deviceId, int headNo) async {
+    final _DeviceSession session = _ensureSession(deviceId);
+    // PARITY: reef-b-app Clear (0x79) - track headNo for ACK handler
+    session.pendingClearHeadNo = (headNo - 1).clamp(0, 3);
+    await _sendCommand(deviceId, _commandBuilder.clearRecord(headNo));
+  }
+
   // ---------------------------------------------------------------------------
   // Internal orchestration
   // ---------------------------------------------------------------------------
@@ -939,19 +947,18 @@ class BleDosingRepositoryImpl implements DosingRepository {
   void _handleClearRecordAck(_DeviceSession session, Uint8List data) {
     // PARITY: reef-b-app payload: [0x79, len, result(0x00/0x01), checksum] = 4 bytes
     if (data.length != 4) {
-      return; // Invalid payload
+      session.pendingClearHeadNo = null;
+      return;
     }
     final bool success = (data[2] & 0xFF) == 0x01;
-    if (success) {
-      // PARITY: Verified against reef-b-app DropHeadRecordSettingViewModel.kt:705.
-      // ViewModel calls: dropInformation.setMode(nowDropHead.headId, DropHeadMode())
-      // The headId comes from ViewModel's context (nowDropHead.headId), not from the ACK payload.
-      // koralcore needs to track the headId from the command context when sending the request.
-      // For now, we can't clear mode without knowing which head to clear.
-      // This will be fixed when command context tracking is implemented.
+    final int? headIndex = session.pendingClearHeadNo;
+    session.pendingClearHeadNo = null;
+    if (success && headIndex != null) {
+      // PARITY: reef-b-app DropHeadRecordSettingViewModel: dropInformation.setMode(headNo, DropHeadMode())
+      session.setMode(headIndex, const PumpHeadMode());
+      _requestSync(session);
+      _emitDosingState(session);
     }
-    // PARITY: reef-b-app ViewModel only logs success/failure, no other state update
-    // ACK is handled, no additional action needed (until we have headId context)
   }
 
   void _handleResetAck(_DeviceSession session, Uint8List data) {
@@ -1020,6 +1027,9 @@ class _DeviceSession {
   /// Note: This is for BLE debugging purposes only, not displayed in UI,
   /// and not stored in DropInformation.
   double todayDoseMl;
+
+  /// Head index (0-3) for pending 0x79 clear, or null. Used by ACK handler.
+  int? pendingClearHeadNo;
 
   Stream<DosingState> get dosingStateStream => dosingStateController.stream;
 

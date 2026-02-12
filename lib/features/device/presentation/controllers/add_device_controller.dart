@@ -31,12 +31,14 @@ class AddDeviceController extends ChangeNotifier {
   bool _isLoading = false;
   String _deviceName = '';
   String? _selectedSinkId;
+  String? _selectedSinkName;
   AppErrorCode? _lastErrorCode;
 
   // Getters
   bool get isLoading => _isLoading;
   String get deviceName => _deviceName;
   String? get selectedSinkId => _selectedSinkId;
+  String? get selectedSinkName => _selectedSinkName;
   AppErrorCode? get lastErrorCode => _lastErrorCode;
 
   /// Get connected device name from BLE.
@@ -53,8 +55,13 @@ class AddDeviceController extends ChangeNotifier {
   }
 
   /// Set selected sink ID.
-  void setSelectedSinkId(String? sinkId) {
+  Future<void> setSelectedSinkId(String? sinkId) async {
     _selectedSinkId = sinkId;
+    if (sinkId != null) {
+      _selectedSinkName = await getSinkNameById(sinkId);
+    } else {
+      _selectedSinkName = null;
+    }
     notifyListeners();
   }
 

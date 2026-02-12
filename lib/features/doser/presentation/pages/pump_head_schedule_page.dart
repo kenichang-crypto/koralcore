@@ -37,6 +37,7 @@ class PumpHeadSchedulePage extends StatelessWidget {
         session: session,
         readScheduleUseCase: appContext.readScheduleUseCase,
         applyScheduleUseCase: appContext.applyScheduleUseCase,
+        dosingRepository: appContext.dosingRepository,
       )..refresh(),
       child: _PumpHeadScheduleView(headId: headId),
     );
@@ -97,10 +98,12 @@ class _PumpHeadScheduleView extends StatelessWidget {
                 FilledButton.icon(
                   onPressed: isReady
                       ? () {
-                          // Navigate to PumpHeadRecordSettingPage for new schedule
+                          // PARITY: reef-b-app btnAddTime -> DropHeadRecordSettingActivity
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => const PumpHeadRecordSettingPage(),
+                              builder: (_) => PumpHeadRecordSettingPage(
+                                headId: headId,
+                              ),
                             ),
                           );
                         }
@@ -147,7 +150,14 @@ class _PumpHeadScheduleView extends StatelessWidget {
                         entry: entry,
                         isConnected: isReady,
                         l10n: l10n,
+                        controller: controller,
                         onTap: () => _openScheduleEditor(context, entry: entry),
+                        onDelete: () => _confirmDeleteEntry(
+                          context,
+                          controller,
+                          entry,
+                          l10n,
+                        ),
                       ),
                     ),
                   ),
@@ -177,10 +187,47 @@ class _PumpHeadScheduleView extends StatelessWidget {
     );
 
     if (saved == true && context.mounted) {
+      context.read<PumpHeadScheduleController>().refresh();
       final l10n = AppLocalizations.of(context);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.dosingScheduleEditSuccess)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.dosingScheduleEditSuccess)),
+      );
+    }
+  }
+
+  Future<void> _confirmDeleteEntry(
+    BuildContext context,
+    PumpHeadScheduleController controller,
+    PumpHeadScheduleEntry entry,
+    AppLocalizations l10n,
+  ) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.actionDelete),
+        content: Text(l10n.dosingScheduleDeleteConfirmMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.actionCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.actionDelete),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && context.mounted) {
+      controller.deleteLocalEntry(entry.id);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.dosingScheduleDeleted)),
+      );
+      final bool sent = await controller.clearRecordOnDevice();
+      if (sent && context.mounted) {
+        await Future<void>.delayed(const Duration(milliseconds: 1200));
+        if (context.mounted) controller.refresh();
+      }
     }
   }
 }
@@ -205,13 +252,17 @@ class _ScheduleEntryCard extends StatelessWidget {
   final PumpHeadScheduleEntry entry;
   final bool isConnected;
   final AppLocalizations l10n;
+  final PumpHeadScheduleController controller;
   final VoidCallback onTap;
+  final VoidCallback onDelete;
 
   const _ScheduleEntryCard({
     required this.entry,
     required this.isConnected,
     required this.l10n,
+    required this.controller,
     required this.onTap,
+    required this.onDelete,
   });
 
   @override
@@ -259,6 +310,19 @@ class _ScheduleEntryCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
+                  Switch(
+                    value: entry.isEnabled,
+                    onChanged: isConnected
+                        ? (v) => controller.toggleLocalEnabled(entry.id, v)
+                        : null,
+                  ),
+                  IconButton(
+                    onPressed: isConnected ? onDelete : null,
+                    icon: CommonIconHelper.getDeleteIcon(
+                      size: 24,
+                      color: theme.iconTheme.color ?? AppColors.textPrimary,
+                    ),
+                  ),
                   CommonIconHelper.getNextIcon(size: 24),
                 ],
               ),

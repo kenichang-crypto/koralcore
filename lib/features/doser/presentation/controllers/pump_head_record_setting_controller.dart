@@ -105,6 +105,21 @@ class PumpHeadRecordSettingController extends ChangeNotifier {
   // UI setters
   void setSelectedRecordType(PumpHeadRecordType type) {
     _selectedRecordType = type;
+    // PARITY: setRecordUi sets default radio (rbTimePoint for SINGLE, rbWeekly for CUSTOM/24HR)
+    switch (type) {
+      case PumpHeadRecordType.single:
+        _selectRunTime = 3; // Time Point
+        _timeString ??= _defaultTimePointString();
+        break;
+      case PumpHeadRecordType.h24:
+      case PumpHeadRecordType.custom:
+        _selectRunTime = 1; // Weekly
+        _dateRange ??= _defaultDateRange();
+        break;
+      case PumpHeadRecordType.none:
+        _selectRunTime = null;
+        break;
+    }
     notifyListeners();
   }
 
@@ -121,6 +136,19 @@ class PumpHeadRecordSettingController extends ChangeNotifier {
   void setSelectRunTime(int? time) {
     _selectRunTime = time;
     notifyListeners();
+  }
+
+  String _defaultTimePointString() {
+    final next = DateTime.now().add(const Duration(days: 1));
+    return '${next.year}-${next.month.toString().padLeft(2, '0')}-${next.day.toString().padLeft(2, '0')} 08:00';
+  }
+
+  DateTimeRange _defaultDateRange() {
+    final now = DateTime.now();
+    return DateTimeRange(
+      start: now,
+      end: now.add(const Duration(days: 14)),
+    );
   }
 
   void setWeekDay(int index, bool value) {
@@ -331,5 +359,11 @@ class PumpHeadRecordSettingController extends ChangeNotifier {
 
   void _clearError() {
     _lastErrorCode = null;
+  }
+
+  /// Clear last error for UI retry.
+  void clearError() {
+    _clearError();
+    notifyListeners();
   }
 }

@@ -50,7 +50,7 @@ class PumpHeadDetailSettingsTile extends StatelessWidget {
             color: AppColors.textSecondary,
           ),
         ),
-        trailing: CommonIconHelper.getNextIcon(size: 24, 
+        trailing: CommonIconHelper.getNextIcon(
           size: 24,
           color: AppColors.textSecondary,
         ),

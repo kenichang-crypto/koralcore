@@ -15,6 +15,7 @@
 // - Used for LED Group selection (A, B, C, D, E)
 
 import 'package:flutter/material.dart';
+import 'package:koralcore/l10n/app_localizations.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
@@ -194,7 +195,7 @@ class _SelectionListBottomSheetState<T>
               elevation: 0,
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text(
-                'TODO(android @string/confirm)', // TODO(android @string/confirm)
+                AppLocalizations.of(context).actionConfirm,
                 style: AppTextStyles.caption1,
               ),
             ),

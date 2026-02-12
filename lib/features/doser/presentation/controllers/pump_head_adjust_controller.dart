@@ -19,7 +19,7 @@ class PumpHeadAdjustController extends ChangeNotifier {
   final BleAdapter bleAdapter;
   final DosingCommandBuilder commandBuilder = const DosingCommandBuilder();
 
-  int _selectedSpeed = 1; // Default: Low speed
+  int _selectedSpeed;
   bool _isLoading = false;
   bool _isCalibrating = false;
   bool _isCalibrationComplete = false;
@@ -30,11 +30,14 @@ class PumpHeadAdjustController extends ChangeNotifier {
   Timer? _countdownTimer;
   int _remainingSeconds = 0;
 
+  final int? initialSpeed;
+
   PumpHeadAdjustController({
     required this.headId,
     required this.session,
     required this.bleAdapter,
-  });
+    this.initialSpeed,
+  }) : _selectedSpeed = initialSpeed ?? 1;
 
   int get selectedSpeed => _selectedSpeed;
   bool get isLoading => _isLoading;

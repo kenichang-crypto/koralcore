@@ -8,6 +8,7 @@ import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
+import '../../../../shared/widgets/edit_text_bottom_sheet.dart';
 import '../controllers/sink_manager_controller.dart';
 
 class SinkManagerPage extends StatelessWidget {
@@ -22,6 +23,85 @@ class SinkManagerPage extends StatelessWidget {
       create: (_) => SinkManagerController(sinkRepository: sinkRepository),
       child: const _SinkManagerView(),
     );
+  }
+}
+
+Future<void> _showAddSinkBottomSheet(
+  BuildContext context,
+  SinkManagerController controller,
+) async {
+  final result = await EditTextBottomSheet.show(
+    context,
+    type: EditTextBottomSheetType.addSink,
+  );
+  if (context.mounted && result != null && result.trim().isNotEmpty) {
+    final success = await controller.addSink(result.trim());
+    if (context.mounted && success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).sinkAddSuccess)),
+      );
+    } else if (context.mounted && !success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).sinkNameExists)),
+      );
+    }
+  }
+}
+
+Future<void> _showEditSinkBottomSheet(
+  BuildContext context,
+  SinkManagerController controller,
+  Sink sink,
+) async {
+  final result = await EditTextBottomSheet.show(
+    context,
+    type: EditTextBottomSheetType.editSink,
+    initialValue: sink.name,
+  );
+  if (context.mounted && result != null && result.trim().isNotEmpty) {
+    final success = await controller.editSink(sink.id, result.trim());
+    if (context.mounted && success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).sinkEditSuccess)),
+      );
+    } else if (context.mounted && !success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).sinkNameExists)),
+      );
+    }
+  }
+}
+
+Future<void> _showDeleteSinkDialog(
+  BuildContext context,
+  SinkManagerController controller,
+  Sink sink,
+) async {
+  final l10n = AppLocalizations.of(context);
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(l10n.sinkDeleteTitle),
+      content: Text(l10n.sinkDeleteMessage),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(false),
+          child: Text(l10n.actionCancel),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(true),
+          child: Text(l10n.actionDelete),
+        ),
+      ],
+    ),
+  );
+  if (context.mounted && confirmed == true) {
+    await controller.deleteSink(sink.id);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.sinkDeleteSuccess)),
+      );
+    }
   }
 }
 
@@ -46,7 +126,7 @@ class _SinkManagerView extends StatelessWidget {
               children: [
                 Column(
                   children: [
-                    const _ToolbarTwoAction(),
+                    _ToolbarTwoAction(onBack: () => Navigator.of(context).pop()),
                     Expanded(
                       child: _SinkManagerContent(
                         controller: controller,
@@ -55,13 +135,12 @@ class _SinkManagerView extends StatelessWidget {
                     ),
                   ],
                 ),
-                // PARITY: fab_add_sink (ic_add_white), margin 16dp
+                // PARITY: fab_add_sink (ic_add_white), reef: ModalBottomSheetEdittext ADD_SINK
                 Positioned(
                   right: 16,
                   bottom: 16,
                   child: FloatingActionButton(
-                    // UI parity only: no onTap logic
-                    onPressed: null,
+                    onPressed: () => _showAddSinkBottomSheet(context, controller),
                     backgroundColor: AppColors.primary,
                     child: CommonIconHelper.getAddWhiteIcon(size: 24),
                   ),
@@ -78,16 +157,16 @@ class _SinkManagerView extends StatelessWidget {
 }
 
 class _ToolbarTwoAction extends StatelessWidget {
-  const _ToolbarTwoAction();
+  final VoidCallback onBack;
+
+  const _ToolbarTwoAction({required this.onBack});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
     // PARITY: docs/reef_b_app_res/layout/toolbar_two_action.xml
-    // - White toolbar background
-    // - Optional left/back/right controls (do not wire behavior here)
-    // - 2dp bottom divider (bg_press)
+    // reef: btnBack.setOnClickListener { finish() }
     return Material(
       color: AppColors.surface, // white
       child: Column(
@@ -97,19 +176,17 @@ class _ToolbarTwoAction extends StatelessWidget {
             width: double.infinity,
             child: Row(
               children: [
-                // Left: btn_back (56x44dp, padding 16/8/16/8)
-                SizedBox(
-                  width: 56,
-                  height: 44,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                    child: Opacity(
-                      opacity: 1,
-                      child: CommonIconHelper.getBackIcon(
-                        size: 24,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
+                // Left: btn_back (56x44dp) - reef: finish()
+                IconButton(
+                  onPressed: onBack,
+                  icon: CommonIconHelper.getBackIcon(
+                    size: 24,
+                    color: AppColors.textPrimary,
+                  ),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                  constraints: const BoxConstraints(
+                    minWidth: 56,
+                    minHeight: 44,
                   ),
                 ),
                 // Center: toolbar_title
@@ -151,7 +228,7 @@ class _SinkManagerContent extends StatelessWidget {
       return _NoSinkState(l10n: l10n);
     }
 
-    // PARITY: rv_sink_manager marginTop 13dp
+    // PARITY: rv_sink_manager, reef: onClickSink->edit, onLongClickSink->delete
     return Padding(
       padding: const EdgeInsets.only(top: 13),
       child: ListView.builder(
@@ -161,9 +238,12 @@ class _SinkManagerContent extends StatelessWidget {
           final sink = controller.sinks[index];
           return _SinkCard(
             sink: sink,
-            // UI parity only: do not wire behavior
-            onTap: null,
-            onLongPress: null,
+            onTap: sink.type != SinkType.defaultSink
+                ? () => _showEditSinkBottomSheet(context, controller, sink)
+                : null,
+            onLongPress: sink.type != SinkType.defaultSink
+                ? () => _showDeleteSinkDialog(context, controller, sink)
+                : null,
           );
         },
       ),
@@ -249,11 +329,10 @@ class _SinkCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final String deviceCount = l10n.sinkDeviceCount(sink.deviceIds.length);
 
-    // PARITY: adapter_sink.xml structure
+    // PARITY: adapter_sink.xml, reef: onClickSink->edit, onLongClickSink->delete
     return InkWell(
-      // UI parity only: do not wire behavior
-      onTap: null,
-      onLongPress: null,
+      onTap: onTap,
+      onLongPress: onLongPress,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

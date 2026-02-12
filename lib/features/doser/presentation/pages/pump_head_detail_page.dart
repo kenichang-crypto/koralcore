@@ -21,6 +21,9 @@ import '../../../../shared/theme/app_text_styles.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
 import '../controllers/pump_head_detail_controller.dart';
 import 'pump_head_settings_page.dart';
+import 'pump_head_schedule_page.dart';
+import 'pump_head_adjust_list_page.dart';
+import '../../../../core/ble/ble_guard.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 
 /// PumpHeadDetailPage - 100% Parity with Android DropHeadMainActivity
@@ -86,78 +89,83 @@ class _PumpHeadDetailPageContentState
       backgroundColor: AppColors.surfaceMuted, // bg_aaa (#F7F7F7)
       body: Stack(
         children: [
-          RefreshIndicator(
-            onRefresh: () => controller.refresh(),
-            child: Column(
-              children: [
-                // PARITY: include toolbar_device (Line 9-14)
-                _ToolbarDevice(
-                  title: title,
-                  onBack: () => Navigator.of(context).pop(),
-                  onMenu: () => _showPopupMenu(context, controller),
-                ),
-                // PARITY: Main Content ConstraintLayout (Line 16-476)
-                Expanded(
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        left: 16,
-                        top: 12,
-                        right: 16,
+          Column(
+            children: [
+              // PARITY: include toolbar_device (Line 9-14)
+              _ToolbarDevice(
+                title: title,
+                onBack: () => Navigator.of(context).pop(),
+                onMenu: () => _showPopupMenu(context),
+              ),
+              // PARITY: Main Content ConstraintLayout (Line 16-476)
+              // UX A3: reef activity_drop_head_main 無 ScrollView → 單頁固定
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    top: 12,
+                    right: 16,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // UI Block 1: Drop Head Info Card
+                      _DropHeadInfoCard(
+                        controller: controller,
+                        isConnected: session.isBleConnected,
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // UI Block 1: Drop Head Info Card
-                          _DropHeadInfoCard(
-                            controller: controller,
-                            isConnected: session.isBleConnected,
-                          ),
 
-                          // UI Block 2: Record Section
-                          const SizedBox(height: 16),
-                          _SectionHeader(
-                            title: l10n.pumpHeadRecordTitle,
-                            onMorePressed: () {
-                              // TODO: Navigate to Record Settings
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(l10n.comingSoon)),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 4),
-                          _RecordCard(
-                            controller: controller,
-                            isConnected: session.isBleConnected,
-                            l10n: l10n,
-                          ),
-
-                          // UI Block 3: Adjust Section
-                          const SizedBox(height: 16),
-                          _SectionHeader(
-                            title: l10n.recentCalibrationRecords,
-                            onMorePressed: () {
-                              // TODO: Navigate to Adjust List
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(l10n.comingSoon)),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 4),
-                          _AdjustCard(
-                            isConnected: session.isBleConnected,
-                            l10n: l10n,
-                          ),
-
-                          const SizedBox(height: 40),
-                        ],
+                      // UI Block 2: Record Section
+                      const SizedBox(height: 16),
+                      _SectionHeader(
+                        title: l10n.pumpHeadRecordTitle,
+                        onMorePressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => PumpHeadSchedulePage(
+                                headId: widget.headId,
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    ),
+                      const SizedBox(height: 4),
+                      _RecordCard(
+                        controller: controller,
+                        isConnected: session.isBleConnected,
+                        l10n: l10n,
+                      ),
+
+                      // UI Block 3: Adjust Section
+                      const SizedBox(height: 16),
+                      _SectionHeader(
+                        title: l10n.recentCalibrationRecords,
+                        onMorePressed: () {
+                          if (!session.isBleConnected) {
+                            showBleGuardDialog(context);
+                            return;
+                          }
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => PumpHeadAdjustListPage(
+                                headId: widget.headId,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 4),
+                      _AdjustCard(
+                        isConnected: session.isBleConnected,
+                        l10n: l10n,
+                      ),
+
+                      const SizedBox(height: 40),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
           // PARITY: include progress (Line 478-483)
           _ProgressOverlay(visible: controller.isLoading),
@@ -172,14 +180,8 @@ class _PumpHeadDetailPageContentState
     return normalized.codeUnitAt(0) - 64; // A=1, B=2, C=3, D=4
   }
 
-  void _showPopupMenu(
-    BuildContext context,
-    PumpHeadDetailController controller,
-  ) {
-    final l10n = AppLocalizations.of(context);
-    final session = context.read<AppSession>();
-    final isReady = session.isReady;
-
+  void _showPopupMenu(BuildContext context) {
+    // PARITY: reef drop_head_menu.xml — 僅 action_edit (Edit → DropHeadSettingActivity)
     showModalBottomSheet(
       context: context,
       builder: (modalContext) => SafeArea(
@@ -187,7 +189,7 @@ class _PumpHeadDetailPageContentState
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: Text(l10n.dosingPumpHeadSettingsTitle),
+              title: Text(AppLocalizations.of(context).actionEdit),
               onTap: () async {
                 Navigator.of(modalContext).pop();
                 final session = context.read<AppSession>();
@@ -199,40 +201,6 @@ class _PumpHeadDetailPageContentState
                         deviceId: deviceId,
                         headId: widget.headId,
                       ),
-                    ),
-                  );
-                }
-              },
-            ),
-            ListTile(
-              title: Text(l10n.dosingManualPageSubtitle),
-              enabled: isReady,
-              onTap: () async {
-                Navigator.of(modalContext).pop();
-                final success = await controller.sendManualDose();
-                if (!context.mounted) return;
-
-                if (success) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(l10n.dosingPumpHeadManualDoseSuccess),
-                    ),
-                  );
-                }
-              },
-            ),
-            ListTile(
-              title: Text(l10n.dosingPumpHeadTimedDose),
-              enabled: isReady,
-              onTap: () async {
-                Navigator.of(modalContext).pop();
-                final success = await controller.scheduleTimedDose();
-                if (!context.mounted) return;
-
-                if (success) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(l10n.dosingPumpHeadTimedDoseSuccess),
                     ),
                   );
                 }

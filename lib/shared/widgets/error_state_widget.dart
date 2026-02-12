@@ -62,8 +62,7 @@ class ErrorStateWidget extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.error_outline,
+                CommonIconHelper.getWarningIcon(
                   size: 64,
                   color: AppColors.danger,
                 ),
@@ -165,10 +164,9 @@ class InlineErrorMessage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.error_outline,
-            color: AppColors.danger,
+          CommonIconHelper.getWarningIcon(
             size: 20,
+            color: AppColors.danger,
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(

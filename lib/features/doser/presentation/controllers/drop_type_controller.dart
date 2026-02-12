@@ -12,9 +12,12 @@ class DropTypeController extends ChangeNotifier {
   final DropTypeRepository dropTypeRepository;
   final PumpHeadRepository pumpHeadRepository;
 
+  final int? initialDropTypeId;
+
   DropTypeController({
     required this.dropTypeRepository,
     required this.pumpHeadRepository,
+    this.initialDropTypeId,
   });
 
   // State
@@ -36,6 +39,13 @@ class DropTypeController extends ChangeNotifier {
 
     try {
       _dropTypes = await dropTypeRepository.getAllDropTypes();
+      if (initialDropTypeId != null) {
+        final exists = _dropTypes.any((dt) => dt.id == initialDropTypeId) ||
+            initialDropTypeId == 0;
+        _selectedDropTypeId = exists ? initialDropTypeId : 0;
+      } else {
+        _selectedDropTypeId = 0;
+      }
       _clearError();
     } catch (e) {
       _setError(AppErrorCode.unknownError);

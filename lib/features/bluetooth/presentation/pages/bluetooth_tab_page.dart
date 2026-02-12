@@ -251,7 +251,7 @@ class _BtDeviceTile extends StatelessWidget {
     final _DeviceKind kind = _DeviceKindHelper.fromName(device.name);
     final String deviceType = kind == _DeviceKind.led
         ? l10n.led
-        : ''; // TODO(android @string/drop): ARB 缺少 drop，依規則不可代寫文字
+        : l10n.drop;
 
     // PARITY: adapter_ble_scan.xml structure
     return InkWell(
@@ -341,7 +341,7 @@ class _BtMyDeviceTile extends StatelessWidget {
     final _DeviceKind kind = _DeviceKindHelper.fromName(device.name);
     final String deviceType = kind == _DeviceKind.led
         ? l10n.led
-        : ''; // TODO(android @string/drop): ARB 缺少 drop，依規則不可代寫文字
+        : l10n.drop;
 
     // TODO: Get position and group from DeviceSnapshot when available
     final String? positionName = null; // TODO: Get from device.sinkId

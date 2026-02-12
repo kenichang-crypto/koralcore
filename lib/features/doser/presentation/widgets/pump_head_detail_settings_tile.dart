@@ -11,17 +11,15 @@ import '../pages/pump_head_settings_page.dart';
 
 /// Settings tile for pump head detail page.
 class PumpHeadDetailSettingsTile extends StatelessWidget {
+  final String deviceId;
   final String headId;
-  final String initialName;
-  final int initialDelaySeconds;
   final bool isConnected;
   final AppLocalizations l10n;
 
   const PumpHeadDetailSettingsTile({
     super.key,
+    required this.deviceId,
     required this.headId,
-    required this.initialName,
-    required this.initialDelaySeconds,
     required this.isConnected,
     required this.l10n,
   });
@@ -62,9 +60,8 @@ class PumpHeadDetailSettingsTile extends StatelessWidget {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) => PumpHeadSettingsPage(
+                deviceId: deviceId,
                 headId: headId,
-                initialName: initialName,
-                initialDelaySeconds: initialDelaySeconds,
               ),
             ),
           );

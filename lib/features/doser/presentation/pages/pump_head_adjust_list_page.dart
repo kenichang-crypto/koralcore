@@ -192,7 +192,7 @@ class _AdjustHistoryItem extends StatelessWidget {
               // tv_date (caption1)
               Expanded(
                 child: Text(
-                  l10n.dosingAdjustDatePlaceholder,
+                  l10n.generalNone,
                   style: AppTextStyles.caption1.copyWith(
                     color: AppColors.textPrimary,
                   ),
@@ -207,7 +207,7 @@ class _AdjustHistoryItem extends StatelessWidget {
             children: [
               // tv_volume_title (caption1_accent, text_aaa)
               Text(
-                'TODO(android @string/volume)', // TODO(android @string/volume)
+                l10n.dosingVolume,
                 style: AppTextStyles.caption1Accent.copyWith(
                   color: AppColors.textTertiary, // text_aaa
                 ),
@@ -216,7 +216,7 @@ class _AdjustHistoryItem extends StatelessWidget {
               // tv_volume (caption1)
               Expanded(
                 child: Text(
-                  l10n.dosingAdjustVolumePlaceholder,
+                  '',
                   style: AppTextStyles.caption1.copyWith(
                     color: AppColors.textPrimary,
                   ),

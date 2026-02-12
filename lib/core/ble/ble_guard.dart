@@ -136,7 +136,7 @@ class _BleGuardActions extends StatelessWidget {
 }
 
 class _BleBannerModel {
-  final IconData icon;
+  final Widget icon;
   final Color accentColor;
   final String title;
   final String message;

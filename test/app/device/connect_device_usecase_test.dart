@@ -6,6 +6,7 @@ import 'package:koralcore/app/device/initialize_device_usecase.dart';
 import 'package:koralcore/app/session/current_device_session.dart';
 import 'package:koralcore/domain/device/capability_set.dart';
 import 'package:koralcore/domain/device/device_context.dart';
+import 'package:koralcore/domain/device/device_product_resolver.dart';
 import 'package:koralcore/domain/device/device_product.dart';
 import 'package:koralcore/domain/device/firmware_version.dart';
 import 'package:koralcore/platform/contracts/device_repository.dart';
@@ -101,6 +102,19 @@ class MockDeviceRepository implements DeviceRepository {
 }
 
 class MockCurrentDeviceSession implements CurrentDeviceSession {
+  String? _activeDeviceId;
+
+  @override
+  void switchTo(String deviceId) {
+    _activeDeviceId = deviceId;
+  }
+
+  @override
+  bool get isReady => true;
+
+  @override
+  Stream<bool> get isReadyStream => const Stream<bool>.empty();
+
   @override
   void start(DeviceContext context) {}
   @override
@@ -109,25 +123,9 @@ class MockCurrentDeviceSession implements CurrentDeviceSession {
   DeviceContext? get context => null;
   @override
   DeviceContext get requireContext => throw UnimplementedError();
-  @override
-  Stream<DeviceContext?> get stream => const Stream.empty();
 
-  // Implement other required methods if any (none for this test usage)
-  @override
-  void addListener(void Function() listener) {}
   @override
   void dispose() {}
-  @override
-  bool get hasListeners => false;
-  @override
-  void notifyListeners() {}
-  @override
-  void removeListener(void Function() listener) {}
-
-  // Other members might be needed depending on implementation details
-  // but ConnectDeviceUseCase only calls start() (which we removed)
-  // or InitializeDeviceUseCase calls it.
-  // Since we mock InitializeDeviceUseCase, we might not need this much.
 }
 
 class MockInitializeDeviceUseCase implements InitializeDeviceUseCase {
@@ -148,6 +146,9 @@ class MockInitializeDeviceUseCase implements InitializeDeviceUseCase {
   DeviceRepository get deviceRepository => throw UnimplementedError();
   SystemRepository get systemRepository => throw UnimplementedError();
   CurrentDeviceSession get currentDeviceSession => throw UnimplementedError();
+  @override
+  DeviceProductResolver get deviceProductResolver =>
+      throw UnimplementedError();
 
   @override
   Future<DeviceContext> execute({required String deviceId}) async {

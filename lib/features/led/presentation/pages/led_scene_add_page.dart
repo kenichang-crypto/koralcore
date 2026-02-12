@@ -227,12 +227,8 @@ class _SpectrumChartSection extends StatelessWidget {
             color: AppColors.surfaceMuted,
             borderRadius: BorderRadius.circular(4),
           ),
-          child: Center(
-            child: Text(
-              l10n.ledSpectrumChartPlaceholder,
-              style: AppTextStyles.body.copyWith(color: AppColors.textTertiary),
-            ),
-          ),
+          // PARITY: reef chart_spectrum; P14: 禁止 stub
+          child: const SizedBox.shrink(),
         ),
       ),
     );

@@ -200,7 +200,6 @@
   "dosingPumpHeadTimedDose": "Schedule timed dose",
   "dosingPumpHeadTimedDoseSuccess": "Settings successful.",
   "dosingPumpHeadCalibrate": "Calibrate head",
-  "dosingPumpHeadPlaceholder": "No scheduled tasks",
   "@dosingPumpHeadSummaryTitle": {
     "placeholders": {
       "head": {
@@ -430,7 +429,6 @@
   "ledMasterSettingTitle": "Master-Slave Pairing",
   "ledSetMaster": "Set as Master Light",
   "ledMoveGroup": "Move Group",
-  "ledMasterSettingMenuPlaceholder": "Requires device and sink configuration.",
   "ledRecordTimeSettingTimeLabel": "Time",
   "ledRecordTimeSettingSpectrumLabel": "Spectrum",
   "ledRecordTimeSettingChannelsLabel": "Channels",
@@ -1061,18 +1059,5 @@
   "dropRecordTypeNone": "No Scheduled Tasks",
   "dosingAdjustDateTitle": "Calibration Date",
   "dosingAdjustVolumeTitle": "Measured Volume",
-  "groupPlaceholder": "Group A",
-  "ledChartPlaceholder": "Chart Placeholder",
-  "ledSpectrumChartPlaceholder": "Spectrum Chart Placeholder",
-  "ledTimePlaceholder": "07:27",
-  "dosingRecordTimePlaceholder": "08:00",
-  "dosingRecordEndTimePlaceholder": "10:00",
-  "dosingRecordDetailPlaceholder": "50 ml / 5 times",
-  "dosingTypeNamePlaceholder": "Type A",
-  "dosingTypeNamePlaceholderB": "Type B",
-  "dosingTypeNamePlaceholderC": "Type C",
-  "dosingRecordTimeRangePlaceholder": "2022-10-14 ~ 2022-10-31",
-  "dosingRecordTimePointPlaceholder": "2022-10-14 10:20:13",
-  "dosingAdjustDatePlaceholder": "2024-01-01 12:00:00",
-  "dosingAdjustVolumePlaceholder": "10.0 ml"
+  "ledTimePlaceholder": "07:27"
 }

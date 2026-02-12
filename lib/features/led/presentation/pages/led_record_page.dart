@@ -355,14 +355,10 @@ class _RecordOverviewCard extends StatelessWidget {
                     color: AppColors.surfaceMuted,
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: Center(
-                    child: Text(
-                      l10n.ledChartPlaceholder,
-                      style: AppTextStyles.body.copyWith(
-                        color: AppColors.textTertiary,
-                      ),
-                    ),
-                  ),
+                  // PARITY: reef line_chart shows LineChart; no "Chart Placeholder" text
+                  // P14: 禁止 stub；無數據時顯示空區塊
+                  child: const SizedBox.shrink(),
+                ),
                 ),
               ),
             ),

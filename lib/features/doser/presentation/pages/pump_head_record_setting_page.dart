@@ -76,7 +76,7 @@ class _PumpHeadRecordSettingContent extends StatelessWidget {
                         _DropTypeInfoCard(
                           l10n: l10n,
                           dropTypeName: controller.pumpHead?.additiveName ??
-                              l10n.dosingTypeNamePlaceholder,
+                              l10n.generalNone, // PARITY: reef no_eng
                         ),
                         _RecordTypeSection(
                           l10n: l10n,
@@ -510,7 +510,7 @@ class _RecordDetailItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timeStr = detail.timeString ?? l10n.dosingRecordTimePlaceholder;
+    final timeStr = detail.timeString ?? l10n.generalNone; // PARITY: reef no_eng
     final volumeAndTimes = '${detail.totalDrop} ml / ${detail.dropTime} times';
     return InkWell(
       onTap: null,
@@ -911,7 +911,7 @@ class _RunTimeRangeOption extends StatelessWidget {
 
   String _formatDateRange() {
     final r = controller.dateRange;
-    if (r == null) return l10n.dosingRecordTimeRangePlaceholder;
+    if (r == null) return l10n.generalNone; // PARITY: reef no_eng
     return '${r.start.year}-${r.start.month.toString().padLeft(2, '0')}-${r.start.day.toString().padLeft(2, '0')} ~ '
         '${r.end.year}-${r.end.month.toString().padLeft(2, '0')}-${r.end.day.toString().padLeft(2, '0')}';
   }
@@ -978,7 +978,7 @@ class _RunTimePointOption extends StatelessWidget {
   });
 
   String _formatTimeString() {
-    return controller.timeString ?? l10n.dosingRecordTimePointPlaceholder;
+    return controller.timeString ?? l10n.generalNone; // PARITY: reef no_eng
   }
 
   Future<void> _showDateTimePicker(BuildContext context) async {

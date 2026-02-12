@@ -583,9 +583,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dosingPumpHeadCalibrate => 'Calibrate head';
 
   @override
-  String get dosingPumpHeadPlaceholder => '일정된 작업이 없음';
-
-  @override
   String get dosingScheduleOverviewTitle => 'Schedules';
 
   @override
@@ -1104,10 +1101,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get ledMoveGroup => 'Move Group';
-
-  @override
-  String get ledMasterSettingMenuPlaceholder =>
-      'Requires device and sink configuration.';
 
   @override
   String get ledRecordTimeSettingTimeLabel => 'Time';
@@ -2008,44 +2001,5 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dosingAdjustVolumeTitle => 'Measured Volume';
 
   @override
-  String get groupPlaceholder => 'Group A';
-
-  @override
-  String get ledChartPlaceholder => 'Chart Placeholder';
-
-  @override
-  String get ledSpectrumChartPlaceholder => 'Spectrum Chart Placeholder';
-
-  @override
   String get ledTimePlaceholder => '07:27';
-
-  @override
-  String get dosingRecordTimePlaceholder => '08:00';
-
-  @override
-  String get dosingRecordEndTimePlaceholder => '10:00';
-
-  @override
-  String get dosingRecordDetailPlaceholder => '50 ml / 5 times';
-
-  @override
-  String get dosingTypeNamePlaceholder => 'Type A';
-
-  @override
-  String get dosingTypeNamePlaceholderB => 'Type B';
-
-  @override
-  String get dosingTypeNamePlaceholderC => 'Type C';
-
-  @override
-  String get dosingRecordTimeRangePlaceholder => '2022-10-14 ~ 2022-10-31';
-
-  @override
-  String get dosingRecordTimePointPlaceholder => '2022-10-14 10:20:13';
-
-  @override
-  String get dosingAdjustDatePlaceholder => '2024-01-01 12:00:00';
-
-  @override
-  String get dosingAdjustVolumePlaceholder => '10.0 ml';
 }

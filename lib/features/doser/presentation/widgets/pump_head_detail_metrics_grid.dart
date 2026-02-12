@@ -68,7 +68,7 @@ class PumpHeadDetailMetricsGrid extends StatelessWidget {
 
   String _formatLastDose(DateTime? timestamp, AppLocalizations l10n) {
     if (timestamp == null) {
-      return l10n.dosingPumpHeadPlaceholder;
+      return l10n.noRecords; // PARITY: reef no_records (strings.xml L44)
     }
     final formatter = DateFormat('MMM d • h:mm a');
     return formatter.format(timestamp);

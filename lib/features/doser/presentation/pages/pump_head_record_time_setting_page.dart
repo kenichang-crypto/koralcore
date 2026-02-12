@@ -275,23 +275,22 @@ class _DropTimesPicker extends StatelessWidget {
       offset: Offset.zero,
       child: SizedBox(
         width: double.infinity,
-        child: MaterialButton(
-          onPressed: null,
+        child: Material(
           color: AppColors.surfaceMuted,
-          textColor: AppColors.textPrimary,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                controller.dropTimes.toString(),
-                textAlign: TextAlign.start,
-                style: AppTextStyles.body,
-              ),
-              LedRecordIconHelper.getDownIcon(width: 20, height: 20),
-            ],
+          borderRadius: BorderRadius.circular(4),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  controller.dropTimes.toString(),
+                  textAlign: TextAlign.start,
+                  style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
+                ),
+                LedRecordIconHelper.getDownIcon(width: 20, height: 20),
+              ],
+            ),
           ),
         ),
       ),
@@ -379,23 +378,22 @@ class _SpeedPicker extends StatelessWidget {
       offset: Offset.zero,
       child: SizedBox(
         width: double.infinity,
-        child: MaterialButton(
-          onPressed: null,
+        child: Material(
           color: AppColors.surfaceMuted,
-          textColor: AppColors.textPrimary,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                _speedLabel(controller.rotatingSpeed),
-                textAlign: TextAlign.start,
-                style: AppTextStyles.body,
-              ),
-              LedRecordIconHelper.getDownIcon(width: 20, height: 20),
-            ],
+          borderRadius: BorderRadius.circular(4),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _speedLabel(controller.rotatingSpeed),
+                  textAlign: TextAlign.start,
+                  style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
+                ),
+                LedRecordIconHelper.getDownIcon(width: 20, height: 20),
+              ],
+            ),
           ),
         ),
       ),

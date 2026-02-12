@@ -1195,12 +1195,6 @@ abstract class AppLocalizations {
   /// **'Calibrate head'**
   String get dosingPumpHeadCalibrate;
 
-  /// No description provided for @dosingPumpHeadPlaceholder.
-  ///
-  /// In en, this message translates to:
-  /// **'No scheduled tasks'**
-  String get dosingPumpHeadPlaceholder;
-
   /// No description provided for @dosingScheduleOverviewTitle.
   ///
   /// In en, this message translates to:
@@ -2166,12 +2160,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Move Group'**
   String get ledMoveGroup;
-
-  /// No description provided for @ledMasterSettingMenuPlaceholder.
-  ///
-  /// In en, this message translates to:
-  /// **'Requires device and sink configuration.'**
-  String get ledMasterSettingMenuPlaceholder;
 
   /// No description provided for @ledRecordTimeSettingTimeLabel.
   ///
@@ -3907,89 +3895,11 @@ abstract class AppLocalizations {
   /// **'Measured Volume'**
   String get dosingAdjustVolumeTitle;
 
-  /// No description provided for @groupPlaceholder.
-  ///
-  /// In en, this message translates to:
-  /// **'Group A'**
-  String get groupPlaceholder;
-
-  /// No description provided for @ledChartPlaceholder.
-  ///
-  /// In en, this message translates to:
-  /// **'Chart Placeholder'**
-  String get ledChartPlaceholder;
-
-  /// No description provided for @ledSpectrumChartPlaceholder.
-  ///
-  /// In en, this message translates to:
-  /// **'Spectrum Chart Placeholder'**
-  String get ledSpectrumChartPlaceholder;
-
   /// No description provided for @ledTimePlaceholder.
   ///
   /// In en, this message translates to:
   /// **'07:27'**
   String get ledTimePlaceholder;
-
-  /// No description provided for @dosingRecordTimePlaceholder.
-  ///
-  /// In en, this message translates to:
-  /// **'08:00'**
-  String get dosingRecordTimePlaceholder;
-
-  /// No description provided for @dosingRecordEndTimePlaceholder.
-  ///
-  /// In en, this message translates to:
-  /// **'10:00'**
-  String get dosingRecordEndTimePlaceholder;
-
-  /// No description provided for @dosingRecordDetailPlaceholder.
-  ///
-  /// In en, this message translates to:
-  /// **'50 ml / 5 times'**
-  String get dosingRecordDetailPlaceholder;
-
-  /// No description provided for @dosingTypeNamePlaceholder.
-  ///
-  /// In en, this message translates to:
-  /// **'Type A'**
-  String get dosingTypeNamePlaceholder;
-
-  /// No description provided for @dosingTypeNamePlaceholderB.
-  ///
-  /// In en, this message translates to:
-  /// **'Type B'**
-  String get dosingTypeNamePlaceholderB;
-
-  /// No description provided for @dosingTypeNamePlaceholderC.
-  ///
-  /// In en, this message translates to:
-  /// **'Type C'**
-  String get dosingTypeNamePlaceholderC;
-
-  /// No description provided for @dosingRecordTimeRangePlaceholder.
-  ///
-  /// In en, this message translates to:
-  /// **'2022-10-14 ~ 2022-10-31'**
-  String get dosingRecordTimeRangePlaceholder;
-
-  /// No description provided for @dosingRecordTimePointPlaceholder.
-  ///
-  /// In en, this message translates to:
-  /// **'2022-10-14 10:20:13'**
-  String get dosingRecordTimePointPlaceholder;
-
-  /// No description provided for @dosingAdjustDatePlaceholder.
-  ///
-  /// In en, this message translates to:
-  /// **'2024-01-01 12:00:00'**
-  String get dosingAdjustDatePlaceholder;
-
-  /// No description provided for @dosingAdjustVolumePlaceholder.
-  ///
-  /// In en, this message translates to:
-  /// **'10.0 ml'**
-  String get dosingAdjustVolumePlaceholder;
 }
 
 class _AppLocalizationsDelegate

@@ -256,12 +256,9 @@ class _SpectrumChartSection extends StatelessWidget {
             color: AppColors.surfaceMuted,
             borderRadius: BorderRadius.circular(4),
           ),
-          child: Center(
-            child: Text(
-              l10n.ledSpectrumChartPlaceholder,
-              style: AppTextStyles.body.copyWith(color: AppColors.textTertiary),
-            ),
-          ),
+          // PARITY: reef chart_spectrum shows LineChart; no placeholder text
+          // P14: 禁止 stub；無數據時顯示空區塊
+          child: const SizedBox.shrink(),
         ),
       ),
     );

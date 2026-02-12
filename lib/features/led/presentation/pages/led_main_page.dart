@@ -336,7 +336,7 @@ class _DeviceIdentificationSection extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Text(
-                    l10n.groupPlaceholder,
+                    l10n.group, // PARITY: @string/group (reef tv_group)
                     style: AppTextStyles.caption2.copyWith(
                       color: AppColors.textTertiary, // text_aa
                     ),

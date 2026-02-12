@@ -165,7 +165,7 @@ class _PumpHeadCalibrationPageState extends State<PumpHeadCalibrationPage> {
                               height: 4,
                             ), // dp_4 marginTop (Line 100)
                             TextField(
-                              enabled: false, // Disabled in Parity Mode
+                              // PARITY: reef edt_adjust_drop_volume 無 android:enabled=false
                               decoration: InputDecoration(
                                 hintText:
                                     l10n.dosingAdjustVolumeHint,

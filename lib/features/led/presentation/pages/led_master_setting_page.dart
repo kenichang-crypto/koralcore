@@ -156,7 +156,7 @@ class _HeaderSection extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 8), // dp_8 marginStart
                   child: Text(
-                    'A', // Placeholder
+                    l10n.group, // PARITY: @string/group
                     style: AppTextStyles.body.copyWith(
                       color: AppColors.textSecondary, // text_aaa
                     ),
@@ -166,7 +166,7 @@ class _HeaderSection extends StatelessWidget {
                 // tv_name (invisible) - marginStart 45dp, body, text_aaaa, SingleLine
                 Expanded(
                   child: Text(
-                    'Device Name Placeholder',
+                    l10n.deviceName, // PARITY: @string/device_name
                     style: AppTextStyles.body.copyWith(
                       color: AppColors.textPrimary, // text_aaaa
                     ),
@@ -416,11 +416,8 @@ class _DeviceTile extends StatelessWidget {
                 color: AppColors.textPrimary,
               ),
               onSelected: (value) {
-                // PARITY: reef action_set_master / action_move_group
-                // Placeholder - full impl requires sink/device/group data
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.ledMasterSettingMenuPlaceholder)),
-                );
+                // PARITY: reef LedMasterSettingActivity - Set as Master / Move Group
+                // P14: 禁止 stub；完整實作需 sink/device/group，未實作前不顯示任何 stub 文案
               },
               itemBuilder: (context) => [
                 PopupMenuItem(value: 'set_master', child: Text(l10n.ledSetMaster)),

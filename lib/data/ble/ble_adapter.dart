@@ -27,4 +27,11 @@ abstract class BleAdapter {
     required Uint8List data,
     BleWriteOptions? options,
   });
+
+  /// Clears any queued commands and aborts the currently executing command.
+  /// This is used when a device disconnects so that stale commands do not fire.
+  void clearQueue({String? deviceId});
+
+  /// Returns true once the native transport has enabled notifications for a given device.
+  bool isNotificationReady(String deviceId);
 }

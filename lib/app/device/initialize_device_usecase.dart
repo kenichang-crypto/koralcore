@@ -16,7 +16,7 @@
 ///
 library;
 
-import '../../domain/device/capability/capability_id.dart';
+import '../../data/ble/ble_notify_bus.dart';
 import '../../domain/device/capability_set.dart';
 import '../../domain/device/device_context.dart';
 import '../../domain/device/device_product.dart';
@@ -41,18 +41,14 @@ class InitializeDeviceUseCase {
 
   Future<DeviceContext> execute({required String deviceId}) async {
     // 1) Read Device Info
-    // TODO: await ReadDeviceInfoUseCase().execute(deviceId: deviceId)
     final deviceInfo = await systemRepository.readDeviceInfo(deviceId);
-    // TODO: persist metadata
     await deviceRepository.getDevice(deviceId); // placeholder to show usage
 
     // 2) Read Firmware Version
-    // TODO: await ReadFirmwareVersionUseCase().execute(deviceId: deviceId)
     final firmwareVersionString = await systemRepository.readFirmwareVersion(
       deviceId,
     );
     final firmware = FirmwareVersion(firmwareVersionString);
-    // TODO: deviceRepository.saveFirmware(deviceId, firmware)
 
     // 3) Read Product ID (if applicable)
     // Use 'product' field if available (internal ID), otherwise 'device_name'
@@ -75,18 +71,20 @@ class InitializeDeviceUseCase {
       capabilities: capabilitySet,
     );
 
+    BleNotifyBus.instance.registerDoseFactor(
+      deviceId,
+      deviceContext.product.doseRawToMlFactor,
+    );
+
     // DeviceContext is the single source of truth for downstream use cases.
     // All other application flows must depend on this context instead of
     // re-deriving firmware or capability knowledge to keep behavior aligned.
 
     // 5) Sync Time
-    // TODO: await SyncTimeUseCase().execute(deviceId: deviceId)
     await systemRepository.syncTime(deviceId, DateTime.now());
 
     // 6) Mark device as Ready
-    // TODO: deviceRepository.updateState(deviceId, DeviceState.ready)
     await deviceRepository.updateDeviceState(deviceId, 'ready');
-    // TODO: notify presentation to open device feature pages
 
     // Establish the session so every other use case can read a consistent
     // DeviceContext without caching its own copy. Use cases must always read

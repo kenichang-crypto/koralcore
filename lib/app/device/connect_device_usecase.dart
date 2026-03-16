@@ -45,8 +45,6 @@ class ConnectDeviceUseCase {
       );
     }
 
-    await deviceRepository.updateDeviceState(deviceId, 'connecting');
-
     try {
       await deviceRepository.connect(deviceId);
       await deviceRepository.setCurrentDevice(deviceId);
@@ -54,7 +52,7 @@ class ConnectDeviceUseCase {
       // KC-A3-Final: Explicitly removed direct call to InitializeDeviceUseCase.
       // Logic moved to DeviceConnectionCoordinator to enforce "Reconnect == Fresh Connect" semantics.
       // The coordinator observes the native connection stream and triggers initialization.
-      // 
+      //
       // await initializeDeviceUseCase.execute(deviceId: deviceId);
     } on AppError {
       rethrow;

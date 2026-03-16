@@ -11,11 +11,16 @@
 // 所有業務邏輯已移除，僅保留 UI 結構。
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
 
+import '../../../../app/common/app_context.dart';
+import '../../../../app/common/app_session.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
+import '../../../../domain/doser_dosing/pump_head_adjust_history.dart';
+import '../controllers/pump_head_adjust_list_controller.dart';
 import 'pump_head_calibration_page.dart';
 
 /// PumpHeadAdjustListPage - PARITY with reef DropHeadAdjustListActivity
@@ -28,10 +33,34 @@ class PumpHeadAdjustListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appContext = context.read<AppContext>();
+    final session = context.read<AppSession>();
+
+    return ChangeNotifierProvider<PumpHeadAdjustListController>(
+      create: (_) => PumpHeadAdjustListController(
+        headId: headId,
+        session: session,
+        observeDosingStateUseCase: appContext.observeDosingStateUseCase,
+      ),
+      child: _PumpHeadAdjustListContent(headId: headId),
+    );
+  }
+}
+
+class _PumpHeadAdjustListContent extends StatelessWidget {
+  final String headId;
+
+  const _PumpHeadAdjustListContent({required this.headId});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.watch<PumpHeadAdjustListController>();
     final l10n = AppLocalizations.of(context);
+    final session = context.watch<AppSession>();
+    final history = controller.history ?? const <PumpHeadAdjustHistory>[];
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceMuted, // bg_aaa (#F7F7F7)
+      backgroundColor: AppColors.surfaceMuted,
       body: Stack(
         children: [
           Column(
@@ -40,35 +69,34 @@ class PumpHeadAdjustListPage extends StatelessWidget {
                 l10n: l10n,
                 onBack: () => Navigator.of(context).pop(),
                 onRight: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => PumpHeadCalibrationPage(headId: headId),
-                      ),
-                    ),
-              ),
-              // PARITY: rv_adjust (Line 15-29)
-              // RecyclerView with layout_height="0dp" (fills remaining space)
-              // padding 16/8/16/8 (Line 20-23), clipToPadding=false (Line 19)
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.only(
-                    left: 16, // dp_16 paddingStart
-                    top: 8, // dp_8 paddingTop
-                    right: 16, // dp_16 paddingEnd
-                    bottom: 8, // dp_8 paddingBottom
+                  MaterialPageRoute(
+                    builder: (_) => PumpHeadCalibrationPage(headId: headId),
                   ),
-                  children: [
-                    // PARITY: adapter_adjust.xml (tools:listitem, Line 25)
-                    // Placeholder for RecyclerView items
-                    _AdjustHistoryItem(),
-                    _AdjustHistoryItem(),
-                    _AdjustHistoryItem(),
-                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  itemCount: history.isNotEmpty ? history.length : 1,
+                  separatorBuilder: (_, __) => const SizedBox(height: 4),
+                  itemBuilder: (_, index) {
+                    if (history.isEmpty) {
+                      return _AdjustHistoryEmptyState(
+                        l10n: l10n,
+                        isConnected: session.isBleConnected,
+                        error: controller.error,
+                      );
+                    }
+                    return _AdjustHistoryItem(history: history[index]);
+                  },
                 ),
               ),
             ],
           ),
-          // PARITY: progress (Line 31-36, visibility="gone")
-          _ProgressOverlay(visible: false),
+          _ProgressOverlay(visible: controller.isLoading),
         ],
       ),
     );
@@ -130,102 +158,116 @@ class _ToolbarTwoAction extends StatelessWidget {
 /// - tv_date_title + tv_date (caption1_accent + caption1, marginTop 4dp)
 /// - tv_volume_title + tv_volume (caption1_accent + caption1, marginTop 4dp)
 class _AdjustHistoryItem extends StatelessWidget {
+  final PumpHeadAdjustHistory history;
+
+  const _AdjustHistoryItem({required this.history});
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Container(
-      margin: const EdgeInsets.only(
-        top: 4, // dp_4 marginTop
-        bottom: 4, // dp_4 marginBottom
-      ),
+      margin: const EdgeInsets.symmetric(vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.surface, // white background (background_white_radius)
-        borderRadius: BorderRadius.circular(8), // radius
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(12), // dp_12 padding
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
         children: [
-          // Speed row
-          Row(
-            children: [
-              // tv_speed_title (caption1_accent, text_aaa)
-              Text(
-                l10n.rotatingSpeed,
-                style: AppTextStyles.caption1Accent.copyWith(
-                  color: AppColors.textTertiary, // text_aaa
-                ),
-              ),
-              const SizedBox(width: 4), // dp_4 marginStart
-              // tv_speed (caption1, bg_secondary)
-              Expanded(
-                child: Text(
-                  l10n.pumpHeadSpeedMedium,
-                  style: AppTextStyles.caption1.copyWith(
-                    color: AppColors.textSecondary, // bg_secondary
-                  ),
-                  textAlign: TextAlign.end,
-                ),
-              ),
-            ],
+          _buildRow(
+            label: l10n.rotatingSpeed,
+            value: _speedLabel(l10n, history.rotatingSpeed),
           ),
-          const SizedBox(height: 4), // dp_4 marginTop
-          // Date row
-          Row(
-            children: [
-              // tv_date_title (caption1_accent, text_aaa)
-              Text(
-                l10n.dosingAdjustDateTitle,
-                style: AppTextStyles.caption1Accent.copyWith(
-                  color: AppColors.textTertiary, // text_aaa
-                ),
-              ),
-              const SizedBox(width: 4), // dp_4 marginStart
-              // tv_date (caption1)
-              Expanded(
-                child: Text(
-                  l10n.generalNone,
-                  style: AppTextStyles.caption1.copyWith(
-                    color: AppColors.textPrimary,
-                  ),
-                  textAlign: TextAlign.end,
-                ),
-              ),
-            ],
+          const SizedBox(height: 4),
+          _buildRow(
+            label: l10n.dosingAdjustDateTitle,
+            value: history.timeString,
           ),
-          const SizedBox(height: 4), // dp_4 marginTop
-          // Volume row
-          Row(
-            children: [
-              // tv_volume_title (caption1_accent, text_aaa)
-              Text(
-                l10n.dosingVolume,
-                style: AppTextStyles.caption1Accent.copyWith(
-                  color: AppColors.textTertiary, // text_aaa
-                ),
-              ),
-              const SizedBox(width: 4), // dp_4 marginStart
-              // tv_volume (caption1)
-              Expanded(
-                child: Text(
-                  '',
-                  style: AppTextStyles.caption1.copyWith(
-                    color: AppColors.textPrimary,
-                  ),
-                  textAlign: TextAlign.end,
-                ),
-              ),
-            ],
+          const SizedBox(height: 4),
+          _buildRow(
+            label: l10n.dosingVolume,
+            value: '${history.volume} ml',
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildRow({required String label, required String value}) {
+    return Row(
+      children: [
+        Text(
+          label,
+          style: AppTextStyles.caption1Accent.copyWith(
+            color: AppColors.textTertiary,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Text(
+            value,
+            style: AppTextStyles.caption1.copyWith(
+              color: AppColors.textPrimary,
+            ),
+            textAlign: TextAlign.end,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _speedLabel(AppLocalizations l10n, int speed) {
+    switch (speed) {
+      case 1:
+        return l10n.pumpHeadSpeedLow;
+      case 2:
+        return l10n.pumpHeadSpeedMedium;
+      case 3:
+        return l10n.pumpHeadSpeedHigh;
+      default:
+        return l10n.pumpHeadSpeedDefault;
+    }
+  }
+}
+
+class _AdjustHistoryEmptyState extends StatelessWidget {
+  final AppLocalizations l10n;
+  final bool isConnected;
+  final Object? error;
+
+  const _AdjustHistoryEmptyState({
+    required this.l10n,
+    required this.isConnected,
+    this.error,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final String message = error?.toString() ??
+        (isConnected ? l10n.dosingAdjustListEmptySubtitle : l10n.deviceNotConnected);
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.border),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Center(
+        child: Text(
+          message,
+          style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }

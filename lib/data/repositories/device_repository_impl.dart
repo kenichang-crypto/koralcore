@@ -26,6 +26,7 @@ class DeviceRepositoryImpl extends DeviceRepository {
 
   String? _currentDeviceId;
   bool _initialized = false;
+  Future<void>? _initializing;
 
   DeviceRepositoryImpl({SinkRepository? sinkRepository})
     : _sinkRepository = sinkRepository,
@@ -33,17 +34,35 @@ class DeviceRepositoryImpl extends DeviceRepository {
           StreamController<List<Map<String, dynamic>>>.broadcast(),
       _discoveredController =
           StreamController<List<Map<String, dynamic>>>.broadcast() {
-    _savedController.onListen = _emitSaved;
-    _discoveredController.onListen = _emitDiscovered;
-    _initialize();
+    debugPrint('[DEVICE_REPO] NEW INSTANCE hash=${identityHashCode(this)}');
+
+    _savedController.onListen = () {
+      _initialize();
+    };
+
+    _discoveredController.onListen = () {
+      _initialize();
+    };
   }
 
   Future<void> _initialize() async {
     if (_initialized) {
       return;
     }
+
+    if (_initializing != null) {
+      return _initializing!;
+    }
+
+    _initializing = _doInitialize();
+    return _initializing!;
+  }
+
+  Future<void> _doInitialize() async {
     await _loadDevicesFromDatabase();
+
     _initialized = true;
+
     _emitSaved();
     _emitDiscovered();
   }
@@ -51,33 +70,32 @@ class DeviceRepositoryImpl extends DeviceRepository {
   Future<void> _loadDevicesFromDatabase() async {
     final db = await _dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query('devices');
+    debugPrint('[DEVICE_REPO] SQLite devices rows=${maps.length}');
     _savedRecords.clear();
-    _savedRecords.addAll(maps.map((map) => _DeviceRecord.fromMap(map)).toList());
+    _savedRecords.addAll(
+      maps.map((map) => _DeviceRecord.fromMap(map)).toList(),
+    );
   }
 
   Future<void> _saveDeviceToDatabase(_DeviceRecord record) async {
     final db = await _dbHelper.database;
     final now = DateTime.now().millisecondsSinceEpoch;
-    await db.insert(
-      'devices',
-      {
-        'id': record.id,
-        'name': record.name,
-        'rssi': record.rssi,
-        'state': record.state,
-        'provisioned': record.provisioned ? 1 : 0,
-        'is_master': record.isMaster ? 1 : 0,
-        'is_favorite': record.isFavorite ? 1 : 0,
-        'mac_address': record.macAddress,
-        'sink_id': record.sinkId,
-        'type': record.type,
-        'device_group': record.group,
-        'delay_time': record.delayTime,
-        'created_at': now,
-        'updated_at': now,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('devices', {
+      'id': record.id,
+      'name': record.name,
+      'rssi': record.rssi,
+      'state': record.state,
+      'provisioned': record.provisioned ? 1 : 0,
+      'is_master': record.isMaster ? 1 : 0,
+      'is_favorite': record.isFavorite ? 1 : 0,
+      'mac_address': record.macAddress,
+      'sink_id': record.sinkId,
+      'type': record.type,
+      'device_group': record.group,
+      'delay_time': record.delayTime,
+      'created_at': now,
+      'updated_at': now,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<void> _deleteDeviceFromDatabase(String deviceId) async {
@@ -110,52 +128,44 @@ class DeviceRepositoryImpl extends DeviceRepository {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> scanDevices({Duration? timeout}) async {
-    _discoveredRecords.clear();
-
+  @override
+  Future<List<BleScanResult>> scanDevices({Duration? timeout}) async {
+    final Set<String> savedDeviceIds = _savedRecords
+        .map((record) => record.id)
+        .toSet();
+    debugPrint(
+      '[DEVICE_REPO] scanDevices skipDeviceIds=${savedDeviceIds.length}',
+    );
     final results = await _bleScanService.runScan(
       timeout: timeout ?? const Duration(seconds: 10),
+      skipDeviceIds: savedDeviceIds,
       onUpdate: (list) {
-        _discoveredRecords.clear();
-        _discoveredRecords.addAll(
-          list.map(
-            (r) => _DeviceRecord(
-              id: r.deviceId,
-              name: r.name,
-              rssi: r.rssi,
-              state: 'disconnected',
-              provisioned: false,
-              isMaster: false,
-              type: _inferType(r.name),
-            ),
-          ),
-        );
-        _emitDiscovered();
+        updateDiscoveredDevices(list);
       },
     );
 
-    _discoveredRecords.clear();
-    _discoveredRecords.addAll(
-      results.map(
-        (r) => _DeviceRecord(
-          id: r.deviceId,
-          name: r.name,
-          rssi: r.rssi,
-          state: 'disconnected',
-          provisioned: false,
-          isMaster: false,
-          type: _inferType(r.name),
-        ),
-      ),
-    );
-    _emitDiscovered();
-
+    updateDiscoveredDevices(results);
     debugPrint(
       'DeviceRepository - 藍芽掃描: 掃描完成 ${_discoveredRecords.length} 個裝置',
     );
-    return _discoveredRecords
-        .map((record) => record.toMap())
-        .toList(growable: false);
+    return results;
+  }
+
+  @override
+  void updateDiscoveredDevices(List<BleScanResult> results) {
+    _discoveredRecords
+      ..clear()
+      ..addAll(_recordsFromScan(results));
+    _emitDiscovered();
+  }
+
+  @override
+  Future<void> stopScan() async {
+    try {
+      await _bleScanService.stopScan();
+    } catch (e) {
+      debugPrint('DeviceRepository - 停止掃描失敗: $e');
+    }
   }
 
   static String? _inferType(String name) {
@@ -165,12 +175,30 @@ class DeviceRepositoryImpl extends DeviceRepository {
     return null;
   }
 
+  List<_DeviceRecord> _recordsFromScan(Iterable<BleScanResult> results) {
+    return results
+        .map(
+          (result) => _DeviceRecord(
+            id: result.deviceId,
+            name: result.name,
+            rssi: result.rssi,
+            state: 'disconnected',
+            provisioned: false,
+            isMaster: false,
+            macAddress: result.deviceId,
+            type: _inferType(result.name),
+            serviceUuids: result.serviceUuids,
+          ),
+        )
+        .toList(growable: false);
+  }
+
   /// Check if device name matches the filter criteria.
-  /// 
+  ///
   /// PARITY: Matches reef-b-app's BluetoothViewModel.scanResult() logic:
   /// - Returns false if name is null or empty
   /// - Returns true if name contains "koralDOSE", "coralDOSE", "koralLED", or "coralLED" (case-insensitive)
-  /// 
+  ///
   /// TODO: Currently unused - name filtering is disabled for development
   // ignore: unused_element
   bool _matchesDeviceNameFilter(String? deviceName) {
@@ -198,6 +226,9 @@ class DeviceRepositoryImpl extends DeviceRepository {
   @override
   Future<void> addSavedDevice(Map<String, dynamic> device) async {
     await _initialize();
+    debugPrint(
+      '[DEVICE_REPO] addSavedDevice start id=${device['id']} name=${device['name']}',
+    );
     final String id = device['id']?.toString() ?? '';
     if (id.isEmpty) {
       throw const AppError(
@@ -218,7 +249,9 @@ class DeviceRepositoryImpl extends DeviceRepository {
       sinkId: device['sinkId']?.toString(),
       type: device['type']?.toString(),
       group: device['group']?.toString(),
-      delayTime: device['delayTime'] is num ? (device['delayTime'] as num).round() : null,
+      delayTime: device['delayTime'] is num
+          ? (device['delayTime'] as num).round()
+          : null,
     );
     if (index == -1) {
       _savedRecords.add(record);
@@ -227,6 +260,10 @@ class DeviceRepositoryImpl extends DeviceRepository {
       _savedRecords[index] = record;
       await _updateDeviceInDatabase(record);
     }
+    debugPrint('[DEVICE_REPO] SQLite write complete id=$id');
+    debugPrint(
+      '[DEVICE_REPO] savedRecords size before emit=${_savedRecords.length}',
+    );
     _emitSaved();
   }
 
@@ -239,7 +276,7 @@ class DeviceRepositoryImpl extends DeviceRepository {
     }
 
     final _DeviceRecord record = _savedRecords[index];
-    
+
     // PARITY: reef-b-app's canDeleteDevice() logic
     // Only check LED devices for master deletion restriction
     // DROP devices can always be deleted
@@ -248,12 +285,13 @@ class DeviceRepositoryImpl extends DeviceRepository {
       if (record.sinkId != null && record.group != null) {
         final List<Map<String, dynamic>> groupDevices =
             await getDevicesBySinkIdAndGroup(record.sinkId!, record.group!);
-        
+
         // If group has more than 1 device, master cannot be deleted
         if (groupDevices.length > 1) {
           throw const AppError(
             code: AppErrorCode.invalidParam,
-            message: 'Cannot remove a master LED device when group has other devices.',
+            message:
+                'Cannot remove a master LED device when group has other devices.',
           );
         }
         // If group has only 1 device (this device), master can be deleted
@@ -283,25 +321,28 @@ class DeviceRepositoryImpl extends DeviceRepository {
   @override
   Future<void> connect(String deviceId) async {
     await _initialize();
-    
-    // If device is not in saved records, try to find it in discovered records and add it
+
     int index = _savedRecords.indexWhere((record) => record.id == deviceId);
-    if (index == -1) {
-      // Device not saved yet, check discovered records
-      final discoveredIndex = _discoveredRecords.indexWhere((record) => record.id == deviceId);
-      if (discoveredIndex != -1) {
-        // Add discovered device to saved records
-        final discoveredRecord = _discoveredRecords[discoveredIndex];
-        await addSavedDevice(discoveredRecord.toMap());
-        index = _savedRecords.indexWhere((record) => record.id == deviceId);
-      } else {
-        throw AppError(
-          code: AppErrorCode.invalidParam,
-          message: 'Unknown device id $deviceId',
-        );
-      }
+    final bool isSavedDevice = index != -1;
+    final bool knownDiscovered = _discoveredRecords.any(
+      (record) => record.id == deviceId || record.macAddress == deviceId,
+    );
+
+    if (!isSavedDevice && !knownDiscovered) {
+      throw AppError(
+        code: AppErrorCode.invalidParam,
+        message: 'Unknown device id $deviceId',
+      );
     }
-    
+
+    await stopScan();
+
+    _currentDeviceId = deviceId;
+
+    if (!isSavedDevice) {
+      return;
+    }
+
     final _DeviceRecord record = _savedRecords[index];
     if (record.state == 'connecting') {
       throw const AppError(
@@ -310,7 +351,7 @@ class DeviceRepositoryImpl extends DeviceRepository {
       );
     }
 
-    final updated = record.copyWith(state: 'connected');
+    final updated = record.copyWith(state: 'connecting');
     _savedRecords[index] = updated;
     await _updateDeviceInDatabase(updated);
     _currentDeviceId = deviceId;
@@ -346,21 +387,27 @@ class DeviceRepositoryImpl extends DeviceRepository {
   @override
   Future<void> updateDeviceState(String deviceId, String state) async {
     await _initialize();
-    
+
     // If device is not in saved records, try to find it in discovered records and add it
     int index = _savedRecords.indexWhere((record) => record.id == deviceId);
     if (index == -1) {
       // PARITY: reef-b-app BLEManager.scanLeDevice() -> Log.d("$TAG - 藍芽掃描", "掃描到裝置...")
       debugPrint('DeviceRepository - 藍芽掃描: 設備 $deviceId 不在已保存記錄中，檢查已發現記錄...');
       // Device not saved yet, check discovered records
-      final discoveredIndex = _discoveredRecords.indexWhere((record) => record.id == deviceId);
+      final discoveredIndex = _discoveredRecords.indexWhere(
+        (record) => record.id == deviceId,
+      );
       if (discoveredIndex != -1) {
-        debugPrint('DeviceRepository - 藍芽掃描: 在已發現記錄中找到設備 $deviceId，添加到已保存記錄...');
+        debugPrint(
+          'DeviceRepository - 藍芽掃描: 在已發現記錄中找到設備 $deviceId，添加到已保存記錄...',
+        );
         // Add discovered device to saved records
         final discoveredRecord = _discoveredRecords[discoveredIndex];
         await addSavedDevice(discoveredRecord.toMap());
         index = _savedRecords.indexWhere((record) => record.id == deviceId);
-        debugPrint('DeviceRepository - 藍芽掃描: 設備 $deviceId 已添加到已保存記錄，索引: $index');
+        debugPrint(
+          'DeviceRepository - 藍芽掃描: 設備 $deviceId 已添加到已保存記錄，索引: $index',
+        );
       } else {
         debugPrint('DeviceRepository - 藍芽掃描: 設備 $deviceId 在已發現記錄中也未找到');
         throw AppError(
@@ -369,7 +416,7 @@ class DeviceRepositoryImpl extends DeviceRepository {
         );
       }
     }
-    
+
     // PARITY: reef-b-app BLEManager.onConnectionStateChange() -> Log.d("$TAG - 藍芽連線", "...")
     debugPrint('DeviceRepository - 藍芽連線: 更新設備 $deviceId 狀態為: $state');
     final updated = _savedRecords[index].copyWith(state: state);
@@ -441,6 +488,13 @@ class DeviceRepositoryImpl extends DeviceRepository {
 
   void _emitSaved() {
     if (!_savedController.isClosed) {
+      debugPrint(
+        '[DEVICE_REPO] emitSaved snapshot size=${_savedRecords.length}',
+      );
+      if (_savedRecords.isEmpty) {
+        debugPrint('[DEVICE_REPO] WARNING emitSaved with EMPTY records');
+        debugPrintStack(label: '[DEVICE_REPO] emitSaved stack');
+      }
       _savedController.add(_savedSnapshot());
     }
     _syncDefaultSink();
@@ -495,10 +549,12 @@ class DeviceRepositoryImpl extends DeviceRepository {
   ) async {
     await _initialize();
     return _savedRecords
-        .where((record) =>
-            record.sinkId == sinkId &&
-            record.group == group &&
-            record.type == 'LED')
+        .where(
+          (record) =>
+              record.sinkId == sinkId &&
+              record.group == group &&
+              record.type == 'LED',
+        )
         .map((record) => record.toMap())
         .toList();
   }
@@ -518,8 +574,7 @@ class DeviceRepositoryImpl extends DeviceRepository {
   ) async {
     await _initialize();
     return _savedRecords
-        .where((record) =>
-            record.sinkId == sinkId && record.type == 'DROP')
+        .where((record) => record.sinkId == sinkId && record.type == 'DROP')
         .map((record) => record.toMap())
         .toList();
   }
@@ -537,6 +592,7 @@ class _DeviceRecord {
   final String? sinkId;
   final String? type; // 'LED' or 'DROP'
   final String? group; // 'A', 'B', 'C', 'D', 'E'
+  final List<String>? serviceUuids;
   final int? delayTime; // Delay time in seconds
 
   const _DeviceRecord({
@@ -551,6 +607,7 @@ class _DeviceRecord {
     this.sinkId,
     this.type,
     this.group,
+    this.serviceUuids,
     this.delayTime,
   });
 
@@ -567,6 +624,13 @@ class _DeviceRecord {
       sinkId: map['sink_id'] as String?,
       type: map['type'] as String?,
       group: map['device_group'] as String?,
+      serviceUuids:
+          (map['service_uuids'] as List<dynamic>?)
+              ?.map((uuid) => uuid.toString())
+              .toList(growable: false) ??
+          (map['serviceUuids'] as List<dynamic>?)
+              ?.map((uuid) => uuid.toString())
+              .toList(growable: false),
       delayTime: map['delay_time'] as int?,
     );
   }
@@ -583,6 +647,7 @@ class _DeviceRecord {
     String? sinkId,
     String? type,
     String? group,
+    List<String>? serviceUuids,
     int? delayTime,
   }) {
     return _DeviceRecord(
@@ -597,6 +662,7 @@ class _DeviceRecord {
       sinkId: sinkId ?? this.sinkId,
       type: type ?? this.type,
       group: group ?? this.group,
+      serviceUuids: serviceUuids ?? this.serviceUuids,
       delayTime: delayTime ?? this.delayTime,
     );
   }
@@ -618,6 +684,7 @@ class _DeviceRecord {
       'group': group,
       'device_group': group, // Also include for compatibility
       'delayTime': delayTime,
+      'serviceUuids': serviceUuids,
     };
   }
 }

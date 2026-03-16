@@ -14,6 +14,7 @@ import '../controllers/device_list_controller.dart';
 import '../widgets/device_card.dart';
 import '../../../led/presentation/pages/led_main_page.dart';
 import '../../../doser/presentation/pages/dosing_main_page.dart';
+import '../../../bluetooth/presentation/pages/bluetooth_tab_page.dart';
 import 'add_device_page.dart';
 
 class DeviceTabPage extends StatelessWidget {
@@ -173,10 +174,10 @@ class _EmptyState extends StatelessWidget {
               bottom: 8.0, // dp_8 marginBottom
             ),
             child: FilledButton(
-              // PARITY: btn_add_device → AddDevicePage (UX Parity P4)
+              // PARITY: btn_add_device → BluetoothTabPage (align with reef-b-app)
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => const AddDevicePage(),
+                  builder: (_) => const BluetoothTabPage(),
                 ),
               ),
               child: Text(

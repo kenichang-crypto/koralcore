@@ -27,27 +27,18 @@ import 'led_scene_edit_page.dart';
 ///
 /// Gate: UI parity only (no onTap/onPressed/navigation/BLE/business behavior).
 class LedScenePage extends StatelessWidget {
-  const LedScenePage({super.key});
+  const LedScenePage({
+    super.key,
+    required this.controller,
+  });
+
+  final LedSceneListController controller;
 
   @override
   Widget build(BuildContext context) {
-    final appContext = context.read<AppContext>();
-    final session = context.read<AppSession>();
-
     // NOTE: 不在此呼叫 initialize()/refresh() 以避免業務副作用；僅做 UI 結構 parity。
-    return ChangeNotifierProvider<LedSceneListController>(
-      create: (_) => LedSceneListController(
-        session: session,
-        readLedScenesUseCase: appContext.readLedScenesUseCase,
-        applySceneUseCase: appContext.applySceneUseCase,
-        observeLedStateUseCase: appContext.observeLedStateUseCase,
-        readLedStateUseCase: appContext.readLedStateUseCase,
-        stopLedPreviewUseCase: appContext.stopLedPreviewUseCase,
-        observeLedRecordStateUseCase: appContext.observeLedRecordStateUseCase,
-        readLedRecordStateUseCase: appContext.readLedRecordStateUseCase,
-        startLedPreviewUseCase: appContext.startLedPreviewUseCase,
-        startLedRecordUseCase: appContext.startLedRecordUseCase,
-      ),
+    return ChangeNotifierProvider<LedSceneListController>.value(
+      value: controller,
       child: const _LedSceneView(),
     );
   }

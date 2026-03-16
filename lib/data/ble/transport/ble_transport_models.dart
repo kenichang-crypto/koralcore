@@ -97,6 +97,7 @@ typedef BleTransportWriter =
       required BleWriteMode mode,
       required Duration timeout,
       bool expectsResponsePayload,
+      int? expectedOpcode,
     });
 
 class BleWriteException implements Exception {

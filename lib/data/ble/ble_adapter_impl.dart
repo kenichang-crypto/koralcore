@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:developer' as developer;
 import 'dart:typed_data';
 
 import 'ble_adapter.dart';
@@ -8,6 +9,22 @@ import 'record/ble_record.dart';
 import 'record/ble_record_type.dart';
 import 'record/ble_recorder.dart';
 import 'transport/ble_transport_models.dart';
+import 'ble_notify_bus.dart';
+import 'ble_uuid.dart';
+import 'platform_channels/ble_notify_packet.dart';
+
+void _bleLog(String event, String message) {
+  developer.log(message, name: 'BleAdapter.$event');
+}
+
+enum _BleLifecycleState {
+  disconnected,
+  connecting,
+  connected,
+  servicesDiscovered,
+  notificationsEnabling,
+  notificationsReady,
+}
 
 /// Concrete BLE adapter that delegates to the platform BLE stack.
 class BleAdapterImpl implements BleAdapter {
@@ -15,17 +32,30 @@ class BleAdapterImpl implements BleAdapter {
   final BleRecorder? recorder;
   final BleTransportObserver? observer;
   final BleWriteOptions defaultOptions;
+  final Stream<BleConnectionState>? connectionStream;
 
-  final Queue<_QueuedCommand> _queue = Queue<_QueuedCommand>();
-  bool _isProcessing = false;
+  final Map<String, Queue<_QueuedCommand>> _deviceQueues = {};
+  final Map<String, bool> _deviceIsProcessing = {};
+  final Map<String, _QueuedCommand?> _currentCommands = {};
+  final Map<String, bool> _notificationEnabled = <String, bool>{};
+  final Map<String, _BleLifecycleState> _connectionStates = {};
+  final Map<String, Completer<void>> _notificationsReadyCompleters = {};
   static const Duration _defaultNoAckDequeueDelay = Duration(milliseconds: 120);
+  late final StreamSubscription<BleNotifyPacket> _notifySubscription;
+  StreamSubscription<BleConnectionState>? _connectionSubscription;
 
   BleAdapterImpl({
     this.transportWriter,
     this.recorder,
     this.observer,
     BleWriteOptions? defaultOptions,
-  }) : defaultOptions = defaultOptions ?? const BleWriteOptions();
+    this.connectionStream,
+  }) : defaultOptions = defaultOptions ?? const BleWriteOptions() {
+    _notifySubscription =
+        BleNotifyBus.instance.stream.listen(_onNotifyPacketReady);
+    _connectionSubscription =
+        connectionStream?.listen(_handleConnectionState);
+  }
 
   @override
   Future<void> write({
@@ -60,6 +90,66 @@ class BleAdapterImpl implements BleAdapter {
     await Future<void>.delayed(delay);
   }
 
+  Queue<_QueuedCommand> _ensureDeviceQueue(String deviceId) {
+    return _deviceQueues.putIfAbsent(deviceId, () => Queue<_QueuedCommand>());
+  }
+
+  void _enqueueDeviceCommand(String deviceId, _QueuedCommand command) {
+    final queue = _ensureDeviceQueue(deviceId);
+    queue.add(command);
+    _emitLog(
+      type: BleTransportEventType.queued,
+      command: command,
+      attempt: 0,
+      message:
+          'Queued payload length=${command.payload.length} (device=$deviceId, queue=${queue.length})',
+      result: null,
+    );
+    _bleLog('BLE_QUEUE', 'device=$deviceId size=${queue.length}');
+    _processDeviceQueue(deviceId);
+  }
+
+  void _processDeviceQueue(String deviceId) {
+    if (_deviceIsProcessing[deviceId] == true) {
+      return;
+    }
+    final Queue<_QueuedCommand>? queue = _deviceQueues[deviceId];
+    if (queue == null || queue.isEmpty) {
+      return;
+    }
+    _deviceIsProcessing[deviceId] = true;
+    Future<void>(() async {
+      try {
+        while (queue.isNotEmpty) {
+          final _QueuedCommand command = queue.first;
+          final _BleLifecycleState state =
+              _connectionStates[deviceId] ?? _BleLifecycleState.disconnected;
+          if (state != _BleLifecycleState.notificationsReady) {
+            await _waitForNotificationsReady(deviceId);
+            continue;
+          }
+          _currentCommands[deviceId] = command;
+          try {
+            await _executeCommand(command);
+          } finally {
+            if (queue.isNotEmpty && queue.first == command) {
+              queue.removeFirst();
+            }
+          }
+          if (queue.isNotEmpty) {
+            await _applyPostCommandDelay(command);
+          }
+        }
+      } finally {
+        _deviceIsProcessing[deviceId] = false;
+        _currentCommands.remove(deviceId);
+        if (queue.isEmpty) {
+          _deviceQueues.remove(deviceId);
+        }
+      }
+    });
+  }
+
   @override
   Future<void> writeBytes({
     required String deviceId,
@@ -83,15 +173,7 @@ class BleAdapterImpl implements BleAdapter {
       enqueuedAt: DateTime.now(),
       expectsPayload: false,
     );
-    _queue.add(command);
-    _emitLog(
-      type: BleTransportEventType.queued,
-      command: command,
-      attempt: 0,
-      message: 'Queued payload length=${command.payload.length}',
-      result: null,
-    );
-    _processQueue();
+    _enqueueDeviceCommand(deviceId, command);
     return command.completer.future;
   }
 
@@ -118,48 +200,97 @@ class BleAdapterImpl implements BleAdapter {
       enqueuedAt: DateTime.now(),
       expectsPayload: true,
     );
-    _queue.add(command);
-    _emitLog(
-      type: BleTransportEventType.queued,
-      command: command,
-      attempt: 0,
-      message: 'Queued read payload length=${command.payload.length}',
-      result: null,
-    );
-    _processQueue();
+    _enqueueDeviceCommand(deviceId, command);
     return command.responseCompleter!.future;
   }
 
-  void _processQueue() {
-    if (_isProcessing) {
-      return;
-    }
-    _isProcessing = true;
-    Future<void>(() async {
-      while (_queue.isNotEmpty) {
-        final _QueuedCommand command = _queue.first;
-        try {
-          await _executeCommand(command);
-        } catch (error, stackTrace) {
-          if (command.responseCompleter != null &&
-              !command.responseCompleter!.isCompleted) {
-            command.responseCompleter!.completeError(error, stackTrace);
-          }
-          if (!command.completer.isCompleted) {
-            command.completer.completeError(error, stackTrace);
-          }
-        } finally {
-          _queue.removeFirst();
-          if (_queue.isNotEmpty) {
-            await _applyPostCommandDelay(command);
-          }
+  @override
+  void clearQueue({String? deviceId}) {
+    final void Function(_QueuedCommand) completeError = (_QueuedCommand command) {
+      final BleWriteException error =
+          BleWriteException('BLE command aborted due to disconnect.');
+      if (command.responseCompleter != null &&
+          !command.responseCompleter!.isCompleted) {
+        command.responseCompleter!.completeError(error);
+      }
+      if (!command.completer.isCompleted) {
+        command.completer.completeError(error);
+      }
+    };
+
+    final Iterable<String> targets = deviceId == null
+        ? List<String>.from(_deviceQueues.keys)
+        : [deviceId];
+    for (final id in targets) {
+      final Queue<_QueuedCommand>? queue = _deviceQueues.remove(id);
+      if (queue != null) {
+        for (final command in queue) {
+          completeError(command);
         }
       }
-      _isProcessing = false;
-      if (_queue.isNotEmpty) {
-        _processQueue();
+      final _QueuedCommand? current = _currentCommands.remove(id);
+      if (current != null) {
+        completeError(current);
       }
-    });
+      _deviceIsProcessing.remove(id);
+      _notificationEnabled.remove(id);
+      _connectionStates[id] = _BleLifecycleState.disconnected;
+      final readyCompleter = _notificationsReadyCompleters.remove(id);
+      if (readyCompleter != null && !readyCompleter.isCompleted) {
+        readyCompleter.complete();
+      }
+    }
+  }
+
+  void _onNotifyPacketReady(BleNotifyPacket packet) {
+    final String? characteristic = packet.characteristic;
+    if (characteristic?.toLowerCase() ==
+            uuidDropNotify.toLowerCase() &&
+        _notificationEnabled[packet.deviceId] != true) {
+      _notificationEnabled[packet.deviceId] = true;
+      _setLifecycleState(packet.deviceId, _BleLifecycleState.notificationsReady);
+    }
+  }
+
+  bool isNotificationReady(String deviceId) =>
+      _notificationEnabled[deviceId] == true;
+
+  void _handleConnectionState(BleConnectionState state) {
+    final String? deviceId = state.deviceId;
+    if (deviceId == null || deviceId.isEmpty) {
+      return;
+    }
+
+    if (state.isConnected) {
+      _setLifecycleState(deviceId, _BleLifecycleState.connected);
+    } else {
+      _setLifecycleState(deviceId, _BleLifecycleState.disconnected);
+      _notificationEnabled.remove(deviceId);
+      _deviceQueues.remove(deviceId);
+      _deviceIsProcessing.remove(deviceId);
+      _currentCommands.remove(deviceId);
+      _notificationsReadyCompleters.remove(deviceId);
+    }
+  }
+
+  void _setLifecycleState(String deviceId, _BleLifecycleState state) {
+    _connectionStates[deviceId] = state;
+    if (state == _BleLifecycleState.notificationsReady) {
+      final completer = _notificationsReadyCompleters.remove(deviceId);
+      completer?.complete();
+    }
+  }
+
+  Future<void> _waitForNotificationsReady(String deviceId) {
+    if (_connectionStates[deviceId] == _BleLifecycleState.notificationsReady) {
+      return Future<void>.value();
+    }
+    _setLifecycleState(deviceId, _BleLifecycleState.notificationsEnabling);
+    final completer = _notificationsReadyCompleters.putIfAbsent(
+      deviceId,
+      () => Completer<void>(),
+    );
+    return completer.future;
   }
 
   Future<void> _executeCommand(_QueuedCommand command) async {
@@ -167,6 +298,7 @@ class BleAdapterImpl implements BleAdapter {
     while (true) {
       attempt++;
       command.lastSendAt = DateTime.now();
+      final int opcode = command.payload.isNotEmpty ? command.payload.first : -1;
       _emitLog(
         type: BleTransportEventType.sending,
         command: command,
@@ -176,6 +308,10 @@ class BleAdapterImpl implements BleAdapter {
       );
 
       try {
+        _bleLog(
+          'BLE_SEND',
+          'opcode=$opcode device=${command.deviceId} retry=$attempt',
+        );
         final BleWriteResult result = await _performWriteWithTimeout(
           command,
           attempt,
@@ -279,12 +415,16 @@ class BleAdapterImpl implements BleAdapter {
     }
 
     try {
+      final int expectedOpcode =
+          command.payload.isNotEmpty ? command.payload.first : -1;
       final Future<BleWriteResult> writerFuture = writer(
         deviceId: command.deviceId,
         payload: command.payload,
         mode: command.options.mode,
         timeout: command.options.timeout,
         expectsResponsePayload: command.responseCompleter != null,
+        expectedOpcode:
+            command.responseCompleter != null ? expectedOpcode : null,
       );
 
       final BleWriteResult result = await writerFuture.timeout(

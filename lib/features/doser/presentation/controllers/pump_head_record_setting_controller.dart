@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/common/app_error_code.dart';
 import '../../../../app/common/app_session.dart';
-import '../../../../domain/usecases/doser/apply_schedule_usecase.dart';
 import '../../../../domain/doser_dosing/pump_head.dart';
 import '../../../../domain/doser_dosing/pump_head_mode.dart';
 import '../../../../domain/doser_dosing/pump_head_record_detail.dart';
 import '../../../../domain/doser_dosing/pump_head_record_type.dart';
 import '../../../../platform/contracts/pump_head_repository.dart';
+import 'dosing_schedule_controller.dart';
 
 /// Controller for pump head record setting page.
 ///
@@ -17,13 +17,13 @@ class PumpHeadRecordSettingController extends ChangeNotifier {
   final String headId;
   final AppSession session;
   final PumpHeadRepository pumpHeadRepository;
-  final ApplyScheduleUseCase applyScheduleUseCase;
+  final DosingScheduleController dosingScheduleController;
 
   PumpHeadRecordSettingController({
     required this.headId,
     required this.session,
     required this.pumpHeadRepository,
-    required this.applyScheduleUseCase,
+    required this.dosingScheduleController,
   });
 
   // State
@@ -231,9 +231,11 @@ class PumpHeadRecordSettingController extends ChangeNotifier {
 
       switch (_selectedRecordType) {
         case PumpHeadRecordType.none:
-          // Clear schedule
-          // TODO: Implement clear schedule command
-          await Future.delayed(const Duration(milliseconds: 500));
+          final int headNo = _headIdToNumber(headId);
+          await dosingScheduleController.clearSchedule(
+            deviceId: deviceId,
+            headNo: headNo,
+          );
           _clearError();
           return true;
 
@@ -267,8 +269,40 @@ class PumpHeadRecordSettingController extends ChangeNotifier {
             return false;
           }
 
-          // TODO: Apply 24h schedule via ApplyScheduleUseCase
-          await Future.delayed(const Duration(milliseconds: 500));
+          final int headNo = _headIdToNumber(headId);
+          final _WeekFlags weekFlags = _weekFlagsFromState();
+          if (_selectRunTime == 1) {
+            await dosingScheduleController.create24Weekly(
+              deviceId: deviceId,
+              headNo: headNo,
+              monday: weekFlags.monday,
+              tuesday: weekFlags.tuesday,
+              wednesday: weekFlags.wednesday,
+              thursday: weekFlags.thursday,
+              friday: weekFlags.friday,
+              saturday: weekFlags.saturday,
+              sunday: weekFlags.sunday,
+              volumeMl: _dropVolume!,
+              speed: _rotatingSpeed,
+            );
+          } else if (_selectRunTime == 2) {
+            final DateTimeRange? range = _dateRange;
+            if (range == null) {
+              onRunTimeEmpty();
+              return false;
+            }
+            await dosingScheduleController.create24Range(
+              deviceId: deviceId,
+              headNo: headNo,
+              startDate: range.start,
+              endDate: range.end,
+              volumeMl: _dropVolume!,
+              speed: _rotatingSpeed,
+            );
+          } else {
+            onRunTimeEmpty();
+            return false;
+          }
           _clearError();
           return true;
 
@@ -290,8 +324,31 @@ class PumpHeadRecordSettingController extends ChangeNotifier {
             return false;
           }
 
-          // TODO: Apply single dose schedule via ApplyScheduleUseCase
-          await Future.delayed(const Duration(milliseconds: 500));
+          final int headNo = _headIdToNumber(headId);
+          if (_selectRunTime == 0) {
+            await dosingScheduleController.createSingleImmediately(
+              deviceId: deviceId,
+              headNo: headNo,
+              volumeMl: _dropVolume!,
+              speed: _rotatingSpeed,
+            );
+          } else if (_selectRunTime == 3) {
+            final DateTime? runAt = _parseTimePoint(_timeString);
+            if (runAt == null) {
+              onRunTimeEmpty();
+              return false;
+            }
+            await dosingScheduleController.createSingleTimely(
+              deviceId: deviceId,
+              headNo: headNo,
+              runAt: runAt,
+              volumeMl: _dropVolume!,
+              speed: _rotatingSpeed,
+            );
+          } else {
+            onRunTimeEmpty();
+            return false;
+          }
           _clearError();
           return true;
 
@@ -339,8 +396,55 @@ class PumpHeadRecordSettingController extends ChangeNotifier {
             return false;
           }
 
-          // TODO: Apply custom schedule via ApplyScheduleUseCase
-          await Future.delayed(const Duration(milliseconds: 500));
+          final int headNo = _headIdToNumber(headId);
+          final _WeekFlags weekFlags = _weekFlagsFromState();
+          if (_selectRunTime == 1) {
+            await dosingScheduleController.createCustomWeekly(
+              deviceId: deviceId,
+              headNo: headNo,
+              monday: weekFlags.monday,
+              tuesday: weekFlags.tuesday,
+              wednesday: weekFlags.wednesday,
+              thursday: weekFlags.thursday,
+              friday: weekFlags.friday,
+              saturday: weekFlags.saturday,
+              sunday: weekFlags.sunday,
+              count: _recordDetails.length,
+            );
+          } else if (_selectRunTime == 2) {
+            final DateTimeRange? range = _dateRange;
+            if (range == null) {
+              onRunTimeEmpty();
+              return false;
+            }
+            await dosingScheduleController.createCustomRange(
+              deviceId: deviceId,
+              headNo: headNo,
+              startDate: range.start,
+              endDate: range.end,
+              count: _recordDetails.length,
+            );
+          } else {
+            onRunTimeEmpty();
+            return false;
+          }
+
+          for (final PumpHeadRecordDetail detail in _recordDetails) {
+            final _TimeRange? timeRange = _parseTimeRange(detail.timeString);
+            if (timeRange == null) {
+              onRunTimeEmpty();
+              return false;
+            }
+            await dosingScheduleController.createCustomDetail(
+              deviceId: deviceId,
+              headNo: headNo,
+              start: timeRange.start,
+              end: timeRange.end,
+              times: detail.dropTime,
+              volumeMl: detail.totalDrop,
+              speed: detail.rotatingSpeed,
+            );
+          }
           _clearError();
           return true;
       }
@@ -366,4 +470,91 @@ class PumpHeadRecordSettingController extends ChangeNotifier {
     _clearError();
     notifyListeners();
   }
+
+  DateTime? _parseTimePoint(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return null;
+    }
+    return DateTime.tryParse(value.replaceFirst(' ', 'T'));
+  }
+
+  _TimeRange? _parseTimeRange(String? value) {
+    if (value == null) {
+      return null;
+    }
+    final parts = value.split(' ~ ');
+    if (parts.length != 2) {
+      return null;
+    }
+    final TimeOfDay? start = _parseHm(parts[0]);
+    final TimeOfDay? end = _parseHm(parts[1]);
+    if (start == null || end == null) {
+      return null;
+    }
+    return _TimeRange(start: start, end: end);
+  }
+
+  TimeOfDay? _parseHm(String value) {
+    final parts = value.split(':');
+    if (parts.length != 2) {
+      return null;
+    }
+    final int? hour = int.tryParse(parts[0]);
+    final int? minute = int.tryParse(parts[1]);
+    if (hour == null || minute == null) {
+      return null;
+    }
+    if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+      return null;
+    }
+    return TimeOfDay(hour: hour, minute: minute);
+  }
+
+  int _headIdToNumber(String value) {
+    final String normalized = value.trim().toUpperCase();
+    if (normalized.isEmpty) {
+      return 0;
+    }
+    return normalized.codeUnitAt(0) - 65;
+  }
+
+  _WeekFlags _weekFlagsFromState() {
+    // _weekDays uses Sun-Sat; command payload is Mon-Sun.
+    return _WeekFlags(
+      monday: _weekDays[1],
+      tuesday: _weekDays[2],
+      wednesday: _weekDays[3],
+      thursday: _weekDays[4],
+      friday: _weekDays[5],
+      saturday: _weekDays[6],
+      sunday: _weekDays[0],
+    );
+  }
+}
+
+class _WeekFlags {
+  final bool monday;
+  final bool tuesday;
+  final bool wednesday;
+  final bool thursday;
+  final bool friday;
+  final bool saturday;
+  final bool sunday;
+
+  const _WeekFlags({
+    required this.monday,
+    required this.tuesday,
+    required this.wednesday,
+    required this.thursday,
+    required this.friday,
+    required this.saturday,
+    required this.sunday,
+  });
+}
+
+class _TimeRange {
+  final TimeOfDay start;
+  final TimeOfDay end;
+
+  const _TimeRange({required this.start, required this.end});
 }

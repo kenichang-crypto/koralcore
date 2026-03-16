@@ -8,14 +8,17 @@
 /// - Do NOT introduce platform-specific imports or implementations here.
 library;
 
+import '../../data/ble/ble_scan_service.dart';
+
 abstract class DeviceRepository {
   const DeviceRepository();
 
   /// Start scanning for devices.
-  /// Returns a list of discovered device descriptors or completes when scan ends.
-  ///
-  /// TODO: Replace `Map<String, dynamic>` with a concrete `DeviceDescriptor` domain model.
-  Future<List<Map<String, dynamic>>> scanDevices({Duration? timeout});
+  /// Returns a list of discovered scan results.
+  Future<List<BleScanResult>> scanDevices({Duration? timeout});
+  void updateDiscoveredDevices(List<BleScanResult> results);
+  /// Stop an ongoing scan (if any).
+  Future<void> stopScan();
 
   /// Saved device registry --------------------------------------------------
 

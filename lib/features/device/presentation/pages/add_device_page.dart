@@ -10,7 +10,9 @@ import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
 import '../../../../shared/widgets/app_error_presenter.dart';
+import '../../../../app/system/ble_readiness_controller.dart';
 import '../controllers/add_device_controller.dart';
+import '../controllers/device_list_controller.dart';
 import '../../../sink/presentation/pages/sink_position_page.dart';
 
 /// Add device page.
@@ -23,10 +25,14 @@ class AddDevicePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final appContext = context.read<AppContext>();
     final session = context.read<AppSession>();
+    final deviceListController = context.read<DeviceListController>();
+    final bleReadinessController = context.read<BleReadinessController>();
     return ChangeNotifierProvider<AddDeviceController>(
       create: (_) => AddDeviceController(
         session: session,
         deviceRepository: appContext.deviceRepository,
+        deviceListController: deviceListController,
+        bleReadinessController: bleReadinessController,
         pumpHeadRepository: appContext.pumpHeadRepository,
         sinkRepository: appContext.sinkRepository,
         disconnectDeviceUseCase: appContext.disconnectDeviceUseCase,
@@ -204,7 +210,13 @@ class _DeviceNameSectionState extends State<_DeviceNameSection> {
         ? (widget.controller.connectedDeviceName ?? '')
         : widget.controller.deviceName;
     _textController = TextEditingController(text: initial);
-    if (initial.isNotEmpty) widget.controller.setDeviceName(initial);
+    if (initial.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          widget.controller.setDeviceName(initial);
+        }
+      });
+    }
   }
 
   @override

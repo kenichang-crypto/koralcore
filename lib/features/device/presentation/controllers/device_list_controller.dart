@@ -2,22 +2,28 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:collection/collection.dart';
 
 import '../../../../app/common/app_context.dart';
 import '../../../../app/common/app_error_code.dart';
+import '../../../../app/common/app_session.dart';
 import '../../../../app/device/connect_device_usecase.dart';
 import '../../../../app/device/device_snapshot.dart';
 import '../../../../app/device/disconnect_device_usecase.dart';
 import '../../../../app/device/remove_device_usecase.dart';
 import '../../../../app/device/scan_devices_usecase.dart';
 import '../../../../app/common/app_error.dart';
+import '../../../../app/system/ble_readiness_controller.dart';
 
 class DeviceListController extends ChangeNotifier {
   final AppContext context;
+  final AppSession session;
   final ScanDevicesUseCase _scanDevicesUseCase;
   final ConnectDeviceUseCase _connectDeviceUseCase;
   final DisconnectDeviceUseCase _disconnectDeviceUseCase;
   final RemoveDeviceUseCase _removeDeviceUseCase;
+  final BleReadinessController bleReadinessController;
   StreamSubscription<List<DeviceSnapshot>>? _savedSubscription;
   StreamSubscription<List<DeviceSnapshot>>? _scanSubscription;
 
@@ -32,7 +38,11 @@ class DeviceListController extends ChangeNotifier {
   /// PARITY: Matches reef-b-app's startAddDeviceLiveData mechanism.
   VoidCallback? onNewDeviceConnected;
 
-  DeviceListController({required this.context})
+  DeviceListController({
+    required this.context,
+    required this.session,
+    required this.bleReadinessController,
+  })
     : _scanDevicesUseCase = context.scanDevicesUseCase,
       _connectDeviceUseCase = context.connectDeviceUseCase,
       _disconnectDeviceUseCase = context.disconnectDeviceUseCase,
@@ -50,7 +60,7 @@ class DeviceListController extends ChangeNotifier {
         });
 
     _scanSubscription = _scanDevicesUseCase.observe().listen((devices) {
-      _discoveredDevices = devices;
+      _discoveredDevices = _filterDiscoveredDevices(devices);
       notifyListeners();
     });
   }
@@ -86,6 +96,11 @@ class DeviceListController extends ChangeNotifier {
         return 0;
       });
   }
+
+  List<DeviceSnapshot> _filterDiscoveredDevices(List<DeviceSnapshot> devices) {
+    final Set<String> savedIds = _savedDevices.map((device) => device.id).toSet();
+    return devices.where((device) => !savedIds.contains(device.id)).toList();
+  }
   List<DeviceSnapshot> get discoveredDevices => _discoveredDevices;
   bool get isScanning => _isScanning;
   bool get selectionMode => _selectionMode;
@@ -93,6 +108,24 @@ class DeviceListController extends ChangeNotifier {
   AppErrorCode? get lastErrorCode => _lastErrorCode;
 
   Future<void> refresh() async {
+    if (!bleReadinessController.snapshot.isReady) {
+      debugPrint('[BLE] scan blocked: BLE not ready');
+      return;
+    }
+    final List<BluetoothDevice> connected =
+        await FlutterBluePlus.connectedDevices;
+    final String? repoDevice = await context.deviceRepository.getCurrentDevice();
+    final bool hasActiveConnection = (session.isBleConnected &&
+            session.activeDeviceId != null) ||
+        repoDevice != null ||
+        connected.isNotEmpty;
+    if (hasActiveConnection) {
+      debugPrint(
+        'DeviceListController - refresh skipped: BLE device already connected, rebuilding saved list',
+      );
+      await _rebuildDeviceList();
+      return;
+    }
     // PARITY: reef-b-app BLEManager.scanLeDevice() -> Log.d("$TAG - 藍芽掃描", "掃描開始")
     debugPrint('DeviceListController - 藍芽掃描: 掃描開始');
     if (_isScanning) {
@@ -103,7 +136,6 @@ class DeviceListController extends ChangeNotifier {
     notifyListeners();
     try {
       await _scanDevicesUseCase.execute(timeout: const Duration(seconds: 2));
-      // PARITY: reef-b-app BLEManager.stopScan() -> Log.d("$TAG - 藍芽掃描", "掃描結束")
       debugPrint('DeviceListController - 藍芽掃描: 掃描結束');
     } on AppError catch (error) {
       debugPrint('DeviceListController - 藍芽掃描: 掃描錯誤 ${error.code}');
@@ -114,6 +146,16 @@ class DeviceListController extends ChangeNotifier {
     }
   }
 
+  Future<void> _rebuildDeviceList() async {
+    final savedMaps = await context.deviceRepository.listSavedDevices();
+    final savedSnapshots =
+        savedMaps.map(DeviceSnapshot.fromMap).toList(growable: false);
+    _savedDevices = _sortDevices(savedSnapshots);
+    _selection.removeWhere((id) => !_savedDevices.any((d) => d.id == id));
+    _discoveredDevices = _filterDiscoveredDevices(_discoveredDevices);
+    notifyListeners();
+  }
+
   /// Connect to a device.
   ///
   /// PARITY: Matches reef-b-app's BluetoothViewModel.connectBle() behavior.
@@ -122,6 +164,16 @@ class DeviceListController extends ChangeNotifier {
   /// - If device doesn't exist, triggers onNewDeviceConnected callback
   /// - This callback should navigate to AddDevicePage (similar to startAddDeviceLiveData)
   Future<void> connect(String deviceId) async {
+    if (!bleReadinessController.snapshot.isReady) {
+      debugPrint('[BLE] connect blocked: BLE not ready');
+      _setError(AppErrorCode.deviceNotReady);
+      return;
+    }
+    if (!bleReadinessController.snapshot.isReady) {
+      debugPrint('DeviceListController - BLE not ready, skipping connect');
+      _setError(AppErrorCode.deviceNotReady);
+      return;
+    }
     // PARITY: reef-b-app BLEManager.connectBLE() -> Log.d("$TAG - 藍芽連線", "${gatt?.device?.address} 成功連線")
     debugPrint('DeviceListController - 藍芽連線: 開始連線 $deviceId');
 
@@ -138,6 +190,20 @@ class DeviceListController extends ChangeNotifier {
       await _connectDeviceUseCase.execute(deviceId: deviceId);
       // PARITY: reef-b-app BLEManager.onConnectionStateChange() -> Log.d("$TAG - 藍芽連線", "${gatt?.device?.address} 成功連線")
       debugPrint('DeviceListController - 藍芽連線: $deviceId 成功連線');
+
+      final DeviceSnapshot? deviceSnapshot = _savedDevices.firstWhereOrNull(
+        (device) => device.id == deviceId,
+      );
+      final DeviceSnapshot? discoveredSnapshot =
+          _discoveredDevices.firstWhereOrNull(
+        (device) => device.id == deviceId,
+      );
+      final String? resolvedName =
+          deviceSnapshot?.name ?? discoveredSnapshot?.name;
+      session.setActiveDevice(deviceId);
+      if (resolvedName != null) {
+        session.setActiveDeviceName(resolvedName);
+      }
 
       // Check if device exists in saved devices (PARITY: reef-b-app)
       // reef-b-app: viewModel.deviceIsExist() -> if false, startAddDeviceLiveData.value = Unit

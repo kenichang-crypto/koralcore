@@ -1,0 +1,47 @@
+- **MainShellPage**
+  - HomeTabPage
+    - SinkManagerPage
+      - SinkPositionPage (via Add device sink picker)
+    - Device cards navigate to:
+      - LedMainPage
+      - DosingMainPage
+  - DeviceTabPage
+    - AddDevicePage
+      - SinkManagerPage (repeat entry)
+    - DeviceSettingsPage
+  - BluetoothTabPage
+
+- **LedMainPage** (BLE-required)
+  - LedSceneListPage
+    - LedSceneAddPage
+    - LedSceneEditPage
+    - LedSceneDeletePage
+  - LedRecordPage
+    - LedRecordSettingPage
+      - LedRecordTimeSettingPage
+  - LedScheduleListPage
+    - LedScheduleEditPage
+  - LedSettingPage
+    - LedMasterSettingPage
+  - ConfirmationDialog & BLE guard overlays
+  - Popup menu flows (edit / delete / reset)
+
+- **DosingMainPage** (BLE-required)
+  - ManualDosingPage
+  - PumpHeadSettingsPage
+  - PumpHeadCalibrationPage
+    - PumpHeadAdjustSpeedPicker (bottom sheet)
+  - PumpHeadDetailPage
+  - PumpHeadSchedulePage
+    - ScheduleEditPage
+  - PumpHeadRecordSettingPage
+    - PumpHeadRecordTimeSettingPage
+  - DropSettingPage
+    - DropTypePage
+  - ConfirmationDialog overlays + BLE guard bottom sheet
+
+- **Shared overlays**
+  - ConfirmationDialog (delete/reset confirmations)
+  - BLE guard bottom sheet (via `BleGuard.show`)
+  - SelectionListBottomSheet (head/sink pickers)
+  - PumpHeadAdjustSpeedPicker (calibration helper)

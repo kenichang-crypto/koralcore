@@ -1,10 +1,15 @@
 import 'package:flutter/foundation.dart';
 
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+
 import '../../../../app/common/app_error_code.dart';
 import '../../../../app/common/app_session.dart';
 import '../../../../app/device/disconnect_device_usecase.dart';
+import '../../../../app/system/ble_readiness_controller.dart';
+import '../../../../debug/runtime_logger.dart';
 import '../../../../domain/doser_dosing/pump_head.dart';
 import '../../../../data/ble/device_name_filter.dart';
+import '../../../../features/device/presentation/controllers/device_list_controller.dart';
 import '../../../../platform/contracts/device_repository.dart';
 import '../../../../platform/contracts/pump_head_repository.dart';
 import '../../../../platform/contracts/sink_repository.dart';
@@ -15,6 +20,8 @@ import '../../../../platform/contracts/sink_repository.dart';
 class AddDeviceController extends ChangeNotifier {
   final AppSession session;
   final DeviceRepository deviceRepository;
+  final DeviceListController deviceListController;
+  final BleReadinessController bleReadinessController;
   final PumpHeadRepository pumpHeadRepository;
   final SinkRepository sinkRepository;
   final DisconnectDeviceUseCase disconnectDeviceUseCase;
@@ -22,6 +29,8 @@ class AddDeviceController extends ChangeNotifier {
   AddDeviceController({
     required this.session,
     required this.deviceRepository,
+    required this.deviceListController,
+    required this.bleReadinessController,
     required this.pumpHeadRepository,
     required this.sinkRepository,
     required this.disconnectDeviceUseCase,
@@ -40,6 +49,66 @@ class AddDeviceController extends ChangeNotifier {
   String? get selectedSinkId => _selectedSinkId;
   String? get selectedSinkName => _selectedSinkName;
   AppErrorCode? get lastErrorCode => _lastErrorCode;
+
+  Future<String?> _resolveActiveDeviceId() async {
+    final String? sessionId = session.activeDeviceId;
+    String? repositoryDevice;
+    if (sessionId == null) {
+      repositoryDevice = await deviceRepository.getCurrentDevice();
+    }
+    final String? resolved = sessionId ?? repositoryDevice;
+
+    // #region agent log
+    await appendRuntimeLog(
+      hypothesisId: 'H3',
+      location: 'lib/features/device/presentation/controllers/add_device_controller.dart:_resolveActiveDeviceId',
+      message: 'resolving active device id',
+      data: <String, dynamic>{
+        'sessionActiveDeviceId': sessionId,
+        'repositoryCurrentDevice': repositoryDevice,
+        'resolvedDeviceId': resolved,
+      },
+    );
+    // #endregion
+
+    return resolved;
+  }
+
+  Future<String?> _resolveActiveDeviceName(String deviceId) async {
+    final String? activeName = session.activeDeviceName;
+    if (activeName != null && activeName.isNotEmpty) {
+      // #region agent log
+      await appendRuntimeLog(
+        hypothesisId: 'H4',
+        location: 'lib/features/device/presentation/controllers/add_device_controller.dart:_resolveActiveDeviceName',
+        message: 'using session-provided device name',
+        data: <String, dynamic>{
+          'deviceId': deviceId,
+          'sessionActiveDeviceName': activeName,
+        },
+      );
+      // #endregion
+      return activeName;
+    }
+    final Map<String, dynamic>? saved = await deviceRepository.getDevice(deviceId);
+    final String? repositoryName = saved?['name'] as String?;
+    final String resolved = repositoryName ?? 'Unknown Device';
+
+    // #region agent log
+    await appendRuntimeLog(
+      hypothesisId: 'H5',
+      location: 'lib/features/device/presentation/controllers/add_device_controller.dart:_resolveActiveDeviceName',
+      message: 'resolving device name via repository or fallback',
+      data: <String, dynamic>{
+        'deviceId': deviceId,
+        'repositoryDeviceName': repositoryName,
+        'resolvedDeviceName': resolved,
+      },
+    );
+    // #endregion
+
+    return resolved;
+  }
 
   /// Get connected device name from BLE.
   String? get connectedDeviceName {
@@ -87,7 +156,14 @@ class AddDeviceController extends ChangeNotifier {
   /// - For LED: adds device without sink/group
   /// - For DROP: adds device without sink, creates 4 pump heads
   Future<bool> skip() async {
-    final String? deviceId = session.activeDeviceId;
+    final repoDevice = await deviceRepository.getCurrentDevice();
+    final devices = await FlutterBluePlus.connectedDevices;
+    debugPrint('AddDevice debug:');
+    debugPrint('session.activeDeviceId=${session.activeDeviceId}');
+    debugPrint('repo.currentDevice=$repoDevice');
+    debugPrint('connectedDevices=${devices.length}');
+
+    final String? deviceId = await _resolveActiveDeviceId();
     if (deviceId == null) {
       _setError(AppErrorCode.noActiveDevice);
       notifyListeners();
@@ -99,7 +175,7 @@ class AddDeviceController extends ChangeNotifier {
 
     try {
       // Get device name from BLE connection (PARITY: reef-b-app)
-      final String? deviceName = session.activeDeviceName;
+      final String? deviceName = await _resolveActiveDeviceName(deviceId);
       if (deviceName == null || deviceName.isEmpty) {
         _setError(AppErrorCode.noActiveDevice);
         return false;
@@ -127,6 +203,8 @@ class AddDeviceController extends ChangeNotifier {
         'state': 'connected',
         'macAddress': macAddress,
       });
+
+      await deviceRepository.listSavedDevices();
 
       // Update device name if changed
       if (_deviceName.isNotEmpty) {
@@ -157,9 +235,23 @@ class AddDeviceController extends ChangeNotifier {
   /// - For LED: assigns to available group in sink
   /// - For DROP: checks sink capacity (max 4 devices), creates 4 pump heads
   Future<bool> addDevice() async {
-    final String? deviceId = session.activeDeviceId;
+    final repoDevice = await deviceRepository.getCurrentDevice();
+    final devices = await FlutterBluePlus.connectedDevices;
+    debugPrint('AddDevice debug:');
+    debugPrint('session.activeDeviceId=${session.activeDeviceId}');
+    debugPrint('repo.currentDevice=$repoDevice');
+    debugPrint('connectedDevices=${devices.length}');
+
+    final String? deviceId = await _resolveActiveDeviceId();
     if (deviceId == null) {
       _setError(AppErrorCode.noActiveDevice);
+      notifyListeners();
+      return false;
+    }
+
+    if (!bleReadinessController.snapshot.isReady) {
+      debugPrint('[ADD_DEVICE] blocked: BLE not ready');
+      _setError(AppErrorCode.deviceNotReady);
       notifyListeners();
       return false;
     }
@@ -175,7 +267,7 @@ class AddDeviceController extends ChangeNotifier {
 
     try {
       // Get device name from BLE connection (PARITY: reef-b-app)
-      final String? deviceName = session.activeDeviceName;
+      final String? deviceName = await _resolveActiveDeviceName(deviceId);
       if (deviceName == null || deviceName.isEmpty) {
         _setError(AppErrorCode.noActiveDevice);
         return false;
@@ -202,7 +294,7 @@ class AddDeviceController extends ChangeNotifier {
       };
 
       if (_selectedSinkId != null && _selectedSinkId!.isNotEmpty) {
-        deviceData['sink_id'] = _selectedSinkId;
+        deviceData['sinkId'] = _selectedSinkId;
 
         if (deviceType == 'LED') {
           // Assign to group (PARITY: reef-b-app's addToWhichGroup)
@@ -212,7 +304,7 @@ class AddDeviceController extends ChangeNotifier {
             _setError(AppErrorCode.sinkFull);
             return false;
           }
-          deviceData['device_group'] = group;
+          deviceData['group'] = group;
           deviceData['is_master'] = false; // New device is not master
         } else if (deviceType == 'DROP') {
           // Check if sink already has 4 DROP devices (PARITY: reef-b-app)
@@ -224,12 +316,15 @@ class AddDeviceController extends ChangeNotifier {
         }
       } else {
         // No sink assignment
-        deviceData['sink_id'] = null;
-        deviceData['device_group'] = null;
+        deviceData['sinkId'] = null;
+        deviceData['group'] = null;
       }
 
       // Add/update device (PARITY: reef-b-app's dbAddDevice)
       await deviceRepository.addSavedDevice(deviceData);
+      deviceListController.refresh();
+
+      await deviceRepository.listSavedDevices();
 
       // If DROP device, create 4 pump heads (PARITY: reef-b-app)
       if (deviceType == 'DROP') {

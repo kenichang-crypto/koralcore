@@ -11,7 +11,9 @@ import 'package:permission_handler/permission_handler.dart' as handler;
 class BleReadinessController extends ChangeNotifier {
   BleReadinessController({BleSystemAccess? systemAccess})
     : _systemAccess = systemAccess ?? const BleSystemAccess() {
-    _bootstrap();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _bootstrap();
+      });
   }
 
   final BleSystemAccess _systemAccess;
@@ -22,7 +24,7 @@ class BleReadinessController extends ChangeNotifier {
   BleReadinessSnapshot get snapshot => _snapshot;
 
   Future<void> _bootstrap() async {
-    await _loadStatus(requestPermissions: false);
+      await _loadStatus(shouldRequestPermissions: false);
     _radioSubscription = _systemAccess.watchRadioState().listen((state) {
       _updateSnapshot(_snapshot.copyWith(radioState: state));
     });
@@ -31,14 +33,18 @@ class BleReadinessController extends ChangeNotifier {
   Future<void> refresh() async {
     // PARITY: reef-b-app AppLifecycleTracker -> Log.d("AppLifecycleTracker - 目前App狀態", "...")
     debugPrint('BleReadinessController - 目前App狀態: 刷新 BLE 狀態');
-    await _loadStatus(requestPermissions: false);
+    await _loadStatus(shouldRequestPermissions: false);
     debugPrint('BleReadinessController - 目前App狀態: BLE 狀態已刷新 isReady=${_snapshot.isReady}, permissionsGranted=${_snapshot.permissionsGranted}, radioState=${_snapshot.radioState}');
   }
 
   Future<void> requestPermissions() async {
     if (!_systemAccess.platformChecksSupported) return;
+    if (_snapshot.isRequesting) {
+      debugPrint('[BLE_READY] permission request already in progress');
+      return;
+    }
     _updateSnapshot(_snapshot.copyWith(isRequesting: true));
-    await _loadStatus(requestPermissions: true);
+    await _loadStatus(shouldRequestPermissions: true);
   }
 
   Future<void> openBluetoothSettings() async {
@@ -51,12 +57,17 @@ class BleReadinessController extends ChangeNotifier {
 
   void _updateSnapshot(BleReadinessSnapshot next) {
     _snapshot = next;
+    debugPrint(
+      '[BLE_READY] '
+      'bluetooth=${_snapshot.bluetoothPermission} '
+      'location=${_snapshot.locationPermission} '
+      'ready=${_snapshot.isReady}',
+    );
     notifyListeners();
   }
 
-  Future<void> _loadStatus({required bool requestPermissions}) async {
-    // PARITY: reef-b-app AppLifecycleTracker -> Log.d("AppLifecycleTracker - 目前App狀態", "...")
-    debugPrint('BleReadinessController - 目前App狀態: _loadStatus 調用，requestPermissions: $requestPermissions');
+  Future<void> _loadStatus({required bool shouldRequestPermissions}) async {
+    debugPrint('BleReadinessController - 目前App狀態: _loadStatus 調用，requestPermissions: $shouldRequestPermissions');
     if (!_systemAccess.platformChecksSupported) {
       debugPrint('BleReadinessController - 目前App狀態: 平台檢查不支持，設置所有權限為已授權');
       _updateSnapshot(
@@ -75,7 +86,7 @@ class BleReadinessController extends ChangeNotifier {
     try {
       debugPrint('BleReadinessController - 目前App狀態: 讀取系統狀態');
       final BleSystemAccessResult result = await _systemAccess.readStatus(
-        requestPermissions: requestPermissions,
+        requestPermissions: shouldRequestPermissions,
       );
       final BleRadioState radioState = await _systemAccess.currentRadioState();
       debugPrint('BleReadinessController - 目前App狀態: 系統狀態 bluetoothPermission=${result.bluetoothPermission}, locationPermission=${result.locationPermission}, radioState=$radioState');
@@ -90,6 +101,11 @@ class BleReadinessController extends ChangeNotifier {
         ),
       );
       debugPrint('BleReadinessController - 目前App狀態: 快照已更新 isReady=${_snapshot.isReady}');
+      if (result.bluetoothPermission == BlePermissionState.denied ||
+          (result.locationRequired &&
+              result.locationPermission == BlePermissionState.denied)) {
+        debugPrint('[BLE_READY] permissions denied - waiting for UI request');
+      }
     } catch (e) {
       debugPrint('BleReadinessController - 目前App狀態: 載入狀態錯誤 $e');
       _updateSnapshot(_snapshot.copyWith(isRequesting: false));
@@ -291,10 +307,14 @@ class BleSystemAccess {
   Future<BleSystemAccessResult> _readAndroidStatus({
     required bool requestPermissions,
   }) async {
-    final List<handler.PermissionStatus> rawStatuses = await Future.wait([
-      _resolve(handler.Permission.bluetoothScan, requestPermissions),
-      _resolve(handler.Permission.bluetoothConnect, requestPermissions),
-    ]);
+    final handler.PermissionStatus scanStatus =
+        await _resolve(handler.Permission.bluetoothScan, requestPermissions);
+    final handler.PermissionStatus connectStatus =
+        await _resolve(handler.Permission.bluetoothConnect, requestPermissions);
+    final List<handler.PermissionStatus> rawStatuses = [
+      scanStatus,
+      connectStatus,
+    ];
 
     final BlePermissionState bluetoothState = _collapse(rawStatuses);
 
@@ -344,7 +364,11 @@ class BleSystemAccess {
     bool request,
   ) async {
     try {
-      return request ? await permission.request() : await permission.status;
+      final status = await permission.status;
+      if (request && !status.isGranted) {
+        return await permission.request();
+      }
+      return status;
     } catch (_) {
       return handler.PermissionStatus.denied;
     }

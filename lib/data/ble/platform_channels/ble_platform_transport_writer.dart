@@ -1,11 +1,52 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
+import 'dart:developer' as developer;
+import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 
 import '../response/ble_error_code.dart';
 import '../transport/ble_transport_models.dart';
 import 'ble_notify_packet.dart';
+
+void _platformLog(String event, String message) {
+  developer.log(message, name: 'BlePlatformTransportWriter.$event');
+}
+
+const String _bleTransportDebugLogPath =
+    '/Users/Kaylen/Documents/GitHub/koralcore/.cursor/debug-f3bdac.log';
+const String _bleTransportRunId = 'ble_transport_init';
+const String _bleTransportHypothesisId = 'BLE_TRANSPORT_INIT';
+
+void _writeBleTransportDebugLog({
+  required String location,
+  required String message,
+  Map<String, Object?>? data,
+}) {
+  final int timestamp = DateTime.now().millisecondsSinceEpoch;
+  final String id = 'log_${timestamp}_${message.hashCode}';
+  final Map<String, Object?> entry = {
+    'sessionId': 'f3bdac',
+    'id': id,
+    'timestamp': timestamp,
+    'location': location,
+    'message': message,
+    'data': data,
+    'runId': _bleTransportRunId,
+    'hypothesisId': _bleTransportHypothesisId,
+  };
+  try {
+    File(_bleTransportDebugLogPath).writeAsStringSync(
+      '${jsonEncode(entry)}\n',
+      mode: FileMode.append,
+      flush: true,
+    );
+  } catch (_) {
+    // Intentionally ignore logging failures to avoid impacting BLE flow.
+  }
+}
 
 /// Bridges BLE transport writes to the host platform via a method channel so
 /// Flutter code can rely on the hardened queue while the native layer drives
@@ -26,10 +67,28 @@ class BlePlatformTransportWriter {
       StreamController<BleNotifyPacket>.broadcast();
   final StreamController<BleConnectionState> _connectionStateController =
       StreamController<BleConnectionState>.broadcast();
+  final Map<String, Completer<void>> _connectionCompleters = {};
 
-  BlePlatformTransportWriter({MethodChannel? channel})
+BlePlatformTransportWriter({MethodChannel? channel})
     : _channel = channel ?? const MethodChannel(_channelName) {
+    debugPrint('[BLE_TRANSPORT] writer constructed');
+    // #region agent log
+    _writeBleTransportDebugLog(
+      location: 'ble_platform_transport_writer.dart:constructor',
+      message: 'writer constructed',
+      data: {'channel': _channelName},
+    );
+    // #endregion
+    developer.log('Registering MethodChannel handler for $_channelName');
     _channel.setMethodCallHandler(_handlePlatformCall);
+    debugPrint('[BLE_TRANSPORT] method channel handler registered');
+    // #region agent log
+    _writeBleTransportDebugLog(
+      location: 'ble_platform_transport_writer.dart:constructor',
+      message: 'method handler registered',
+      data: {'channel': _channelName},
+    );
+    // #endregion
   }
 
   /// Broadcast stream of every BLE notification envelope emitted by the host.
@@ -46,6 +105,7 @@ class BlePlatformTransportWriter {
     required BleWriteMode mode,
     required Duration timeout,
     bool expectsResponsePayload = false,
+    int? expectedOpcode,
   }) async {
     if (deviceId.isEmpty) {
       throw const BleWriteException('deviceId is required for BLE transport');
@@ -55,7 +115,9 @@ class BlePlatformTransportWriter {
 
     _PendingPayload? pendingPayload;
     if (expectsResponsePayload) {
-      pendingPayload = _PendingPayload();
+      pendingPayload = _PendingPayload(
+        expectedOpcode: expectedOpcode ?? -1,
+      );
       _pendingPayloads.add(pendingPayload);
     }
 
@@ -136,6 +198,9 @@ class BlePlatformTransportWriter {
   }
 
   Future<void> _invokeConnect(String deviceId) async {
+    final Completer<void> readyCompleter = Completer<void>();
+    _connectionCompleters[deviceId] = readyCompleter;
+    bool shouldAwait = false;
     try {
       final bool connected =
           await _channel.invokeMethod<bool>(_connectMethod, <String, Object?>{
@@ -145,17 +210,32 @@ class BlePlatformTransportWriter {
       if (!connected) {
         throw BleWriteException('Failed to connect to $deviceId');
       }
-      _connectedDevices.add(deviceId);
+      shouldAwait = true;
+      await readyCompleter.future;
     } on PlatformException catch (error) {
       throw BleWriteException(
         'BLE connect error: ${error.code} ${error.message ?? ''}'.trim(),
       );
     } on MissingPluginException {
       throw const BleWriteException('BLE platform channel not available.');
+    } finally {
+      _connectionCompleters.remove(deviceId);
+      if (!readyCompleter.isCompleted && !shouldAwait) {
+        readyCompleter.complete();
+      }
     }
   }
 
   Future<void> _handlePlatformCall(MethodCall call) async {
+    developer.log('[BLE_TRANSPORT] platform call: ${call.method}');
+    debugPrint('[BLE_TRANSPORT] platform call received: ${call.method}');
+    // #region agent log
+    _writeBleTransportDebugLog(
+      location: 'ble_platform_transport_writer.dart:_handlePlatformCall',
+      message: 'platform call received',
+      data: {'method': call.method},
+    );
+    // #endregion
     switch (call.method) {
       case _notifyCallback:
         _handleNotify(call.arguments);
@@ -175,6 +255,12 @@ class BlePlatformTransportWriter {
     final BleNotifyPacket? packet = BleNotifyPacket.fromEnvelope(arguments);
     final Uint8List? payload =
         packet?.payload ?? _extractPayload(arguments?['payload']);
+    if (payload != null && payload.isNotEmpty) {
+      _platformLog(
+        'BLE_NOTIFY',
+        'opcode=${payload.first} device=${packet?.deviceId ?? arguments?['deviceId']}',
+      );
+    }
     if (packet != null) {
       _connectedDevices.add(packet.deviceId);
       if (!_notifyController.isClosed) {
@@ -182,15 +268,22 @@ class BlePlatformTransportWriter {
       }
     }
 
-    while (_pendingPayloads.isNotEmpty) {
-      final _PendingPayload pending = _pendingPayloads.removeFirst();
-      if (pending.isCancelled) {
-        continue;
+    if (payload != null && payload.isNotEmpty) {
+      final int payloadOpcode = payload.first;
+      for (final _PendingPayload pending
+          in List<_PendingPayload>.from(_pendingPayloads)) {
+        if (pending.isCancelled) {
+          continue;
+        }
+        if (pending.expectedOpcode == payloadOpcode) {
+          _platformLog('BLE_ACK_MATCH', 'opcode=$payloadOpcode');
+          _pendingPayloads.remove(pending);
+          if (!pending.completer.isCompleted) {
+            pending.completer.complete(payload);
+          }
+          break;
+        }
       }
-      if (!pending.completer.isCompleted) {
-        pending.completer.complete(payload);
-      }
-      break;
     }
     _drainCancelledPayloads();
   }
@@ -217,6 +310,17 @@ class BlePlatformTransportWriter {
         _connectionStateController.add(
           BleConnectionState(deviceId: deviceId, isConnected: isConnected),
         );
+      }
+
+      final Completer<void>? completer = _connectionCompleters[deviceId];
+      if (completer != null && !completer.isCompleted) {
+        if (isConnected) {
+          completer.complete();
+        } else {
+          completer.completeError(
+            BleWriteException('Connection aborted for $deviceId'),
+          );
+        }
       }
     }
   }
@@ -302,7 +406,10 @@ class BlePlatformTransportWriter {
 
 class _PendingPayload {
   final Completer<Uint8List?> completer = Completer<Uint8List?>();
+  final int expectedOpcode;
   bool isCancelled = false;
+
+  _PendingPayload({required this.expectedOpcode});
 
   void cancel() {
     isCancelled = true;

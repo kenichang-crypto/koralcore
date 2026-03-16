@@ -3,12 +3,14 @@ import 'package:koralcore/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/device/device_snapshot.dart';
+import '../../../../app/navigation_controller.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../../../../shared/widgets/reef_backgrounds.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
 import '../../../device/presentation/controllers/device_list_controller.dart';
+import '../../../device/presentation/pages/add_device_page.dart';
 
 class BluetoothTabPage extends StatefulWidget {
   const BluetoothTabPage({super.key});
@@ -18,6 +20,52 @@ class BluetoothTabPage extends StatefulWidget {
 }
 
 class _BluetoothTabPageState extends State<BluetoothTabPage> {
+  NavigationController? _navigationController;
+  VoidCallback? _navigationListener;
+  DeviceListController? _deviceController;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final nav = context.read<NavigationController>();
+      _navigationController ??= nav;
+      _navigationListener ??= () {
+        if (_navigationController?.index == 1) {
+          context.read<DeviceListController>().refresh();
+        }
+      };
+      nav.addListener(_navigationListener!);
+      final controller = context.read<DeviceListController>();
+      _deviceController ??= controller;
+      controller.onNewDeviceConnected = () {
+        if (!context.mounted) {
+          return;
+        }
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) {
+            return;
+          }
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const AddDevicePage(),
+            ),
+          );
+        });
+      };
+      _navigationListener?.call();
+    });
+  }
+
+  @override
+  void dispose() {
+    if (_navigationController != null && _navigationListener != null) {
+      _navigationController!.removeListener(_navigationListener!);
+    }
+    _deviceController?.onNewDeviceConnected = null;
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<DeviceListController>();
@@ -92,7 +140,7 @@ class _PairedDevicesList extends StatelessWidget {
           onTap: () => _handleDeviceTap(context, devices[index]),
         );
       },
-      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+      separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.md),
     );
   }
 
@@ -248,7 +296,7 @@ class _BtDeviceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final _DeviceKind kind = _DeviceKindHelper.fromName(device.name);
+    final _DeviceKind kind = _DeviceKindHelper.fromDevice(device);
     final String deviceType = kind == _DeviceKind.led
         ? l10n.led
         : l10n.drop;
@@ -338,7 +386,7 @@ class _BtMyDeviceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final _DeviceKind kind = _DeviceKindHelper.fromName(device.name);
+    final _DeviceKind kind = _DeviceKindHelper.fromDevice(device);
     final String deviceType = kind == _DeviceKind.led
         ? l10n.led
         : l10n.drop;
@@ -467,8 +515,16 @@ class _BtMyDeviceTile extends StatelessWidget {
 }
 
 class _DeviceKindHelper {
-  static _DeviceKind fromName(String name) {
-    final String lower = name.toLowerCase();
+  static _DeviceKind fromDevice(DeviceSnapshot device) {
+    final String? type = device.type?.toLowerCase();
+    if (type == 'led') {
+      return _DeviceKind.led;
+    }
+    if (type == 'drop') {
+      return _DeviceKind.doser;
+    }
+
+    final String lower = device.name.toLowerCase();
     if (lower.contains('led')) {
       return _DeviceKind.led;
     }

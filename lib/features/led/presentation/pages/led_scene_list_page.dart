@@ -31,25 +31,17 @@ import 'led_scene_delete_page.dart';
 const _ledIconAsset = 'assets/icons/led/led_main.png';
 
 class LedSceneListPage extends StatelessWidget {
-  const LedSceneListPage({super.key});
+  const LedSceneListPage({
+    super.key,
+    required this.controller,
+  });
+
+  final LedSceneListController controller;
 
   @override
   Widget build(BuildContext context) {
-    final session = context.read<AppSession>();
-    final appContext = context.read<AppContext>();
-    return ChangeNotifierProvider<LedSceneListController>(
-      create: (_) => LedSceneListController(
-        session: session,
-        readLedScenesUseCase: appContext.readLedScenesUseCase,
-        applySceneUseCase: appContext.applySceneUseCase,
-        observeLedStateUseCase: appContext.observeLedStateUseCase,
-        readLedStateUseCase: appContext.readLedStateUseCase,
-        stopLedPreviewUseCase: appContext.stopLedPreviewUseCase,
-        observeLedRecordStateUseCase: appContext.observeLedRecordStateUseCase,
-        readLedRecordStateUseCase: appContext.readLedRecordStateUseCase,
-        startLedPreviewUseCase: appContext.startLedPreviewUseCase,
-        startLedRecordUseCase: appContext.startLedRecordUseCase,
-      )..initialize(),
+    return ChangeNotifierProvider<LedSceneListController>.value(
+      value: controller,
       child: const _LedSceneListView(),
     );
   }

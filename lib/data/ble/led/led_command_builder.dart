@@ -44,6 +44,8 @@ class LedCommandBuilder {
 
   Uint8List clearRecords() => _build(<int>[0x30, 0x00]);
 
+  Uint8List clearRecord() => _build(<int>[0x30, 0x00]);
+
   Uint8List usePresetScene(int sceneCode) =>
       _build(<int>[0x28, 0x01, sceneCode & 0xFF]);
 

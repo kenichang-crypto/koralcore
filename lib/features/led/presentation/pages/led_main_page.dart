@@ -56,6 +56,13 @@ class _LedMainView extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final session = context.watch<AppSession>();
     final controller = context.watch<LedSceneListController>();
+    print("LED page deviceId=${controller.deviceId}");
+    debugPrint(
+      '[LED_HEADER] activeDeviceId=${session.activeDeviceId} activeDeviceName=${session.activeDeviceName} '
+      'isAssigned=${session.isAssigned} isBleConnected=${session.isBleConnected}',
+    );
+    final String positionText =
+        session.activeDeviceSinkName ?? l10n.unassignedDevice;
 
     // KC-A-FINAL: Redirect when active device was deleted (e.g. from Device tab).
     if (session.activeDeviceId == null) {
@@ -86,17 +93,17 @@ class _LedMainView extends StatelessWidget {
                   onBack: () => Navigator.of(context).pop(),
                   onMenu: session.isReady
                       ? () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const DeviceSettingsPage(),
-                            ),
-                          )
+                          MaterialPageRoute(
+                            builder: (_) => const DeviceSettingsPage(),
+                          ),
+                        )
                       : null,
                   onFavorite: session.isReady && !controller.isBusy
                       ? () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const LedSceneListPage(),
-                            ),
-                          )
+                          MaterialPageRoute(
+                            builder: (_) => LedSceneListPage(controller: controller),
+                          ),
+                        )
                       : null,
                 ),
 
@@ -105,7 +112,7 @@ class _LedMainView extends StatelessWidget {
                   deviceName: deviceName,
                   isConnected: isConnected,
                   // TODO(android @id/tv_position): Android 顯示水槽位置（資料來源需從 session/repo 提供）
-                  positionText: l10n.unassignedDevice,
+                  positionText: positionText,
                 ),
 
                 // C. Record / Preview card - reuses LedMainRecordChartSection for togglePreview
@@ -117,7 +124,8 @@ class _LedMainView extends StatelessWidget {
                           isConnected: isConnected,
                           featuresEnabled: session.isReady,
                           l10n: l10n,
-                          onToggleOrientation: () {}, // Main page: no orientation toggle
+                          onToggleOrientation:
+                              () {}, // Main page: no orientation toggle
                           isLandscape: false,
                         )
                       : Card(
@@ -143,10 +151,10 @@ class _LedMainView extends StatelessWidget {
                   title: l10n.ledScene,
                   onMore: session.isReady && !controller.isBusy
                       ? () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const LedSceneListPage(),
-                            ),
-                          )
+                          MaterialPageRoute(
+                            builder: (_) => LedSceneListPage(controller: controller),
+                          ),
+                        )
                       : null,
                 ),
                 // E. Favorite scene list (only scrollable region)
@@ -407,8 +415,9 @@ class _FavoriteSceneArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final favoriteScenes =
-        controller.scenes.where((scene) => scene.isFavorite).toList();
+    final favoriteScenes = controller.scenes
+        .where((scene) => scene.isFavorite)
+        .toList();
 
     if (favoriteScenes.isEmpty) {
       return Center(

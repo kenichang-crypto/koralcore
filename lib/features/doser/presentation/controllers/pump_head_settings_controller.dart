@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../../../app/common/app_error.dart';
@@ -77,17 +78,11 @@ class PumpHeadSettingsController extends ChangeNotifier {
       if (pumpHead.additiveName.isNotEmpty) {
         // Try to find drop type by name
         final allDropTypes = await dropTypeRepository.getAllDropTypes();
-        try {
-          final matchedType = allDropTypes.firstWhere(
-            (type) => type.name == pumpHead.additiveName,
-          );
-          _dropTypeId = matchedType.id;
-          _dropTypeName = matchedType.name;
-        } catch (e) {
-          // No match found
-          _dropTypeId = null;
-          _dropTypeName = null;
-        }
+        final matchedType = allDropTypes.firstWhereOrNull(
+          (type) => type.name == pumpHead.additiveName,
+        );
+        _dropTypeId = matchedType?.id;
+        _dropTypeName = matchedType?.name;
       } else {
         _dropTypeId = null;
         _dropTypeName = null;

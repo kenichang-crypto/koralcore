@@ -9,6 +9,7 @@ import '../../../../shared/assets/common_icon_helper.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../../../../shared/widgets/error_state_widget.dart';
+import '../controllers/led_scene_delete_controller.dart';
 import '../controllers/led_scene_list_controller.dart';
 import '../helpers/support/scene_display_text.dart';
 import '../helpers/support/scene_icon_helper.dart';
@@ -27,8 +28,20 @@ class LedSceneDeletePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<LedSceneListController>.value(
-      value: listController,
+    final appContext = context.read<AppContext>();
+    final session = context.read<AppSession>();
+
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: listController),
+        ChangeNotifierProvider(
+          create: (_) => LedSceneDeleteController(
+            session: session,
+            deleteSceneUseCase: appContext.deleteSceneUseCase,
+            clearLedSceneUseCase: appContext.clearLedSceneUseCase,
+          ),
+        ),
+      ],
       child: const _LedSceneDeleteView(),
     );
   }
@@ -43,14 +56,13 @@ class _LedSceneDeleteView extends StatefulWidget {
 
 class _LedSceneDeleteViewState extends State<_LedSceneDeleteView> {
   final Set<String> _selectedIds = {};
-  bool _isDeleting = false;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final listController = context.watch<LedSceneListController>();
+    final deleteController = context.watch<LedSceneDeleteController>();
     final session = context.read<AppSession>();
-    final appContext = context.read<AppContext>();
     final isReady = session.isReady;
 
     final customScenes =
@@ -67,27 +79,19 @@ class _LedSceneDeleteViewState extends State<_LedSceneDeleteView> {
               selectedIds: _selectedIds,
               onCancel: () => Navigator.of(context).pop(),
               onDelete: () async {
-                final deviceId = session.activeDeviceId;
-                if (deviceId == null || _selectedIds.isEmpty) return;
-                setState(() => _isDeleting = true);
-                final deleteUseCase = appContext.deleteSceneUseCase;
+                if (_selectedIds.isEmpty) return;
                 try {
                   for (final id in _selectedIds) {
                     final dbId = SceneIconHelper.parseLocalSceneId(id);
                     if (dbId != null) {
-                      await deleteUseCase.execute(
-                        deviceId: deviceId,
-                        sceneId: dbId,
-                      );
+                      await deleteController.deleteScene(dbId);
                     }
                   }
                   if (mounted) Navigator.of(context).pop(true);
-                } catch (_) {
+                } on Object {
                   if (mounted) {
                     showErrorSnackBar(context, AppErrorCode.unknownError);
                   }
-                } finally {
-                  if (mounted) setState(() => _isDeleting = false);
                 }
               },
             ),
@@ -133,7 +137,7 @@ class _LedSceneDeleteViewState extends State<_LedSceneDeleteView> {
             ),
           ],
         ),
-        if (_isDeleting) const _ProgressOverlay(),
+        if (deleteController.isDeleting) const _ProgressOverlay(),
       ],
     );
   }

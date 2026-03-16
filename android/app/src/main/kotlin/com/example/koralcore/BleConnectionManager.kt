@@ -1,6 +1,7 @@
 package com.example.koralcore
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
@@ -8,6 +9,8 @@ import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import java.util.Locale
 import java.util.UUID
@@ -27,7 +30,14 @@ class BleConnectionManager(
   private val permissionChecker: () -> Boolean,
   private val listener: Listener,
 ) {
+  companion object {
+    private const val MAX_RETRY_ATTEMPTS = 3
+    private const val RETRY_DELAY_MS = 200L
+  }
+
+  private val handler = Handler(Looper.getMainLooper())
   private val connections = ConcurrentHashMap<String, BluetoothGatt>()
+  private val retryCounts = ConcurrentHashMap<String, Int>()
 
   interface Listener {
     fun onConnected(deviceId: String, gatt: BluetoothGatt)
@@ -70,10 +80,25 @@ class BleConnectionManager(
       ) {
         if (status != BluetoothGatt.GATT_SUCCESS) {
           Log.w(TAG, "onConnectionStateChange: status=$status device=$deviceId")
+          if (status == 133) {
+            val attempts = (retryCounts[normalize(deviceId)] ?: 0) + 1
+            if (attempts < MAX_RETRY_ATTEMPTS) {
+              Log.d(TAG, "GATT 133 retry $attempts/$MAX_RETRY_ATTEMPTS for $deviceId")
+              retryCounts[normalize(deviceId)] = attempts
+              closeConnection(deviceId)
+              listener.onDisconnected(deviceId)
+              handler.postDelayed({
+                connect(deviceId)
+              }, RETRY_DELAY_MS)
+              return
+            }
+          }
+          retryCounts.remove(normalize(deviceId))
           closeConnection(deviceId)
           listener.onDisconnected(deviceId)
           return
         }
+        retryCounts.remove(normalize(deviceId))
         if (newState == BluetoothProfile.STATE_CONNECTED) {
           Log.d(TAG, "GATT connected: $deviceId")
           listener.onConnected(deviceId, gatt)
@@ -120,7 +145,7 @@ class BleConnectionManager(
     }
 
     Log.d(TAG, "Connecting to $deviceId ...")
-    val gatt = device.connectGatt(context, false, callback)
+    val gatt = device.connectGatt(context, false, callback, BluetoothDevice.TRANSPORT_LE)
     if (gatt != null) {
       connections[normalize(deviceId)] = gatt
       return true
@@ -143,6 +168,7 @@ class BleConnectionManager(
   @SuppressLint("MissingPermission")
   private fun enableNotifications(deviceId: String, gatt: BluetoothGatt) {
     val services = gatt.services ?: return
+    var enabledCharacteristic = false
     for (service in services) {
       for (characteristic in service.characteristics) {
         if (characteristic.canNotify()) {
@@ -152,17 +178,20 @@ class BleConnectionManager(
           }
           val set = gatt.setCharacteristicNotification(characteristic, true)
           Log.d(TAG, "Enable notify ($set) for ${characteristic.uuid} on $deviceId")
+          enabledCharacteristic = true
           val descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG_UUID)
           if (descriptor != null) {
             descriptor.value =
               BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
             gatt.writeDescriptor(descriptor)
           }
-          return
+          // Continue to enable notifications for other characteristics/services
         }
       }
     }
-    Log.w(TAG, "No notifiable characteristic found for $deviceId")
+    if (!enabledCharacteristic) {
+      Log.w(TAG, "No notifiable characteristic found for $deviceId")
+    }
   }
 
   private fun closeConnection(deviceId: String) {

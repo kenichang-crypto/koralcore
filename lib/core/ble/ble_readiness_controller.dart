@@ -32,7 +32,9 @@ class BleReadinessController extends ChangeNotifier {
     // PARITY: reef-b-app AppLifecycleTracker -> Log.d("AppLifecycleTracker - 目前App狀態", "...")
     debugPrint('BleReadinessController - 目前App狀態: 刷新 BLE 狀態');
     await _loadStatus(requestPermissions: false);
-    debugPrint('BleReadinessController - 目前App狀態: BLE 狀態已刷新 isReady=${_snapshot.isReady}, permissionsGranted=${_snapshot.permissionsGranted}, radioState=${_snapshot.radioState}');
+    debugPrint(
+      'BleReadinessController - 目前App狀態: BLE 狀態已刷新 isReady=${_snapshot.isReady}, permissionsGranted=${_snapshot.permissionsGranted}, radioState=${_snapshot.radioState}',
+    );
   }
 
   Future<void> requestPermissions() async {
@@ -56,7 +58,9 @@ class BleReadinessController extends ChangeNotifier {
 
   Future<void> _loadStatus({required bool requestPermissions}) async {
     // PARITY: reef-b-app AppLifecycleTracker -> Log.d("AppLifecycleTracker - 目前App狀態", "...")
-    debugPrint('BleReadinessController - 目前App狀態: _loadStatus 調用，requestPermissions: $requestPermissions');
+    debugPrint(
+      'BleReadinessController - 目前App狀態: _loadStatus 調用，requestPermissions: $requestPermissions',
+    );
     if (!_systemAccess.platformChecksSupported) {
       debugPrint('BleReadinessController - 目前App狀態: 平台檢查不支持，設置所有權限為已授權');
       _updateSnapshot(
@@ -78,7 +82,9 @@ class BleReadinessController extends ChangeNotifier {
         requestPermissions: requestPermissions,
       );
       final BleRadioState radioState = await _systemAccess.currentRadioState();
-      debugPrint('BleReadinessController - 目前App狀態: 系統狀態 bluetoothPermission=${result.bluetoothPermission}, locationPermission=${result.locationPermission}, radioState=$radioState');
+      debugPrint(
+        'BleReadinessController - 目前App狀態: 系統狀態 bluetoothPermission=${result.bluetoothPermission}, locationPermission=${result.locationPermission}, radioState=$radioState',
+      );
       _updateSnapshot(
         _snapshot.copyWith(
           bluetoothPermission: result.bluetoothPermission,
@@ -89,7 +95,9 @@ class BleReadinessController extends ChangeNotifier {
           lastUpdated: DateTime.now(),
         ),
       );
-      debugPrint('BleReadinessController - 目前App狀態: 快照已更新 isReady=${_snapshot.isReady}');
+      debugPrint(
+        'BleReadinessController - 目前App狀態: 快照已更新 isReady=${_snapshot.isReady}',
+      );
     } catch (e) {
       debugPrint('BleReadinessController - 目前App狀態: 載入狀態錯誤 $e');
       _updateSnapshot(_snapshot.copyWith(isRequesting: false));
@@ -344,7 +352,12 @@ class BleSystemAccess {
     bool request,
   ) async {
     try {
-      return request ? await permission.request() : await permission.status;
+      final status = await permission.status;
+      if (!request) {
+        return status;
+      }
+
+      return status;
     } catch (_) {
       return handler.PermissionStatus.denied;
     }

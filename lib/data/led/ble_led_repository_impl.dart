@@ -3,9 +3,14 @@ library;
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 
 import '../../../../app/common/app_error.dart';
+import 'package:flutter/foundation.dart';
+
+import 'dart:developer' as developer;
+
 import '../../../../app/common/app_error_code.dart';
 import '../../domain/led_lighting/led_record.dart';
 import '../../domain/led_lighting/led_record_state.dart';
@@ -13,6 +18,7 @@ import '../../domain/led_lighting/led_state.dart';
 import '../../domain/led_lighting/scene_catalog.dart';
 import '../../data/ble/ble_adapter.dart';
 import '../../data/ble/ble_notify_bus.dart';
+import '../../data/ble/ble_sync_guard.dart';
 import '../../data/ble/led/led_command_builder.dart';
 import '../../data/ble/platform_channels/ble_notify_packet.dart';
 import '../../data/ble/transport/ble_transport_models.dart';
@@ -23,6 +29,8 @@ import '../../platform/contracts/led_repository.dart';
 /// [LedRecordRepository]. This implementation intentionally keeps the API
 /// surface identical to the existing use cases so controllers do not need to
 /// change while we migrate the data source to BLE.
+final Logger _logger = Logger('BleLedRepositoryImpl');
+
 class BleLedRepositoryImpl extends LedRepository
     implements LedRecordRepository {
   // Opcodes mirror reef-b-app; keep aligned with Android CommandManager.
@@ -70,6 +78,7 @@ class BleLedRepositoryImpl extends LedRepository
   final BleAdapter _bleAdapter;
   final LedCommandBuilder _commandBuilder;
   final BleWriteOptions _writeOptions;
+  final BleSyncGuard _syncGuard = BleSyncGuard.shared;
   final Map<String, _DeviceSession> _sessions = <String, _DeviceSession>{};
   // ignore: unused_field
   StreamSubscription<BleNotifyPacket>? _notifySubscription;
@@ -180,6 +189,15 @@ class BleLedRepositoryImpl extends LedRepository
     emitLedState(session);
     await sendCommand(deviceId, _commandBuilder.startRecordPlayback());
     return session.cache.snapshotState();
+  }
+
+  @override
+  Future<void> clearScene(String deviceId) async {
+    final _DeviceSession session = _ensureSession(deviceId);
+    session.cache.recordStatus = LedRecordStatus.applying;
+    emitRecordState(session);
+    await sendCommand(deviceId, _commandBuilder.clearRecords());
+    _logger.info('LED clear record (0x30) sent');
   }
 
   // ---------------------------------------------------------------------------
@@ -342,6 +360,16 @@ class BleLedRepositoryImpl extends LedRepository
 
   void _handlePacket(BleNotifyPacket packet) {
     final _DeviceSession session = _ensureSession(packet.deviceId);
+    final int opcode = packet.payload.isNotEmpty ? packet.payload.first : -1;
+    debugPrint(
+      '[LED_PACKET] device=${session.deviceId} opcode=$opcode bytes=${packet.payload}',
+    );
+    debugPrint(
+      '[BLE_OPCODE] device=${session.deviceId} opcode=$opcode bytes=${packet.payload}',
+    );
+    debugPrint(
+      '[BLE_LED] routing packet to session ${session.deviceId} (queue length=${session.queue.length})',
+    );
     session.enqueue(packet);
   }
 
@@ -365,6 +393,7 @@ class BleLedRepositoryImpl extends LedRepository
     if (state.isDisconnected) {
       session.cache.invalidate();
       session.syncInFlight = false;
+      _syncGuard.reset(deviceId);
       emitLedState(session);
       emitRecordState(session);
       return;
@@ -379,8 +408,12 @@ class BleLedRepositoryImpl extends LedRepository
     if (session.syncInFlight) {
       return;
     }
+    if (!_syncGuard.tryStartSync(session.deviceId)) {
+      return;
+    }
     if (!session.cache.beginSync()) {
       session.syncInFlight = false;
+      _syncGuard.finishSync(session.deviceId);
       return;
     }
     session.syncInFlight = true;
@@ -399,8 +432,7 @@ class BleLedRepositoryImpl extends LedRepository
       return;
     }
     if (!session.cache.isValid && !session.cache.isSyncing) {
-      session.syncInFlight = false;
-      return;
+      debugPrint('[BLE_LED] packet received before sync start');
     }
     final int opcode = data[0] & 0xFF;
     // PARITY: Removed _SyncSession. reef-b-app updates state immediately, no buffering.
@@ -413,6 +445,7 @@ class BleLedRepositoryImpl extends LedRepository
           return; // Invalid payload
         }
         final int status = data[2] & 0xFF;
+        developer.log('[LED_SYNC] status=$status');
         switch (status) {
           case 0x01: // Sync START
             // PARITY: reef-b-app clears information on START, no sync session needed.
@@ -422,12 +455,16 @@ class BleLedRepositoryImpl extends LedRepository
             break;
           case 0x02: // Sync END
             // PARITY: reef-b-app only notifies END, no state merging.
+            debugPrint(
+              '[LED_SYNC] status=$status syncing=${session.cache.isSyncing}',
+            );
             finalizeSync(session);
             break;
-          case 0x00: // Sync FAILED
-            session.cache.finishSync();
-            session.syncInFlight = false;
-            break;
+            case 0x00: // Sync FAILED
+              session.cache.finishSync();
+              session.syncInFlight = false;
+              _syncGuard.finishSync(session.deviceId);
+              break;
           default:
             // Unknown status, ignore
             break;
@@ -947,6 +984,7 @@ class BleLedRepositoryImpl extends LedRepository
     // Finish sync
     session.cache.finishSync();
     session.syncInFlight = false;
+    _syncGuard.finishSync(session.deviceId);
     
     // Emit final state (reef-b-app ViewModel reads state directly, but koralcore needs to notify UI)
     emitLedState(session);
@@ -987,11 +1025,19 @@ class BleLedRepositoryImpl extends LedRepository
   }
 
   void emitLedState(_DeviceSession session) {
-    session.ledStateController.add(session.cache.snapshotState());
+    final ledState = session.cache.snapshotState();
+    debugPrint(
+      '[BLE_LED] emitLedState device=${session.deviceId} status=${ledState.status} scenes=${ledState.scenes.length}',
+    );
+    session.ledStateController.add(ledState);
   }
 
   void emitRecordState(_DeviceSession session) {
-    session.recordStateController.add(session.cache.snapshotRecords());
+    final recordState = session.cache.snapshotRecords();
+    debugPrint(
+      '[BLE_LED] emitRecordState device=${session.deviceId} records=${recordState.records.length}',
+    );
+    session.recordStateController.add(recordState);
   }
 }
 

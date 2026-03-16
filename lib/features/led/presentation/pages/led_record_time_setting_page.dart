@@ -6,6 +6,7 @@ import '../../../../shared/assets/common_icon_helper.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../controllers/led_record_time_setting_controller.dart';
+import '../widgets/led_spectrum_chart.dart';
 
 /// LedRecordTimeSettingPage
 ///
@@ -245,21 +246,13 @@ class _SpectrumChartSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<LedRecordTimeSettingController>();
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 6,
-      ), // marginStart/End: dp_6
-      child: AspectRatio(
-        aspectRatio: 16 / 9, // Flexible chart (Android: 176dp fixed)
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.surfaceMuted,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          // PARITY: reef chart_spectrum shows LineChart; no placeholder text
-          // P14: 禁止 stub；無數據時顯示空區塊
-          child: const SizedBox.shrink(),
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: LedSpectrumChart.fromChannelMap(
+        controller.channelLevels,
+        height: 176,
+        emptyLabel: l10n.ledControlEmptyState,
       ),
     );
   }

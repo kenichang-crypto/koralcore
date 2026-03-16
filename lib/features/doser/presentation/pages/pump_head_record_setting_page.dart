@@ -14,8 +14,10 @@ import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../../../../shared/widgets/error_state_widget.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
+import '../../../../data/ble/dosing/dosing_command_builder.dart';
 import '../../../../domain/doser_dosing/pump_head_record_detail.dart';
 import '../../../../domain/doser_dosing/pump_head_record_type.dart';
+import '../controllers/dosing_schedule_controller.dart';
 import '../controllers/pump_head_record_setting_controller.dart';
 import '../../../led/presentation/helpers/support/led_record_icon_helper.dart';
 import 'pump_head_record_time_setting_page.dart';
@@ -36,7 +38,10 @@ class PumpHeadRecordSettingPage extends StatelessWidget {
         headId: headId,
         session: session,
         pumpHeadRepository: appContext.pumpHeadRepository,
-        applyScheduleUseCase: appContext.applyScheduleUseCase,
+        dosingScheduleController: DosingScheduleController(
+          bleAdapter: appContext.bleAdapter,
+          commandBuilder: const DosingCommandBuilder(),
+        ),
       )..initialize(),
       child: const _PumpHeadRecordSettingContent(),
     );

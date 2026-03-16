@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import 'platform_channels/ble_notify_packet.dart';
 import 'platform_channels/ble_platform_transport_writer.dart';
 
@@ -11,6 +13,11 @@ class BleNotifyBus {
 
   /// Configures the bus with the shared [BlePlatformTransportWriter].
   static void configure(BlePlatformTransportWriter writer) {
+    writer.notifyStream.listen((packet) {
+      debugPrint(
+        '[BLE_NOTIFY_BUS] packet received device=${packet.deviceId} bytes=${packet.payload}',
+      );
+    });
     _instance ??= BleNotifyBus._(writer.notifyStream);
   }
 
@@ -24,6 +31,23 @@ class BleNotifyBus {
   }
 
   final Stream<BleNotifyPacket> _stream;
+  final Map<String, double> _doseFactors = {};
 
   Stream<BleNotifyPacket> get stream => _stream;
+
+  void registerDoseFactor(String deviceId, double factor) {
+    if (deviceId.isEmpty) {
+      return;
+    }
+    _doseFactors[deviceId] = factor;
+  }
+
+  double convertDoseRaw(String deviceId, double raw) {
+    final double factor = _doseFactors[deviceId] ?? 1.0;
+    return raw * factor;
+  }
+
+  void clearDoseFactor(String deviceId) {
+    _doseFactors.remove(deviceId);
+  }
 }

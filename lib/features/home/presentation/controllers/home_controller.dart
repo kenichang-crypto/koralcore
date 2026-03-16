@@ -7,7 +7,6 @@ import '../../../../app/device/device_snapshot.dart';
 import '../../../../domain/sink/sink.dart';
 import '../../../../platform/contracts/device_repository.dart';
 import '../../../../platform/contracts/sink_repository.dart';
-import '../../../device/presentation/controllers/device_list_controller.dart';
 
 /// Controller for Home page sink selection and device filtering.
 ///
@@ -22,12 +21,10 @@ enum SinkSelectionType {
 class HomeController extends ChangeNotifier {
   final SinkRepository sinkRepository;
   final DeviceRepository deviceRepository;
-  final DeviceListController deviceListController;
 
   HomeController({
     required this.sinkRepository,
     required this.deviceRepository,
-    required this.deviceListController,
   }) {
     _initialize();
   }
@@ -39,6 +36,7 @@ class HomeController extends ChangeNotifier {
   List<DeviceSnapshot> _filteredDevices = [];
   bool _useGridLayout = false; // false = ListView, true = GridView
   StreamSubscription<List<Sink>>? _sinkSubscription;
+  StreamSubscription<List<Map<String, dynamic>>>? _deviceSubscription;
   int _selectedSinkIndex = 0;
   bool _isFiltering = false;
 
@@ -66,30 +64,23 @@ class HomeController extends ChangeNotifier {
   }
 
   void _initialize() {
-    // Observe sinks
     _sinkSubscription = sinkRepository.observeSinks().listen((sinks) {
       _sinks = sinks;
-      _updateFilteredDevices().then((_) {
-        notifyListeners();
-      });
+      _updateFilteredDevices().then((_) => notifyListeners());
     });
 
-    // Observe devices from DeviceListController
-    deviceListController.addListener(_onDevicesChanged);
-    _onDevicesChanged();
-  }
-
-  void _onDevicesChanged() {
-    _allDevices = deviceListController.savedDevices;
-    _updateFilteredDevices().then((_) {
-      notifyListeners();
+    _deviceSubscription =
+        deviceRepository.observeSavedDevices().listen((devices) {
+      debugPrint('[HOME] observeSavedDevices received size=${devices.length}');
+      _allDevices = devices.map(DeviceSnapshot.fromMap).toList(growable: false);
+      _updateFilteredDevices().then((_) => notifyListeners());
     });
   }
 
   @override
   void dispose() {
     _sinkSubscription?.cancel();
-    deviceListController.removeListener(_onDevicesChanged);
+    _deviceSubscription?.cancel();
     super.dispose();
   }
 
@@ -137,43 +128,25 @@ class HomeController extends ChangeNotifier {
     _isFiltering = true;
 
     try {
-      List<DeviceSnapshot> filtered = [];
-
-      for (final device in _allDevices) {
-        // Get device details from repository
-        final deviceMap = await deviceRepository.getDevice(device.id);
-        if (deviceMap == null) continue;
-
-        final String? sinkId = deviceMap['sink_id'] as String?;
-        final bool isFavorite = await deviceRepository.isDeviceFavorite(device.id);
-
-        // Filter based on selection type
-        bool shouldInclude = false;
-        switch (_selectionType) {
-          case SinkSelectionType.allSinks:
-            // PARITY: Show all devices that have a sinkId (assigned to a sink)
-            shouldInclude = sinkId != null;
-            break;
-          case SinkSelectionType.favorite:
-            // PARITY: Show only favorite devices
-            shouldInclude = isFavorite;
-            break;
-          case SinkSelectionType.specificSink:
-            // PARITY: Show devices in specific sink
-            shouldInclude = sinkId == _selectedSinkId;
-            break;
-          case SinkSelectionType.unassigned:
-            // PARITY: Show unassigned devices (sinkId is null)
-            shouldInclude = sinkId == null;
-            break;
-        }
-
-        if (shouldInclude) {
-          filtered.add(device);
-        }
+      debugPrint('[HOME] allDevices=${_allDevices.length}');
+      debugPrint('[HOME] selectedSink=$_selectionType');
+      if (_selectionType == SinkSelectionType.allSinks) {
+        _filteredDevices = List.from(_allDevices);
+      } else {
+        _filteredDevices = _allDevices.where((device) {
+          switch (_selectionType) {
+            case SinkSelectionType.favorite:
+              return device.favorite;
+            case SinkSelectionType.specificSink:
+              return device.sinkId == _selectedSinkId;
+            case SinkSelectionType.unassigned:
+              return device.sinkId == null;
+            default:
+              return true;
+          }
+        }).toList();
       }
-
-      _filteredDevices = filtered;
+      debugPrint('[HOME] filteredDevices=${_filteredDevices.length}');
     } finally {
       _isFiltering = false;
     }

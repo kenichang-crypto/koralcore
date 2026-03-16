@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-import '../core/ble/ble_readiness_controller.dart';
+import 'system/ble_readiness_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../shared/theme/app_colors.dart';
 import '../shared/theme/app_text_styles.dart';
@@ -35,51 +35,10 @@ class MainShellPage extends StatefulWidget {
 }
 
 class _MainShellPageState extends State<MainShellPage> {
-  bool _hasAutoScanned = false;
-  BleReadinessController? _bleController;
-  VoidCallback? _bleListener;
 
   @override
   void initState() {
     super.initState();
-    // PARITY: reef-b-app MainActivity.onCreate → scanLeDevice() when BLE ready
-    // Auto-trigger device scan once when BLE permission + Bluetooth are ready
-    WidgetsBinding.instance.addPostFrameCallback((_) => _setupBleAutoScan());
-  }
-
-  @override
-  void dispose() {
-    if (_bleController != null && _bleListener != null) {
-      _bleController!.removeListener(_bleListener!);
-    }
-    super.dispose();
-  }
-
-  void _setupBleAutoScan() {
-    if (!mounted) return;
-    final bleController = context.read<BleReadinessController>();
-    final deviceController = context.read<DeviceListController>();
-
-    void listener() {
-      if (!mounted) return;
-      if (_hasAutoScanned) return;
-      if (bleController.snapshot.isReady) {
-        _hasAutoScanned = true;
-        _bleController?.removeListener(_bleListener!);
-        deviceController.refresh();
-      }
-    }
-
-    _bleController = bleController;
-    _bleListener = listener;
-    bleController.addListener(listener);
-
-    // Immediate check in case already ready
-    if (!_hasAutoScanned && bleController.snapshot.isReady) {
-      _hasAutoScanned = true;
-      bleController.removeListener(listener);
-      deviceController.refresh();
-    }
   }
 
   @override

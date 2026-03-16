@@ -1,7 +1,9 @@
 library;
 
 import 'dart:async';
+import 'dart:developer' as developer;
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import '../../domain/doser_dosing/dosing_state.dart';
 import '../../domain/doser_dosing/pump_head_adjust_history.dart';
 import '../../domain/doser_dosing/pump_head_mode.dart';
@@ -9,10 +11,13 @@ import '../../domain/doser_dosing/pump_head_record_detail.dart';
 import '../../domain/doser_dosing/pump_head_record_type.dart';
 import '../../data/ble/ble_adapter.dart';
 import '../../data/ble/ble_notify_bus.dart';
+import '../../data/ble/ble_sync_guard.dart';
 import '../../data/ble/dosing/dosing_command_builder.dart';
 import '../../data/ble/platform_channels/ble_notify_packet.dart';
 import '../../data/ble/transport/ble_transport_models.dart';
+import '../../domain/doser_dosing/pump_head.dart';
 import '../../platform/contracts/dosing_repository.dart';
+import '../../platform/contracts/pump_head_repository.dart';
 
 /// BLE-backed Dosing repository implementation.
 ///
@@ -59,11 +64,13 @@ class BleDosingRepositoryImpl implements DosingRepository {
 
   BleDosingRepositoryImpl({
     required BleAdapter bleAdapter,
+    required PumpHeadRepository pumpHeadRepository,
     DosingCommandBuilder? commandBuilder,
     Stream<BleNotifyPacket>? notifyStream,
     Stream<BleConnectionState>? connectionStream,
     BleWriteOptions? writeOptions,
   }) : _bleAdapter = bleAdapter,
+       _pumpHeadRepository = pumpHeadRepository,
        _commandBuilder = commandBuilder ?? const DosingCommandBuilder(),
        _writeOptions = writeOptions ??
            const BleWriteOptions(
@@ -80,8 +87,10 @@ class BleDosingRepositoryImpl implements DosingRepository {
   }
 
   final BleAdapter _bleAdapter;
+  final PumpHeadRepository _pumpHeadRepository;
   final DosingCommandBuilder _commandBuilder;
   final BleWriteOptions _writeOptions;
+  final BleSyncGuard _syncGuard = BleSyncGuard.shared;
   final Map<String, _DeviceSession> _sessions = <String, _DeviceSession>{};
   StreamSubscription<BleNotifyPacket>? _notifySubscription;
   StreamSubscription<BleConnectionState>? _connectionSubscription;
@@ -127,7 +136,6 @@ class BleDosingRepositoryImpl implements DosingRepository {
   _DeviceSession _ensureSession(String deviceId) {
     return _sessions.putIfAbsent(deviceId, () {
       final _DeviceSession session = _DeviceSession(deviceId: deviceId);
-      _requestSync(session);
       return session;
     });
   }
@@ -156,12 +164,12 @@ class BleDosingRepositoryImpl implements DosingRepository {
     if (state.isDisconnected) {
       session.clearInformation();
       session.syncInFlight = false;
+      _syncGuard.reset(deviceId);
       _emitDosingState(session);
       return;
     }
     if (state.isConnected) {
       session.syncInFlight = false;
-      _requestSync(session);
     }
   }
 
@@ -169,7 +177,12 @@ class BleDosingRepositoryImpl implements DosingRepository {
     if (session.syncInFlight) {
       return;
     }
+    if (!_syncGuard.tryStartSync(session.deviceId)) {
+      return;
+    }
     session.syncInFlight = true;
+    _logLifecycle('SEND 0x65 SYNC_INFORMATION',
+        'Device ${session.deviceId} starting sync');
     _sendCommand(session.deviceId, _commandBuilder.syncInformation());
   }
 
@@ -374,9 +387,12 @@ class BleDosingRepositoryImpl implements DosingRepository {
         // PARITY: reef-b-app only notifies END, no state merging.
         // State is already updated immediately when RETURN opcodes are received.
         _finalizeSync(session);
+        _logLifecycle('SYNC_END',
+            'Device ${session.deviceId} sync complete, starting today totals');
         break;
       case 0x00: // Sync FAILED
         session.syncInFlight = false;
+        _syncGuard.finishSync(session.deviceId);
         break;
       default:
         // Unknown status, ignore
@@ -391,11 +407,148 @@ class BleDosingRepositoryImpl implements DosingRepository {
     session.syncInFlight = false;
     // PARITY: reef-b-app ViewModel reads state directly at sync END.
     // koralcore needs to notify UI via Stream.
+    _syncGuard.finishSync(session.deviceId);
     _emitDosingState(session);
+    _startTodayTotalsSequence(session);
   }
 
   void _emitDosingState(_DeviceSession session) {
     session.dosingStateController.add(session.state);
+  }
+
+  void _startTodayTotalsSequence(_DeviceSession session) {
+    if (session.pendingTodayTotalHeadNo != null) {
+      return;
+    }
+    session.nextTodayTotalHeadNo = 0;
+    session.pendingTodayTotalHeadNo = 0;
+    _ensurePumpHeadCount(session).then((_) => _maybeStartTodayTotals(session));
+  }
+
+  void _maybeStartTodayTotals(_DeviceSession session) {
+    if (!_isPumpHeadCountValid(session.pumpHeadCount)) {
+      debugPrint(
+        'BLE: invalid pumpHeadCount=${session.pumpHeadCount} before today total sequence',
+      );
+      session.pendingTodayTotalHeadNo = null;
+      return;
+    }
+    _requestNextTodayTotal(session);
+  }
+
+  void _requestNextTodayTotal(_DeviceSession session) {
+    final int headCount = session.pumpHeadCount > 0 ? session.pumpHeadCount : 1;
+    if (session.nextTodayTotalHeadNo >= headCount) {
+      session.pendingTodayTotalHeadNo = null;
+      _startAdjustHistorySequence(session);
+      return;
+    }
+    final int headNo = session.nextTodayTotalHeadNo;
+    session.nextTodayTotalHeadNo++;
+    session.pendingTodayTotalHeadNo = headNo;
+    final Uint8List command = _commandBuilder.getTodayTotalVolume(headNo);
+    _startTodayTotalTimeout(session, headNo);
+    _logLifecycle(
+      'SEND 0x7A TODAY_TOTAL head=$headNo',
+      'Device ${session.deviceId} head $headNo',
+    );
+    _sendCommand(session.deviceId, command);
+  }
+
+  void _startAdjustHistorySequence(_DeviceSession session) {
+    if (session.pendingAdjustHistoryHeadNo != null) {
+      return;
+    }
+    session.nextAdjustHistoryHeadNo = 0;
+    session.pendingAdjustHistoryHeadNo = 0;
+    _ensurePumpHeadCount(session).then((_) => _maybeStartAdjustHistory(session));
+  }
+
+  void _maybeStartAdjustHistory(_DeviceSession session) {
+    if (!_isPumpHeadCountValid(session.pumpHeadCount)) {
+      debugPrint(
+        'BLE: invalid pumpHeadCount=${session.pumpHeadCount} before adjust-history',
+      );
+      session.pendingAdjustHistoryHeadNo = null;
+      return;
+    }
+    _requestNextAdjustHistory(session);
+  }
+
+  void _requestNextAdjustHistory(_DeviceSession session) {
+    final int headCount = session.pumpHeadCount > 0 ? session.pumpHeadCount : 1;
+    if (session.nextAdjustHistoryHeadNo >= headCount) {
+      session.pendingAdjustHistoryHeadNo = null;
+      _logLifecycle('BLE_DEVICE_READY',
+          'Device ${session.deviceId} adjust-history sequence complete');
+      return;
+    }
+    final int headNo = session.nextAdjustHistoryHeadNo;
+    session.nextAdjustHistoryHeadNo++;
+    session.pendingAdjustHistoryHeadNo = headNo;
+    final Uint8List command = _commandBuilder.getAdjustHistory(headNo);
+    _startAdjustHistoryTimeout(session, headNo);
+    _logLifecycle(
+      'SEND 0x77 ADJUST_HISTORY head=$headNo',
+      'Device ${session.deviceId} head $headNo',
+    );
+    _sendCommand(session.deviceId, command);
+  }
+
+  Future<void> _ensurePumpHeadCount(_DeviceSession session) async {
+    try {
+      final List<PumpHead> heads =
+          await _pumpHeadRepository.listPumpHeads(session.deviceId);
+      if (heads.isNotEmpty) {
+        session.pumpHeadCount = heads.length;
+      }
+    } catch (_) {
+      // default to existing value
+    }
+  }
+
+  bool _isPumpHeadCountValid(int pumpHeadCount) {
+    return pumpHeadCount > 0 && pumpHeadCount <= 16;
+  }
+
+  static const Duration _sequenceTimeout = Duration(seconds: 5);
+
+  void _logLifecycle(String event, String message) {
+    developer.log(message, name: 'BleDosingRepositoryImpl.$event');
+  }
+
+  void _startTodayTotalTimeout(_DeviceSession session, int headNo) {
+    session.todayTotalTimeout?.cancel();
+    session.todayTotalTimeout = Timer(_sequenceTimeout, () {
+      _logLifecycle(
+        'TIMEOUT 0x7A head=$headNo',
+        'Device ${session.deviceId} head $headNo timed out',
+      );
+      session.pendingTodayTotalHeadNo = null;
+      _requestNextTodayTotal(session);
+    });
+  }
+
+  void _cancelTodayTotalTimeout(_DeviceSession session) {
+    session.todayTotalTimeout?.cancel();
+    session.todayTotalTimeout = null;
+  }
+
+  void _startAdjustHistoryTimeout(_DeviceSession session, int headNo) {
+    session.adjustHistoryTimeout?.cancel();
+    session.adjustHistoryTimeout = Timer(_sequenceTimeout, () {
+      _logLifecycle(
+        'TIMEOUT 0x77 head=$headNo',
+        'Device ${session.deviceId} head $headNo adjust history timed out',
+      );
+      session.pendingAdjustHistoryHeadNo = null;
+      _requestNextAdjustHistory(session);
+    });
+  }
+
+  void _cancelAdjustHistoryTimeout(_DeviceSession session) {
+    session.adjustHistoryTimeout?.cancel();
+    session.adjustHistoryTimeout = null;
   }
 
   // ---------------------------------------------------------------------------
@@ -417,6 +570,8 @@ class BleDosingRepositoryImpl implements DosingRepository {
 
     // PARITY: reef-b-app doesn't emit state during sync, only at sync END.
     // State will be emitted at sync END via _finalizeSync().
+    _cancelTodayTotalTimeout(session);
+    _requestNextTodayTotal(session);
   }
 
   void _handleReturnRotatingSpeed(_DeviceSession session, Uint8List data) {
@@ -662,18 +817,24 @@ class BleDosingRepositoryImpl implements DosingRepository {
     // Note: reef-b-app uses the first byte (nonRecord) as todayDoseMl for 0x7A
     // But actually, reef-b-app uses recordTotalDrop as todayDoseMl
     // Let's use recordTotalDrop as it represents the total recorded dose
-    session.todayDoseMl = recordTotalDrop.toDouble();
+    final double nonRecordMl = BleNotifyBus.instance
+        .convertDoseRaw(session.deviceId, nonRecordTotalDrop.toDouble());
+    final double recordMl = BleNotifyBus.instance
+        .convertDoseRaw(session.deviceId, recordTotalDrop.toDouble());
+    session.todayDoseMl = recordMl;
 
     // PARITY: reef-b-app calls dropInformation.setDropVolume(headId, nonRecord, record)
     // Note: reef-b-app uses Float, but old firmware (0x7A) uses integer
     session.setDropVolume(
       headNo,
-      nonRecord: nonRecordTotalDrop.toDouble(),
-      record: recordTotalDrop.toDouble(),
+      nonRecord: nonRecordMl,
+      record: recordMl,
     );
 
     // PARITY: reef-b-app doesn't emit state during sync, only at sync END.
     // State will be emitted at sync END via _finalizeSync().
+    _cancelTodayTotalTimeout(session);
+    _requestNextTodayTotal(session);
   }
 
   void _handleGetTodayTotalVolumeDecimal(
@@ -768,6 +929,7 @@ class BleDosingRepositoryImpl implements DosingRepository {
     final bool success = (data[2] & 0xFF) == 0x01;
     // PARITY: reef-b-app ViewModel triggers sync on success
     if (success) {
+      // Start sync only after 0x60 ACK; connection handler no longer triggers this.
       _requestSync(session);
     }
   }
@@ -932,16 +1094,19 @@ class BleDosingRepositoryImpl implements DosingRepository {
       return; // Invalid payload
     }
     final int size = data[2] & 0xFF;
+    final int headNo = session.pendingAdjustHistoryHeadNo ?? 0;
+    session.pendingAdjustHistoryHeadNo = null;
     // PARITY: Verified against reef-b-app DropHeadAdjustListViewModel.kt:196.
     // ViewModel calls: dropInformation.initAdjustHistory(nowDropHead.headId, dropGetAdjustHistorySize)
     // The headId comes from ViewModel's context (nowDropHead.headId), not from the ACK payload.
-    // koralcore needs to track the headId from the command context when sending the request.
-    // For now, using 0 as placeholder until command context tracking is implemented.
-    session.initAdjustHistory(0, size);
+    // koralcore now tracks the headId from the command context when sending the request.
+    session.initAdjustHistory(headNo, size);
     // PARITY: reef-b-app ViewModel triggers START/END based on size
     // If size > 0, ViewModel sets loading=true and waits for RETURN opcodes
     // If size == 0, ViewModel sets loading=false and shows empty history
     // Repository layer doesn't manage loading state, so no action needed
+    _cancelAdjustHistoryTimeout(session);
+    _requestNextAdjustHistory(session);
   }
 
   void _handleClearRecordAck(_DeviceSession session, Uint8List data) {
@@ -1004,8 +1169,10 @@ enum _DoseCapability {
 /// Device session for Dosing state management.
 /// PARITY: Similar to _DeviceSession in BleLedRepositoryImpl.
 class _DeviceSession {
-  _DeviceSession({required this.deviceId})
-    : state = DosingState.empty(deviceId),
+  _DeviceSession({
+    required this.deviceId,
+  }) : pumpHeadCount = 4,
+      state = DosingState.empty(deviceId),
       dosingStateController = StreamController<DosingState>.broadcast(),
       doseCapability = _DoseCapability.unknown,
       todayDoseMl = 0.0 {
@@ -1026,7 +1193,14 @@ class _DeviceSession {
   /// PARITY: Matches reef-b-app's `todayDoseMl: Float` in BLEManager.
   /// Note: This is for BLE debugging purposes only, not displayed in UI,
   /// and not stored in DropInformation.
+  int pumpHeadCount;
   double todayDoseMl;
+  int nextTodayTotalHeadNo = 0;
+  int nextAdjustHistoryHeadNo = 0;
+  int? pendingTodayTotalHeadNo;
+  int? pendingAdjustHistoryHeadNo;
+  Timer? todayTotalTimeout;
+  Timer? adjustHistoryTimeout;
 
   /// Head index (0-3) for pending 0x79 clear, or null. Used by ACK handler.
   int? pendingClearHeadNo;
@@ -1037,6 +1211,14 @@ class _DeviceSession {
   void clearInformation() {
     // PARITY: reef-b-app calls mode.replaceAll { DropHeadMode() }
     state = state.cleared();
+    nextTodayTotalHeadNo = 0;
+    nextAdjustHistoryHeadNo = 0;
+    pendingAdjustHistoryHeadNo = null;
+    pendingTodayTotalHeadNo = null;
+    todayTotalTimeout?.cancel();
+    todayTotalTimeout = null;
+    adjustHistoryTimeout?.cancel();
+    adjustHistoryTimeout = null;
   }
 
   void setMode(int headNo, PumpHeadMode mode) {

@@ -4,6 +4,7 @@ import 'package:koralcore/app/common/app_error_code.dart';
 import 'package:koralcore/app/device/connect_device_usecase.dart';
 import 'package:koralcore/app/device/initialize_device_usecase.dart';
 import 'package:koralcore/app/session/current_device_session.dart';
+import 'package:koralcore/data/ble/ble_scan_service.dart';
 import 'package:koralcore/domain/device/capability_set.dart';
 import 'package:koralcore/domain/device/device_context.dart';
 import 'package:koralcore/domain/device/device_product_resolver.dart';
@@ -67,8 +68,12 @@ class MockDeviceRepository implements DeviceRepository {
   @override
   Future<List<Map<String, dynamic>>> getSavedDevices() async => [];
   @override
-  Future<List<Map<String, dynamic>>> scanDevices({Duration? timeout}) async =>
-      [];
+  Future<List<BleScanResult>> scanDevices({Duration? timeout}) async =>
+      const <BleScanResult>[];
+  @override
+  void updateDiscoveredDevices(List<BleScanResult> results) {}
+  @override
+  Future<void> stopScan() async {}
   @override
   Future<List<Map<String, dynamic>>> listSavedDevices() async => [];
   @override

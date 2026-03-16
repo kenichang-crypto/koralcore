@@ -6,6 +6,7 @@ import '../../data/ble/ble_notify_bus.dart';
 import '../../data/ble/doser/ble_today_totals_data_source.dart';
 import '../../data/ble/doser/today_totals_data_source.dart';
 import '../../data/ble/platform_channels/ble_platform_transport_writer.dart';
+import '../../data/ble/dosing/dosing_command_builder.dart';
 import '../../data/ble/schedule/led/led_schedule_command_builder.dart';
 import '../../data/ble/schedule/schedule_sender.dart';
 import '../../data/ble/transport/ble_read_transport.dart';
@@ -22,10 +23,8 @@ import '../../data/repositories/schedule_repository_impl.dart';
 import '../../data/ble/led/led_command_builder.dart';
 import '../../platform/contracts/device_repository.dart';
 import '../../data/repositories/system_repository_impl.dart';
-import '../../platform/contracts/device_repository.dart';
 import '../../platform/contracts/dosing_port.dart';
 import '../../platform/contracts/dosing_repository.dart';
-import '../../platform/contracts/drop_type_repository.dart';
 import '../../platform/contracts/led_port.dart';
 import '../../platform/contracts/led_record_repository.dart';
 import '../../platform/contracts/led_repository.dart';
@@ -46,6 +45,7 @@ import '../device/scan_devices_usecase.dart';
 import '../device/toggle_favorite_device_usecase.dart';
 import '../device/update_device_name_usecase.dart';
 import '../device/update_device_sink_usecase.dart';
+import '../../domain/usecases/led/clear_led_scene_usecase.dart';
 import '../../domain/usecases/doser/apply_schedule_usecase.dart';
 import '../../domain/usecases/doser/observe_dosing_state_usecase.dart';
 import '../../domain/usecases/doser/read_calibration_history.dart';
@@ -143,6 +143,7 @@ class AppContext {
   final AddSceneUseCase addSceneUseCase;
   final UpdateSceneUseCase updateSceneUseCase;
   final DeleteSceneUseCase deleteSceneUseCase;
+  final ClearLedSceneUseCase clearLedSceneUseCase;
   final EnterDimmingModeUseCase enterDimmingModeUseCase;
   final ExitDimmingModeUseCase exitDimmingModeUseCase;
 
@@ -199,6 +200,7 @@ class AppContext {
     required this.addSceneUseCase,
     required this.updateSceneUseCase,
     required this.deleteSceneUseCase,
+    required this.clearLedSceneUseCase,
     required this.enterDimmingModeUseCase,
     required this.exitDimmingModeUseCase,
     required this.observeDosingStateUseCase,
@@ -227,6 +229,7 @@ class AppContext {
     final BleAdapter bleAdapter = BleAdapterImpl(
       transportWriter: platformTransportWriter.write,
       observer: transportLogBuffer,
+      connectionStream: platformTransportWriter.connectionStateStream,
     );
     final BleLedRepositoryImpl bleLedRepository = BleLedRepositoryImpl(
       bleAdapter: bleAdapter,
@@ -236,6 +239,7 @@ class AppContext {
     final LedRecordRepository ledRecordRepository = bleLedRepository;
     final BleDosingRepositoryImpl bleDosingRepository = BleDosingRepositoryImpl(
       bleAdapter: bleAdapter,
+      pumpHeadRepository: pumpHeadRepository,
       connectionStream: platformTransportWriter.connectionStateStream,
     );
     final DosingRepository dosingRepository = bleDosingRepository;
@@ -441,6 +445,7 @@ class AppContext {
         ledRepository: ledRepository,
         sceneRepository: SceneRepositoryImpl(),
       ),
+      clearLedSceneUseCase: ClearLedSceneUseCase(ledRepository),
       enterDimmingModeUseCase: EnterDimmingModeUseCase(
         bleAdapter: bleAdapter,
         commandBuilder: const LedCommandBuilder(),
@@ -453,6 +458,8 @@ class AppContext {
         connectionStream: platformTransportWriter.connectionStateStream,
         initializeDeviceUseCase: initializeDeviceUseCase,
         deviceRepository: deviceRepository,
+        bleAdapter: bleAdapter,
+        dosingCommandBuilder: const DosingCommandBuilder(),
       ),
     );
   }

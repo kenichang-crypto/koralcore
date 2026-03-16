@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:koralcore/l10n/app_localizations.dart';
@@ -10,6 +11,7 @@ import '../../../../domain/sink/sink.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/theme/app_text_styles.dart';
+import '../../../../debug/runtime_logger.dart';
 import '../../../../shared/widgets/reef_backgrounds.dart';
 import '../../../../shared/widgets/reef_device_card.dart';
 import '../../../../shared/assets/common_icon_helper.dart';
@@ -20,19 +22,30 @@ import '../../../led/presentation/pages/led_main_page.dart';
 import '../../../doser/presentation/pages/dosing_main_page.dart';
 import '../../../sink/presentation/pages/sink_manager_page.dart';
 
+void _logHomeGridRender(String deviceId) {
+  if (kIsWeb) return;
+  appendRuntimeLog(
+    hypothesisId: 'H_grid',
+    location:
+        'lib/features/home/presentation/pages/home_tab_page.dart:_buildGridView.itemBuilder',
+    message: 'Grid item render',
+    data: {'deviceId': deviceId},
+  ).catchError((error) {
+    debugPrint('Home grid log failed: $error');
+  });
+}
+
 class HomeTabPage extends StatelessWidget {
   const HomeTabPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final appContext = context.read<AppContext>();
-    final deviceListController = context.watch<DeviceListController>();
 
     return ChangeNotifierProvider<HomeController>(
       create: (_) => HomeController(
         sinkRepository: appContext.sinkRepository,
         deviceRepository: appContext.deviceRepository,
-        deviceListController: deviceListController,
       ),
       child: const _HomePageView(),
     );
@@ -47,6 +60,7 @@ class _HomePageView extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final controller = context.watch<HomeController>();
     final devices = controller.filteredDevices;
+    debugPrint('[HOME_UI] build devices=${devices.length}');
 
     return Scaffold(
       body: ReefMainBackground(
@@ -55,9 +69,7 @@ class _HomePageView extends StatelessWidget {
             header: _SinkSelectorBar(
               controller: controller,
               onManagerTap: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const SinkManagerPage(),
-                ),
+                MaterialPageRoute(builder: (_) => const SinkManagerPage()),
               ),
               l10n: l10n,
             ),
@@ -72,9 +84,15 @@ class _HomePageView extends StatelessWidget {
     );
   }
 
-  Widget _buildGridView(List<DeviceSnapshot> devices, AppLocalizations l10n) {
+  Widget _buildGridView(
+    List<DeviceSnapshot> devices,
+    AppLocalizations l10n, {
+    bool shrinkWrap = false,
+  }) {
     // PARITY: fragment_home.xml - RecyclerView paddingStart 10dp, paddingTop 8dp, paddingEnd 10dp
-    return GridView.builder(
+    final grid = GridView.builder(
+      shrinkWrap: shrinkWrap,
+      physics: shrinkWrap ? const NeverScrollableScrollPhysics() : null,
       padding: EdgeInsets.only(
         left: 10.0, // dp_10 paddingStart
         right: 10.0, // dp_10 paddingEnd
@@ -89,9 +107,19 @@ class _HomePageView extends StatelessWidget {
       ),
       itemCount: devices.length,
       itemBuilder: (context, index) {
+        debugPrint('[HOME_UI] render device ${devices[index].id}');
+        // #region agent log
+        _logHomeGridRender(devices[index].id);
+        // #endregion
         return _HomeDeviceGridTile(device: devices[index], l10n: l10n);
       },
     );
+
+    if (shrinkWrap) {
+      return grid;
+    }
+
+    return SizedBox.expand(child: grid);
   }
 
   /// Build "All Sinks" view (PARITY: SinkWithDevicesAdapter + LinearLayoutManager)
@@ -105,6 +133,9 @@ class _HomePageView extends StatelessWidget {
     final sinks = controller.sinks;
     final allDevices = controller.filteredDevices;
     final devicesBySink = _groupDevicesBySink(allDevices);
+    final unassignedDevices = allDevices
+        .where((d) => d.sinkId == null)
+        .toList();
 
     // Filter sinks that have devices
     final sinksWithDevices = sinks.where((sink) {
@@ -112,12 +143,17 @@ class _HomePageView extends StatelessWidget {
       return devices.isNotEmpty;
     }).toList();
 
-    if (sinksWithDevices.isEmpty) {
+    debugPrint(
+      '[HOME] sink grouping sinks=${sinks.map((sink) => sink.id).toList()} sinksWithDevices=${sinksWithDevices.map((sink) => sink.id).toList()} devicesBySinkKeys=${devicesBySink.keys.toList()} unassignedCount=${unassignedDevices.length} allDevicesCount=${allDevices.length}',
+    );
+
+    if (sinksWithDevices.isEmpty && unassignedDevices.isEmpty) {
       return _EmptyState(l10n: l10n);
     }
 
-    // PARITY: fragment_home.xml - RecyclerView paddingStart 10dp, paddingTop 8dp, paddingEnd 10dp
-    // PARITY: adapter_sink_with_devices.xml - paddingBottom 12dp
+    final int totalItemCount =
+        sinksWithDevices.length + (unassignedDevices.isNotEmpty ? 1 : 0);
+
     return ListView.builder(
       padding: EdgeInsets.only(
         left: 10.0, // dp_10 paddingStart
@@ -125,15 +161,33 @@ class _HomePageView extends StatelessWidget {
         top: AppSpacing.xs, // dp_8 paddingTop
         bottom: AppSpacing.xl,
       ),
-      itemCount: sinksWithDevices.length,
+      itemCount: totalItemCount,
       itemBuilder: (context, index) {
-        final sink = sinksWithDevices[index];
-        final sinkDevices = devicesBySink[sink.id] ?? [];
-
-        return _SinkWithDevicesTile(
-          sink: sink,
-          devices: sinkDevices,
-          l10n: l10n,
+        if (index < sinksWithDevices.length) {
+          final sink = sinksWithDevices[index];
+          final sinkDevices = devicesBySink[sink.id] ?? [];
+          return _SinkWithDevicesTile(
+            sink: sink,
+            devices: sinkDevices,
+            l10n: l10n,
+          );
+        }
+        return Padding(
+          padding: const EdgeInsets.only(top: AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                child: Text(
+                  l10n.homeSpinnerUnassigned,
+                  style: AppTextStyles.subheaderAccent,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              _buildGridView(unassignedDevices, l10n, shrinkWrap: true),
+            ],
+          ),
         );
       },
     );
@@ -177,22 +231,27 @@ class _HomeFixedHeaderLayoutState extends State<_HomeFixedHeaderLayout> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        _MeasureSize(
-          onChange: (size) {
-            if (!mounted) return;
-            final next = size.height;
-            if (next != _headerHeight) {
-              setState(() => _headerHeight = next);
-            }
-          },
-          child: Align(alignment: Alignment.topCenter, child: widget.header),
-        ),
         Positioned(
           top: _headerHeight,
           left: 0,
           right: 0,
           bottom: 0,
           child: widget.body,
+        ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: _MeasureSize(
+            onChange: (size) {
+              if (!mounted) return;
+              final next = size.height;
+              if (next != _headerHeight) {
+                setState(() => _headerHeight = next);
+              }
+            },
+            child: widget.header,
+          ),
         ),
       ],
     );
@@ -318,6 +377,9 @@ class _SinkSelectorBar extends StatelessWidget {
               final index = options.indexOf(value);
               if (index >= 0) {
                 controller.selectSinkOption(index, l10n);
+                debugPrint(
+                  '[HOME] sink select option=$value index=$index selectionType=${controller.selectionType} filteredDevices=${controller.filteredDevices.length}',
+                );
               }
             },
           ),
@@ -353,21 +415,25 @@ class _EmptyState extends StatelessWidget {
     // Uses text_no_device_in_sink_title and text_no_device_in_sink_content
     // IMPORTANT: Do not add extra empty-state visuals not present in fragment_home.xml.
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            l10n.deviceInSinkEmptyTitle,
-            style: AppTextStyles.subheaderAccent,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: AppSpacing.xs), // dp_8
-          Text(
-            l10n.deviceInSinkEmptyContent,
-            style: AppTextStyles.body.copyWith(color: const Color(0xFFAAAAAA)),
-            textAlign: TextAlign.center,
-          ),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l10n.deviceInSinkEmptyTitle,
+              style: AppTextStyles.subheaderAccent,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.xs), // dp_8
+            Text(
+              l10n.deviceInSinkEmptyContent,
+              style: AppTextStyles.body.copyWith(
+                color: const Color(0xFFAAAAAA),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -384,7 +450,7 @@ class _HomeDeviceGridTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _DeviceKind kind = _DeviceKindHelper.fromName(device.name);
+    final _DeviceKind kind = _DeviceKindHelper.fromDevice(device);
     final bool isConnected = device.isConnected;
     final AppContext appContext = context.read<AppContext>();
 
@@ -413,6 +479,10 @@ class _HomeDeviceGridTile extends StatelessWidget {
     final String positionName = deviceSinkId != null
         ? sinkMap[deviceSinkId]?.name ?? l10n.unassignedDevice
         : l10n.unassignedDevice;
+
+    debugPrint(
+      '[HOME] device sink deviceId=${device.id} sinkId=$deviceSinkId positionName=$positionName',
+    );
 
     // PARITY: Group label (tv_group) - reef-b-app shows "｜群組 A" format
     // NOTE: In Flutter, we do NOT display the group label (tv_group) as per design requirements
@@ -586,7 +656,7 @@ class _HomeDeviceGridTile extends StatelessWidget {
   /// PARITY: reef-b-app HomeFragment navigates to LedMainActivity or DropMainActivity
   void _navigateToDeviceMainPage(BuildContext context, DeviceSnapshot device) {
     final session = context.read<AppSession>();
-    final _DeviceKind kind = _DeviceKindHelper.fromName(device.name);
+    final _DeviceKind kind = _DeviceKindHelper.fromDevice(device);
 
     // Set active device in session before navigation
     // PARITY: reef-b-app sets currentDevice via DeviceUtil.setCurrentDevice()
@@ -656,8 +726,16 @@ class _SinkWithDevicesTile extends StatelessWidget {
 enum _DeviceKind { led, doser }
 
 class _DeviceKindHelper {
-  static _DeviceKind fromName(String name) {
-    final String lower = name.toLowerCase();
+  static _DeviceKind fromDevice(DeviceSnapshot device) {
+    final String? type = device.type?.toLowerCase();
+    if (type == 'led') {
+      return _DeviceKind.led;
+    }
+    if (type == 'drop') {
+      return _DeviceKind.doser;
+    }
+
+    final String lower = device.name.toLowerCase();
     if (lower.contains('led')) {
       return _DeviceKind.led;
     }

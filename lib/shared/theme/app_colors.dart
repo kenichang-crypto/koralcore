@@ -18,6 +18,7 @@ class AppColors {
   static const Color surfacePressed = Color(0x0D000000); // bg_press
 
   static const Color outline = Color(0xFF808080); // ripple_color
+  static const Color border = outline;
   static const Color divider = Color(0x33000000); // text_a
 
   // Text hierarchy

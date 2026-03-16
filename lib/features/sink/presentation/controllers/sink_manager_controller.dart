@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../../../../app/common/app_error_code.dart';
@@ -7,6 +9,8 @@ import '../../../../platform/contracts/sink_repository.dart';
 /// Controller for managing sink list and operations.
 class SinkManagerController extends ChangeNotifier {
   final SinkRepository sinkRepository;
+  StreamSubscription<List<Sink>>? _sinkSubscription;
+  bool _isDisposed = false;
 
   SinkManagerController({required this.sinkRepository}) {
     _initialize();
@@ -25,7 +29,7 @@ class SinkManagerController extends ChangeNotifier {
 
   void _initialize() {
     _loadSinks();
-    sinkRepository.observeSinks().listen((sinks) {
+    _sinkSubscription = sinkRepository.observeSinks().listen((sinks) {
       _sinks = sinks;
       notifyListeners();
     });
@@ -188,6 +192,13 @@ class SinkManagerController extends ChangeNotifier {
     _errorMessage = null;
     _errorCode = null;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _sinkSubscription?.cancel();
+    _isDisposed = true;
+    super.dispose();
   }
 }
 

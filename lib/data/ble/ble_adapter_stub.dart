@@ -39,4 +39,12 @@ class BleAdapterStub implements BleAdapter {
   }) async {
     return null;
   }
+
+  @override
+  void clearQueue({String? deviceId}) {
+    // No-op stub implementation.
+  }
+
+  @override
+  bool isNotificationReady(String deviceId) => false;
 }

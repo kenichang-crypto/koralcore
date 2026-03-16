@@ -32,4 +32,6 @@ abstract class LedRepository {
   });
 
   Future<LedState> startRecord(String deviceId);
+
+  Future<void> clearScene(String deviceId);
 }

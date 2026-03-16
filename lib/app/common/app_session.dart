@@ -2,12 +2,14 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../domain/doser_dosing/pump_head.dart';
 import '../../domain/led_lighting/led_state.dart';
 import '../../domain/sink/sink.dart';
 import '../device/device_snapshot.dart';
+import '../../debug/runtime_logger.dart';
 import 'app_context.dart';
 
 /// Reactive view of global session state (connection, guards, etc.).
@@ -28,13 +30,15 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
   LedState? _ledState;
 
   AppSession({required this.context}) {
-    _scanSubscription = context.scanDevicesUseCase.observe().listen(_onDevices);
+    _scanSubscription = context.scanDevicesUseCase
+        .observe()
+        .listen((devices) => _onDevices(devices));
     _savedSubscription = context.deviceRepository
         .observeSavedDevices()
         .map(
           (items) => items.map(DeviceSnapshot.fromMap).toList(growable: false),
         )
-        .listen(_onSavedDevices);
+        .listen((devices) => _onSavedDevices(devices));
     _sinkSubscription = context.sinkRepository.observeSinks().listen(_onSinks);
     _sinks = context.sinkRepository.getCurrentSinks();
     _isReadySubscription = context.currentDeviceSession.isReadyStream.listen((
@@ -49,6 +53,30 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
   bool get isReady => context.currentDeviceSession.isReady;
   String? get activeDeviceId => _activeDeviceId;
   String? get activeDeviceName => _activeDeviceName;
+  bool get isAssigned => _activeDeviceId != null;
+  String? get activeDeviceSinkId {
+    if (_activeDeviceId == null) {
+      return null;
+    }
+    for (final device in _savedDevices) {
+      if (device.id == _activeDeviceId) {
+        return device.sinkId;
+      }
+    }
+    return null;
+  }
+  String? get activeDeviceSinkName {
+    final String? sinkId = activeDeviceSinkId;
+    if (sinkId == null) {
+      return null;
+    }
+    for (final sink in _sinks) {
+      if (sink.id == sinkId) {
+        return sink.name;
+      }
+    }
+    return null;
+  }
 
   /// Set the active device manually.
   ///
@@ -83,6 +111,15 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
+  /// Override the active device name without affecting the ID.
+  void setActiveDeviceName(String? name) {
+    if (_activeDeviceName == name) {
+      return;
+    }
+    _activeDeviceName = name;
+    notifyListeners();
+  }
+
   Sink get defaultSink =>
       _defaultSink ??
       Sink.defaultSink(
@@ -110,7 +147,7 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
   List<PumpHead> get pumpHeads => List.unmodifiable(_pumpHeads);
   LedState? get ledState => _ledState;
 
-  void _onDevices(List<DeviceSnapshot> devices) {
+  Future<void> _onDevices(List<DeviceSnapshot> devices) async {
     DeviceSnapshot? connected;
     for (final device in devices) {
       if (device.isConnected) {
@@ -126,11 +163,25 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
       return;
     }
 
-    // KC-A-FINAL: When no connected device, clear session. When connected device exists,
-    // do NOT call switchTo here - DeviceConnectionCoordinator already ran InitializeDeviceUseCase
-    // on connect, so session may already be ready. Calling switchTo would incorrectly reset.
     if (nextId == null) {
-      context.currentDeviceSession.clear();
+      final String? currentDevice = await context.deviceRepository.getCurrentDevice();
+      // #region agent log
+      await appendRuntimeLog(
+        hypothesisId: 'H1',
+        location: 'lib/app/common/app_session.dart:_onDevices',
+        message: 'active device captured during scan update',
+        data: <String, dynamic>{
+          'activeDeviceId': _activeDeviceId,
+          'repositoryCurrentDevice': currentDevice,
+          'connectedDeviceId': nextId,
+        },
+      );
+      // #endregion
+
+      if (_activeDeviceId != null && currentDevice == null) {
+        await _clearCurrentDevice();
+      }
+      return;
     }
 
     _activeDeviceId = nextId;
@@ -140,18 +191,21 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
-  void _onSavedDevices(List<DeviceSnapshot> devices) {
+  Future<void> _onSavedDevices(List<DeviceSnapshot> devices) async {
     _savedDevices = devices;
-    // KC-A-FINAL: When active device is deleted, clear session.
     if (_activeDeviceId != null &&
         !devices.any((d) => d.id == _activeDeviceId)) {
-      _activeDeviceId = null;
-      _activeDeviceName = null;
-      context.currentDeviceSession.clear();
-      _resubscribePumpHeads(null);
-      _resubscribeLedState(null);
-    } else if (_activeDeviceId != null) {
-      // Update active device name when it changes in repo (e.g. UpdateDeviceNameUseCase)
+      final String? currentDevice =
+          await context.deviceRepository.getCurrentDevice();
+      if (currentDevice == null) {
+        await _clearCurrentDevice();
+        return;
+      }
+      // Device is still connected (in repository) even if not yet persisted.
+      return;
+    }
+
+    if (_activeDeviceId != null) {
       for (final d in devices) {
         if (d.id == _activeDeviceId) {
           _activeDeviceName = d.name;
@@ -159,6 +213,30 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
         }
       }
     }
+
+    notifyListeners();
+  }
+
+  Future<void> _clearCurrentDevice() async {
+    debugPrint('AppSession.clearCurrentDevice called');
+    debugPrint('activeDeviceId=$_activeDeviceId');
+    // #region agent log
+    await appendRuntimeLog(
+      hypothesisId: 'H2',
+      location: 'lib/app/common/app_session.dart:_clearCurrentDevice',
+      message: 'clearing active device session',
+      data: <String, dynamic>{
+        'clearedDeviceId': _activeDeviceId,
+        'clearedDeviceName': _activeDeviceName,
+      },
+    );
+    // #endregion
+
+    context.currentDeviceSession.clear();
+    _activeDeviceId = null;
+    _activeDeviceName = null;
+    _resubscribePumpHeads(null);
+    _resubscribeLedState(null);
     notifyListeners();
   }
 

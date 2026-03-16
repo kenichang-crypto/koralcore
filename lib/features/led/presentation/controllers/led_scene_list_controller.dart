@@ -68,7 +68,15 @@ class LedSceneListController extends ChangeNotifier {
   List<LedSceneSummary> get staticScenes =>
       _scenes.where((scene) => !scene.isDynamic).toList(growable: false);
   bool get isLoading => _isLoading;
-  bool get isBusy => _isPerformingAction || _ledStatus == LedStatus.applying;
+  bool get isBusy {
+    final bool busy = _isLoading ||
+        _isPerformingAction ||
+        _isRecordPreviewing;
+    debugPrint(
+      '[LED_CTRL] isBusy check loading=$_isLoading performing=$_isPerformingAction recordPreview=$_isRecordPreviewing => $busy',
+    );
+    return busy;
+  }
   bool get isPreviewing => _activeSceneId != null || _isRecordPreviewing;
   bool get isWriteLocked => isBusy || isPreviewing;
   AppErrorCode? get lastErrorCode => _lastErrorCode;
@@ -79,6 +87,7 @@ class LedSceneListController extends ChangeNotifier {
   List<LedStateSchedule> get schedules => _schedules;
   List<LedRecord> get records => _records;
   bool get hasRecords => _records.isNotEmpty;
+  String? get deviceId => session.activeDeviceId;
 
   LedStateSchedule? get activeSchedule {
     if (_activeScheduleId == null) {
@@ -99,15 +108,17 @@ class LedSceneListController extends ChangeNotifier {
   }
 
   Future<void> initialize() async {
+    debugPrint('[LED_CTRL] initialize start');
     if (_initialized) {
       return;
     }
     _initialized = true;
     await _bootstrapLedState();
-    await _bootstrapRecordState();
+    unawaited(_bootstrapRecordState());
     await refresh();
     _subscribeToLedState();
     _subscribeToRecordState();
+    debugPrint('[LED_CTRL] initialize finished');
   }
 
   /// Refresh all data (LED state, record state, and scenes).
@@ -139,10 +150,18 @@ class LedSceneListController extends ChangeNotifier {
     }
 
     try {
+      debugPrint('[LED_CTRL] refresh start device=$deviceId');
       final List<ReadLedSceneSnapshot> snapshots = await readLedScenesUseCase
           .execute(deviceId: deviceId);
-      final Set<String> favoriteSceneIds = await _favoriteRepository.getFavoriteScenes(deviceId);
-      _scenes = snapshots.map((snapshot) => _mapSnapshot(snapshot, favoriteSceneIds)).toList(growable: false);
+      debugPrint('[LED_CTRL] refresh scenes loaded count=${snapshots.length}');
+      final Set<String> favoriteSceneIds = await _favoriteRepository
+          .getFavoriteScenes(deviceId);
+      debugPrint(
+        '[LED_CTRL] refresh favorite loaded count=${favoriteSceneIds.length}',
+      );
+      _scenes = snapshots
+          .map((snapshot) => _mapSnapshot(snapshot, favoriteSceneIds))
+          .toList(growable: false);
       _applyActiveSceneFlag();
       _lastErrorCode = null;
     } on AppError catch (error) {
@@ -158,6 +177,7 @@ class LedSceneListController extends ChangeNotifier {
       _activeScheduleId = null;
       _setError(AppErrorCode.unknownError);
     } finally {
+      debugPrint('[LED_CTRL] refresh finished');
       _isLoading = false;
       notifyListeners();
     }
@@ -180,7 +200,6 @@ class LedSceneListController extends ChangeNotifier {
       return;
     }
 
-    await _stopPreview(deviceId);
     await _runAction(() async {
       try {
         await applySceneUseCase.execute(deviceId: deviceId, sceneId: sceneId);
@@ -281,7 +300,7 @@ class LedSceneListController extends ChangeNotifier {
         unawaited(_stopPreview(deviceId));
       }
     }
-    
+
     _stateSubscription?.cancel();
     _recordSubscription?.cancel();
     super.dispose();
@@ -296,7 +315,18 @@ class LedSceneListController extends ChangeNotifier {
     notifyListeners();
   }
 
-  LedSceneSummary _mapSnapshot(ReadLedSceneSnapshot snapshot, Set<String> favoriteSceneIds) {
+  @override
+  void notifyListeners() {
+    debugPrint(
+      '[LED_CTRL] notifyListeners busy=$isBusy scenes=${_scenes.length}',
+    );
+    super.notifyListeners();
+  }
+
+  LedSceneSummary _mapSnapshot(
+    ReadLedSceneSnapshot snapshot,
+    Set<String> favoriteSceneIds,
+  ) {
     return LedSceneSummary(
       id: snapshot.id,
       name: snapshot.name,
@@ -398,19 +428,29 @@ class LedSceneListController extends ChangeNotifier {
   }
 
   Future<void> _bootstrapRecordState() async {
+    debugPrint('[LED_CTRL] record step1 enter bootstrapRecordState');
+
     final String? deviceId = session.activeDeviceId;
     if (deviceId == null) {
+      debugPrint('[LED_CTRL] record step1 deviceId null');
       return;
     }
+
     try {
-      final LedRecordState state = await readLedRecordStateUseCase.execute(
-        deviceId: deviceId,
-      );
+      debugPrint('[LED_CTRL] record step2 before readLedRecordStateUseCase');
+
+      final LedRecordState state =
+          await readLedRecordStateUseCase.execute(deviceId: deviceId);
+
+      debugPrint('[LED_CTRL] record step3 after readLedRecordStateUseCase');
+
       _updateRecordState(state);
-    } on AppError {
-      // Ignore record errors during bootstrap
-    } catch (_) {
-      // Swallow unexpected errors
+
+      debugPrint('[LED_CTRL] record step4 after updateRecordState');
+    } on AppError catch (error) {
+      debugPrint('[LED_CTRL] record AppError ${error.code}');
+    } catch (error) {
+      debugPrint('[LED_CTRL] record unknown error $error');
     }
   }
 

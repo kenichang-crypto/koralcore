@@ -46,12 +46,11 @@ class RemoveDeviceUseCase {
     }
 
     final String? currentDeviceId = await deviceRepository.getCurrentDevice();
-    await deviceRepository.removeDevice(deviceId);
-
     if (currentDeviceId == deviceId ||
         currentDeviceSession.context?.deviceId == deviceId) {
       currentDeviceSession.clear();
     }
+    await deviceRepository.removeDevice(deviceId);
 
     // Device list will auto-refresh via observeSavedDevices() stream
   }

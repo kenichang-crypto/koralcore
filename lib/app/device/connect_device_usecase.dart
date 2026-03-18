@@ -16,10 +16,8 @@
 ///
 library;
 
-import '../../domain/device/capability_set.dart';
-import '../../domain/device/device_context.dart';
-import '../../domain/device/device_product.dart';
-import '../../domain/device/firmware_version.dart';
+import 'package:flutter/foundation.dart';
+
 import '../../platform/contracts/device_repository.dart';
 import '../common/app_error.dart';
 import '../common/app_error_code.dart';
@@ -54,7 +52,17 @@ class ConnectDeviceUseCase {
       // The coordinator observes the native connection stream and triggers initialization.
       //
       // await initializeDeviceUseCase.execute(deviceId: deviceId);
-    } on AppError {
+    } on AppError catch (error) {
+      if (error.code == AppErrorCode.deviceBusy) {
+        debugPrint(
+          '[CONNECT_USECASE] deviceBusy resetting $deviceId state -> disconnected',
+        );
+        await deviceRepository.updateDeviceState(deviceId, 'disconnected');
+        throw AppError(
+          code: AppErrorCode.deviceBusy,
+          message: 'Device already connecting',
+        );
+      }
       rethrow;
     } catch (error) {
       await deviceRepository.updateDeviceState(deviceId, 'disconnected');

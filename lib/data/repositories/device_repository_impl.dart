@@ -344,6 +344,9 @@ class DeviceRepositoryImpl extends DeviceRepository {
     }
 
     final _DeviceRecord record = _savedRecords[index];
+    debugPrint(
+      '[DEVICE_REPO] connect guard check id=$deviceId state=${record.state}',
+    );
     if (record.state == 'connecting') {
       throw const AppError(
         code: AppErrorCode.deviceBusy,

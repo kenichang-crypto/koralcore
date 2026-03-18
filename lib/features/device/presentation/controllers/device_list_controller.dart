@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'dart:collection';
+
+import 'package:flutter/widgets.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:collection/collection.dart';
 
@@ -33,6 +36,8 @@ class DeviceListController extends ChangeNotifier {
   bool _selectionMode = false;
   final Set<String> _selection = <String>{};
   AppErrorCode? _lastErrorCode;
+  String? _connectingDeviceId;
+  final ValueNotifier<String?> _snackbarMessage = ValueNotifier<String?>(null);
 
   /// Callback for when a new device is connected (device doesn't exist in saved devices).
   /// PARITY: Matches reef-b-app's startAddDeviceLiveData mechanism.
@@ -106,6 +111,8 @@ class DeviceListController extends ChangeNotifier {
   bool get selectionMode => _selectionMode;
   Set<String> get selectedIds => Set.unmodifiable(_selection);
   AppErrorCode? get lastErrorCode => _lastErrorCode;
+  ValueListenable<String?> get snackbarMessage => _snackbarMessage;
+  String? get connectingDeviceId => _connectingDeviceId;
 
   Future<void> refresh() async {
     if (!bleReadinessController.snapshot.isReady) {
@@ -186,6 +193,8 @@ class DeviceListController extends ChangeNotifier {
       return;
     }
 
+    _connectingDeviceId = deviceId;
+    notifyListeners();
     try {
       await _connectDeviceUseCase.execute(deviceId: deviceId);
       // PARITY: reef-b-app BLEManager.onConnectionStateChange() -> Log.d("$TAG - 藍芽連線", "${gatt?.device?.address} 成功連線")
@@ -217,6 +226,13 @@ class DeviceListController extends ChangeNotifier {
       // PARITY: reef-b-app BLEManager.onConnectionStateChange() -> Log.d("$TAG - 藍芽連線", "${gatt?.device?.address} 斷線")
       debugPrint('DeviceListController - 藍芽連線: $deviceId 連線失敗，錯誤: ${error.code}');
       _setError(error.code);
+      if (error.code == AppErrorCode.deviceBusy) {
+        _snackbarMessage.value = '裝置正在連線中，請稍候';
+      }
+    }
+    finally {
+      _connectingDeviceId = null;
+      notifyListeners();
     }
   }
 
@@ -325,6 +341,12 @@ class DeviceListController extends ChangeNotifier {
       _selection.add(deviceId);
     }
     notifyListeners();
+  }
+
+  bool isDeviceConnecting(String deviceId) => _connectingDeviceId == deviceId;
+
+  void clearSnackbarMessage() {
+    _snackbarMessage.value = null;
   }
 
   void clearError() {

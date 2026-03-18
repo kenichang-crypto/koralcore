@@ -85,6 +85,22 @@ class _BluetoothTabPageState extends State<BluetoothTabPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            ValueListenableBuilder<String?>(
+              valueListenable: controller.snackbarMessage,
+              builder: (context, message, child) {
+                if (message != null) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (!context.mounted) {
+                      return;
+                    }
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text(message)));
+                    controller.clearSnackbarMessage();
+                  });
+                }
+                return const SizedBox.shrink();
+              },
+            ),
             // (1) 已配對裝置區：rv_user_device（無標題）
             // PARITY: fragment_bluetooth.xml - rv_user_device marginTop 12dp, marginBottom 12dp
             if (savedDevices.isNotEmpty) ...[
@@ -134,10 +150,12 @@ class _PairedDevicesList extends StatelessWidget {
       padding: EdgeInsets.zero,
       itemCount: devices.length,
       itemBuilder: (context, index) {
+        final device = devices[index];
         return _BtMyDeviceTile(
-          device: devices[index],
+          device: device,
+          isConnecting: controller.isDeviceConnecting(device.id),
           // PARITY: reef-b-app BluetoothFragment connects/disconnects on item tap
-          onTap: () => _handleDeviceTap(context, devices[index]),
+          onTap: () => _handleDeviceTap(context, device),
         );
       },
       separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.md),
@@ -272,7 +290,12 @@ class _OtherDevicesBody extends StatelessWidget {
         padding: EdgeInsets.zero,
         itemCount: devices.length,
         itemBuilder: (context, index) {
-          return _BtDeviceTile(device: devices[index], controller: controller);
+          final device = devices[index];
+          return _BtDeviceTile(
+            device: device,
+            controller: controller,
+            isConnecting: controller.isDeviceConnecting(device.id),
+          );
         },
       ),
     );
@@ -290,8 +313,13 @@ class _OtherDevicesBody extends StatelessWidget {
 class _BtDeviceTile extends StatelessWidget {
   final DeviceSnapshot device;
   final DeviceListController controller;
+  final bool isConnecting;
 
-  const _BtDeviceTile({required this.device, required this.controller});
+  const _BtDeviceTile({
+    required this.device,
+    required this.controller,
+    required this.isConnecting,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -304,7 +332,7 @@ class _BtDeviceTile extends StatelessWidget {
     // PARITY: adapter_ble_scan.xml structure
     return InkWell(
       // PARITY: reef-b-app BluetoothFragment connects discovered device
-      onTap: () => _handleDeviceTap(context),
+      onTap: isConnecting ? null : () => _handleDeviceTap(context),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -345,6 +373,10 @@ class _BtDeviceTile extends StatelessWidget {
               ],
             ),
           ),
+          if (isConnecting)
+            const LinearProgressIndicator(
+              minHeight: 2,
+            ),
           // Divider (MaterialDivider)
           // PARITY: 1dp height, bg_press color
           Divider(
@@ -380,8 +412,13 @@ enum _DeviceKind { led, doser }
 class _BtMyDeviceTile extends StatelessWidget {
   final DeviceSnapshot device;
   final VoidCallback? onTap;
+  final bool isConnecting;
 
-  const _BtMyDeviceTile({required this.device, required this.onTap});
+  const _BtMyDeviceTile({
+    required this.device,
+    required this.onTap,
+    required this.isConnecting,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -400,7 +437,7 @@ class _BtMyDeviceTile extends StatelessWidget {
     // PARITY: adapter_ble_my_device.xml structure
     return InkWell(
       // Correction Mode (UI parity only): 不在本頁處理 connect/disconnect
-      onTap: onTap,
+      onTap: isConnecting ? null : onTap,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

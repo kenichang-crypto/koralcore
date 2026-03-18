@@ -1,5 +1,6 @@
 library;
 
+import 'dart:developer' as developer;
 import 'dart:async';
 
 import '../../domain/device/capability_set.dart';
@@ -63,6 +64,8 @@ class CurrentDeviceSession {
     );
     _isReady = false;
     _isReadyController.add(false);
+    developer.log('[LIFECYCLE] switchTo: reset ready=false for $deviceId',
+        name: 'CurrentDeviceSession');
   }
 
   /// Promotes the current session to "ready" with a full device context.
@@ -79,6 +82,8 @@ class CurrentDeviceSession {
     _context = context;
     _isReady = true;
     _isReadyController.add(true);
+    developer.log('[LIFECYCLE] READY = true for ${context.deviceId}',
+        name: 'CurrentDeviceSession');
   }
 
   /// Clears the session entirely, typically on disconnect.

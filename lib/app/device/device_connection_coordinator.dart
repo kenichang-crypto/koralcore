@@ -86,6 +86,7 @@ class DeviceConnectionCoordinator {
     //    and newState == Connected
     // then this is a RECONNECT (or fresh connect)
     if (isConnected && !wasConnected) {
+      _logLifecycle('BLE connected: $deviceId');
       if (_lifecycleStarted[deviceId] == true) {
         return;
       }
@@ -102,6 +103,7 @@ class DeviceConnectionCoordinator {
       // #endregion
       await deviceRepository.updateDeviceState(deviceId, 'connected');
       if (bleAdapter.isNotificationReady(deviceId)) {
+        _logLifecycle('BLE notify ready: $deviceId');
         await _onDeviceConnected(deviceId);
       } else {
         _awaitNotificationReady(deviceId);
@@ -124,7 +126,7 @@ class DeviceConnectionCoordinator {
     if (bleAdapter.isNotificationReady(deviceId)) {
       return Future<void>.value();
     }
-    final Completer<void> completer = Completer<void>();
+        final Completer<void> completer = Completer<void>();
     _pendingNotificationSubscriptions.remove(deviceId)?.cancel();
     Timer fallbackTimer = Timer(_notificationReadyTimeout, () {
       if (!completer.isCompleted) {
@@ -145,6 +147,7 @@ class DeviceConnectionCoordinator {
             fallbackTimer.cancel();
             if (!completer.isCompleted) {
               completer.complete();
+              _logLifecycle('BLE notify ready: $deviceId');
             }
             // #region agent log
             unawaited(
@@ -186,6 +189,7 @@ class DeviceConnectionCoordinator {
         await _awaitNotificationReady(deviceId);
       }
       _initInFlight.add(deviceId);
+      _logLifecycle('initInFlight: add $deviceId');
       debugPrint(
         '[DeviceConnectionCoordinator] Triggering initialization for $deviceId',
       );
@@ -204,7 +208,7 @@ class DeviceConnectionCoordinator {
       await _sendTimeCorrection(deviceId);
 
       // KC-A3-Final-3: Force trigger InitializeDeviceUseCase
-      await initializeDeviceUseCase.execute(deviceId: deviceId);
+      await _triggerInitialization(deviceId);
 
       debugPrint(
         '[DeviceConnectionCoordinator] Initialization successful for $deviceId',
@@ -229,6 +233,7 @@ class DeviceConnectionCoordinator {
       }
     } finally {
       _initInFlight.remove(deviceId);
+      _logLifecycle('initInFlight: remove $deviceId');
     }
   }
 
@@ -253,7 +258,21 @@ class DeviceConnectionCoordinator {
     }
   }
 
+  Future<void> _triggerInitialization(String deviceId) async {
+    _logLifecycle('triggerInit: $deviceId');
+    await _initializeDevice(deviceId);
+  }
+
+  Future<void> _initializeDevice(String deviceId) async {
+    _logLifecycle('init START: $deviceId');
+    await initializeDeviceUseCase.execute(deviceId: deviceId);
+  }
+
   void _log(String event, String message) {
     developer.log(message, name: 'DeviceConnectionCoordinator.$event');
+  }
+
+  void _logLifecycle(String msg) {
+    developer.log('[LIFECYCLE] $msg', name: 'DeviceConnectionCoordinator');
   }
 }

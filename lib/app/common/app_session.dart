@@ -1,6 +1,7 @@
 library;
 
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -47,6 +48,10 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
       notifyListeners();
     });
     WidgetsBinding.instance.addObserver(this);
+  }
+
+  void _logLifecycle(String msg) {
+    developer.log('[LIFECYCLE] $msg', name: 'AppSession');
   }
 
   bool get isBleConnected => _activeDeviceId != null;
@@ -103,6 +108,7 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
     // KC-A-FINAL: Sync with CurrentDeviceSession. Switching device resets isReady
     // to false. No stale ready state persists after device switch.
     context.currentDeviceSession.switchTo(deviceId);
+    _logLifecycle('setActiveDevice: $deviceId');
 
     _activeDeviceId = deviceId;
     _activeDeviceName = deviceName;
@@ -188,6 +194,7 @@ class AppSession extends ChangeNotifier with WidgetsBindingObserver {
     _activeDeviceName = nextName;
     _resubscribePumpHeads(_activeDeviceId);
     _resubscribeLedState(_activeDeviceId);
+    _logLifecycle('switchTo: reset ready=false');
     notifyListeners();
   }
 
